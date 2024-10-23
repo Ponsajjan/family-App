@@ -11,21 +11,53 @@ datasource db {
 }
 
 model User {
-  id                    Int         @id @default(autoincrement())
+  id                    Int             @id @default(autoincrement())
+  reference_id          String?
   name                  String
   birthday              DateTime?
-  contactNumber         BigInt?
-  currentLocation       String?
-  // Partner referencing and representing User itself
-  partnerId             Int?
-  partner               User?       @relation("UserPartner", fields: [partnerId], references: [id])
-  partnerDetails        User[]      @relation("UserPartner")
-  // Children referencing and representing User itself
-  parentId              Int?      
-  parent                User?       @relation("UserChildren", fields: [parentId], references: [id])
-  children              User[]      @relation("UserChildren")
-  
-  // Generel user associated data
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+  deceased              Boolean         @default(false)
+  deathday              DateTime?
+  gender                String?
+  phoneNumber           String?
+  Address               String?
+  occupation            String?
+  Education             String?
+  bloodRelated          Boolean         @default(false)
+  partner               UserPartner[]
+  father                UserFather[]
+  mother                UserMother[]
+  children              UserChildren[]
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 }
+
+model UserPartner {
+  id                    Int             @id @default(autoincrement())
+  partner               User            @relation(fields: [partnerId], references: [id])
+  partnerId             Int             @unique
+}
+
+model UserFather {
+  id                  Int             @id @default(autoincrement())
+  father              User            @relation(fields: [fatherId], references: [id])
+  fatherId            Int             @unique
+}
+
+model UserMother {
+  id                  Int             @id @default(autoincrement())
+  mother              User            @relation(fields: [motherId], references: [id])
+  motherId            Int             @unique
+}
+
+model UserChildren {
+  id                  Int             @id @default(autoincrement())
+  children              User            @relation(fields: [childrenId], references: [id])
+  childrenId            Int             @unique
+}
+
+// create a user
+// add partner to user
+// add child to user
+
+// add partner to existing user
+// add child to existing user

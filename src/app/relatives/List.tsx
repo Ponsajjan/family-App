@@ -1,0 +1,120 @@
+'use client'
+
+import { Call, CloseIcon, Deathday, Female, Male } from '@/utils/Icons';
+import React, { useState } from 'react'
+import Details from './Details';
+import Container from "../../components/Container";
+
+export default function List({users} : any) {
+  // Manage state for showing/hiding details
+  const [showDetails, setShowDetails] = useState(false);
+
+    return (
+        <div>
+            <div className="w-full md:flex">
+                {/* Left panel: User List */}
+                <Container className="md:border-r md:border-border_color">
+                    <div className="flex text-text_color items-center px-3 bg-main_background sticky top-12 md:top-3 z-10">
+                        <span className="font-semibold pr-1 whitespace-nowrap">A</span>
+                        <span className="border-t border-border_color block w-full"></span>
+                    </div>
+                    {/* Render list of users */}
+                    {users?.map((user:any) => (
+                    <div className="pl-4">
+                        <div className="border-l border-border_color py-1 pl-4 pr-3">
+                            <div onClick={() => setShowDetails(true)} key={user.id} className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
+                                <div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {user.name === "hay" ? <Male /> : <Female /> }
+                                        <div className='font-semibold capitalize'>{user.name}</div>
+                                        <div className="font-extralight opacity-65">(athan)</div>
+                                    </div>
+                                    <div className='flex text-xs font-light leading-3 opacity-65'>
+                                        <div>21<sup>st</sup> Nov 1980</div>
+                                        {(user.name === 'hello 5') &&
+                                        <div className='flex'>
+                                            <span className='px-2'>-</span>
+                                            <div>3<sup>rd</sup> Jan 2022</div>
+                                        </div>}
+                                    </div>
+                                </div>
+                                <Call />
+                            </div>
+                        </div>
+                    </div>))}
+
+
+                    {/* Render list again for "B", remove or adjust if this is not intended */}
+                    <div className="flex text-text_color items-center px-3 bg-main_background sticky top-12 md:top-3 z-10">
+                        <span className="font-semibold pr-1 whitespace-nowrap">B</span>
+                        <span className="border-t border-border_color block w-full"></span>
+                    </div>
+                    {users?.map((user:any) => (
+                    <div className="pl-4">
+                        <div className="border-l border-border_color py-1 pl-4 pr-3">
+                            <div onClick={() => setShowDetails(true)} key={user.id} className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
+                                <div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {user.name === "hay" ? <Male /> : <Female /> }
+                                        <div className='font-semibold capitalize'>{user.name}</div>
+                                        <div className="font-extralight opacity-65">(athan)</div>
+                                    </div>
+                                    <div className='flex text-xs font-light leading-3 opacity-65'>
+                                        <div>21<sup>st</sup> Nov 1980</div>
+                                        {(user.name === 'hello 5') &&
+                                        <div className='flex'>
+                                            <span className='px-2'>-</span>
+                                            <div>3<sup>rd</sup> Jan 2022</div>
+                                        </div>}
+                                    </div>
+                                </div>
+                                <Call />
+                            </div>
+                        </div>
+                    </div>))}
+
+                    {/* Render list again for "C", remove or adjust if this is not intended */}
+                    <div className="flex text-text_color items-center px-3 bg-main_background sticky top-12 md:top-3 z-10">
+                        <span className="font-semibold pr-1 whitespace-nowrap">C</span>
+                        <span className="border-t border-border_color block w-full"></span>
+                    </div>
+                    {users?.map((user:any) => (
+                    <div className="pl-4">
+                        <div className="border-l border-border_color py-1 pl-4 pr-3">
+                            <div onClick={() => setShowDetails(true)} key={user.id} className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
+                                <div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {user.name === "hay" ? <Male /> : <Female /> }
+                                        <div className='font-semibold capitalize'>{user.name}</div>
+                                        <div className="font-extralight opacity-65">(athan)</div>
+                                    </div>
+                                    <div className='flex text-xs font-light leading-3 opacity-65'>
+                                        <div>21<sup>st</sup> Nov 1980</div>
+                                        {(user.name === 'hello 5') &&
+                                        <div className='flex'>
+                                            <span className='px-2'>-</span>
+                                            <div>3<sup>rd</sup> Jan 2022</div>
+                                        </div>}
+                                    </div>
+                                </div>
+                                <Call />
+                            </div>
+                        </div>
+                    </div>))}
+                </Container>
+
+                {/* Right panel: Details view */}
+                <Container>
+                    {showDetails && (
+                    <div onClick={() => setShowDetails(false)} className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 transition-opacity cursor-not-allowed z-40" />
+                    )}
+                    <div className={`${ showDetails
+                        ? "block md:static fixed left-0 right-0 bottom-0 min-h-[60%] max-h-[90%] md:h-full z-40 rounded-t-md"
+                        : "hidden md:block" } w-full bg-main_background px-5 overflow-y-auto pb-4`} >
+                        <Details />
+                    </div>
+                </Container>
+            </div>
+        </div>
+    )
+}

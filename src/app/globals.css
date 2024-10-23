@@ -1,3 +1,225 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.light {
+  --main_background: 255, 255, 255;
+  --field_color: 255, 255, 255;
+  --field_hover: 245, 245, 245;
+  --accent_color: 0, 0, 0;
+  --accent_contrast: 255, 255, 255;
+  --border_color: 116, 116, 116;
+  --text_color: 0, 0, 0;
+}
+
+.dark {
+  --main_background: 0, 26, 42;
+  --field_color: 4, 44, 64;
+  --field_hover: 18, 48, 68;
+  --accent_color: 155, 166, 174;
+  --accent_contrast: 75, 75, 75;
+  --border_color: 15, 80, 110;
+  --text_color: 155, 166, 174;
+}
+
+/*same style of light  */
+:root {
+  --main_background: 255, 255, 255;
+  --field_color: 255, 255, 255;
+  --field_hover: 245, 245, 245;
+  --accent_color: 0, 0, 0;
+  --accent_contrast: 255, 255, 255;
+  --border_color: 0, 0, 0;
+  --text_color: 0, 0, 0;
+}
+
+/*same style of dark */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --main_background: 0, 26, 42;
+    --field_color: 4, 44, 64;
+    --field_hover: 18, 48, 68;
+    --accent_color: 155, 166, 174;
+    --accent_contrast: 75, 75, 75;
+    --border_color: 15, 80, 110;
+    --text_color: 155, 166, 174;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 8px;
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(var(--accent_contrast));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--accent_color));
+}
+
+svg {
+  fill: rgba(var(--text_color));
+}
+
+.toast_in {
+  animation-name: slidein;
+  animation-duration: 5s;
+}
+
+@keyframes slidein {
+  0% {
+    transform: translateX(100%);
+  }
+  4% {
+    transform: translateX(-15%);
+  }
+  6% {
+    transform: translateX(0);
+  }
+  95% {
+    transform: translateX(0);
+    scale: 1;
+  }
+  100% {
+    scale: 0;
+  }
+}
+
+
+.progress:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(var(--accent_color));
+}
+
+.progress.active:before {
+  animation: progress 4.6s linear forwards;
+}
+
+@keyframes progress {
+  100% {
+    right: 100%;
+  }
+}
+
+.error_animation {
+  animation: input_error 0.14s 3;
+}
+
+@keyframes input_error {
+  0%, 100% {
+    translate: 0;
+  }
+
+  25% {
+    translate: 4px 0;
+  }
+
+  75% {
+    translate: -4px 0;
+  }
+}
+
+.date-cell {
+  view-transition-class: date-cell;
+}
+
+::view-transition-group(*.date-cell) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "\2713";
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 18px;
+  width: 18px;
+  text-align: center;
+}
+
+input[type="radio"] {
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 100%;
+}
+
+input[type="radio"]:checked::after {
+  content: '';
+  display: block;
+  height: 16px;
+  width: 16px;
+  border-radius: 100%;
+  border: 2px solid rgba(var(--main_background));
+  background: rgba(var(--text_color));
+}
+
+.tooltip{
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+.tooltip-text{
+  visibility: hidden;
+  position: absolute;
+  padding: 6px 10px;
+  border-radius: 10px;
+  text-align: center;
+  background-color: rgba(var(--accent_color));
+  color: rgba(var(--accent_contrast));
+  z-index: 1;
+  bottom: 120%;
+  left: 50%;
+  /* center the tooltip text box*/
+  transform: translate(-50%);
+  /* animation */
+  opacity: 0;
+  transition: opacity 1s;
+}
+.tooltip-text::after{
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%);
+  border: 10px solid;
+  border-color:  rgba(var(--accent_color)) transparent transparent transparent;
+}
+.tooltip:hover .tooltip-text{
+  visibility: visible;
+  opacity: 1;
+}
