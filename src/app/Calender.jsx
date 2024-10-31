@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import moment from "moment";
-import { Birthday, Deathday } from "@/utils/Icons";
-import Tooltip from "./Tooltip";
+import { Birthday, Deathday, Star } from "@/utils/Icons";
+import Tooltip from "@/components/Tooltip";
 
 
 function Calender() {
@@ -91,7 +91,7 @@ function Calender() {
 
     return (
         <>
-            <div className="bg-field_color opacity-90 border border-border_color rounded-t-md text-text_color mt-6 md:mt-3">
+            <div className="bg-field_color border border-border_color rounded-t-md text-text_color mt-6 md:mt-3">
                 <div className="flex items-center justify-between">
                     <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
                     
@@ -121,19 +121,14 @@ function Calender() {
                     const date = index + 1;
                     return (
                         <div key={date} style={{viewTransitionName: `item${date}`}} className={`date-cell ${(current_date == date && current_month == (month +1)) && 'bg-accent_color text-accent_contrast'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}>
-                            {(date=== 1 || date=== 18 ) ?
-                            <Tooltip content={<p className="whitespace-nowrap">Ponsajjan <br/>15  August 1995</p>}>
-                                <p className={`${(current_date == date && current_month == (month +1)) ? 'invert' : ''}`}><Birthday /></p>
-                                <p className={`${(current_date == date && current_month == (month +1)) ? 'text-accent_contrast' : 'text-text_color'} absolute top-0 right-0 text-xs p-0.5`}>{date}</p> 
-                            </Tooltip> :
-                            (date=== 12) &&
-                            <Tooltip content={<p className="whitespace-nowrap">Hasuka <br/>12 August 1995</p>}>
-                                <p className={`${(current_date == date && current_month == (month +1)) ? 'invert' : ''}`}><Deathday /></p>
-                                <p className={`${(current_date == date && current_month == (month +1)) ? 'text-accent_contrast' : 'text-text_color'} absolute top-0 right-0 text-xs p-0.5`}>{date}</p> 
-                            </Tooltip>}
-                            {date === 12 || date === 1 || date=== 18 
-                            ? <p></p> 
-                            : <p>{date}</p>}
+                            {(date=== 1 || date=== 18 || date=== 12) ?
+                            <>
+                                <p className={`${(current_date == date && current_month == (month +1)) ? 'invert' : ''}`}><Star /></p>
+                                <p className={`${(current_date == date && current_month == (month +1)) ? 'text-accent_contrast' : 'text-text_color'} absolute  p-0.5`}>{date}</p> 
+                            </>:
+                            <>
+                                <p>{date}</p>
+                            </>}
                         </div>
                     );
                 })}

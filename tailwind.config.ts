@@ -25,7 +25,7 @@ const config: Config = {
         accent_contrast: "rgba(var(--accent_contrast))",
         text_color: "rgba(var(--text_color))",
         
-        border_color: "rgba(var(--border_color), 0.4)",
+        border_color: "rgba(var(--border_color), 0.6)",
         border_active: "rgba(var(--border_color))",
       },
     },

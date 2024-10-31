@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 
 interface TooltipProps {
@@ -17,9 +19,9 @@ const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
   };
 
   return (
-    <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <div className='relative' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       {children}
-      <div className={`tooltip ${isVisible ? 'visible' : 'invisible'}`} >
+      <div className={`tooltip ${isVisible ? 'visible' : 'invisible'} z-50`} >
         <div className="tooltip-text" >
           {content}
         </div>

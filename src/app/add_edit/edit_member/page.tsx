@@ -2,7 +2,7 @@
 import prisma from "@/db/db";
 import List from "./List";
 import Container from "@/components/Container";
-import { ButtonSolid } from "../_components/Button";
+import { ButtonSolid } from "../../../components/Button";
 import Form from "./Form";
 
 // Mark this as a server component
@@ -24,9 +24,11 @@ export default async function Relatives() {
   return (
     <div className='md:flex text-text_color'>
         <Container className="px-3 pt-4 md:pt-0 md:border-r md:border-border_color">
-            <Form />
+            <div className="w-full lg:max-w-xl mx-auto">
+              <Form />
+            </div>
         </Container>
-        <div className="w-full">
+        <div className="w-full lg:max-w-lg mx-auto">
             <List users={users} />
         </div>
     </div>

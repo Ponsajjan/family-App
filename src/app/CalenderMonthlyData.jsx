@@ -1,6 +1,17 @@
-import { Birthday, Deathday, Female, Male } from "@/utils/Icons";
+import Container from "@/components/Container";
+import prisma from "@/db/db";
+import { Birthday2 } from "@/utils/Icons";
 
-function DateList() {
+export default async function CalenderMonthlyData () {
+  const data = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      birthday: true,
+    },
+    // take: 4,
+    orderBy: { name: "asc" },
+  });
     const birthday = [
         {
           name: 'Ponsajjan',
@@ -77,7 +88,7 @@ function DateList() {
         }
       ];
   return (
-    <div className="w-full">
+    <Container>
       <div className="flex text-text_color items-center px-3 bg-main_background sticky top-12 md:top-3 z-10">
         <span className="font-medium pr-1 whitespace-nowrap">Today</span>
         <span className="border-t border-border_color block w-full"></span>
@@ -85,15 +96,19 @@ function DateList() {
       <div className="pl-6">
         <div className="border-l border-border_color py-1 pl-4 pr-3">
           <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[54px]'>
-            <div className="flex p-2">          
-              {<Birthday />}
+            <div className="border-t border-dashed border-text_color w-12 mx-2">
+              <div className="flex flex-col border border-text_color rounded-b-sm">          
+                <span className="text-[9px] border-b bg-text_color border-text_color leading-3 text-center text-field_color">AUG</span>
+                <span className="text-center leading-5">15</span>
+              </div>
             </div>
             <div className='w-full flex justify-between items-center'>
-              <div className="pl-2">
-                <div className="flex flex-wrap gap-2">
-                  <div className='font-semibold capitalize'>Ponsajjan</div>
+              <div>
+                <div className='font-semibold leading-3 capitalize'>Ponsajjan</div>
+                <div className='text-xs font-light capitalize flex items-baseline gap-2'>
+                  <span className="leading-3">Born At: 15 August 1995</span>
+                  <Birthday2 />
                 </div>
-                <p className="text-xs font-light leading-3 opacity-65">15 August 1995</p>
               </div>
               <p className="font-light border-l border-border_color w-10 text-center">28</p>
             </div>
@@ -108,15 +123,19 @@ function DateList() {
       <div className="pl-6">
         <div className="border-l border-border_color py-1 pl-4 pr-3">
           <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[54px]'>
-            <div className="flex p-2">          
-              {<Birthday />}
+            <div className="border-t border-dashed border-text_color w-12 mx-2">
+              <div className="flex flex-col border border-text_color rounded-b-sm">          
+                <span className="text-[9px] border-b bg-text_color border-text_color leading-3 text-center text-field_color">AUG</span>
+                <span className="text-center leading-5">15</span>
+              </div>
             </div>
             <div className='w-full flex justify-between items-center'>
-              <div className="pl-2">
-                <div className="flex flex-wrap gap-2">
-                  <div className='font-semibold capitalize'>Ponsajjan</div>
+              <div>
+                <div className='font-semibold leading-3 capitalize'>Ponsajjan</div>
+                <div className='text-xs font-light capitalize flex items-baseline gap-2'>
+                  <span className="leading-3">Born At: 15 August 1995</span>
+                  <Birthday2 />
                 </div>
-                <p className="text-xs font-light leading-3 opacity-65">15 August 1995</p>
               </div>
               <p className="font-light border-l border-border_color w-10 text-center">28</p>
             </div>
@@ -124,15 +143,19 @@ function DateList() {
         </div>
         <div className="border-l border-border_color py-1 pl-4 pr-3">
           <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[54px]'>
-            <div className="flex p-2">          
-              {<Birthday />}
+            <div className="border-t border-dashed border-text_color w-12 mx-2">
+              <div className="flex flex-col border border-text_color rounded-b-sm">          
+                <span className="text-[9px] border-b bg-text_color border-text_color leading-3 text-center text-field_color">AUG</span>
+                <span className="text-center leading-5">15</span>
+              </div>
             </div>
             <div className='w-full flex justify-between items-center'>
-              <div className="pl-2">
-                <div className="flex flex-wrap gap-2">
-                  <div className='font-semibold capitalize'>Ponsajjan</div>
+              <div>
+                <div className='font-semibold leading-3 capitalize'>Ponsajjan</div>
+                <div className='text-xs font-light capitalize flex items-baseline gap-2'>
+                  <span className="leading-3">Born At: 15 August 1995</span>
+                  <Birthday2 />
                 </div>
-                <p className="text-xs font-light leading-3 opacity-65">15 August 1995</p>
               </div>
               <p className="font-light border-l border-border_color w-10 text-center">28</p>
             </div>
@@ -140,15 +163,19 @@ function DateList() {
         </div>
         <div className="border-l border-border_color py-1 pl-4 pr-3">
           <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[54px]'>
-            <div className="flex p-2">          
-              {<Birthday />}
+            <div className="border-t border-dashed border-text_color w-12 mx-2">
+              <div className="flex flex-col border border-text_color rounded-b-sm">          
+                <span className="text-[9px] border-b bg-text_color border-text_color leading-3 text-center text-field_color">AUG</span>
+                <span className="text-center leading-5">15</span>
+              </div>
             </div>
             <div className='w-full flex justify-between items-center'>
-              <div className="pl-2">
-                <div className="flex flex-wrap gap-2">
-                  <div className='font-semibold capitalize'>Ponsajjan</div>
+              <div>
+                <div className='font-semibold leading-3 capitalize'>Ponsajjan</div>
+                <div className='text-xs font-light capitalize flex items-baseline gap-2'>
+                  <span className="leading-3">Born At: 15 August 1995</span>
+                  <Birthday2 />
                 </div>
-                <p className="text-xs font-light leading-3 opacity-65">15 August 1995</p>
               </div>
               <p className="font-light border-l border-border_color w-10 text-center">28</p>
             </div>
@@ -161,19 +188,22 @@ function DateList() {
         <span className="border-t border-border_color block w-full"></span>
       </div>
       {birthday.map((item, index) => (
-      <div className="pl-6">
+      <div key={index} className="pl-6">
         <div className="border-l border-border_color py-1 pl-4 pr-3">
           <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[54px]' key={index}>
-            <div className="flex p-2">          
-              {item.type === 'birthday' && <Birthday />}
-              {item.type === 'deathday' && <Deathday />}
+            <div className="border-t border-dashed border-text_color w-12 mx-2">
+              <div className="flex flex-col border border-text_color rounded-b-sm">          
+                <span className="text-[9px] border-b bg-text_color border-text_color leading-3 text-center text-field_color">AUG</span>
+                <span className="text-center leading-5">15</span>
+              </div>
             </div>
             <div className='w-full flex justify-between items-center'>
-              <div className="pl-2">
-                <div className="flex flex-wrap gap-2">
-                  <div className='font-semibold capitalize'>{item.name}</div>
+              <div>
+                <div className='font-semibold leading-3 capitalize'>{item.name}</div>
+                <div className='text-xs font-light capitalize flex items-baseline gap-2'>
+                  <span className="leading-3">Born At: 15 August 1995</span>
+                  <Birthday2 />
                 </div>
-                <p className="text-xs font-light leading-3 opacity-65">15 August 1995</p>
               </div>
               <p className="font-light border-l border-border_color w-10 text-center">{item.age}</p>
             </div>
@@ -181,8 +211,6 @@ function DateList() {
         </div>
       </div>
       ))}
-    </div>
+    </Container>
   )
 }
-
-export default DateList

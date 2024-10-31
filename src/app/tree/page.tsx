@@ -1,5 +1,5 @@
 import Topnav from "@/components/Topnav"
-import TreeView from "@/components/TreeView"
+import TreeView from "./TreeView"
 import { SearchIcon } from "@/utils/Icons"
 
 const data = {
@@ -88,7 +88,7 @@ export default function Calender() {
         <div className="w-full">
             <Topnav>
             </Topnav>
-            <div className="p-2 md:px-8 pb-6 overflow-auto h-[calc(100vh-3rem)]">
+            <div className="pl-2 md:px-8 pr-4 overflow-auto h-[calc(100vh-3rem)]">
                 <TreeView data={data.data} />
             </div>
         </div>

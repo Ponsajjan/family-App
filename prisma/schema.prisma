@@ -22,7 +22,8 @@ model User {
   Address               String?
   occupation            String?
   Education             String?
-  bloodRelated          Boolean         @default(false)
+  AdditionalInfo        UserAdditionalInfo[]
+  Descendant            Boolean         @default(false)
   partner               UserPartner[]
   father                UserFather[]
   mother                UserMother[]
@@ -50,14 +51,15 @@ model UserMother {
 }
 
 model UserChildren {
-  id                  Int             @id @default(autoincrement())
+  id                    Int             @id @default(autoincrement())
   children              User            @relation(fields: [childrenId], references: [id])
   childrenId            Int             @unique
 }
 
-// create a user
-// add partner to user
-// add child to user
-
-// add partner to existing user
-// add child to existing user
+model UserAdditionalInfo {
+  id                    Int               @id @default(autoincrement())
+  topic                 String?
+  details               String
+  user                  User              @relation(fields: [userId], references: [id])
+  userId                Int
+}

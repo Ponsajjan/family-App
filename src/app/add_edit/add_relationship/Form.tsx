@@ -1,15 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ButtonSolid } from '../_components/Button'
+import { ButtonSolid } from '../../../components/Button'
 
 function Form() {
-    const [isFamily, setIsFamily] = useState(false);
-
-    // Update the function to handle the checkbox change event
-    const handleIsFamily = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setIsFamily(event.target.checked); // Extract the 'checked' property from the event
-    };
 
     return (
         <form className='text-text_color'>
@@ -22,35 +16,27 @@ function Form() {
                 />
             </label>
 
-            <div className="flex gap-2 mb-2">
-                <p className="text-sm">Lalavillai Family</p>
-                <input 
-                    type="checkbox" 
-                    onChange={handleIsFamily} 
-                    className="bg-main_background border border-border_active rounded-md" 
-                />
-            </div>
+            <div className="flex items-center gap-2 py-2 flex-wrap relative">
+                <p className="text-sm font-medium">Lalavillai Family</p>
+                <input type="checkbox" className="peer bg-main_background border border-border_active rounded-md" name="deceased" />
 
-            {isFamily && (
-                <div className='flex gap-2 mb-2'>
+                <div className="hidden peer-checked:flex w-full gap-2 mb-2">
                     <label className="w-full block" htmlFor="father">
                         <p className="text-sm">Father</p>
                         <input 
                             className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md" 
                             placeholder='Phone Number' 
-                            name='father' 
-                        />
+                            name='father' />
                     </label>
                     <label className="w-full block" htmlFor="mother">
                         <p className="text-sm">Mother</p>
                         <input 
                             className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md" 
                             placeholder='Phone Number' 
-                            name='mother' 
-                        />
+                            name='mother' />
                     </label>
                 </div>
-            )}
+            </div>
 
             <label className="w-full block mb-2" htmlFor="partner">
                 <p className="text-sm">Partner</p>

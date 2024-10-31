@@ -23,8 +23,8 @@ const TreeNode = ({ node } : {node:any}) => {
 
 const TreeView = ({data=[]} : {data:any}) => {    
     return (
-        <div className="ml-20 first:ml-4 first:md:ml-8">
-            <div className="border-l-2 border-text_color">              
+        <div className="inline-block ml-20 first:ml-4 first:md:ml-8">
+            <div className="border-l-2 md:border-l-2 border-text_color">              
                 {data.map((node:any, index:any) => (
                     <TreeNode key={index} node={node} />
                 ))}

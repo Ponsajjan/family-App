@@ -1,6 +1,8 @@
 import { Female, Male, SearchIcon } from '@/utils/Icons';
 import React from 'react'
 import Container from "@/components/Container";
+import Input from '@/components/Input';
+import Checkbox from '@/components/CheckBox';
 
 export default function List({users} : any) {
 
@@ -11,11 +13,11 @@ export default function List({users} : any) {
                 <Container className="md:border-r md:border-border_color">
                     <div className='px-3 pb-3 border-b border-border_color sticky top-3 bg-main_background z-10'>
                         <div className="relative w-full">
-                            <input
-                                type="text"
-                                className="p-1 pl-8 border border-border_color outline-1 outline-border_color font-normal rounded-md w-full bg-main_background"
+                            <Input
+                                placeholder='Search..'
+                                className="pl-9"
                             />
-                            <span className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-main_background">
+                            <span className="absolute left-2 top-1/2 transform -translate-y-1/2">
                                 <SearchIcon />
                             </span>
                         </div>
@@ -26,11 +28,11 @@ export default function List({users} : any) {
                     </div>
                     {/* Render list of users */}
                     {users?.map((user:any) => (
-                    <div className="pl-4">
+                    <div key={user.id} className="pl-4">
                         <div className="border-l border-border_color py-1 pl-4 pr-3">
-                            <div key={user.id} className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
+                            <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
                                 <div className='pr-3 border-r border-border_color'>
-                                    <input type='checkbox' className="bg-main_background border border-border_active rounded-md"/>
+                                    <Checkbox name="selected"/>
                                 </div>
                                 <div className='pl-4'>
                                     <div className="flex flex-wrap gap-2">
@@ -54,9 +56,9 @@ export default function List({users} : any) {
                     </div>
                     {/* Render list of users */}
                     {users?.map((user:any) => (
-                    <div className="pl-4">
+                    <div key={user.id} className="pl-4">
                         <div className="border-l border-border_color py-1 pl-4 pr-3">
-                            <div key={user.id} className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
+                            <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
                                 <div className='pr-3 border-r border-border_color'>
                                     <input type='checkbox' className="bg-main_background border border-border_active rounded-md" />
                                 </div>
@@ -81,9 +83,9 @@ export default function List({users} : any) {
                     </div>
                     {/* Render list of users */}
                     {users?.map((user:any) => (
-                    <div className="pl-4">
+                    <div key={user.id} className="pl-4">
                         <div className="border-l border-border_color py-1 pl-4 pr-3">
-                            <div key={user.id} className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
+                            <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
                                 <div className='pr-3 border-r border-border_color'>
                                     <input type='checkbox' className="bg-main_background border border-border_active rounded-md" />
                                 </div>
