@@ -4,6 +4,8 @@ import List from "./List";
 import Container from "@/components/Container";
 import { ButtonSolid } from "../../../components/Button";
 import Form from "./Form";
+import Link from "next/link";
+import { SvgArrow } from "@/utils/Icons";
 
 // Mark this as a server component
 export const dynamic = 'force-dynamic'; // Optional, forces dynamic rendering
@@ -14,8 +16,6 @@ export default async function Relatives() {
     select: {
       id: true,
       name: true,
-      contactNumber: true,
-      currentLocation: true,
     },
     // take: 4,
     orderBy: { name: "asc" },
@@ -25,6 +25,7 @@ export default async function Relatives() {
     <div className='md:flex text-text_color'>
       <Container className="px-3 pt-4 md:pt-0 md:border-r md:border-border_color">
           <div className="w-full lg:max-w-xl mx-auto">
+            <Link href={"/add_edit"} className="block mb-6"><SvgArrow/> Back</Link>
             <Form />
           </div>
       </Container>

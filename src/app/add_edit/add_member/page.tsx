@@ -1,17 +1,23 @@
+"use server"
+
 import Container from "@/components/Container";
 import { ButtonSolid } from '@/components/Button'
 import Input from "@/components/Input"
 import RadioButton from "@/components/RadioButton"
+import addUserAction from "./action"
+import Link from "next/link";
+import { SvgArrow } from "@/utils/Icons";
 
-export default function AddUser() {
+export default async function AddUser() {
   return (
       <Container className="px-3 pt-4 w-full md:w-3/4 mx-auto">
           <div className="w-full md:max-w-xl mx-auto">
-            <form className='text-text_color' >
+            <Link href={"/add_edit"} className="block mb-6"><SvgArrow/> Back</Link>
+            <form className='text-text_color' action={addUserAction} >
                 <Input className="mb-2" name="name" label="Name" placeholder="Name" />
                 <div className='flex gap-2 pt-2 pb-4 '>
                     <p className="text-sm font-medium">Gender:</p>
-                    <RadioButton label="Male" name="gender" value="Male" />
+                    <RadioButton label="Male" name="gender" value="Male" checked />
                     <RadioButton label="Female" name="gender" value="Female" />
                 </div>
                 <div>

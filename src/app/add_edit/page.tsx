@@ -3,9 +3,10 @@ import { LinkButtonOutline, LinkButtonSolid } from "../../components/Button"
 export default function AdminDashboard() {
 
     return (
-        <div className="w-full flex flex-col gap-3 px-6 py-10 max-w-3xl mx-auto">            
+        <div className="w-full flex flex-col gap-3 px-6 py-10 max-w-3xl mx-auto">
             <LinkButtonOutline linkto='add_edit/add_member' className="w-full" buttonText="Add Member" />
             <LinkButtonOutline linkto='add_edit/edit_member'  className="w-full" buttonText="Edit Member" />
+            <p>First Add all the uses that not in this app</p>       
             <LinkButtonSolid linkto="add_edit/add_relationship" className="w-full" buttonText="Add Relationship" />
         </div>
     )

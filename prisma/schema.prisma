@@ -19,11 +19,11 @@ model User {
   deathday              DateTime?
   gender                String?
   phoneNumber           String?
-  Address               String?
+  address               String?
   occupation            String?
-  Education             String?
-  AdditionalInfo        UserAdditionalInfo[]
-  Descendant            Boolean         @default(false)
+  education             String?
+  additionalInfo        UserAdditionalInfo[]
+  descendant            Boolean         @default(false)
   partner               UserPartner[]
   father                UserFather[]
   mother                UserMother[]
