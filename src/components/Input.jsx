@@ -10,7 +10,7 @@ function Input({
     ...props
 }) {
   return (
-    <label>
+    <label className='w-full'>
         {label && <span className="text-sm font-medium" >{label}</span>}
         <input
             type={type}

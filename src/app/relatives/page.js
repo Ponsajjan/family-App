@@ -4,10 +4,17 @@ import { SearchIcon } from "@/utils/Icons";
 import List from "./List";
 import Topnav from "@/components/Topnav";
 
+
+// function sleep(ms) {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// }
 // Mark this as a server component
 // export const dynamic = 'force-dynamic'; // Optional, forces dynamic rendering
 // Since app/ uses server-side rendering by default, we can make this an async function
 export default async function Relatives() {
+
+  // await sleep(4000);
+
   // Fetch users from the database using Prisma
   const users = await prisma.user.findMany({
     select: {

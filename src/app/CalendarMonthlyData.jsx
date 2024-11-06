@@ -1,36 +1,53 @@
 import Container from "@/components/Container";
-import prisma from "@/db/db";
-import { Birthday2 } from "@/utils/Icons";
-import { format, differenceInYears, isToday, isThisWeek, isThisMonth, parseISO, addDays } from 'date-fns';
+import { Birthday2, Deathday2 } from "@/utils/Icons";
+import { format, differenceInYears } from 'date-fns';
 
-export default async function CalenderMonthlyData({data}) {
+export default function CalendarMonthlyData({data, month, year}) {
   const today = new Date();
   const todayDate = today.getDate();
-  const todayMonth = 10;
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const viewingMonth = format(new Date(year, month), 'MMMM');
 
+  const pastEvents = [];
   const todayEvents = [];
   const thisWeekEvents = [];
   const upcomingEvents = [];
+  const monthdat = [];
 
-  data.forEach(user => {
-    const categorizeEvent = (date, type) => {
-      if (date && date.getMonth() === todayMonth) {
-        const eventDay = date.getDate();
-
-        if (eventDay === todayDate) {
-          todayEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-        } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
-          thisWeekEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-        } else if (eventDay > todayDate + 7) {
-          upcomingEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+  if (currentMonth === month && currentYear === year) {
+    data?.forEach(user => {
+      const categorizeEvent = (date, type) => {
+        if (date && date.getMonth() === month) {
+          const eventDay = date.getDate();
+          
+          if (eventDay < todayDate) {
+            pastEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+          } else if (eventDay === todayDate) {
+            todayEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+          } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
+            thisWeekEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+          } else if (eventDay > todayDate + 7) {
+            upcomingEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+          }
         }
-      }
-    };
-
-    // Check birthdays and deathdays
-    if (user.birthday) categorizeEvent(new Date(user.birthday), 'birthday');
-    if (user.deathday) categorizeEvent(new Date(user.deathday), 'deathday');
-  });
+      };
+  
+      // Check birthdays and deathdays
+      if (user.birthday) categorizeEvent(new Date(user.birthday), 'birthday');
+      if (user.deathday) categorizeEvent(new Date(user.deathday), 'deathday');
+    });
+  } else {
+    data?.forEach(user => {
+      const selectedMonth = (date, type) => {
+        monthdat.push({ ...user, type, date, age: differenceInYears(new Date(year, month), date) });
+      };
+  
+      // Check birthdays and deathdays
+      if (user.birthday) selectedMonth(new Date(user.birthday), 'birthday');
+      if (user.deathday) selectedMonth(new Date(user.deathday), 'deathday');
+    });
+  }
 
   const renderEventList = (events, title) => {
     // Sort events by date in ascending order within the current month
@@ -59,8 +76,9 @@ export default async function CalenderMonthlyData({data}) {
                     <div>
                       <div className='font-semibold leading-3 capitalize'>{item.name}</div>
                       <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                        <span className="leading-3">{item.type === 'birthday' ? 'Born At:' : 'Died At:'} {format(item.date, 'd MMM yyyy')}</span>
-                        <Birthday2 />
+                        <span className="leading-3">
+                        {item.type === 'birthday' ? 'Born At:' : 'Died At:'} {format(item.date, 'd MMM yyyy')}</span>
+                        {item.type === 'birthday' ? <Birthday2 /> : <Deathday2 />}
                       </div>
                     </div>
                     <p className="font-light border-l border-border_color w-10 text-center">{item.age}</p>
@@ -79,6 +97,8 @@ export default async function CalenderMonthlyData({data}) {
       {renderEventList(todayEvents, "Today")}
       {renderEventList(thisWeekEvents, "This Week")}
       {renderEventList(upcomingEvents, "Upcoming This Month")}
+      {renderEventList(pastEvents, "Past Events")}
+      {renderEventList(monthdat, viewingMonth)}
     </Container>
   );
 }

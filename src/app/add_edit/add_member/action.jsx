@@ -34,7 +34,6 @@ export default async function addUserAction(formData) {
         address: formData.get('address'),
     };
 
-    console.log("user", user)
     try {
         const newUser = await prisma.user.create({
             data: user,

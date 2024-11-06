@@ -5,7 +5,7 @@ import React from 'react'
 export default function Details() {
 
     return (
-        <Container className='text-text_color pt-6'>
+        <Container className='text-text_color py-6'>
             <div className='flex gap-2 items-center w-full pb-3'>
                 <div className='border border-border_color px-1 py-2 rounded-md'><Female2 /></div>
                 <div className='flex justify-between items-center w-full'>

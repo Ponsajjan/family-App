@@ -12,8 +12,8 @@ function Form() {
         <Input className="mb-2" label="Name" placeholder="Name" />
         <div className='flex gap-2 pt-2 pb-4 '>
             <p className="text-sm font-medium">Gender:</p>
-            <RadioButton label="Male" />
-            <RadioButton label="Female" />
+            <RadioButton label="Male" name="gender" value="Male" defaultChecked />
+            <RadioButton label="Female" name="gender" value="Female" />
         </div>
         <div>
             <p className="text-sm font-medium">Date Of Birth <span className='font-normal opacity-45'>(Optional)</span></p>

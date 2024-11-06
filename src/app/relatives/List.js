@@ -59,7 +59,7 @@ export default function List({usersByAlphabet}) {
                 )}
                 <div className={`${ showDetails
                     ? "block md:static fixed left-0 right-0 bottom-0 min-h-[60%] max-h-[90%] md:h-full z-[100] rounded-t-md"
-                    : "hidden md:block" } w-full lg:max-w-lg mx-auto bg-main_background px-5 overflow-y-auto pb-4`} >
+                    : "hidden md:block" } w-full lg:max-w-lg mx-auto bg-main_background px-5 overflow-y-auto`} >
                     <Details />
                 </div>
             </div>
