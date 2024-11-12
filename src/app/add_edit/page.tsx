@@ -3,7 +3,17 @@ import { LinkButtonOutline, LinkButtonSolid } from "../../components/Button"
 export default function AdminDashboard() {
 
     return (
-        <div className="w-full flex flex-col gap-3 px-6 py-10 max-w-3xl mx-auto">
+        <div className="w-full flex flex-col px-6 py-10 max-w-3xl mx-auto">
+            {/* <div className="w-full max-w-2xl h-60 rounded-[40px] bg-main_background border-y-2 border-r-2 border-border_active border-dashed">
+                <div className="h-full bg-main_background w-8 "></div>
+            </div>
+            <div className="w-full max-w-2xl h-60 rounded-[40px] bg-main_background -mt-[2px] border-y-2 border-l-2 border-border_active border-dashed">
+                <div className="h-full bg-main_background w-8 ml-auto mr-0"></div>
+            </div>
+            <div className="w-full max-w-2xl h-60 rounded-[40px] bg-main_background -mt-[2px] border-y-2 border-r-2 border-border_active border-dashed">
+                <div className="h-full bg-main_background w-8 "></div>
+            </div> */}
+            
             <LinkButtonOutline linkto='add_edit/add_member' className="w-full" buttonText="Add Member" />
             <p className="text-text_color">You can edit member and also add some additional information over here</p>
             <LinkButtonOutline linkto='add_edit/edit_member'  className="w-full" buttonText="Edit Member" />
@@ -12,23 +22,3 @@ export default function AdminDashboard() {
         </div>
     )
 }
-    // return (
-    //     <form action={action} className="flex flex-col gap-2 px-4">
-    //         <input className="border p-2" placeholder='Name' name='name' />
-    //         {error?.name && <div className="text-red-500">{error?.name}</div>}
-    //         <input className="border p-2" placeholder='Date Of Birth' name='birthday' type="date"/>
-    //         {error?.birthday && <div className="text-red-500">{error?.birthday}</div>}
-    //         <input className="border p-2" placeholder='Contact Number' name='contact_number' />
-    //         {error?.contact_number && <div className="text-red-500">{error?.contact_number}</div>}
-    //         <textarea className="border p-2" placeholder='Current Location' name='current_location' />
-    //         {error?.current_location && <div className="text-red-500">{error?.current_location}</div>}
-    //         <ButtonSolid type="submit" buttonText="submit" />
-    //     </form>
-    // )
-
-    // create a user
-    // add partner to user
-    // add child to user
-
-    // add partner to existing user
-    // add child to existing user

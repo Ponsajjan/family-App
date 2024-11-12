@@ -13,7 +13,7 @@ export default function List({users} : any) {
             <div className="w-full md:flex">
                 {/* Left panel: User List */}
                 <Container className="md:border-r md:border-border_color">
-                    <div className='px-3 pb-3 border-b border-border_color sticky top-3 bg-main_background z-10'>
+                    <div className='p-3 border-b border-border_color sticky top-0 bg-main_background z-10'>
                         <div className="relative w-full">
                             <Input
                                 placeholder="Search.."
@@ -31,7 +31,7 @@ export default function List({users} : any) {
                     {/* Render list of users */}
                     {users?.map((user:any) => (
                     <div key={user.id} className="pl-4">
-                        <div className="border-l border-border_color py-1 pl-4 pr-3">
+                        <div className="border-l border-border_color pt-1 pb-2 pl-4 pr-3">
                             <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
                                 <div className='pr-3 border-r border-border_color'>
                                 <Checkbox name="selected"/>

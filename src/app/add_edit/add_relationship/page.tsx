@@ -19,10 +19,10 @@ export default function Relatives() {
   const [children, setChildren] = useState('')
 
   const [showListFor, setShowListFor] = useState('allMembers')
-
+  const [showList, setShowList] = useState(false)
   return (
     <div className='md:flex text-text_color'>
-      <Container className="px-3 pt-4 md:pt-0 md:border-r md:border-border_color">
+      <Container className="p-4 md:pt-0 md:border-r md:border-border_color">
           <div className="w-full lg:max-w-xl mx-auto">
             <div className="flex justify-start items-center mb-4">
                 <Link href={"/add_edit"} className="block"><AddRelationship /></Link>
@@ -30,7 +30,7 @@ export default function Relatives() {
             </div>
             <form className='text-text_color'>
               <p className="text-sm">Name</p>
-              <div onClick={() => setShowListFor('allMembers')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
+              <div onClick={() => setShowList(true)} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
               >{name ? name : 'Name'}</div>
 
               <div className="flex items-center gap-2 flex-wrap relative py-2">
@@ -62,9 +62,7 @@ export default function Relatives() {
             </form>
           </div>
       </Container>
-      <div className="w-full lg:max-w-lg mx-auto">
-          <MemberList />
-      </div>
+      <MemberList />
     </div>
   )
 }

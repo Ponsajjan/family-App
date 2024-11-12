@@ -1,6 +1,6 @@
 'use client';
 
-import { Female, Male, SearchIcon } from '@/utils/Icons';
+import { Female, Filter, FilterClose, FilterSelect, Male, SearchIcon } from '@/utils/Icons';
 import React, { useEffect, useState } from 'react';
 import Container from "@/components/Container";
 import Checkbox from '@/components/CheckBox';
@@ -16,6 +16,8 @@ interface User {
 
 export default function MemberList() {
   const [users, setUsers] = useState<User[]>([]);
+  const [showList, setShowList] = useState(true);
+  const [multiselect, setMultiSelect] = useState(true);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -50,52 +52,88 @@ export default function MemberList() {
   }, {});
 
   return (
-    <div className="w-full md:flex">
-      <Container className="md:border-r md:border-border_color">
-        <div className='px-3 pb-3 border-b border-border_color sticky top-3 bg-main_background z-10'>
-          <div className="relative w-full">
-            <Input placeholder="Search.." className="pl-9" />
-            <span className="absolute left-2 top-1/2 transform -translate-y-1/2">
-              <SearchIcon />
-            </span>
-          </div>
-        </div>
-        
-        <div className='pb-4'>
-          {Object.keys(groupedUsers).sort().map((initial) => (
-            <div key={initial}>
-              <div className="flex text-text_color items-center px-3 bg-main_background sticky top-12 md:top-[67px] z-[9]">
-                <span className="font-semibold pr-1 whitespace-nowrap">{initial}</span>
-                <span className="border-t border-border_color block w-full"></span>
+    <>
+    {(showList) && (
+        <div onClick={() => setShowList(false)} className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 transition-opacity cursor-not-allowed z-[100]" />
+        )}
+        <div className={`${ (showList)
+            ? "block md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md"
+            : "hidden md:block" } w-full lg:max-w-lg mx-auto bg-main_background overflow-y-auto`} >
+          <div className="relative">
+            <div className='bg-main_background border-b border-border_color z-10 relative'>
+              <div className="relative w-full p-3 border-b border-border_color">
+                <div className='flex gap-2'>
+                  <Input placeholder="Search.." className="pl-9" />
+                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                    <SearchIcon />
+                  </span>
+                </div>
               </div>
+              <ul className='p-2 flex gap-2 flex-nowrap overflow-x-auto min-h-[42px] scroll-stable' >
+                <li className='py-1 pl-4 pr-1 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                  <span>Male</span> <FilterSelect />
+                </li>
+                <li className='py-1 pl-4 pr-1 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                  <span>Female</span> <FilterClose />
+                </li>
+                <li className='py-1 pl-4 pr-1 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                  <span className='whitespace-nowrap'>Partner Assigned</span> <FilterClose />
+                </li>
+                <li className='py-1 pl-4 pr-1 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                  <span className='whitespace-nowrap'>Partner Unassigned</span> <FilterClose />
+                </li>
+                <li className='py-1 pl-4 pr-1 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                  <span className='whitespace-nowrap'>Parents Assigned</span> <FilterClose />
+                </li>
+                <li className='py-1 pl-4 pr-1 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                  <span className='whitespace-nowrap'>Parents Unassigned</span> <FilterClose />
+                </li>
+                {/* <li className='py-1 pl-4 pr-2 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                  <span>Alive</span> <FilterClose />
+                </li>
+                <li className='py-1 pl-4 pr-2 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                  <span>Deceased</span> <FilterClose />
+                </li> */}
+              </ul>
+            </div>
+            
+            <div className='pb-14 h-[60vh] md:h-[calc(100vh-166px)] overflow-y-auto'>
+              {Object.keys(groupedUsers).sort().map((initial) => (
+                <div key={initial}>
+                  <div className="flex text-text_color items-center mx-3 bg-main_background sticky top-0 z-[9]">
+                    <span className="font-semibold pr-1 whitespace-nowrap">{initial}</span>
+                    <span className="border-t border-border_color block w-full"></span>
+                  </div>
 
-              {groupedUsers[initial].map((user) => (
-                <div key={user.id} className="pl-4">
-                  <div className="border-l border-border_color py-1 pl-4 pr-3">
-                    <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
-                      <div className='pr-3 border-r border-border_color'>
-                        <Checkbox name="selected" />
-                      </div>
-                      <div className='pl-4'>
-                        <div className="flex flex-wrap gap-2">
-                          {user.gender === "male" ? <Male /> : <Female />}
-                          <div className='font-semibold capitalize'>{user.name}</div>
-                        </div>
-                        <div className='flex text-xs leading-3 opacity-65'>
-                          <div className='font-medium pr-1'>Parents:</div>
-                          <div>{user.parentNames || "No parent information"}</div>
+                  {groupedUsers[initial].map((user) => (
+                    <div key={user.id} className="pl-4">
+                      <div className="border-l border-border_color py-1 pl-4 pr-3">
+                        <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
+                          {multiselect && <div className='pr-3 border-r border-border_color mr-2'>
+                            <Checkbox name="selected" />
+                          </div>}
+                          <div>
+                            <div className="flex flex-wrap gap-2">
+                              {user.gender === "male" ? <Male /> : <Female />}
+                              <div className='font-semibold capitalize'>{user.name}</div>
+                            </div>
+                            <div className='flex text-xs leading-3 opacity-65'>
+                              <div className='font-medium pr-1'>Parents:</div>
+                              <div>{user.parentNames || "No parent information"}</div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               ))}
             </div>
-          ))}
-        </div>
 
-        <ButtonSolid buttonText='Submit' className='w-full sticky bottom-0 z-10 rounded-none'/>
-      </Container>
-    </div>
+            {multiselect && <ButtonSolid buttonText='Submit' className='w-full absolute bottom-0 left-0 right-0 z-10 rounded-none'/>}
+          </div>
+        </div>
+    </>
+
   );
 }

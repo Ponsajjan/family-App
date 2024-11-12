@@ -53,14 +53,14 @@
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 8px;
+  width: 4px;
+  height: 4px;
 }
 
 @media (min-width: 768px) {
   ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 8px;
   }
 }
 
@@ -146,6 +146,22 @@ svg {
 ::view-transition-group(*.date-cell) {
   animation-duration: 420ms;
   animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.scroll-stable {
+  scrollbar-gutter: stable;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }
 
 input[type="checkbox"] {
