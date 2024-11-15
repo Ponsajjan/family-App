@@ -14,9 +14,17 @@ model User {
   id                    Int             @id @default(autoincrement())
   reference_id          String?
   name                  String
-  birthday              DateTime?
+
+  birthDate             Int?
+  birthMonth            Int?
+  birthYear             Int?
+
   deceased              Boolean         @default(false)
-  deathday              DateTime?
+
+  deathDate             Int?
+  deathMonth            Int?
+  deathYear             Int?
+  
   gender                String?
   phoneNumber           String?
   address               String?

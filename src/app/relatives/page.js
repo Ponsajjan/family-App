@@ -1,42 +1,9 @@
-// app/relatives/page.js (or any file in the app/ directory)
-import prisma from "@/db/db";
+
 import { SearchIcon } from "@/utils/Icons";
 import List from "./List";
 import Topnav from "@/components/Topnav";
 
-
-// function sleep(ms) {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
-// Mark this as a server component
-// export const dynamic = 'force-dynamic'; // Optional, forces dynamic rendering
-// Since app/ uses server-side rendering by default, we can make this an async function
 export default async function Relatives() {
-
-  // await sleep(4000);
-
-  // Fetch users from the database using Prisma
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      gender: true,
-      phoneNumber: true,
-    },
-    // take: 4,
-    orderBy: { name: "asc" },
-  });
-
-  // Group users by the first letter of their name
-  const usersByAlphabet = users.reduce((acc, user) => {
-    const firstLetter = user.name.charAt(0).toUpperCase();
-    if (!acc[firstLetter]) {
-      acc[firstLetter] = [];
-    }
-    acc[firstLetter].push(user);
-    return acc;
-  }, {});
-  // console.log("usersByAlphabet", usersByAlphabet)
 
   return (
     <div className="w-full">
@@ -52,7 +19,7 @@ export default async function Relatives() {
             </div>
             <p className="w-10 text-center">i</p>
         </Topnav>
-        <List usersByAlphabet={usersByAlphabet} />
+        <List />
     </div>
   );
 }

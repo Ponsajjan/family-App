@@ -18,7 +18,7 @@ function Input({
             name={label}
             // value={value}
             // onChange={onChange}
-            className={`p-2 border border-border_color outline-none focus:border-border_active font-normal rounded-md w-full bg-field_color ${className}`}
+            className={`p-2 border border-border_color outline-none focus:border-border_active text-sm rounded-md w-full bg-field_color ${className}`}
             {...props}
         />
     </label>

@@ -23,7 +23,7 @@ function page() {
             <li>Their partners (spouses or significant others)</li>
           </ul>
           <p className="mt-4 italic">
-            Note: Extended family members (such as aunts, uncles, and cousins) are not included to maintain simplicity and close family connections.
+            Note: Extended family members (such as aunts, uncles, and cousins) are excluded to maintain simplicity and focus on close family connections, ensuring that each member remains relevant to each user.
           </p>
         </div>
 
@@ -35,7 +35,7 @@ function page() {
             <li>Ensure profiles for all immediate family members are added.</li>
           </ul>
           <p className="mt-4 italic">
-          Note: Changes and new family members added will be moderated to ensure accuracy and avoid spam, so updates may take time to appear. You may also contact a moderator directly for expedite changes.
+          Note: Changes and new family members added will be moderated to ensure accuracy and prevent unnecessary additions, so updates may take time to appear. You may also contact a moderator directly to expedite changes.
           </p>
         </div>
 
@@ -44,7 +44,7 @@ function page() {
           <h2 className="text-xl font-semibold mb-4">Moderator List:</h2>
           <ul className="list-disc list-inside space-y-2">
             <li>Keep your contact information current.</li>
-            <li>Add family relationships (e.g., parents, spouse & children).</li>
+            <li>Add family relationships (e.g., parents, partner & children).</li>
             <li>Ensure profiles for all immediate family members are added.</li>
           </ul>
         </div>

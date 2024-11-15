@@ -18,20 +18,30 @@ export default function CalendarMonthlyData({data, month, year}) {
   if (currentMonth === month && currentYear === year) {
     data?.forEach(user => {
       const categorizeEvent = (date, type) => {
-        if (date && date.getMonth() === month) {
+        if (date?.getMonth() === month && date?.getYear() != 1111) {
           const eventDay = date.getDate();
-          
-          if (eventDay < todayDate) {
-            pastEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-          } else if (eventDay === todayDate) {
-            todayEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-          } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
-            thisWeekEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-          } else if (eventDay > todayDate + 7) {
-            upcomingEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            if (eventDay < todayDate) {
+              pastEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            } else if (eventDay === todayDate) {
+              todayEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
+              thisWeekEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            } else if (eventDay > todayDate + 7) {
+              upcomingEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            }
+          } else if (date?.getMonth() === month && date?.getYear() == 1111) {
+          const eventDay = date.getDate();
+            if (eventDay < todayDate) {
+              pastEvents.push({ ...user, type, date, age: null });
+            } else if (eventDay === todayDate) {
+              todayEvents.push({ ...user, type, date, age: null });
+            } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
+              thisWeekEvents.push({ ...user, type, date, age: null });
+            } else if (eventDay > todayDate + 7) {
+              upcomingEvents.push({ ...user, type, date, age: null });
+            }
           }
-        }
-      };
+        };
   
       // Check birthdays and deathdays
       if (user.birthday) categorizeEvent(new Date(user.birthday), 'birthday');
@@ -74,7 +84,6 @@ export default function CalendarMonthlyData({data, month, year}) {
                     <div className="flex flex-col border border-text_color rounded-b-sm">          
                       <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
                         {format(item.date, 'EEE').toUpperCase()}
-                        {console.log("date", item.date)}
                       </span>
                       <span className="text-center font-semibold leading-5 py-0.5">{format(item.date, 'd')}</span>
                     </div>

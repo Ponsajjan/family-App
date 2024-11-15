@@ -1,3 +1,5 @@
+"use client"
+
 import { ButtonSolid } from '@/components/Button'
 import Input from "@/components/Input"
 import RadioButton from "@/components/RadioButton"
