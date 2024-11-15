@@ -18,30 +18,20 @@ export default function CalendarMonthlyData({data, month, year}) {
   if (currentMonth === month && currentYear === year) {
     data?.forEach(user => {
       const categorizeEvent = (date, type) => {
-        if (date?.getMonth() === month && date?.getYear() != 1111) {
+        if (date && date.getMonth() === month) {
           const eventDay = date.getDate();
-            if (eventDay < todayDate) {
-              pastEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-            } else if (eventDay === todayDate) {
-              todayEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-            } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
-              thisWeekEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-            } else if (eventDay > todayDate + 7) {
-              upcomingEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
-            }
-          } else if (date?.getMonth() === month && date?.getYear() == 1111) {
-          const eventDay = date.getDate();
-            if (eventDay < todayDate) {
-              pastEvents.push({ ...user, type, date, age: null });
-            } else if (eventDay === todayDate) {
-              todayEvents.push({ ...user, type, date, age: null });
-            } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
-              thisWeekEvents.push({ ...user, type, date, age: null });
-            } else if (eventDay > todayDate + 7) {
-              upcomingEvents.push({ ...user, type, date, age: null });
-            }
+          
+          if (eventDay < todayDate) {
+            pastEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+          } else if (eventDay === todayDate) {
+            todayEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+          } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
+            thisWeekEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+          } else if (eventDay > todayDate + 7) {
+            upcomingEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
           }
-        };
+        }
+      };
   
       // Check birthdays and deathdays
       if (user.birthday) categorizeEvent(new Date(user.birthday), 'birthday');
