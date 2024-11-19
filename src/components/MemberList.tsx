@@ -25,10 +25,31 @@ interface MemberListProps {
 export default function MemberList({ forType, birthYearThreshold }: MemberListProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [multiselect, setMultiSelect] = useState(true);
+  const [multiselect, setMultiSelect] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [appliedFilters, setAppliedFilters] = useState<any[]>([])
 
   useEffect(() => {
+    function setFilteresUsed(forType: string) {
+      switch (forType) {
+        case 'selectUser':
+          setAppliedFilters(['Male', 'Female', 'Partner Assigned', 'Partner Unassigned', 'Parents Assigned', 'Parents Unassigned']);
+          break;
+        case 'selectFather':
+          setAppliedFilters(['Male', 'Partner Assigned', 'Parents Assigned', 'Parents Unassigned']);
+          break;
+        case 'selectMother':
+          setAppliedFilters(['Female', 'Partner Assigned', 'Parents Assigned', 'Parents Unassigned']);
+          break;
+        case 'selectChildren':
+          setAppliedFilters(['Male', 'Female', 'Partner Assigned', 'Partner Unassigned', 'Parents Unassigned']);
+          break;
+        default:
+          setAppliedFilters([]);
+          break;
+      }
+    }
+    
     async function fetchUsers() {
       try {
         setLoading(true)
@@ -58,23 +79,9 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
       }
     }
 
+    setFilteresUsed(forType)
     fetchUsers();
   }, [forType, birthYearThreshold]);
-
-  // function getApiEndpoint(forType: MemberListProps["for"], birthYearThreshold?: number): string {
-  //   switch (forType) {
-  //     case 'selectUser':
-  //       return '/api?for=selectUser'; // All
-  //     case 'selectFather':
-  //       return '/api?for=selectFather';
-  //     case 'selectMother':
-  //       return '/api?for=selectMother';
-  //     case 'selectChildren':
-  //       return birthYearThreshold ? `/api?birthYearAbove=${birthYearThreshold},for=selectChildren` : '/api';
-  //     default:
-  //       return '/api';
-  //   }
-  // }
 
   const groupedUsers = users.reduce<{ [key: string]: User[] }>((acc, user) => {
     const letter = user.name.charAt(0).toUpperCase();
@@ -86,10 +93,10 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
   return (
     <>
       <div className="relative">
-        <div className='bg-main_background border-b border-border_color z-10 relative'>
+        <div className='border-b border-border_color bg-main_background z-10 relative'>
           <div className="relative w-full p-3 border-b border-border_color">
             <div className='flex gap-2'>
-              <Input placeholder="Search.." className="pl-9" />
+              <Input placeholder={forType} className="pl-9" />
               <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
                 <SearchIcon />
               </span>
@@ -97,33 +104,27 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
           </div>
           <ul className='p-2 flex gap-2 flex-nowrap overflow-x-auto min-h-[42px] scroll-stable'>
             <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              <FilterSelect /> <span>Male</span>
+              {appliedFilters.includes('Male') ? <FilterSelect /> : <FilterClose />} <span>Male</span>
             </li>
             <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              <FilterClose /> <span>Female</span>
+              {appliedFilters.includes('Female') ? <FilterSelect /> : <FilterClose />} <span>Female</span>
             </li>
             <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              <FilterClose /> <span className='whitespace-nowrap'>Partner Assigned</span>
+              {appliedFilters.includes('Partner Assigned') ? <FilterSelect /> : <FilterClose />} <span className='whitespace-nowrap'>Partner Assigned</span>
             </li>
             <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              <FilterClose /> <span className='whitespace-nowrap'>Partner Unassigned</span>
+              {appliedFilters.includes('Partner Unassigned') ? <FilterSelect /> : <FilterClose />} <span className='whitespace-nowrap'>Partner Unassigned</span>
             </li>
             <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              <FilterClose /> <span className='whitespace-nowrap'>Parents Assigned</span>
+              {appliedFilters.includes('Parents Assigned') ? <FilterSelect /> : <FilterClose />} <span className='whitespace-nowrap'>Parents Assigned</span>
             </li>
             <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              <FilterClose /> <span className='whitespace-nowrap'>Parents Unassigned</span>
+              {appliedFilters.includes('Parents Unassigned') ? <FilterSelect /> : <FilterClose />} <span className='whitespace-nowrap'>Parents Unassigned</span>
             </li>
-            {/* <li className='py-1 pl-4 pr-2 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              <span>Alive</span> <FilterClose />
-            </li>
-            <li className='py-1 pl-4 pr-2 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              <span>Deceased</span> <FilterClose />
-            </li> */}
           </ul>
         </div>
 
-        <div className='pb-14 h-[60vh] md:h-[calc(100vh-162px)] overflow-y-auto'>
+        <div className='pb-14 h-[60vh] md:h-[calc(100vh-161px)] overflow-y-auto'>
         {loading ? 
           <Loading /> :
           Object.keys(groupedUsers).sort().map((letter) => (
@@ -157,7 +158,7 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
             </div>
           ))
         }
-        {error && <div className="pt-6 text-center">{error}</div>}
+        {error && <div className="p-6 text-center">{error}</div>}
         </div>
 
         {multiselect && <ButtonSolid buttonText='Submit' className='w-full absolute bottom-0 left-0 right-0 z-10 rounded-none'/>}

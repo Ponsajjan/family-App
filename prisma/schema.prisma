@@ -43,6 +43,7 @@ model User {
 model UserPartner {
   id                    Int             @id @default(autoincrement())
   partner               User            @relation(fields: [partnerId], references: [id])
+  divorced              Boolean         @default(false)
   partnerId             Int             @unique
 }
 

@@ -25,9 +25,6 @@ export default async function addUserAction(formData) {
         const newUser = await prisma.user.create({
             data: user,
         });
-        return (
-            <p>Hello</p>
-        );
     } catch (error) {
         console.error("Error adding user:", error);
         return { success: false, error: "Failed to add user" };

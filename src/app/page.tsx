@@ -66,7 +66,7 @@ export default function Home() {
     async function fetchEventDates() {
       try {
         const response = await fetch(`/api/calendar/${month + 1}`, {
-          method: 'POST',
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           }
@@ -171,7 +171,7 @@ export default function Home() {
           {showPopup && <div onClick={() => setShowPopup(false)} className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 transition-opacity cursor-not-allowed z-[100]" />}
           {showPopup && <div className='block md:static fixed left-0 right-0 bottom-0 z-[100] max-h-[60vh] md:max-h-none rounded-t-lg w-full overflow-y-auto md:border border-border_color bg-main_background md:mt-8' >
             <div className="border-b sticky top-0 bg-main_background flex justify-between items-center border-border_color p-4">
-              <p className="text-xl font-semibold text-text_color">6 November 2024</p>
+              <p className="text-xl font-semibold text-text_color">6 Nov 2024 <span className="font-normal">(Sunday)</span></p>
               <span onClick={() => setShowPopup(false)} className="border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
             </div>
             <div className="px-3 py-4">

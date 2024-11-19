@@ -22,13 +22,13 @@ export default function CalendarMonthlyData({data, month, year}) {
           const eventDay = date.getDate();
           
           if (eventDay < todayDate) {
-            pastEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            pastEvents.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(today, date) });
           } else if (eventDay === todayDate) {
-            todayEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            todayEvents.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(today, date) });
           } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
-            thisWeekEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            thisWeekEvents.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(today, date) });
           } else if (eventDay > todayDate + 7) {
-            upcomingEvents.push({ ...user, type, date, age: differenceInYears(today, date) });
+            upcomingEvents.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(today, date) });
           }
         }
       };
@@ -40,7 +40,7 @@ export default function CalendarMonthlyData({data, month, year}) {
   } else {
     data?.forEach(user => {
       const selectedMonth = (date, type) => {
-        monthdat.push({ ...user, type, date, age: differenceInYears(new Date(year, month), date) });
+        monthdat.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(new Date(year, month), date) });
       };
   
       // Check birthdays and deathdays
@@ -67,13 +67,13 @@ export default function CalendarMonthlyData({data, month, year}) {
             <span className="border-t border-border_color block w-full"></span>
           </div>
           {sortedEvents.map((item, index) => (
-            <div key={index} className={`pl-6 ${title === "Earlier This Month" && 'opacity-50'}`}>
+            <div key={index} className="pl-6" >
               <div className="border-l border-border_color pt-1 pb-2 pl-4 pr-3">
-                <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]'>
+                <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-50'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
                   <div className="border-t border-dashed border-text_color w-14 ml-2 mr-3">
                     <div className="flex flex-col border border-text_color rounded-b-sm">          
                       <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
-                        {format(item.date, 'EEE').toUpperCase()}
+                        {format(new Date(year, month, format(item.date, 'd')).toISOString(), 'EEE').toUpperCase()}
                       </span>
                       <span className="text-center font-semibold leading-5 py-0.5">{format(item.date, 'd')}</span>
                     </div>
@@ -83,11 +83,11 @@ export default function CalendarMonthlyData({data, month, year}) {
                       <div className='font-semibold capitalize'>{item.name}</div>
                       <div className='text-xs font-light capitalize flex items-baseline gap-2'>
                         <span>
-                        {item.type === 'birthday' ? 'Born At:' : 'Died At:'} {format(item.date, 'd MMM yyyy')}</span>
+                        {item.type === 'birthday' ? 'Born At:' : 'Died At:'} {item.date.getFullYear() == 1111 ? format(item.date, 'd MMM') : format(item.date, 'd MMM yyyy')}</span>
                         {item.type === 'birthday' ? <Birthday2 /> : <Deathday2 />}
                       </div>
                     </div>
-                    <p className="font-light border-l border-border_color w-10 text-center">{item.age}</p>
+                    {(item.age !== 'n/a' ||  item.date.getFullYear() === currentYear) ? "" : <p className="font-light border-l border-border_color w-10 text-center">{item.age}</p>}
                   </div>
                 </div>
               </div>

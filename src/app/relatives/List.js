@@ -14,6 +14,8 @@ export default function List() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    console.log('usersusers', users)
+
     useEffect(() => {
         async function fetchUsers() {
           try {
@@ -21,7 +23,7 @@ export default function List() {
             setUsers([])
             setError(null);
             
-            const response = await fetch('/api?for=selectUser', {
+            const response = await fetch('/api/relatives', {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -93,7 +95,7 @@ export default function List() {
                                                     {/* <div className="font-extralight opacity-65">(athan)</div> */}
                                                 </div>
                                                 <div className="flex text-xs md:text-sm opacity-65">
-                                                {(user.father.length > 0 || user.mother.length >0 || user.partner.length > 0) ? (
+                                                {(user.father.length > 0 || user.mother.length > 0 || user.partner.length > 0) ? (
                                                     <>
                                                     <div className="font-semibold pr-1">
                                                         {user?.father ? 'Parents:' : 'Partner:'}

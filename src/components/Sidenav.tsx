@@ -36,8 +36,8 @@ export function Sidenav() {
                     {showNav ? <CloseIcon /> : <BurgerMenuIcon />}
                 </button>
             </span>
-            <div onClick={() => setShowNav(false)} className={` ${showNav ? 'block' :'hidden'} xl:hidden absolute z-[900] inset-0 w-full bg-gray-400 bg-opacity-65 transition-opacity`} />
-            <nav className={` ${showNav ? 'block' : 'hidden'} xl:block sticky top-14 md:top-0 z-[901] h-[70vh] lg:h-full`}>
+            <div onClick={() => setShowNav(false)} className={` ${showNav ? 'block' :'hidden'} xl:hidden absolute z-[101] inset-0 w-full bg-gray-400 bg-opacity-65 transition-opacity`} />
+            <nav className={` ${showNav ? 'block' : 'hidden'} xl:block sticky top-14 md:top-0 z-[102] h-[70vh] lg:h-full`}>
                 <div className="h-12 border-b border-border_color w-full bg-field_color"></div>
                 <div className="flex flex-col justify-between absolute xl:static top-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-fit md:w-40 min-h-[calc(100vh-4rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden">
                     <div>

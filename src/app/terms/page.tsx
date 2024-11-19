@@ -23,7 +23,7 @@ function page() {
             <li>Their partners (spouses or significant others)</li>
           </ul>
           <p className="mt-4 italic">
-            Note: Extended family members (such as aunts, uncles, and cousins) are excluded to maintain simplicity and focus on close family connections, ensuring that each member remains relevant to each user.
+            Note: Extended family members (such as aunts, uncles, and cousins) are excluded to maintain simplicity and focus on close family connections, ensuring that each member remains relevant to each other.
           </p>
         </div>
 

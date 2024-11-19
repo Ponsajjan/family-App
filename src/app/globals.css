@@ -139,14 +139,14 @@ svg {
   }
 }
 
-.date-cell {
+/* .date-cell {
   view-transition-class: date-cell;
-}
-
+} */
+/* 
 ::view-transition-group(*.date-cell) {
   animation-duration: 420ms;
   animation-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
-}
+} */
 
 .scroll-stable {
   scrollbar-gutter: stable;

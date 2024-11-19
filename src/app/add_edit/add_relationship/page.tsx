@@ -12,14 +12,16 @@ import MemberList from "@/components/MemberList";
 export const dynamic = 'force-dynamic'; // Optional, forces dynamic rendering
 // Since app/ uses server-side rendering by default, we can make this an async function
 export default function Relatives() {
-  const [name, setName] = useState('')
-  const [father, setFather] = useState('')
-  const [mother, setMother] = useState('')
-  const [partner, setPartner] = useState('')
-  const [children, setChildren] = useState('')
+  const [formData, setFormData] = useState({
+    name: "",
+    father: "",
+    mother: "",
+    partner: "",
+    children: "",
+  });
 
   const [showListFor, setShowListFor] = useState('selectUser')
-  const [showList, setShowList] = useState(false)
+  const [showList, setShowList] = useState(true)
 
   const handleShowList = (value: any) => {
     setShowListFor(value)
@@ -36,8 +38,8 @@ export default function Relatives() {
           </div>
           <form className='text-text_color'>
             <p className="text-sm">Name</p>
-            <div onClick={() => setShowList(true)} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
-            >{name ? name : 'Name'}</div>
+            <div onClick={() => handleShowList('selectUser')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
+            >{formData.name ? formData.name : <span className='text-gray-400'>Name</span>}</div>
 
             <div className="flex items-center gap-2 flex-wrap relative py-2">
                 <p className="text-sm font-medium">Lalavillai Family</p>
@@ -46,35 +48,36 @@ export default function Relatives() {
                     <div className='w-full'>
                         <p className="text-sm">Father</p>
                         <div onClick={() => handleShowList('selectFather')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md cursor-pointer"
-                        >{father ? father : 'Father'}
+                        >{formData.father ? formData.father : <span className='text-gray-400'>Father</span>}
                         </div>
                     </div>
                     <div className='w-full'>
                         <p className="text-sm">Mother</p>
                         <div onClick={() => handleShowList('selectMother')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md cursor-pointer" 
-                        >{mother ? mother : 'Mother'}</div>
+                        >{formData.mother ? formData.mother : <span className='text-gray-400'>Mother</span>}</div>
                     </div>
                 </div>
             </div>
 
             <p className="text-sm">Partner</p>
             <div onClick={() => handleShowList('selectPartner')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
-            >{partner ? partner : 'Partner'}</div>
+            >{formData.partner ? formData.partner : <span className='text-gray-400'>Partner</span>}</div>
             <p className="text-sm">Children</p>
             <div onClick={() => handleShowList('selectChildren')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-8 cursor-pointer" 
-            >{children ? children : 'Children'}</div>
+            >{formData.children ? formData.children : <span className='text-gray-400'>Children</span>}</div>
 
-            <ButtonSolid type="submit" buttonText="Add User" className='w-full mb-4' />
+            <ButtonSolid type="submit" buttonText="Add Relationship" className='w-full mb-4' />
           </form>
         </div>
       </Container>
       {showList && (
-      <div onClick={() => setShowList(false)} className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 transition-opacity cursor-not-allowed z-[100]" />
-      )}
-      {showList && (
-      <div className="block md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md w-full lg:max-w-lg mx-auto bg-main_background overflow-y-auto" >
-        <MemberList forType={showListFor}/>
-      </div>)}
+      <div
+        onClick={() => setShowList(false)}
+        className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 z-[100]"
+      /> )}
+      <div className={`${showList ? 'md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md' : 'opacity-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto bg-main_background overflow-y-auto`}>
+        <MemberList forType={showListFor} />
+      </div>
     </div>
   )
 }

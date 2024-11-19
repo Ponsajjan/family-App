@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Sidenav } from "@/components/Sidenav";
 import "./globals.css";
-import { useEffect } from "react";
+import ToastProvider from "@/components/Toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,13 +34,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning={true}>
         <main id="MainDiv">
-          <div id='portal'></div>
-          <div className="w-full bg-field_color">
-            <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
-              <Sidenav />
-              {children}
+          <ToastProvider>
+            <div className="w-full bg-field_color">
+              <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+                <Sidenav />
+                {children}
+              </div>
             </div>
-          </div>
+            <div id='portal'></div>
+          </ToastProvider>
         </main>
       </body>
     </html>

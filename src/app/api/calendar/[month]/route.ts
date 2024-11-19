@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db"; // Adjust the import path as needed
 
-export async function POST(request: Request, context: any) {
+export async function GET(request: Request, context: any) {
     const { params } = context;
     const month = parseInt(params.month);
     console.log("month.................", month)
