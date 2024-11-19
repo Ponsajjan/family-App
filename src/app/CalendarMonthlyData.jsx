@@ -87,7 +87,7 @@ export default function CalendarMonthlyData({data, month, year}) {
                         {item.type === 'birthday' ? <Birthday2 /> : <Deathday2 />}
                       </div>
                     </div>
-                    {(item.age !== 'n/a' ||  item.date.getFullYear() === currentYear) ? "" : <p className="font-light border-l border-border_color w-10 text-center">{item.age}</p>}
+                    {(item.age === 'n/a' ||  item.date.getFullYear() === currentYear) ? "" : <p className="font-light border-l border-border_color w-10 text-center text-sm">{item.age}</p>}
                   </div>
                 </div>
               </div>

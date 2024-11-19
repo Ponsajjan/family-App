@@ -1,6 +1,6 @@
 'use client'
 
-import { Call, CloseIcon, Deathday, Female, Male } from '@/utils/Icons';
+import { Call, Female, Male } from '@/utils/Icons';
 import React, { useEffect, useState } from 'react'
 import Details from './Details';
 import Container from "../../components/Container";

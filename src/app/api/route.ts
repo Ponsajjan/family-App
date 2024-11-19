@@ -86,14 +86,35 @@ export async function GET(request: NextRequest) {
         });
         break;
 
+      case "selectPartner":
+        if (!birthYearThreshold) {
+          return NextResponse.json({ error: "birthYearThreshold is required for selectChildren" }, { status: 400 });
+        }
+        memberList = await prisma.member.findMany({
+          // where: {
+          //   birthYear: { gte: Number(birthYearThreshold) },
+          // },
+          select: {
+            id: true,
+            name: true,
+            gender: true,
+            birthYear: true,
+            father: true,
+            mother: true,
+            partner: true, // This will include partner relationship details if needed
+          },
+          orderBy: { name: "asc" },
+        });
+        break;
+
       case "selectChildren":
         if (!birthYearThreshold) {
           return NextResponse.json({ error: "birthYearThreshold is required for selectChildren" }, { status: 400 });
         }
         memberList = await prisma.member.findMany({
-          where: {
-            birthYear: { gte: Number(birthYearThreshold) },
-          },
+          // where: {
+          //   birthYear: { gte: Number(birthYearThreshold) },
+          // },
           select: {
             id: true,
             name: true,

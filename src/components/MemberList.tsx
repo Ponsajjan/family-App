@@ -7,6 +7,7 @@ import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
 import Loading from './Loading';
+import { boolean } from 'zod';
 
 interface User {
   id: string;
@@ -20,14 +21,27 @@ interface User {
 interface MemberListProps {
   forType:  string // 'selectUser' | 'selectFather' | 'selectMother' | 'selectChildren';
   birthYearThreshold?: number;  // Only required for 'selectChildren' case
+  setSelectedValue: any;
+  openList: any;
+  getSelectedValues: any;
 }
 
-export default function MemberList({ forType, birthYearThreshold }: MemberListProps) {
-  const [users, setUsers] = useState<User[]>([]);
+export default function MemberList({ forType, birthYearThreshold, setSelectedValue, openList, getSelectedValues }: MemberListProps) {
+  const [members, setMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [multiselect, setMultiSelect] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<any[]>([])
+
+  const keyMap:any = {
+    selectUser: "name",
+    selectFather: "father",
+    selectMother: "mother",
+    selectPartner: "partner",
+    selectChildren: "children",
+  };
+
+  const selectedValues = getSelectedValues[keyMap[forType]]
 
   useEffect(() => {
     function setFilteresUsed(forType: string) {
@@ -49,12 +63,12 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
           break;
       }
     }
-    
+  
     async function fetchUsers() {
       try {
         setLoading(true)
-        setUsers([])
-        setMultiSelect(forType === "selectChildren")
+        setMembers([])
+        setMultiSelect(forType === "selectChildren" || forType === "selectPartner")
         setError(null);
         
         const response = await fetch(`/api?for=${forType}&birthYearThreshold=${birthYearThreshold}`, {
@@ -70,7 +84,7 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
 
         const usersData: User[] = await response.json();
         const sortedUsers = usersData.sort((a, b) => a.name.localeCompare(b.name));
-        setUsers(sortedUsers);
+        setMembers(sortedUsers);
       } catch (error) {
         console.error("Failed to fetch members:", error);
         setError("Failed to fetch members. Please try again later.");
@@ -83,7 +97,27 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
     fetchUsers();
   }, [forType, birthYearThreshold]);
 
-  const groupedUsers = users.reduce<{ [key: string]: User[] }>((acc, user) => {
+  const handleSelectedValue = (item: any) => {
+    const key = keyMap[forType];
+    if (!key) return;
+  
+    setSelectedValue((prev: any) => {
+      if (Array.isArray(prev[key])) {
+        // For array keys: Add or remove the value
+        const updatedArray = prev[key].includes(item)
+          ? prev[key].filter((val: any) => val !== item) // Remove if it exists
+          : [...prev[key], item]; // Add if it doesn't exist
+  
+        return { ...prev, [key]: updatedArray };
+      }
+  
+      // For non-array keys: Set the value and trigger openList(true)
+      openList(false);
+      return { ...prev, [key]: item };
+    });
+  };
+
+  const groupedUsers = members.reduce<{ [key: string]: User[] }>((acc, user) => {
     const letter = user.name.charAt(0).toUpperCase();
     if (!acc[letter]) acc[letter] = [];
     acc[letter].push(user);
@@ -135,11 +169,11 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
               </div>
 
               {groupedUsers[letter].map((user) => (
-                <div key={user.id} className="pl-4">
+                <div onClick = {() => handleSelectedValue(user.name)} key={user.id} className="pl-4">
                   <div className="border-l border-border_color py-1 pl-4 pr-3">
                     <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
                       {multiselect && <div className='pr-3 border-r border-border_color mr-2'>
-                        <Checkbox name="selected" />
+                        <Checkbox checked={selectedValues.includes(user.name)} readOnly/>
                       </div>}
                       <div>
                         <div className="flex flex-wrap gap-2">
@@ -161,7 +195,7 @@ export default function MemberList({ forType, birthYearThreshold }: MemberListPr
         {error && <div className="p-6 text-center">{error}</div>}
         </div>
 
-        {multiselect && <ButtonSolid buttonText='Submit' className='w-full absolute bottom-0 left-0 right-0 z-10 rounded-none'/>}
+        {multiselect && <ButtonSolid buttonText='Submit' disabled={selectedValues.length <= 0} onClick={() => openList(false)} className='w-full absolute bottom-0 left-0 right-0 z-10 rounded-none'/>}
       </div>
     </>
   );

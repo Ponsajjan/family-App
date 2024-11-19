@@ -8,7 +8,7 @@ import Input from "@/components/Input";
 import RadioButton from "@/components/RadioButton";
 import Checkbox from "@/components/CheckBox";
 import MemberList from "@/components/MemberList";
-import { EditMember } from "@/utils/Icons";
+import { CloseIcon, EditMember } from "@/utils/Icons";
 
 export default function Relatives() {
   const [formData, setFormData] = useState({
@@ -27,8 +27,8 @@ export default function Relatives() {
     address: "",
     father: "",
     mother: "",
-    partner: "",
-    children: "",
+    partner: [],
+    children: [],
   });
 
   const [showListFor, setShowListFor] = useState("");
@@ -47,6 +47,21 @@ export default function Relatives() {
   const handleShowList = (field: string) => {
     setShowListFor(field);
     setShowList(true);
+  };
+
+  const handleCancelSelectedValue = (item: any, key:any) => {
+    if (!key) return;
+  
+    setFormData((prev: any) => {
+      if (Array.isArray(prev[key])) {
+        // For array keys: Add or remove the value
+        const updatedArray = prev[key].includes(item)
+          ? prev[key].filter((val: any) => val !== item) // Remove if it exists
+          : [...prev[key], item]; // Add if it doesn't exist
+  
+        return { ...prev, [key]: updatedArray };
+      }
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -89,8 +104,8 @@ export default function Relatives() {
       address: "",
       father: "",
       mother: "",
-      partner: "",
-      children: "",
+      partner: [],
+      children: [],
     });
   };
 
@@ -281,18 +296,44 @@ export default function Relatives() {
               </div>
             </div>
             <p className="text-sm">Partner</p>
-            <div
-              onClick={() => handleShowList("selectPartner")}
-              className="w-full border p-2 bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer"
-            >
-              {formData.partner || <span className="text-gray-400">Select Partner</span>}
+            <div>
+              {formData.partner.length <= 0 ? (
+                <div onClick={() => handleShowList('selectPartner')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
+                  <span className='text-gray-400'>Partner</span>
+                </div>) :
+                formData.partner.map((selected:any, index:number) => (
+                  <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
+                    <span onClick={() => handleShowList('selectPartner')} className="py-2 w-full">{selected}</span>
+                    {(formData.partner.length > 1) && 
+                      <span
+                        onClick={() => handleCancelSelectedValue(selected, 'partner')}
+                        className="border border-border_color rounded-md h-fit">
+                        <CloseIcon />
+                      </span>
+                    }
+                  </div>)
+                )
+              }
             </div>
             <p className="text-sm">Children</p>
-            <div
-              onClick={() => handleShowList("selectChildren")}
-              className="w-full border p-2 bg-field_color border-border_color text-sm rounded-md mb-8 cursor-pointer"
-            >
-              {formData.children || <span className="text-gray-400">Select Children</span>}
+            <div className='mb-8' >
+              {formData.children.length <= 0 ? (
+                <div onClick={() => handleShowList('selectChildren')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
+                  <span className='text-gray-400'>Children</span>
+                </div>) :
+                formData.children.map((selected:any, index:number) => (
+                  <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
+                    <span onClick={() => handleShowList('selectChildren')} className="py-2 w-full">{selected}</span>
+                    {(formData.children.length > 1) && 
+                      <span
+                        onClick={() => handleCancelSelectedValue(selected, 'children')}
+                        className="border border-border_color rounded-md h-fit">
+                        <CloseIcon />
+                      </span>
+                    }
+                  </div>)
+                )
+              }
             </div>
             <ButtonSolid type="submit" className="w-full" buttonText="Update Member" />
           </form>
@@ -304,7 +345,7 @@ export default function Relatives() {
         className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 z-[100]"
       /> )}
       <div className={`${showList ? 'md:border-l md:border-border_color md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md' : 'md:w-0 h-0 opacity-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto bg-main_background overflow-y-auto`}>
-        <MemberList forType={showListFor} />
+        <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList}/>
       </div>
     </div>
   );

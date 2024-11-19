@@ -6,7 +6,7 @@ const Checkbox = ({
   // onChange,
   className = '',
   label = '',
-  name,
+  name = '',
   ...props
 }) => {
   return (
