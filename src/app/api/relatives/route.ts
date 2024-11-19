@@ -22,7 +22,7 @@ import { NextRequest } from "next/server"; // Import NextRequest if needed for h
 export async function GET(request: NextRequest) {
 
   try {
-    const membersList = await prisma.user.findMany({
+    const memberList = await prisma.member.findMany({
         select: {
         id: true,
         name: true,
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         orderBy: { name: "asc" },
     });
 
-    return NextResponse.json(membersList);
+    return NextResponse.json(memberList);
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Error fetching users" }, { status: 500 });

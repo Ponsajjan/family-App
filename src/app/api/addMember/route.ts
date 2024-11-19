@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       };
 
     // Save user to the database
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.member.create({
       data: user,
     });
 

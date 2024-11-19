@@ -10,8 +10,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                    Int             @id @default(autoincrement())
+model Member {
+  id                    Int                   @id @default(autoincrement())
   reference_id          String?
   name                  String
 
@@ -19,7 +19,7 @@ model User {
   birthMonth            Int?
   birthYear             Int?
 
-  deceased              Boolean         @default(false)
+  deceased              Boolean               @default(false)
 
   deathDate             Int?
   deathMonth            Int?
@@ -30,45 +30,45 @@ model User {
   address               String?
   occupation            String?
   education             String?
-  additionalInfo        UserAdditionalInfo[]
-  descendant            Boolean         @default(false)
-  partner               UserPartner[]
-  father                UserFather[]
-  mother                UserMother[]
-  children              UserChildren[]
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
+  additionalInfo        MembersAdditionalInfo[]
+  descendant            Boolean               @default(false)
+  partner               MembersPartner[]
+  father                MembersFather[]
+  mother                MembersMother[]
+  children              MembersChildren[]
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 }
 
-model UserPartner {
-  id                    Int             @id @default(autoincrement())
-  partner               User            @relation(fields: [partnerId], references: [id])
-  divorced              Boolean         @default(false)
-  partnerId             Int             @unique
+model MembersPartner {
+  id                    Int                   @id @default(autoincrement())
+  partner               Member                @relation(fields: [partnerId], references: [id])
+  divorced              Boolean               @default(false)
+  partnerId             Int
 }
 
-model UserFather {
-  id                  Int             @id @default(autoincrement())
-  father              User            @relation(fields: [fatherId], references: [id])
-  fatherId            Int             @unique
+model MembersFather {
+  id                    Int                   @id @default(autoincrement())
+  father                Member                @relation(fields: [fatherId], references: [id])
+  fatherId              Int
 }
 
-model UserMother {
-  id                  Int             @id @default(autoincrement())
-  mother              User            @relation(fields: [motherId], references: [id])
-  motherId            Int             @unique
+model MembersMother {
+  id                    Int                   @id @default(autoincrement())
+  mother                Member                @relation(fields: [motherId], references: [id])
+  motherId              Int
 }
 
-model UserChildren {
-  id                    Int             @id @default(autoincrement())
-  children              User            @relation(fields: [childrenId], references: [id])
-  childrenId            Int             @unique
+model MembersChildren {
+  id                    Int                   @id @default(autoincrement())
+  children              Member                @relation(fields: [childrenId], references: [id])
+  childrenId            Int
 }
 
-model UserAdditionalInfo {
-  id                    Int               @id @default(autoincrement())
+model MembersAdditionalInfo {
+  id                    Int                   @id @default(autoincrement())
   topic                 String?
   details               String
-  user                  User              @relation(fields: [userId], references: [id])
-  userId                Int
+  member                Member                @relation(fields: [memberId], references: [id])
+  memberId              Int
 }

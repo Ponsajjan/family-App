@@ -7,20 +7,18 @@ import Container from "../../components/Container";
 import Link from 'next/link';
 
 export default function List() {
-    const [users, setUsers] = useState([]);
+    const [members, setMembers] = useState([]);
     // Manage state for showing/hiding details
     const [showDetails, setShowDetails] = useState(false);
     const [userDetails, setUserDetails] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    console.log('usersusers', users)
-
     useEffect(() => {
         async function fetchUsers() {
           try {
             setLoading(true)
-            setUsers([])
+            setMembers([])
             setError(null);
             
             const response = await fetch('/api/relatives', {
@@ -36,7 +34,7 @@ export default function List() {
     
             const usersData = await response.json();
             const sortedUsers = usersData.sort((a, b) => a.name.localeCompare(b.name));
-            setUsers(sortedUsers);
+            setMembers(sortedUsers);
           } catch (error) {
             console.error("Failed to fetch members:", error);
             setError("Failed to fetch members. Please try again later.");
@@ -48,7 +46,7 @@ export default function List() {
         fetchUsers();
     }, []);
 
-     const groupedUsers = users.reduce((acc, user) => {
+     const groupedUsers = members.reduce((acc, user) => {
         const initial = user.name.charAt(0).toUpperCase();
         if (!acc[initial]) acc[initial] = [];
         acc[initial].push(user);
@@ -75,14 +73,14 @@ export default function List() {
                 <Container className="md:border-r md:border-border_color">
                     <div className='w-full lg:max-w-xl mx-auto'>
                     {groupedUsers.length === 0 ? (
-                        <p className='p-4'>No users found.</p>
+                        <p className='p-4'>No members found.</p>
                         ) : (Object.keys(groupedUsers).sort().map((letter) => (
                             <div key={letter}>                                
                                 <div className="flex text-text_color items-center px-3 bg-main_background sticky top-12 md:top-0 z-10 pb-1">
                                     <span className="font-semibold pr-1 whitespace-nowrap">{letter}</span>
                                     <span className="border-t border-border_color block w-full"></span>
                                 </div>
-                                {/* Render list of users */}
+                                {/* Render list of members */}
                                 {groupedUsers[letter].map((user) => (
                                 <div key={user.id} className="pl-4">
                                     <div className="border-l border-border_color pt-1 pb-2 pl-4 pr-3">
