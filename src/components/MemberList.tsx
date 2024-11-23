@@ -9,7 +9,7 @@ import { ButtonSolid } from './Button';
 import Loading from './Loading';
 import { boolean } from 'zod';
 
-interface User {
+interface Member {
   id: string;
   name: string;
   gender: 'Male' | 'Female';
@@ -19,22 +19,22 @@ interface User {
 }
 
 interface MemberListProps {
-  forType:  string // 'selectUser' | 'selectFather' | 'selectMother' | 'selectChildren';
-  birthYearThreshold?: number;  // Only required for 'selectChildren' case
+  forType:  string // 'selectMember' | 'selectFather' | 'selectMother' | 'selectChildren';
+  birthYearThreshold?: number | null;  // Only required for 'selectChildren' case
   setSelectedValue: any;
   openList: any;
   getSelectedValues: any;
 }
 
-export default function MemberList({ forType, birthYearThreshold, setSelectedValue, openList, getSelectedValues }: MemberListProps) {
-  const [members, setMembers] = useState<User[]>([]);
+export default function MemberList({ forType='selectMember', birthYearThreshold=null, setSelectedValue, openList, getSelectedValues }: MemberListProps) {
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [multiselect, setMultiSelect] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<any[]>([])
 
   const keyMap:any = {
-    selectUser: "name",
+    selectMember: "name",
     selectFather: "father",
     selectMother: "mother",
     selectPartner: "partner",
@@ -46,7 +46,7 @@ export default function MemberList({ forType, birthYearThreshold, setSelectedVal
   useEffect(() => {
     function setFilteresUsed(forType: string) {
       switch (forType) {
-        case 'selectUser':
+        case 'selectMember':
           setAppliedFilters(['Male', 'Female', 'Partner Assigned', 'Partner Unassigned', 'Parents Assigned', 'Parents Unassigned']);
           break;
         case 'selectFather':
@@ -64,7 +64,7 @@ export default function MemberList({ forType, birthYearThreshold, setSelectedVal
       }
     }
   
-    async function fetchUsers() {
+    async function fetchMembers() {
       try {
         setLoading(true)
         setMembers([])
@@ -82,9 +82,9 @@ export default function MemberList({ forType, birthYearThreshold, setSelectedVal
           throw new Error("Network response was not ok");
         }
 
-        const usersData: User[] = await response.json();
-        const sortedUsers = usersData.sort((a, b) => a.name.localeCompare(b.name));
-        setMembers(sortedUsers);
+        const membersData: Member[] = await response.json();
+        const sortedMembers = membersData.sort((a, b) => a.name.localeCompare(b.name));
+        setMembers(sortedMembers);
       } catch (error) {
         console.error("Failed to fetch members:", error);
         setError("Failed to fetch members. Please try again later.");
@@ -94,7 +94,7 @@ export default function MemberList({ forType, birthYearThreshold, setSelectedVal
     }
 
     setFilteresUsed(forType)
-    fetchUsers();
+    fetchMembers();
   }, [forType, birthYearThreshold]);
 
   const handleSelectedValue = (item: any) => {
@@ -117,10 +117,10 @@ export default function MemberList({ forType, birthYearThreshold, setSelectedVal
     });
   };
 
-  const groupedUsers = members.reduce<{ [key: string]: User[] }>((acc, user) => {
-    const letter = user.name.charAt(0).toUpperCase();
+  const groupedMembers = members.reduce<{ [key: string]: Member[] }>((acc, member) => {
+    const letter = member.name.charAt(0).toUpperCase();
     if (!acc[letter]) acc[letter] = [];
-    acc[letter].push(user);
+    acc[letter].push(member);
     return acc;
   }, {});
 
@@ -158,31 +158,31 @@ export default function MemberList({ forType, birthYearThreshold, setSelectedVal
           </ul>
         </div>
 
-        <div className='pb-14 h-[60vh] md:h-[calc(100vh-161px)] overflow-y-auto'>
+        <div className='pb-14 h-[60vh] md:h-[calc(100vh-162px)] overflow-y-auto'>
         {loading ? 
           <Loading /> :
-          Object.keys(groupedUsers).sort().map((letter) => (
+          Object.keys(groupedMembers).sort().map((letter) => (
             <div key={letter}>
               <div className="flex text-text_color items-center mx-3 bg-main_background sticky top-0 z-[9]">
                 <span className="font-semibold pr-1 whitespace-nowrap">{letter}</span>
                 <span className="border-t border-border_color block w-full"></span>
               </div>
 
-              {groupedUsers[letter].map((user) => (
-                <div onClick = {() => handleSelectedValue(user.name)} key={user.id} className="pl-4">
+              {groupedMembers[letter].map((member) => (
+                <div onClick = {() => handleSelectedValue(member.name)} key={member.id} className="pl-4">
                   <div className="border-l border-border_color py-1 pl-4 pr-3">
                     <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
                       {multiselect && <div className='pr-3 border-r border-border_color mr-2'>
-                        <Checkbox checked={selectedValues.includes(user.name)} readOnly/>
+                        <Checkbox checked={selectedValues.includes(member.name)} readOnly/>
                       </div>}
                       <div>
                         <div className="flex flex-wrap gap-2">
-                          {user.gender === "Male" ? <Male /> : <Female />}
-                          <div className='font-semibold capitalize'>{user.name}</div>
+                          {member.gender === "Male" ? <Male /> : <Female />}
+                          <div className='font-semibold capitalize'>{member.name}</div>
                         </div>
                         <div className='flex text-xs leading-3 opacity-65'>
                           <div className='font-medium pr-1'>Parents:</div>
-                          <div>{user.parentNames || "No parent information"}</div>
+                          <div>{member.parentNames || "No parent information"}</div>
                         </div>
                       </div>
                     </div>

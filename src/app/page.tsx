@@ -8,6 +8,8 @@ import { Circle } from "@/utils/Icons";
 import CalendarMonthlyData from "./CalendarMonthlyData";
 import Container from "@/components/Container";
 import Loading from "@/components/Loading";
+import OnDate from "./OnDate";
+import { format } from 'date-fns';
 
 export default function Home() {
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -15,6 +17,7 @@ export default function Home() {
   const [eventDates, setEventDates] = useState([]);
   const [dateList, setDateList] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dateDataLoading, setDateDataLoading] = useState(true);
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -24,7 +27,10 @@ export default function Home() {
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth();
 
+  const [selectedDate, setSelectedDate] = useState('')
+  const [eventForDate, setEventForDate] = useState([])
 
+  console.log('eventForDate', eventForDate)
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year:number, month:number) {
     const selectMonth = new Date(year, month, 1);
@@ -45,6 +51,41 @@ export default function Home() {
       emptyCellsCount = emptyCells;
   } else {
       emptyCellsCount = 0;
+  }
+
+  const showEventForDate = (date: number) => {
+    if (!dateList?.includes(date)) {
+      return
+    }
+
+    setSelectedDate(new Date(year, month, date).toISOString());
+
+    async function fetchEventForDate() {
+      try {
+        setDateDataLoading(true)
+        const response = await fetch(`/api/calendar/${month + 1}/${date}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        // Check if the response was successful
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const { eventDates = [] } = await response.json();
+        setEventForDate(eventDates);
+  
+      } catch (error) {
+        console.error("Failed to fetch event dates:", error);
+      } finally {
+        setDateDataLoading(false);
+      }
+    }
+    fetchEventForDate();
+    setShowPopup(true)
   }
 
   // Handlers for previous/next month navigation
@@ -109,10 +150,11 @@ export default function Home() {
       <Topnav>
         <div className="ml-auto"><AllDates /></div>
       </Topnav>
+      
       <div className="md:flex">
         <Container className='px-3 md:border-r md:border-border_color pb-3 w-full max-w-5xl'>
-          <div className="w-full lg:max-w-xl mx-auto">
-            <div className="bg-field_color border border-border_color rounded-t-md text-text_color mt-6 md:mt-3">
+          <div className="w-full lg:max-w-xl mx-auto mt-6">
+            <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
                 
@@ -143,7 +185,7 @@ export default function Home() {
                 return (
                   <div
                     key={date}
-                    onClick={() => setShowPopup(dateList?.includes(date))}
+                    onClick={() => showEventForDate(date)}
                     style={{ viewTransitionName: `item${date}` }}
                     className={`date-cell ${
                       (current_date == date && current_month == month + 1 && current_year == year) ? "bg-accent_color text-accent_contrast" : ""
@@ -168,113 +210,21 @@ export default function Home() {
             </div>
           </div>
 
-          {showPopup && <div onClick={() => setShowPopup(false)} className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 transition-opacity cursor-not-allowed z-[100]" />}
-          {showPopup && <div className='block md:static fixed left-0 right-0 bottom-0 z-[100] max-h-[60vh] md:max-h-none rounded-t-lg w-full overflow-y-auto md:border border-border_color bg-main_background md:mt-8' >
-            <div className="border-b sticky top-0 bg-main_background flex justify-between items-center border-border_color p-4">
-              <p className="text-xl font-semibold text-text_color">6 Nov 2024 <span className="font-normal">(Sunday)</span></p>
-              <span onClick={() => setShowPopup(false)} className="border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
+
+          {showPopup && 
+          <>
+            <div onClick={() => setShowPopup(false)} className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 transition-opacity cursor-not-allowed z-[100]" />
+            <div className='block md:static fixed left-0 right-0 bottom-0 z-[100] max-h-[60vh] md:max-h-none rounded-t-lg w-full overflow-y-auto md:border border-border_color bg-main_background md:mt-8' >
+              <div className="border-b sticky top-0 bg-main_background flex justify-between items-center border-border_color p-4">
+                <p className="text-xl font-semibold text-text_color">{format(selectedDate, 'd MMM yyyy')}<span className="font-normal pl-2">({format(new Date(selectedDate).toISOString(), 'EEEE')})</span></p>
+                <span onClick={() => setShowPopup(false)} className="border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
+              </div>
+              {!dateDataLoading &&
+              <div className="p-4 h-auto transition-all duration-500 ease-in-out">
+                <OnDate events={eventForDate} selectedDate={selectedDate} />
+              </div>}
             </div>
-            <div className="px-3 py-4">
-              <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2'>
-                <span className="p-2">
-                  <Birthday />
-                </span>
-                <div className='w-full flex justify-between items-center'>
-                  <div>
-                    <div className='font-semibold capitalize'>Ponsajjan</div>
-                    <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                      <span>Born at: 6 Nov 2024</span>
-                    </div>
-                  </div>
-                  <p className="font-light border-l border-border_color w-10 text-center">28</p>
-                </div>
-              </div>
-              {/* <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2'>
-                <span className="p-2">
-                  <Birthday />
-                </span>
-                <div className='w-full flex justify-between items-center'>
-                  <div>
-                    <div className='font-semibold capitalize'>Ponsajjan</div>
-                    <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                      <span>Born at: 6 Nov 2024</span>
-                    </div>
-                  </div>
-                  <p className="font-light border-l border-border_color w-10 text-center">28</p>
-                </div>
-              </div>
-              <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2'>
-                <span className="p-2">
-                  <Birthday />
-                </span>
-                <div className='w-full flex justify-between items-center'>
-                  <div>
-                    <div className='font-semibold capitalize'>Ponsajjan</div>
-                    <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                      <span>Born at: 6 Nov 2024</span>
-                    </div>
-                  </div>
-                  <p className="font-light border-l border-border_color w-10 text-center">28</p>
-                </div>
-              </div>
-              <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2'>
-                <span className="p-2">
-                  <Birthday />
-                </span>
-                <div className='w-full flex justify-between items-center'>
-                  <div>
-                    <div className='font-semibold capitalize'>Ponsajjan</div>
-                    <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                      <span>Born at: 6 Nov 2024</span>
-                    </div>
-                  </div>
-                  <p className="font-light border-l border-border_color w-10 text-center">28</p>
-                </div>
-              </div>
-              <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2'>
-                <span className="p-2">
-                  <Birthday />
-                </span>
-                <div className='w-full flex justify-between items-center'>
-                  <div>
-                    <div className='font-semibold capitalize'>Ponsajjan</div>
-                    <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                      <span>Born at: 6 Nov 2024</span>
-                    </div>
-                  </div>
-                  <p className="font-light border-l border-border_color w-10 text-center">28</p>
-                </div>
-              </div>
-              <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2'>
-                <span className="p-2">
-                  <Birthday />
-                </span>
-                <div className='w-full flex justify-between items-center'>
-                  <div>
-                    <div className='font-semibold capitalize'>Ponsajjan</div>
-                    <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                      <span>Born at: 6 Nov 2024</span>
-                    </div>
-                  </div>
-                  <p className="font-light border-l border-border_color w-10 text-center">28</p>
-                </div>
-              </div>
-              <div className='flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2'>
-                <span className="p-2">
-                  <Birthday />
-                </span>
-                <div className='w-full flex justify-between items-center'>
-                  <div>
-                    <div className='font-semibold capitalize'>Ponsajjan</div>
-                    <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                      <span>Born at: 6 Nov 2024</span>
-                    </div>
-                  </div>
-                  <p className="font-light border-l border-border_color w-10 text-center">28</p>
-                </div>
-              </div> */}
-            </div>
-          </div>}
+          </>}
         </Container>
         <div className="w-full lg:max-w-lg mx-auto">
           {/* <Suspense fallback={<p className="text-center pt-4">Loading calendar details...</ p>}> */}

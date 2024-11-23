@@ -13,7 +13,8 @@ export default function CalendarMonthlyData({data, month, year}) {
   const todayEvents = [];
   const thisWeekEvents = [];
   const upcomingEvents = [];
-  const monthdat = [];
+  
+  const selectedMonthData = [];
 
   if (currentMonth === month && currentYear === year) {
     data?.forEach(user => {
@@ -40,7 +41,7 @@ export default function CalendarMonthlyData({data, month, year}) {
   } else {
     data?.forEach(user => {
       const selectedMonth = (date, type) => {
-        monthdat.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(new Date(year, month), date) });
+        selectedMonthData.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(new Date(year, month), date) });
       };
   
       // Check birthdays and deathdays
@@ -53,10 +54,10 @@ export default function CalendarMonthlyData({data, month, year}) {
     // Sort events by date in ascending order within the current month
     let sortedEvents
     
-    if (events === "Earlier This Month") {
-      sortedEvents = events.sort((a, b) => a.date.getDate() - b.date.getDate());
-    } else {
+    if (title === "Earlier This Month") {
       sortedEvents = events.sort((a, b) => b.date.getDate() - a.date.getDate());
+    } else {
+      sortedEvents = events.sort((a, b) => a.date.getDate() - b.date.getDate());
     }
   
     return (
@@ -80,10 +81,11 @@ export default function CalendarMonthlyData({data, month, year}) {
                   </div>
                   <div className='w-full flex justify-between items-center'>
                     <div>
-                      <div className='font-semibold capitalize'>{item.name}</div>
+                      <div className='font-semibold capitalize leading-3'>{item.name}</div>
                       <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                        <span>
-                        {item.type === 'birthday' ? 'Born At:' : 'Died At:'} {item.date.getFullYear() == 1111 ? format(item.date, 'd MMM') : format(item.date, 'd MMM yyyy')}</span>
+                        <span className="leading-3">
+                        {item.type === 'birthday' ? 'Born At:' : 'Died At:'} {item.date.getFullYear() == 1111 ? format(item.date, 'd MMM') : format(item.date, 'd MMM yyyy')}
+                        </span>
                         {item.type === 'birthday' ? <Birthday2 /> : <Deathday2 />}
                       </div>
                     </div>
@@ -105,7 +107,7 @@ export default function CalendarMonthlyData({data, month, year}) {
       {renderEventList(thisWeekEvents, "This Week")}
       {renderEventList(upcomingEvents, "Coming Up This Month")}
       {renderEventList(pastEvents, "Earlier This Month")}
-      {renderEventList(monthdat, viewingMonth)}
+      {renderEventList(selectedMonthData, viewingMonth)}
     </Container>
   );
 }

@@ -22,7 +22,7 @@ export default function Relatives() {
 
   console.log('formData', formData)
 
-  const [showListFor, setShowListFor] = useState('selectUser')
+  const [showListFor, setShowListFor] = useState('selectMember')
   const [showList, setShowList] = useState(false)
 
   const handleShowList = (value: any) => {
@@ -47,7 +47,7 @@ export default function Relatives() {
 
   return (
     <div className='md:flex text-text_color'>
-      <Container className="md:border-r md:border-border_color">
+      <Container>
         <div className="w-full md:max-w-xl p-4 mx-auto">
           <div className="flex justify-start items-center mb-4">
               <Link href={"/add_edit"} className="block"><AddRelationship /></Link>
@@ -55,7 +55,7 @@ export default function Relatives() {
           </div>
           <form className='text-text_color'>
             <p className="text-sm">Name</p>
-            <div onClick={() => handleShowList('selectUser')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
+            <div onClick={() => handleShowList('selectMember')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
             >{formData.name ? formData.name : <span className='text-gray-400'>Name</span>}</div>
 
             <div className="flex items-center gap-2 flex-wrap relative py-2">

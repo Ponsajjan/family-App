@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     // Build the query based on `for` parameter value
     switch (forType) {
-      case "selectUser":
+      case "selectMember":
         memberList = await prisma.member.findMany({
           select: {
             id: true,
@@ -87,9 +87,9 @@ export async function GET(request: NextRequest) {
         break;
 
       case "selectPartner":
-        if (!birthYearThreshold) {
-          return NextResponse.json({ error: "birthYearThreshold is required for selectChildren" }, { status: 400 });
-        }
+        // if (!birthYearThreshold) {
+        //   return NextResponse.json({ error: "birthYearThreshold is required for selectChildren" }, { status: 400 });
+        // }
         memberList = await prisma.member.findMany({
           // where: {
           //   birthYear: { gte: Number(birthYearThreshold) },
@@ -108,9 +108,9 @@ export async function GET(request: NextRequest) {
         break;
 
       case "selectChildren":
-        if (!birthYearThreshold) {
-          return NextResponse.json({ error: "birthYearThreshold is required for selectChildren" }, { status: 400 });
-        }
+        // if (!birthYearThreshold) {
+        //   return NextResponse.json({ error: "birthYearThreshold is required for selectChildren" }, { status: 400 });
+        // }
         memberList = await prisma.member.findMany({
           // where: {
           //   birthYear: { gte: Number(birthYearThreshold) },

@@ -31,9 +31,18 @@ export default function Relatives() {
     children: [],
   });
 
-  const [showListFor, setShowListFor] = useState("");
+  const [errors, setErrors] = useState({ 
+    name: "",
+    birth_date: "",
+    birth_month: "",
+    birth_year: "",
+    death_year: "",
+    death_month: "",
+    death_date: "" 
+  });
+  const [loading, setLoading] = useState(false)
+  const [showListFor, setShowListFor] = useState('selectMember');
   const [showList, setShowList] = useState(false);
-  const [errors, setErrors] = useState({ name: "", birth_date: "", birth_month: "", birth_year: "", death_year: "", death_month: "", death_date: "" });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowList(false)
@@ -42,7 +51,11 @@ export default function Relatives() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    setErrors((prev) => ({ ...prev, [name]: "" })); // Clear error when input is updated
   };
+
+  // show and hide death details fields based on checkbox
+  const showDeathDetails = formData.deceased ? "peer-checked:block" : "hidden"; 
 
   const handleShowList = (field: string) => {
     setShowListFor(field);
@@ -64,22 +77,31 @@ export default function Relatives() {
     });
   };
 
+  // Validate required fields
+  const validateForm = () => {
+    const errors: any = {};
+  
+    if (!formData.name) errors.name = "Name is required";
+    if (formData.birth_date && !formData.birth_month) errors.birth_date = "Date requires a month";
+    if (formData.birth_month && !formData.birth_date) errors.birth_month = "Month requires a date";
+    if (formData.birth_year && (!formData.birth_month || !formData.birth_date)) 
+      errors.birth_year = "Date and month are required";
+  
+    if (formData.deceased) {
+      if (formData.death_date && (!formData.death_month || !formData.death_year)) 
+        errors.death_date = "Month and year are required";
+      if (formData.death_month && !formData.death_year) errors.death_month = "Month requires a year";
+      if (formData.death_year && !formData.death_month) errors.death_year = "Year requires a month";
+    }
+  
+    return errors;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
-    const newErrors = {
-      name: !formData.name ? "Name is required" : "",
-      birth_date: formData.birth_date && !formData.birth_month ? "Date requires a month" : "",
-      birth_month: formData.birth_month && !formData.birth_date ? "Month requires a date" : "",
-      birth_year: formData.birth_year && (!formData.birth_month || !formData.birth_date) ? "Date and month are required" : "",
-
-      death_month: formData.death_month && !formData.death_year ? "Month requires a year" : "",
-      death_year: formData.death_year && !formData.death_month ? "Year requires a month" : "",
-      death_date: formData.death_date && (!formData.death_month || !formData.death_year) ? "Month and year are required" : "",
-    };
-
-    if (Object.values(newErrors).some((error) => error)) {
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length) {
       setErrors(newErrors);
       return; // Exit early if there are validation errors
     }
@@ -124,7 +146,7 @@ export default function Relatives() {
           </div>
           <form className="text-text_color" onSubmit={handleSubmit}>
             <div
-              onClick={() => handleShowList("selectUser")}
+              onClick={() => handleShowList("selectMember")}
               className="w-full border p-2 bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer"
             >
               {formData.name || <span className="text-gray-400">Select Member</span>}
@@ -190,9 +212,14 @@ export default function Relatives() {
             </div>
             <div className='relative py-2'>
                 <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
-                <input type="checkbox" className="peer align-middle inline-block bg-main_background border border-border_active rounded-md" name="deceased" />
-
-                <div className="hidden peer-checked:block pt-2">
+                <input
+                  type="checkbox"
+                  className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
+                  name="deceased"
+                  checked={formData.deceased}
+                  onChange={handleInputChange}
+                />
+                <div className={`${showDeathDetails} pt-2`}>
                   <p className="text-sm font-medium">Date Of Death <span className='font-normal opacity-45'>(Optional)</span></p>
                   <p className='text-xs font-extralight absolute top-3 left-24'>(Remove checkmark if not Deceased)</p>
                   <div className="w-full flex gap-2">

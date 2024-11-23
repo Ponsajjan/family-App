@@ -5,21 +5,21 @@ import React, { useEffect, useState } from 'react'
 import Details from './Details';
 import Container from "../../components/Container";
 import Link from 'next/link';
+import Loading from '@/components/Loading';
 
 export default function List() {
     const [members, setMembers] = useState([]);
     // Manage state for showing/hiding details
     const [showDetails, setShowDetails] = useState(false);
     const [userDetails, setUserDetails] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [loadingList, setLoadingList] = useState(true);
+    const [loadingDetails, setLoadingDetails] = useState(true);
 
     useEffect(() => {
         async function fetchUsers() {
           try {
-            setLoading(true)
-            setMembers([])
-            setError(null);
+            setLoadingList(true);
+            setMembers([]);
             
             const response = await fetch('/api/relatives', {
               method: 'GET',
@@ -37,9 +37,8 @@ export default function List() {
             setMembers(sortedUsers);
           } catch (error) {
             console.error("Failed to fetch members:", error);
-            setError("Failed to fetch members. Please try again later.");
           } finally {
-            setLoading(false)
+            setLoadingList(false)
           }
         }
     
@@ -55,14 +54,17 @@ export default function List() {
 
     const handleShowDetails = async (user_id) => {
         try {
-            const response = await fetch(`/api/user/${user_id}`);
+            setLoadingDetails(true)
+            const response = await fetch(`/api/relatives/${user_id}`);
             if (!response.ok) throw new Error('Failed to fetch user details');
 
             const user = await response.json();
-            setUserDetails(user);
+            setUserDetails(user.data[0]);
             setShowDetails(true);
         } catch (error) {
             console.error('Error fetching user details:', error);
+        } finally {
+            setLoadingDetails(false)
         }
     };
 
@@ -70,9 +72,10 @@ export default function List() {
         <div>
             <div className="w-full md:flex">
                 {/* Left panel: User List */}
-                <Container className="md:border-r md:border-border_color">
-                    <div className='w-full lg:max-w-xl mx-auto'>
-                    {groupedUsers.length === 0 ? (
+                <Container className='lg:max-w-xl mx-auto'>
+                    <div className='pt-4'></div>
+                    {loadingList && <Loading/>}
+                    {!loadingList && groupedUsers.length === 0 ? (
                         <p className='p-4'>No members found.</p>
                         ) : (Object.keys(groupedUsers).sort().map((letter) => (
                             <div key={letter}>                                
@@ -119,17 +122,14 @@ export default function List() {
                             </div>
                         ))
                     )}
-                    </div>
                 </Container>
-
-                {/* Right panel: Details view */}
                 {showDetails && (
-                <div onClick={() => setShowDetails(false)} className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 transition-opacity cursor-not-allowed z-[100]" />
-                )}
-                <div className={`${ showDetails
-                    ? "block md:static fixed left-0 right-0 bottom-0 min-h-[60%] max-h-[80%] md:max-h-full md:h-full z-[100] rounded-t-md"
-                    : "hidden md:block" } w-full lg:max-w-lg mx-auto bg-main_background px-5 overflow-y-auto`} >
-                    <Details data={userDetails}/>
+                <div
+                    onClick={() => setShowDetails(false)}
+                    className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 z-[100]"
+                /> )}
+                <div className={`${showDetails ? 'md:border-l md:border-border_color md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md' : 'md:w-0 h-0 opacity-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto bg-main_background overflow-y-auto`}>
+                {loadingDetails ? <Loading /> : <Details data={userDetails} openDetails={setShowDetails} />}
                 </div>
             </div>
         </div>

@@ -31,7 +31,7 @@ function page() {
           <h2 className="text-xl font-semibold mb-4">Guidelines:</h2>
           <ul className="list-disc list-inside space-y-2">
             <li>Keep your contact information current.</li>
-            <li>Add family relationships (e.g., spouse, children, siblings).</li>
+            <li>Add family relationships (e.g., parents, partner & children).</li>
             <li>Ensure profiles for all immediate family members are added.</li>
           </ul>
           <p className="mt-4 italic">
@@ -42,11 +42,7 @@ function page() {
 
         <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
           <h2 className="text-xl font-semibold mb-4">Moderator List:</h2>
-          <ul className="list-disc list-inside space-y-2">
-            <li>Keep your contact information current.</li>
-            <li>Add family relationships (e.g., parents, partner & children).</li>
-            <li>Ensure profiles for all immediate family members are added.</li>
-          </ul>
+
         </div>
 
         <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
