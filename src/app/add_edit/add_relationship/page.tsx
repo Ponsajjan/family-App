@@ -12,6 +12,7 @@ import MemberList from "@/components/MemberList";
 export const dynamic = 'force-dynamic'; // Optional, forces dynamic rendering
 // Since app/ uses server-side rendering by default, we can make this an async function
 export default function Relatives() {
+  const [refreshList, setRefresh] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     father: "",
@@ -125,8 +126,8 @@ export default function Relatives() {
         onClick={() => setShowList(false)}
         className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 z-[100]"
       /> )}
-      <div className={`${showList ? 'md:border-l md:border-border_color md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md' : 'md:w-0 h-0 opacity-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto bg-main_background overflow-y-auto`}>
-        <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList}/>
+      <div className={`${showList ? 'md:border-l md:border-border_color md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md' : 'md:w-0 h-0 opacity-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
+        <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList} refreshList={refreshList}/>
       </div>
     </div>
   )

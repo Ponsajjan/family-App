@@ -24,9 +24,10 @@ interface MemberListProps {
   setSelectedValue: any;
   openList: any;
   getSelectedValues: any;
+  refreshList: boolean;
 }
 
-export default function MemberList({ forType='selectMember', birthYearThreshold=null, setSelectedValue, openList, getSelectedValues }: MemberListProps) {
+export default function MemberList({ forType='selectMember', birthYearThreshold=null, setSelectedValue, openList, getSelectedValues, refreshList }: MemberListProps) {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [multiselect, setMultiSelect] = useState(false);
@@ -95,11 +96,13 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
 
     setFilteresUsed(forType)
     fetchMembers();
-  }, [forType, birthYearThreshold]);
+  }, [forType, birthYearThreshold, refreshList]);
 
-  const handleSelectedValue = (item: any) => {
+  const handleSelectedValue = (item: any, id: string) => {
     const key = keyMap[forType];
     if (!key) return;
+  
+    const keyWithId = `${key}_id`; // Create the new key with "_id" appended
   
     setSelectedValue((prev: any) => {
       if (Array.isArray(prev[key])) {
@@ -108,12 +111,16 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
           ? prev[key].filter((val: any) => val !== item) // Remove if it exists
           : [...prev[key], item]; // Add if it doesn't exist
   
-        return { ...prev, [key]: updatedArray };
+        const updatedIdArray = prev[keyWithId]?.includes(id)
+          ? prev[keyWithId].filter((val: any) => val !== id) // Remove if it exists
+          : [...(prev[keyWithId] || []), id]; // Add if it doesn't exist, ensure prev[keyWithId] is an array
+  
+        return { ...prev, [key]: updatedArray, [keyWithId]: updatedIdArray };
       }
   
-      // For non-array keys: Set the value and trigger openList(true)
+      // For non-array keys: Set both the value and id
       openList(false);
-      return { ...prev, [key]: item };
+      return { ...prev, [key]: item, [keyWithId]: id };
     });
   };
 
@@ -126,7 +133,7 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
 
   return (
     <>
-      <div className="relative">
+      <div className="relative bg-main_background">
         <div className='border-b border-border_color bg-main_background z-10 relative'>
           <div className="relative w-full p-3 border-b border-border_color">
             <div className='flex gap-2'>
@@ -169,7 +176,7 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
               </div>
 
               {groupedMembers[letter].map((member) => (
-                <div onClick = {() => handleSelectedValue(member.name)} key={member.id} className="pl-4">
+                <div onClick = {() => handleSelectedValue(member.name, member.id)} key={member.id} className="pl-4">
                   <div className="border-l border-border_color py-1 pl-4 pr-3">
                     <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
                       {multiselect && <div className='pr-3 border-r border-border_color mr-2'>

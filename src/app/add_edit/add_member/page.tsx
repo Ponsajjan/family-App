@@ -9,7 +9,7 @@ import { AddMember } from "@/utils/Icons";
 import { useToast } from '@/components/Toast';
 
 export default function AddUser() {
-  const toast = useToast()
+  const toast = useToast();
   const [formData, setFormData] = useState({
     name: "",
     gender: "Male",
@@ -54,16 +54,16 @@ export default function AddUser() {
     const errors: any = {};
   
     if (!formData.name) errors.name = "Name is required";
-    if (formData.birth_date && !formData.birth_month) errors.birth_date = "Date requires a month";
-    if (formData.birth_month && !formData.birth_date) errors.birth_month = "Month requires a date";
+    if (formData.birth_date && !formData.birth_month) errors.birth_date = "Date of birth requires a month";
+    if (formData.birth_month && !formData.birth_date) errors.birth_month = "Date of birth requires a date";
     if (formData.birth_year && (!formData.birth_month || !formData.birth_date)) 
       errors.birth_year = "Date and month are required";
   
     if (formData.deceased) {
       if (formData.death_date && (!formData.death_month || !formData.death_year)) 
         errors.death_date = "Month and year are required";
-      if (formData.death_month && !formData.death_year) errors.death_month = "Month requires a year";
-      if (formData.death_year && !formData.death_month) errors.death_year = "Year requires a month";
+      if (formData.death_month && !formData.death_year) errors.death_month = "Death anniversary requires a year";
+      if (formData.death_year && !formData.death_month) errors.death_year = "Death anniversary requires a month";
     }
   
     return errors;
@@ -82,19 +82,19 @@ export default function AddUser() {
       const deceased = formData.deceased;
       // Proceed with form submission
       const memberData = {
-        name: formData['name'],
-        gender: formData['gender'],
-        birthDate: formData['birth_date'] ? parseInt(formData['birth_date']) : null,
-        birthMonth: formData['birth_month'] ? parseInt(formData['birth_month']) : null,
-        birthYear: formData['birth_year'] ? parseInt(formData['birth_year']) : null,
+        name: formData.name,
+        gender: formData.gender,
+        birthDate: formData.birth_date ? parseInt(formData.birth_date) : null,
+        birthMonth: formData.birth_month ? parseInt(formData.birth_month) : null,
+        birthYear: formData.birth_year ? parseInt(formData.birth_year) : null,
         deceased: deceased,
-        deathDate: deceased && formData['death_date'] ? parseInt(formData['death_date']) : null,
-        deathMonth: deceased && formData['death_month'] ? parseInt(formData['death_month']) : null,
-        deathYear: deceased && formData['death_year'] ? parseInt(formData['death_year']) : null,
-        phoneNumber: formData['phone_number'],
-        occupation: formData['occupation'],
-        education: formData['education'],
-        address: formData['address'],
+        deathDate: deceased && formData.death_date ? parseInt(formData.death_date) : null,
+        deathMonth: deceased && formData.death_month ? parseInt(formData.death_month) : null,
+        deathYear: deceased && formData.death_year ? parseInt(formData.death_year) : null,
+        phoneNumber: formData.phone_number,
+        occupation: formData.occupation,
+        education: formData.education,
+        address: formData.address,
       };
 
       const response = await fetch("/api/addMember", {
