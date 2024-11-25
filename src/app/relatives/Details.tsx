@@ -7,7 +7,7 @@ import React from 'react';
 export default function Details({ data, openDetails }: any) {
 
     return (
-        <Container className='text-text_color py-6 px-4 relative'>
+        <Container className='text-text_color py-6 px-4 relative bg-main_background'>
             <div onClick={() => openDetails(false)} className='absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
             <div className='flex gap-2 items-center w-full pb-3'>
                 <div className='border border-border_color p-2 rounded-md'>
@@ -33,7 +33,7 @@ export default function Details({ data, openDetails }: any) {
             </div>
 
 
-            {(false) &&
+            {(data?.father || data?.mother || data?.partner) &&
             <>
                 <div className='flex pt-3 items-center'>
                     <p className='font-semibold whitespace-nowrap pr-4'>Relation Information</p>
@@ -44,36 +44,37 @@ export default function Details({ data, openDetails }: any) {
                         {data?.father && (
                             <>
                                 <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Father</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.father}</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.father.name}</div>
                             </>
                         )}
                         {data?.mother && (
                             <>
                                 <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Mother</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.mother}</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.mother.name}</div>
                             </>
                         )}
-                        {data?.siblings && (
+                        {/* {data?.siblings && (
                             <>
                                 <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Siblings</div>
                                 <div className='w-3/5 leading-5 md:leading-7'>{data?.siblings.join(', ')}</div>
                             </>
-                        )}
+                        )} */}
                         {data?.partner && (
                             <>
                                 <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Partner</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.partner}</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.partner.name}</div>
                             </>
                         )}
-                        {data?.children && (
+                        {/* {data?.children && (
                             <>
                                 <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Children</div>
                                 <div className='w-3/5 leading-5 md:leading-7'>{data?.children.join(', ')}</div>
                             </>
-                        )}
+                        )} */}
                     </div>
                 </div>
-            </>}
+            </>
+            }
 
             {(data?.phoneNumber || data?.address) &&
             <div className='flex pt-3 items-center'>

@@ -23,16 +23,28 @@ export async function GET(request: NextRequest) {
 
   try {
     const memberList = await prisma.member.findMany({
-        select: {
+      select: {
         id: true,
         name: true,
         gender: true,
-        father: true,
-        mother: true,
-        phoneNumber:true,
-        partner: true
+        phoneNumber: true,
+        father: {
+          select: {
+            name: true, // Select only the father's name
+          },
         },
-        orderBy: { name: "asc" },
+        mother: {
+          select: {
+            name: true, // Select only the mother's name
+          },
+        },
+        partner: {
+          select: {
+            name: true, // Select only the partner's name
+          },
+        },
+      },
+      orderBy: { name: "asc" },
     });
 
     return NextResponse.json(memberList);

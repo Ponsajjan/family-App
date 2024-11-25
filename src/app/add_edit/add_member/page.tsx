@@ -69,34 +69,38 @@ export default function AddUser() {
     return errors;
   };
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    // Validate the form
     const newErrors = validateForm();
     if (Object.keys(newErrors).length) {
       setErrors(newErrors);
       return; // Exit early if there are validation errors
     }
+  
     try {
-      setLoading(true)
+      setLoading(true);
+  
+      // Prepare member data
       const deceased = formData.deceased;
-      // Proceed with form submission
       const memberData = {
         name: formData.name,
         gender: formData.gender,
-        birthDate: formData.birth_date ? parseInt(formData.birth_date) : null,
-        birthMonth: formData.birth_month ? parseInt(formData.birth_month) : null,
-        birthYear: formData.birth_year ? parseInt(formData.birth_year) : null,
-        deceased: deceased,
-        deathDate: deceased && formData.death_date ? parseInt(formData.death_date) : null,
-        deathMonth: deceased && formData.death_month ? parseInt(formData.death_month) : null,
-        deathYear: deceased && formData.death_year ? parseInt(formData.death_year) : null,
+        birthDate: formData.birth_date ? parseInt(formData.birth_date, 10) : null,
+        birthMonth: formData.birth_month ? parseInt(formData.birth_month, 10) : null,
+        birthYear: formData.birth_year ? parseInt(formData.birth_year, 10) : null,
+        deceased,
+        deathDate: deceased && formData.death_date ? parseInt(formData.death_date, 10) : null,
+        deathMonth: deceased && formData.death_month ? parseInt(formData.death_month, 10) : null,
+        deathYear: deceased && formData.death_year ? parseInt(formData.death_year, 10) : null,
         phoneNumber: formData.phone_number,
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
       };
-
+  
+      // API Call
       const response = await fetch("/api/addMember", {
         method: "POST",
         headers: {
@@ -104,46 +108,46 @@ export default function AddUser() {
         },
         body: JSON.stringify(memberData),
       });
-
+  
+      // Handle API response
+      const result = await response.json();
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Something went wrong");
+        throw new Error(result.error || "Something went wrong");
       }
   
-      const result = await response.json();
-      if (result.success) {
-        if (toast) {
-          toast.show("Member Added successfully", "success", 5000);
-        }
-        // Reset form
-        setFormData({
-          name: "",
-          gender: "Male",
-          birth_date: "",
-          birth_month: "",
-          birth_year: "",
-          deceased: false,
-          death_date: "",
-          death_month: "",
-          death_year: "",
-          phone_number: "",
-          occupation: "",
-          education: "",
-          address: "",
-        });
-      } else {
-        if (toast) {
-          toast.show("Something went wrong!", "error", 5000);
-        }
+      // Success: Show toast and reset form
+      if (toast) {
+        toast.show("Member added successfully!", "success", 5000);
       }
-
-      console.log("Form submitted:", memberData);
-    } catch (error) {
-        console.error("Error adding user:", error);
+  
+      // Reset form
+      setFormData({
+        name: "",
+        gender: "Male",
+        birth_date: "",
+        birth_month: "",
+        birth_year: "",
+        deceased: false,
+        death_date: "",
+        death_month: "",
+        death_year: "",
+        phone_number: "",
+        occupation: "",
+        education: "",
+        address: "",
+      });
+    } catch (error: any) {
+      console.error("Error adding user:", error);
+  
+      // Show toast for error
+      if (toast) {
+        toast.show(error.message || "An unexpected error occurred.", "error", 5000);
+      }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
+  
 
   return (
     <div className="w-full md:max-w-xl p-4 mx-auto">
@@ -241,7 +245,7 @@ export default function AddUser() {
             <p className="text-sm font-medium">
               Date Of Death <span className="font-normal opacity-45">(Optional)</span>
             </p>
-            <p className="text-xs font-extralight absolute top-3 left-24">
+            <p className="text-xs font-extralight absolute top-[14px] left-[100px]">
               (Remove checkmark if not Deceased)
             </p>
             <div className="w-full flex gap-2">

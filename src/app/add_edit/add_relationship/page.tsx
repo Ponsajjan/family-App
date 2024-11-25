@@ -17,7 +17,7 @@ export default function Relatives() {
     name: "",
     father: "",
     mother: "",
-    partner: [],
+    partner: "",
     children: [],
   });
 
@@ -78,24 +78,8 @@ export default function Relatives() {
             </div>
 
             <p className="text-sm">Partner</p>
-            <div>
-              {formData.partner.length <= 0 ? (
-                <div onClick={() => handleShowList('selectPartner')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
-                  <span className='text-gray-400'>Partner</span>
-                </div>) :
-                formData.partner.map((selected:any, index:number) => (
-                  <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
-                    <span onClick={() => handleShowList('selectPartner')} className="py-2 w-full">{selected}</span>
-                    {(formData.partner.length > 1) && 
-                      <span
-                        onClick={() => handleCancelSelectedValue(selected, 'partner')}
-                        className="border border-border_color rounded-md h-fit">
-                        <CloseIcon />
-                      </span>
-                    }
-                  </div>)
-                )
-              }
+            <div onClick={() => handleShowList('selectPartner')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
+              {formData.partner ? formData.partner : <span className='text-gray-400'>Partner</span>}
             </div>
             <p className="text-sm">Children</p>
             <div className='mb-8' >

@@ -35,9 +35,9 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             gender: true,
-            father: true,
-            mother: true,
-            partner: true
+            // father: true,
+            // mother: true,
+            // partner: true
             // Add other fields as needed
           },
           orderBy: { name: "asc" },
@@ -57,9 +57,9 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             gender: true,
-            father: true,
-            mother: true,
-            partner: true, // This will include partner relationship details if needed
+            // father: true,
+            // mother: true,
+            // partner: true, // This will include partner relationship details if needed
           },
           orderBy: { name: "asc" },
         });
@@ -78,9 +78,9 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             gender: true,
-            father: true,
-            mother: true,
-            partner: true, // This will include partner relationship details if needed
+            // father: true,
+            // mother: true,
+            // partner: true, // This will include partner relationship details if needed
           },
           orderBy: { name: "asc" },
         });
@@ -99,9 +99,9 @@ export async function GET(request: NextRequest) {
             name: true,
             gender: true,
             birthYear: true,
-            father: true,
-            mother: true,
-            partner: true, // This will include partner relationship details if needed
+            // father: true,
+            // mother: true,
+            // partner: true, // This will include partner relationship details if needed
           },
           orderBy: { name: "asc" },
         });
@@ -120,9 +120,9 @@ export async function GET(request: NextRequest) {
             name: true,
             gender: true,
             birthYear: true,
-            father: true,
-            mother: true,
-            partner: true, // This will include partner relationship details if needed
+            // father: true,
+            // mother: true,
+            // partner: true, // This will include partner relationship details if needed
           },
           orderBy: { name: "asc" },
         });

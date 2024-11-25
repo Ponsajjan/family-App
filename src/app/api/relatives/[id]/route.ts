@@ -23,23 +23,35 @@ export async function GET(request: Request, context: any) {
           id: true,
           name: true,
           gender: true,
+          phoneNumber: true,
+          address: true,
+          occupation: true,
+          education: true,
           birthDate: true,
           birthMonth: true,
           birthYear: true,
+          deceased: true,
           deathDate: true,
           deathMonth: true,
           deathYear: true,
-          address: true,
           additionalInfo: true,
-          children: true,
-          deceased: true,
+          // children: true,
           descendant: true,
-          education: true,
-          father: true,
-          mother: true,
-          occupation: true,
-          partner: true,
-          phoneNumber: true,
+          father: {
+            select: {
+              name: true, // Select only the father's name
+            },
+          },
+          mother: {
+            select: {
+              name: true, // Select only the mother's name
+            },
+          },
+          partner: {
+            select: {
+              name: true, // Select only the partner's name
+            },
+          },
         },
       });
 

@@ -69,7 +69,7 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
       try {
         setLoading(true)
         setMembers([])
-        setMultiSelect(forType === "selectChildren" || forType === "selectPartner")
+        setMultiSelect(forType === "selectChildren")
         setError(null);
         
         const response = await fetch(`/api?for=${forType}&birthYearThreshold=${birthYearThreshold}`, {
@@ -137,7 +137,15 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
         <div className='border-b border-border_color bg-main_background z-10 relative'>
           <div className="relative w-full p-3 border-b border-border_color">
             <div className='flex gap-2'>
-              <Input placeholder={forType} className="pl-9" />
+              <Input
+                placeholder={
+                  forType === "selectMember" ? "Select Member To Edit" : 
+                  forType === "selectFather" ? "Select Father" : 
+                  forType === "selectMother" ? "Select Mother" : 
+                  forType === "selectPartner" ? "Select partner" : 
+                  "Select Children"
+                }  className="pl-9"
+              />
               <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
                 <SearchIcon />
               </span>

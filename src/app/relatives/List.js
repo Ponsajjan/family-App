@@ -33,8 +33,7 @@ export default function List() {
             }
     
             const usersData = await response.json();
-            const sortedUsers = usersData.sort((a, b) => a.name.localeCompare(b.name));
-            setMembers(sortedUsers);
+            setMembers(usersData);
           } catch (error) {
             console.error("Failed to fetch members:", error);
           } finally {
@@ -97,27 +96,40 @@ export default function List() {
                                                             <div className='font-semibold capitalize'>{user.name}</div>
                                                             {/* <div className="font-extralight opacity-65">(athan)</div> */}
                                                         </div>
-                                                        <div className="flex text-xs md:text-sm opacity-65">
-                                                        {(user.father.length > 0 || user.mother.length > 0 || user.partner.length > 0) ? (
+                                                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                                                        {/* Parents */}
+                                                        {(user.father || user.mother) ? (
                                                             <>
-                                                            <div className="font-semibold pr-1">
-                                                                {user?.father ? 'Parents:' : 'Partner:'}
-                                                            </div>
-                                                            {user?.descendant ? (
-                                                                <>
-                                                                <div>{user?.father}</div>
-                                                                <div>{user?.mother}</div>
-                                                                </>
-                                                            ) : (
-                                                                <div>{user.partner || "No Partner Assigned"}</div>
+                                                            <span className="pr-1 font-semibold">
+                                                                Parents:
+                                                            </span>
+                                                            {user.father && (
+                                                                <span className="pr-1">
+                                                                    {user.father.name},
+                                                                </span>
+                                                            )}
+                                                            {user.mother && (
+                                                                <span className="pr-1">
+                                                                    {user.mother.name}
+                                                                </span>
                                                             )}
                                                             </>
-                                                        ) : (
-                                                            <div>No relationship assigned yet</div>
-                                                        )}
+                                                        ) : user.partner ? (
+                                                            <div>
+                                                                <span className="pr-1 font-semibold">
+                                                                    Partner:
+                                                                </span>
+                                                                <span className='pr-1'>
+                                                                    {user.partner.name}
+                                                                </span>
+                                                            </div>
+                                                        ) : 'No relationship assigned yet'}
                                                         </div>
                                                     </div>
-                                                    {user.phoneNumber && <Link href={`tel:${user.phoneNumber}`}><Call /></Link>}
+                                                    {user.phoneNumber && 
+                                                    <Link onClick={(e) => e.stopPropagation()} className='z-10 cursor-pointer' href={`tel:${user.phoneNumber}`}>
+                                                        <Call />
+                                                    </Link>}
                                                 </div>
                                             </div>
                                         </div>))}

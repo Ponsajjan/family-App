@@ -8,20 +8,20 @@ export async function POST(request: Request) {
     const deceased = formData.deceased === true; // Handle as a boolean
 
     const user = {
-        name: formData.name,
-        gender: formData.gender,
-        birthDate: formData.birthDate ? parseInt(formData.birthDate, 10) : null,
-        birthMonth: formData.birthMonth ? parseInt(formData.birthMonth, 10) : null,
-        birthYear: formData.birthYear ? parseInt(formData.birthYear, 10) : null,
-        deceased: deceased,
-        deathDate: deceased && formData.deathDate ? parseInt(formData.deathDate, 10) : null,
-        deathMonth: deceased && formData.deathMonth ? parseInt(formData.deathMonth, 10) : null,
-        deathYear: deceased && formData.deathYear ? parseInt(formData.deathYear, 10) : null,
-        phoneNumber: formData.phoneNumber,
-        occupation: formData.occupation || null,
-        education: formData.education || null,
-        address: formData.address || null,
-      };
+      name: formData.name,
+      gender: formData.gender,
+      birthDate: formData.birthDate ? parseInt(formData.birthDate, 10) : null,
+      birthMonth: formData.birthMonth ? parseInt(formData.birthMonth, 10) : null,
+      birthYear: formData.birthYear ? parseInt(formData.birthYear, 10) : null,
+      deceased: deceased,
+      deathDate: deceased && formData.deathDate ? parseInt(formData.deathDate, 10) : null,
+      deathMonth: deceased && formData.deathMonth ? parseInt(formData.deathMonth, 10) : null,
+      deathYear: deceased && formData.deathYear ? parseInt(formData.deathYear, 10) : null,
+      phoneNumber: formData.phoneNumber,
+      occupation: formData.occupation || null,
+      education: formData.education || null,
+      address: formData.address || null,
+    };
 
     // Save user to the database
     const newUser = await prisma.member.create({

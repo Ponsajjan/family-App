@@ -12,7 +12,6 @@ datasource db {
 
 model Member {
   id                    Int                   @id @default(autoincrement())
-  reference_id          String?
   name                  String
 
   birthDate             Int?
@@ -32,37 +31,25 @@ model Member {
   education             String?
   additionalInfo        MembersAdditionalInfo[]
   descendant            Boolean               @default(false)
-  partner               MembersPartner[]
-  father                MembersFather[]
-  mother                MembersMother[]
-  children              MembersChildren[]
+  // Family relationships
+  fatherId              Int?                  // Foreign key for father
+  motherId              Int?                  // Foreign key for mother
+  partnerId             Int?                  // Foreign key for partner
+
+  father                Member?               @relation("FatherOfChildren", fields: [fatherId], references: [id])
+  mother                Member?               @relation("MotherOfChildren", fields: [motherId], references: [id])
+  
+  // get Partner Pair values
+  partner               Member?               @relation("PartnerRelation", fields: [partnerId], references: [id])
+  partnerOf             Member[]              @relation("PartnerRelation")  // Opposite relation for partner
+
+  // Children having member as father list
+  fatherOf              Member[]              @relation("FatherOfChildren") // Opposite relation for father
+  motherOf              Member[]              @relation("MotherOfChildren") // Opposite relation for mother
+  
+  // Handled automaticly by prisma
   createdAt             DateTime              @default(now())
   updatedAt             DateTime              @updatedAt
-}
-
-model MembersPartner {
-  id                    Int                   @id @default(autoincrement())
-  partner               Member                @relation(fields: [partnerId], references: [id])
-  divorced              Boolean               @default(false)
-  partnerId             Int
-}
-
-model MembersFather {
-  id                    Int                   @id @default(autoincrement())
-  father                Member                @relation(fields: [fatherId], references: [id])
-  fatherId              Int
-}
-
-model MembersMother {
-  id                    Int                   @id @default(autoincrement())
-  mother                Member                @relation(fields: [motherId], references: [id])
-  motherId              Int
-}
-
-model MembersChildren {
-  id                    Int                   @id @default(autoincrement())
-  children              Member                @relation(fields: [childrenId], references: [id])
-  childrenId            Int
 }
 
 model MembersAdditionalInfo {
@@ -72,3 +59,115 @@ model MembersAdditionalInfo {
   member                Member                @relation(fields: [memberId], references: [id])
   memberId              Int
 }
+
+
+
+
+
+
+
+
+// Corrected Schema for Bidirectional Relationships
+// prisma
+// Copy code
+// model Member {
+//   id          Int       @id @default(autoincrement())
+//   name        String     @db.Text
+//   gender      String?
+//   phoneNumber String?
+//   address     String?
+//   occupation  String?
+//   education   String?
+
+//   // Date of birth and death
+//   birthDate   DateTime?
+//   deceased    Boolean    @default(false)
+//   deathDate   DateTime?
+
+//   // Family relationships
+//   fatherId    Int?       // Foreign key for father
+//   motherId    Int?       // Foreign key for mother
+//   partnerId   Int?       // Foreign key for partner
+
+//   father      Member?    @relation("ChildrenToFather", fields: [fatherId], references: [id])
+//   childrenAsFather Member[] @relation("ChildrenToFather") // Opposite relation for father
+
+//   mother      Member?    @relation("ChildrenToMother", fields: [motherId], references: [id])
+//   childrenAsMother Member[] @relation("ChildrenToMother") // Opposite relation for mother
+
+//   partner     Member?    @relation("PartnerRelation", fields: [partnerId], references: [id])
+//   partnerOf   Member[]   @relation("PartnerRelation") // Opposite relation for partner
+
+//   // Additional info
+//   additionalInfo MembersAdditionalInfo[]
+
+//   createdAt   DateTime   @default(now())
+//   updatedAt   DateTime   @updatedAt
+// }
+
+// model MembersAdditionalInfo {
+//   id        Int       @id @default(autoincrement())
+//   topic     String?
+//   details   String
+//   memberId  Int
+//   member    Member    @relation(fields: [memberId], references: [id])
+// }
+
+// Explanation of Changes
+// Bidirectional Relationships:
+
+// Prisma requires that for every relation, the other side of the relationship must be declared unless you’re explicitly working with a one-sided relation.
+// For father, the opposite side is childrenAsFather.
+// For mother, the opposite side is childrenAsMother.
+// For partner, the opposite side is partnerOf.
+// Relation Names:
+
+// Added explicit relation names (e.g., "ChildrenToFather") to avoid ambiguity, especially since multiple relations point to the same Member model.
+// Self-referencing Fields:
+
+// Added childrenAsFather and childrenAsMother to represent the opposite side of the father and mother relationships.
+// Optional Fields:
+
+// Made foreign keys (fatherId, motherId, partnerId) optional (Int?) to allow members without these relationships.
+// Example Usage
+// Creating a Member with Relations
+// typescript
+// Copy code
+// const father = await prisma.member.create({
+//   data: {
+//     name: "John Doe",
+//     gender: "Male",
+//   },
+// });
+
+// const child = await prisma.member.create({
+//   data: {
+//     name: "Jane Doe",
+//     gender: "Female",
+//     father: {
+//       connect: { id: father.id },
+//     },
+//   },
+// });
+// Querying Members and Relations
+// typescript
+// Copy code
+// const memberWithRelations = await prisma.member.findUnique({
+//   where: { id: father.id },
+//   include: {
+//     childrenAsFather: true, // Get children where this member is the father
+//   },
+// });
+// console.log(memberWithRelations);
+// Updating Relations
+// typescript
+// Copy code
+// await prisma.member.update({
+//   where: { id: child.id },
+//   data: {
+//     mother: {
+//       connect: { id: motherId },
+//     },
+//   },
+// });
+// This schema and approach will resolve the validation issue and ensure the relations are bidirectional. Let me know if you encounter further challenges!
