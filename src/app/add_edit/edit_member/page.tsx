@@ -15,31 +15,53 @@ export default function Relatives() {
   const toast = useToast();
   const [memberName, setMemberName] = useState('');
   const [refreshList, setRefresh] = useState(true);
-  const defaultValue = {
-      name_id: '',
-      name: '',
-      gender: "Male",
-      birth_date: null,
-      birth_month: null,
-      birth_year: null,
-      deceased: false,
-      death_date: null,
-      death_month: null,
-      death_year: null,
-      phone_number: '',
-      occupation: '',
-      education: '',
-      address: '',
-      descendant: false,
-      father_id: null,
-      father: '',
-      mother_id: null,
-      mother: '',
-      partner_id: null,
-      partner: '',
-      children_id: [],
-      children: [],
+  interface Member {
+    id: string;
+    name: string;
   }
+  interface DefaultValue {
+    name: Member | null;
+    gender: "Male" | "Female"; // Gender is restricted to specific string literals
+    birth_date: string | null;
+    birth_month: string | null;
+    birth_year: string | null;
+    deceased: boolean;
+    death_date: string | null;
+    death_month: string | null;
+    death_year: string | null;
+    phone_number: string;
+    occupation: string;
+    education: string;
+    address: string;
+    descendant: boolean;
+    father: Member | null;
+    mother: Member | null;
+    partner: Member | null;
+    children_id: string[];
+    children: Member[];
+  }
+
+  const defaultValue: DefaultValue = {
+    name: null,
+    gender: "Male",
+    birth_date: null,
+    birth_month: null,
+    birth_year: null,
+    deceased: false,
+    death_date: null,
+    death_month: null,
+    death_year: null,
+    phone_number: '',
+    occupation: '',
+    education: '',
+    address: '',
+    descendant: false,
+    father: null,
+    mother: null,
+    partner: null,
+    children_id: [],
+    children: [],
+  };
   const [previousData, setPreviousData] = useState(defaultValue);
   const [formData, setFormData] = useState(defaultValue);
   const noError = { 
@@ -76,11 +98,11 @@ export default function Relatives() {
   };
 
   useEffect(() => {
-    if (formData.name_id) {
+    if (formData.name?.id) {
       const fetchUser = async () => {
         try {
           setLoading(true)
-          const response = await fetch(`/api/editMember/${formData.name_id}`);
+          const response = await fetch(`/api/editMember/${formData.name?.id}`);
           if (!response.ok) throw new Error('Failed to fetch user details');
       
           const { data } = await response.json();
@@ -91,8 +113,7 @@ export default function Relatives() {
           const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
 
           const formatedDbData = {
-            name_id: dbData.id || null,
-            name:  dbData.name,
+            name:  {id: `${dbData.id}`, name: `${dbData.name}`},
             gender:  dbData.gender,
             birth_date:  dbData.birthDate || null,
             birth_month:  dbData.birthMonth || null,
@@ -106,14 +127,11 @@ export default function Relatives() {
             education:  dbData.education,
             address:  dbData.address,
             descendant: dbData.descendant,
-            father_id: dbData.father?.id || null,
-            father: dbData.father?.name || null,
-            mother_id: dbData.mother?.id || null,
-            mother: dbData.mother?.name || null,
-            partner_id: dbData.partner?.id || null,
-            partner: dbData.partner?.name || null,
+            father: {id: `${dbData.father?.id}`, name: `${dbData.father?.name}`},
+            mother: {id: `${dbData.mother?.id}`, name: `${dbData.mother?.name}`},
+            partner: {id: `${dbData.partner?.id}`, name: `${dbData.partner?.name}`},
             children_id: childrenData ? childrenData.map((child: any) => child.id) : [],
-            children: childrenData ? childrenData.map((child: any) => child.name) : [],
+            children: childrenData ? childrenData : [],
           }
           setFormData(formatedDbData);
           setMemberName(dbData.name)
@@ -128,21 +146,52 @@ export default function Relatives() {
   
       fetchUser()
     }
-  }, [formData.name_id])
+  }, [formData.name?.id])
 
 
-  const handleCancelSelectedValue = (item: any, key:any) => {
+  // const handleCancelSelectedValue = (item: any, key:any) => {
+  //   if (!key) return;
+  
+  //   setFormData((prev: any) => {
+  //     if (Array.isArray(prev[key])) {
+  //       // For array keys: Add or remove the value
+  //       const updatedArray = prev[key].includes(item)
+  //         ? prev[key].filter((val: any) => val !== item) // Remove if it exists
+  //         : [...prev[key], item]; // Add if it doesn't exist
+  
+  //       return { ...prev, [key]: updatedArray };
+  //     }
+  //   });
+  // };
+
+  const handleCancelSelectedValue = (item: any, key:any, id: string) => {
     if (!key) return;
   
     setFormData((prev: any) => {
       if (Array.isArray(prev[key])) {
-        // For array keys: Add or remove the value
-        const updatedArray = prev[key].includes(item)
-          ? prev[key].filter((val: any) => val !== item) // Remove if it exists
-          : [...prev[key], item]; // Add if it doesn't exist
+        // Check if the item already exists
+        const exists = prev[key].some((entry: any) => entry.id === id);
   
-        return { ...prev, [key]: updatedArray };
+        if (exists) {
+          // Remove the existing entry
+          return {
+            ...prev,
+            [key]: prev[key].filter((entry: any) => entry.id !== id),
+          };
+        } else {
+          // Add the new entry
+          return {
+            ...prev,
+            [key]: [...prev[key], { id, name: item }],
+          };
+        }
       }
+  
+      // If not an array, initialize with the first object
+      return {
+        ...prev,
+        [key]: { id, name: item },
+      };
     });
   };
 
@@ -185,7 +234,7 @@ export default function Relatives() {
       const isFemale = formData.gender === "Female";
 
       const memberData = {
-        name: formData.name,
+        name: formData.name?.name,
         gender: formData.gender,
         birthDate: formData.birth_date ? parseInt(formData.birth_date, 10) : null,
         birthMonth: formData.birth_month ? parseInt(formData.birth_month, 10) : null,
@@ -198,18 +247,20 @@ export default function Relatives() {
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
-        fatherId: formData.father_id ? parseInt(formData.father_id, 10) : null,
-        motherId: formData.mother_id ? parseInt(formData.mother_id, 10) : null,
-        partnerId: formData.partner_id ? parseInt(formData.partner_id, 10) : null,
+        fatherId: formData.father?.id ? parseInt(formData.father?.id, 10) : null,
+        motherId: formData.mother?.id ? parseInt(formData.mother?.id, 10) : null,
+        partnerId: formData.partner?.id ? parseInt(formData.partner?.id, 10) : null,
         ...(isMale && {
-          fatherOf: formData.children_id && formData.children_id.length > 0 ? formData.children_id : [],
+          fatherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
         }),
         ...(isFemale && {
-          motherOf: formData.children_id && formData.children_id.length > 0 ? formData.children_id : [],
+          motherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
         }),
       };
+
+      console.log('memberData', memberData)
   
-      const response = await fetch(`/api/editMember/${formData.name_id}`, {
+      const response = await fetch(`/api/editMember/${formData.name?.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -271,7 +322,7 @@ export default function Relatives() {
               onClick={handleSelectMember}
               className="w-full border p-2 bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer"
             >
-              {formData.name || <span className="text-gray-400">Select Member</span>}
+              {formData.name || <span className="text-gray-400 py-2">Select Member</span>}
             </div> */}
             <Input
               onClick={() => setShowList(false)}
@@ -280,11 +331,11 @@ export default function Relatives() {
               placeholder="Name"
               name="name"
               label="Name"
-              value={formData.name || ''}
+              value={formData.name?.name || ''}
               error={errors.name}
               onChange={handleInputChange}
             />
-            <div className="flex gap-2 pt-2 pb-4">
+            <div className="flex gap-2 py-4">
               <p className="text-sm font-medium">Gender:</p>
               <RadioButton
                 label="Male"
@@ -445,18 +496,34 @@ export default function Relatives() {
                     <p className="text-sm">Father</p>
                     <div
                       onClick={() => handleShowList("selectFather")}
-                      className="w-full border p-2 bg-field_color border-border_color text-sm rounded-md cursor-pointer"
+                      className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md cursor-pointer"
                     >
-                    {formData.father || <span className="text-gray-400">Select Father</span>}
+                    {formData.father && formData.father?.name !== 'undefined' ? 
+                      <>
+                        <span className="py-2 w-full">{formData.father?.name}</span>
+                        <span
+                          onClick={(e) => {e.stopPropagation(); console.log('father')}}
+                          className="border border-border_color rounded-md h-fit">
+                          <CloseIcon />
+                        </span>
+                      </> :  <span className="text-gray-400 py-2">Select Father</span>}
                     </div>
                   </div>
                   <div className="w-full">
                     <p className="text-sm">Mother</p>
                     <div
                       onClick={() => handleShowList("selectMother")}
-                      className="w-full border p-2 bg-field_color border-border_color text-sm rounded-md cursor-pointer"
+                      className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md cursor-pointer"
                     >
-                    {formData.mother || <span className="text-gray-400">Select Mother</span>}
+                    {formData.mother && formData.mother?.name !== 'undefined' ? 
+                      <>
+                        <span className="py-2 w-full">{formData.mother?.name}</span>
+                        <span
+                          onClick={(e) => {e.stopPropagation(); console.log('mother')}}
+                          className="border border-border_color rounded-md h-fit">
+                          <CloseIcon />
+                        </span>
+                      </> : <span className="text-gray-400 py-2">Select Mother</span>}
                   </div>
                 </div>
               </div>
@@ -466,31 +533,30 @@ export default function Relatives() {
               onClick={() => handleShowList('selectPartner')} 
               className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
             >
-              {formData.partner ? 
+              {formData.partner && formData.partner?.name !== 'undefined' ? 
                 <>
-                  <span className="py-2 w-full">{formData.partner}</span>
-                  {/* <span
-                    onClick={() => handleCancelSelectedValue(formData.partner, 'partner')}
+                  <span className="py-2 w-full">{formData.partner?.name}</span>
+                  <span
+                    onClick={(e) => {e.stopPropagation(); console.log('partner')}}
                     className="border border-border_color rounded-md h-fit">
                     <CloseIcon />
-                  </span> */}
-                </> : 
-                <span className='py-2 w-full text-gray-400'>Partner</span>}
+                  </span>
+                </> : <span className='py-2 w-full text-gray-400'>Select Partner</span>}
             </div>
             <p className="text-sm">Children</p>
             <div className='mb-8' >
               {formData.children.length <= 0 ? (
                 <div onClick={() => handleShowList('selectChildren')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
-                  <span className='text-gray-400'>Children</span>
+                  <span className='text-gray-400'>Select Children</span>
                 </div>) :
-                formData.children.map((selected:any, index:number) => (
+                formData.children?.map((item: {id:any, name:string}, index:number) => (
                   <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
-                    <span onClick={() => handleShowList('selectChildren')} className="py-2 w-full">{selected}</span>
-                    <span
-                      onClick={() => handleCancelSelectedValue(selected, 'children')}
+                    <span onClick={() => handleShowList('selectChildren')} className="py-2 w-full">{item?.name}</span>
+                    {formData.children.length > 0 && <span
+                      onClick={() => handleCancelSelectedValue(item?.name, 'children', item?.id)}
                       className="border border-border_color rounded-md h-fit">
                       <CloseIcon />
-                    </span>
+                    </span>}
                   </div>)
                 )
               }
@@ -505,7 +571,7 @@ export default function Relatives() {
         className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 z-[100]"
       /> )}
       <div className={`${showList ? 'md:border-l md:border-border_color md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md' : 'md:w-0 h-0 opacity-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
-        <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList} refreshList={refreshList} />
+        <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
       </div>
     </div>
   );

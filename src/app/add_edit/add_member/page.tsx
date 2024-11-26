@@ -161,7 +161,6 @@ export default function AddUser() {
       </div>
       <form className="text-text_color" onSubmit={handleSubmit}>
         <Input
-          className="mb-2"
           name="name"
           label="Name"
           placeholder="Name"
@@ -169,7 +168,7 @@ export default function AddUser() {
           onChange={handleInputChange}
           error={errors.name}
         />
-        <div className="flex gap-2 pt-2 pb-4">
+        <div className="flex gap-2 py-4">
           <p className="text-sm font-medium">Gender:</p>
           <RadioButton
             label="Male"

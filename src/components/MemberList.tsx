@@ -25,12 +25,12 @@ interface MemberListProps {
   openList: any;
   getSelectedValues: any;
   refreshList: boolean;
+  multiselect: boolean;
 }
 
-export default function MemberList({ forType='selectMember', birthYearThreshold=null, setSelectedValue, openList, getSelectedValues, refreshList }: MemberListProps) {
+export default function MemberList({ forType='selectMember', birthYearThreshold=null, setSelectedValue, openList, getSelectedValues, refreshList, multiselect }: MemberListProps) {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-  const [multiselect, setMultiSelect] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<any[]>([])
 
@@ -69,7 +69,6 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
       try {
         setLoading(true)
         setMembers([])
-        setMultiSelect(forType === "selectChildren")
         setError(null);
         
         const response = await fetch(`/api?for=${forType}&birthYearThreshold=${birthYearThreshold}`, {
@@ -98,32 +97,66 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
     fetchMembers();
   }, [forType, birthYearThreshold, refreshList]);
 
+  // const handleSelectedValue = (item: any, id: string) => {
+  //   const key = keyMap[forType];
+  //   if (!key) return;
+  
+  //   const keyWithId = `${key}_id`; // Create the new key with "_id" appended
+  
+  //   setSelectedValue((prev: any) => {
+  //     if (Array.isArray(prev[key])) {
+  //       // For array keys: Add or remove the value
+  //       const updatedArray = prev[key].includes(item)
+  //         ? prev[key].filter((val: any) => val !== item) // Remove if it exists
+  //         : [...prev[key], item]; // Add if it doesn't exist
+  
+  //       const updatedIdArray = prev[keyWithId]?.includes(id)
+  //         ? prev[keyWithId].filter((val: any) => val !== id) // Remove if it exists
+  //         : [...(prev[keyWithId] || []), id]; // Add if it doesn't exist, ensure prev[keyWithId] is an array
+  
+  //       return { ...prev, [key]: updatedArray, [keyWithId]: updatedIdArray };
+  //     }
+  
+  //     // For non-array keys: Set both the value and id
+  //     openList(false);
+  //     return { ...prev, [key]: item, [keyWithId]: id };
+  //   });
+  // };
+  
+
   const handleSelectedValue = (item: any, id: string) => {
     const key = keyMap[forType];
     if (!key) return;
   
-    const keyWithId = `${key}_id`; // Create the new key with "_id" appended
-  
     setSelectedValue((prev: any) => {
       if (Array.isArray(prev[key])) {
-        // For array keys: Add or remove the value
-        const updatedArray = prev[key].includes(item)
-          ? prev[key].filter((val: any) => val !== item) // Remove if it exists
-          : [...prev[key], item]; // Add if it doesn't exist
+        // Check if the item already exists
+        const exists = prev[key].some((entry: any) => entry.id === id);
   
-        const updatedIdArray = prev[keyWithId]?.includes(id)
-          ? prev[keyWithId].filter((val: any) => val !== id) // Remove if it exists
-          : [...(prev[keyWithId] || []), id]; // Add if it doesn't exist, ensure prev[keyWithId] is an array
-  
-        return { ...prev, [key]: updatedArray, [keyWithId]: updatedIdArray };
+        if (exists) {
+          // Remove the existing entry
+          return {
+            ...prev,
+            [key]: prev[key].filter((entry: any) => entry.id !== id),
+          };
+        } else {
+          // Add the new entry
+          return {
+            ...prev,
+            [key]: [...prev[key], { id, name: item }],
+          };
+        }
       }
   
-      // For non-array keys: Set both the value and id
+      // If not an array, initialize with the first object
       openList(false);
-      return { ...prev, [key]: item, [keyWithId]: id };
+      return {
+        ...prev,
+        [key]: { id, name: item },
+      };
     });
   };
-
+  
   const groupedMembers = members.reduce<{ [key: string]: Member[] }>((acc, member) => {
     const letter = member.name.charAt(0).toUpperCase();
     if (!acc[letter]) acc[letter] = [];
@@ -188,7 +221,7 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
                   <div className="border-l border-border_color py-1 pl-4 pr-3">
                     <div className="cursor-pointer px-3 py-2 flex items-center border border-border_color bg-field_color rounded text-text_color">
                       {multiselect && <div className='pr-3 border-r border-border_color mr-2'>
-                        <Checkbox checked={selectedValues.includes(member.name)} readOnly/>
+                        <Checkbox checked={selectedValues.some((value:any) => value.name === member.name)} readOnly/>
                       </div>}
                       <div>
                         <div className="flex flex-wrap gap-2">
