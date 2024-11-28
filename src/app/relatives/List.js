@@ -127,7 +127,7 @@ export default function List() {
                                                         </div>
                                                     </div>
                                                     {user.phoneNumber && 
-                                                    <Link onClick={(e) => e.stopPropagation()} className='z-10 cursor-pointer' href={`tel:${user.phoneNumber}`}>
+                                                    <Link onClick={(e) => e.stopPropagation()} className='cursor-pointer' href={`tel:${user.phoneNumber}`}>
                                                         <Call />
                                                     </Link>}
                                                 </div>
@@ -139,13 +139,12 @@ export default function List() {
                         </div> 
                     }
                 </Container>
-                {showDetails && (
                 <div
                     onClick={() => setShowDetails(false)}
-                    className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 z-[100]"
-                /> )}
-                <div className={`${showDetails ? 'md:border-l md:border-border_color md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md' : 'md:w-0 h-0 opacity-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
-                {loadingDetails ? <Loading /> : <Details data={userDetails} openDetails={setShowDetails} />}
+                    className={`fixed md:hidden ${showDetails ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
+                />
+                <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
+                    <div className={showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}>{loadingDetails ? <Loading /> : <Details data={userDetails} openDetails={setShowDetails} />}</div>
                 </div>
             </div>
         </div>

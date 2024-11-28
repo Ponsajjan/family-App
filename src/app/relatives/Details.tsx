@@ -8,7 +8,7 @@ export default function Details({ data, openDetails }: any) {
 
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background'>
-            <div onClick={() => openDetails(false)} className='absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
+            <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
             <div className='flex gap-2 items-center w-full pb-3'>
                 <div className='border border-border_color p-2 rounded-md'>
                     {data.gender === 'Male' ? <Male2 /> : <Female2 />}

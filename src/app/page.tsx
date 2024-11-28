@@ -17,7 +17,6 @@ export default function Home() {
   const [eventDates, setEventDates] = useState([]);
   const [dateList, setDateList] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dateDataLoading, setDateDataLoading] = useState(true);
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -31,6 +30,7 @@ export default function Home() {
   const [eventForDate, setEventForDate] = useState([])
 
   console.log('eventForDate', eventForDate)
+  console.log('eventData', eventDates)
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year:number, month:number) {
     const selectMonth = new Date(year, month, 1);
@@ -60,31 +60,21 @@ export default function Home() {
 
     setSelectedDate(new Date(year, month, date).toISOString());
 
-    async function fetchEventForDate() {
-      try {
-        setDateDataLoading(true)
-        const response = await fetch(`/api/calendar/${month + 1}/${date}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
+    const filtered = eventDates.filter((item: any) => {
+      return Object.keys(item).some((key) => {
+        if (key.endsWith("day")) {
+          try {
+            const itemDate = new Date(item[key]);
+            return itemDate.getDate() === date;
+          } catch (error) {
+            return false; // Skip invalid date fields
           }
-        });
-
-        // Check if the response was successful
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-
-        const { eventDates = [] } = await response.json();
-        setEventForDate(eventDates);
-  
-      } catch (error) {
-        console.error("Failed to fetch event dates:", error);
-      } finally {
-        setDateDataLoading(false);
-      }
-    }
-    fetchEventForDate();
+        return false;
+      });
+    });
+    setEventForDate(filtered);
+ 
     setShowPopup(true)
   }
 
@@ -211,20 +201,18 @@ export default function Home() {
           </div>
 
 
-          {showPopup && 
           <>
-            <div onClick={() => setShowPopup(false)} className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 transition-opacity cursor-not-allowed z-[100]" />
-            <div className='block md:static fixed left-0 right-0 bottom-0 z-[100] max-h-[60vh] md:max-h-none rounded-t-lg w-full overflow-y-auto md:border border-border_color bg-main_background md:mt-8' >
-              <div className="border-b sticky top-0 bg-main_background flex justify-between items-center border-border_color p-4">
-                <p className="text-xl font-semibold text-text_color">{format(selectedDate, 'd MMM yyyy')}<span className="font-normal pl-2">({format(new Date(selectedDate).toISOString(), 'EEEE')})</span></p>
-                <span onClick={() => setShowPopup(false)} className="border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
+            <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
+            <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[60vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
+              <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
+                {showPopup && <p className="text-xl font-semibold text-text_color">{format(selectedDate, 'd MMM yyyy')}<span className="font-normal pl-2">({format(new Date(selectedDate).toISOString(), 'EEEE')})</span></p>}
+                <span onClick={() => setShowPopup(false)} className="hidden md:block border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
               </div>
-              {!dateDataLoading &&
-              <div className="p-4 h-auto transition-all duration-500 ease-in-out">
+              <div className={`p-4 h-auto ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
                 <OnDate events={eventForDate} selectedDate={selectedDate} />
-              </div>}
+              </div>
             </div>
-          </>}
+          </>
         </Container>
         <div className="w-full lg:max-w-lg mx-auto">
           {/* <Suspense fallback={<p className="text-center pt-4">Loading calendar details...</ p>}> */}

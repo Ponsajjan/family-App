@@ -35,7 +35,7 @@ function page() {
             <li>Ensure profiles for all immediate family members are added.</li>
           </ul>
           <p className="mt-4 italic">
-          Note: Changes and new family members added will be moderated to ensure accuracy and prevent unnecessary additions, so updates may take time to appear. You may also contact a moderator directly to expedite changes.
+            Note: All family member information is reviewed for accuracy and locked to maintain data integrity. For locked member details, please submit a note of changes to be made or contact the moderator directly.
           </p>
         </div>
 

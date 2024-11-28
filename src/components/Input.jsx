@@ -1,11 +1,10 @@
 import React from 'react'
 
 function Input({
+    showOptional = false,
     label = "",
-    // value,
     type = "text",
     placeholder = "",
-    // onChange,
     className = "",
     error = "",
     ...props
@@ -14,6 +13,7 @@ function Input({
     <>
       <label className='w-full'>
           {label && <span className="text-sm font-medium" >{label}</span>}
+          {(label && showOptional) && <span className='font-normal opacity-45 pl-2 text-sm'>(Optional)</span>}
           <input
               type={type}
               placeholder={placeholder}

@@ -11,7 +11,7 @@ import MemberList from "@/components/MemberList";
 import { CloseIcon, EditMember, ResetData } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 
-export default function Relatives() {
+export default function EditMemberDetails () {
   const toast = useToast();
   const [memberName, setMemberName] = useState('');
   const [refreshList, setRefresh] = useState(true);
@@ -34,11 +34,11 @@ export default function Relatives() {
     education: string;
     address: string;
     descendant: boolean;
-    father: Member | null;
-    mother: Member | null;
-    partner: Member | null;
-    children_id: string[];
-    children: Member[];
+    // father: Member | null;
+    // mother: Member | null;
+    // partner: Member | null;
+    // children_id: string[];
+    // children: Member[];
   }
 
   const defaultValue: DefaultValue = {
@@ -56,11 +56,11 @@ export default function Relatives() {
     education: '',
     address: '',
     descendant: false,
-    father: null,
-    mother: null,
-    partner: null,
-    children_id: [],
-    children: [],
+    // father: null,
+    // mother: null,
+    // partner: null,
+    // children_id: [],
+    // children: [],
   };
   const [previousData, setPreviousData] = useState(defaultValue);
   const [formData, setFormData] = useState(defaultValue);
@@ -80,12 +80,21 @@ export default function Relatives() {
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowList(false)
+
     const { name, value, type, checked } = e.target;
+    const id = formData.name?.id
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: name === "name" 
+        ? { id:id, name: value }
+        : type === "checkbox" 
+        ? checked 
+        : value,
     }));
-    setErrors((prev) => ({ ...prev, [name]: "" })); // Clear error when input is updated
+
+    // Clear error when input is updated
+    setErrors((prev) => ({ ...prev, [name]: "" })); 
     console.log('formdata', formData)
   };
 
@@ -127,11 +136,11 @@ export default function Relatives() {
             education:  dbData.education,
             address:  dbData.address,
             descendant: dbData.descendant,
-            father: {id: `${dbData.father?.id}`, name: `${dbData.father?.name}`},
-            mother: {id: `${dbData.mother?.id}`, name: `${dbData.mother?.name}`},
-            partner: {id: `${dbData.partner?.id}`, name: `${dbData.partner?.name}`},
-            children_id: childrenData ? childrenData.map((child: any) => child.id) : [],
-            children: childrenData ? childrenData : [],
+            // father: {id: `${dbData.father?.id}`, name: `${dbData.father?.name}`},
+            // mother: {id: `${dbData.mother?.id}`, name: `${dbData.mother?.name}`},
+            // partner: {id: `${dbData.partner?.id}`, name: `${dbData.partner?.name}`},
+            // children_id: childrenData ? childrenData.map((child: any) => child.id) : [],
+            // children: childrenData ? childrenData : [],
           }
           setFormData(formatedDbData);
           setMemberName(dbData.name)
@@ -147,22 +156,6 @@ export default function Relatives() {
       fetchUser()
     }
   }, [formData.name?.id])
-
-
-  // const handleCancelSelectedValue = (item: any, key:any) => {
-  //   if (!key) return;
-  
-  //   setFormData((prev: any) => {
-  //     if (Array.isArray(prev[key])) {
-  //       // For array keys: Add or remove the value
-  //       const updatedArray = prev[key].includes(item)
-  //         ? prev[key].filter((val: any) => val !== item) // Remove if it exists
-  //         : [...prev[key], item]; // Add if it doesn't exist
-  
-  //       return { ...prev, [key]: updatedArray };
-  //     }
-  //   });
-  // };
 
   const handleCancelSelectedValue = (item: any, key:any, id: string) => {
     if (!key) return;
@@ -247,15 +240,15 @@ export default function Relatives() {
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
-        fatherId: formData.father?.id ? parseInt(formData.father?.id, 10) : null,
-        motherId: formData.mother?.id ? parseInt(formData.mother?.id, 10) : null,
-        partnerId: formData.partner?.id ? parseInt(formData.partner?.id, 10) : null,
-        ...(isMale && {
-          fatherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
-        }),
-        ...(isFemale && {
-          motherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
-        }),
+        // fatherId: formData.father?.id ? parseInt(formData.father?.id, 10) : null,
+        // motherId: formData.mother?.id ? parseInt(formData.mother?.id, 10) : null,
+        // partnerId: formData.partner?.id ? parseInt(formData.partner?.id, 10) : null,
+        // ...(isMale && {
+        //   fatherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
+        // }),
+        // ...(isFemale && {
+        //   motherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
+        // }),
       };
 
       console.log('memberData', memberData)
@@ -318,17 +311,10 @@ export default function Relatives() {
             <div onClick={() => {setFormData(previousData); setErrors(noError);}}><ResetData /></div>
           </div>
           <form className="text-text_color" onSubmit={handleSubmit}>
-            {/* <div
-              onClick={handleSelectMember}
-              className="w-full border p-2 bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer"
-            >
-              {formData.name || <span className="text-gray-400 py-2">Select Member</span>}
-            </div> */}
             <Input
               onClick={() => setShowList(false)}
-              className={`${memberName ? '' : 'outline-2 outline-offset-2 outline-border_active'}`}
+              className={`${memberName ? '' : 'outline-2 outline-offset-2 outline-border_active'} mb-2`}
               type="text"
-              placeholder="Name"
               name="name"
               label="Name"
               value={formData.name?.name || ''}
@@ -354,7 +340,7 @@ export default function Relatives() {
             </div>
             <div>
               <p className="text-sm font-medium">
-                Date Of Birth <span className="font-normal opacity-45">(Optional)</span>
+                Date Of Birth
               </p>
               <div className="w-full mb-2 flex gap-2">
                 <Input
@@ -395,6 +381,7 @@ export default function Relatives() {
               )}
             </div>
             <div className='relative py-2'>
+              <div className="pb-2">
                 <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
                 <input
                   type="checkbox"
@@ -403,53 +390,53 @@ export default function Relatives() {
                   checked={formData.deceased}
                   onChange={handleInputChange}
                 />
-                <div className={`${showDeathDetails} pt-2`}>
-                  <p className="text-sm font-medium">Date Of Death <span className='font-normal opacity-45'>(Optional)</span></p>
-                  <p className='text-xs font-extralight absolute top-[14px] left-[100px]'>(Remove checkmark if not Deceased)</p>
-                  <div className="w-full flex gap-2">
-                    <Input
-                      onClick={() => setShowList(false)}
-                      type="number"
-                      placeholder="DD(Opt)"
-                      name="death_date"
-                      min="1"
-                      max="31"
-                      value={formData.death_date || ''}
-                      onChange={handleInputChange}
-                    />
-                    <Input
-                      onClick={() => setShowList(false)}
-                      type="number"
-                      placeholder="MM"
-                      name="death_month"
-                      min="1"
-                      max="12"
-                      value={formData.death_month || ''}
-                      onChange={handleInputChange}
-                    />
-                    <Input
-                      onClick={() => setShowList(false)}
-                      type="number"
-                      placeholder="YYYY"
-                      name="death_year"
-                      min="1975"
-                      max={new Date().getFullYear()}
-                      value={formData.death_year || ''}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  {(errors.death_month || errors.death_year || errors.death_date) && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {errors.death_year || errors.death_month || errors.death_date}
-                    </p>
-                  )}
+              </div>
+              <div className={`${showDeathDetails} pt-2`}>
+                <p className="text-sm font-medium">Date Of Death</p>
+                <p className='text-xs font-extralight absolute top-[14px] left-[100px]'>(Remove checkmark if not Deceased)</p>
+                <div className="w-full flex gap-2">
+                  <Input
+                    onClick={() => setShowList(false)}
+                    type="number"
+                    placeholder="DD(Opt)"
+                    name="death_date"
+                    min="1"
+                    max="31"
+                    value={formData.death_date || ''}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    onClick={() => setShowList(false)}
+                    type="number"
+                    placeholder="MM"
+                    name="death_month"
+                    min="1"
+                    max="12"
+                    value={formData.death_month || ''}
+                    onChange={handleInputChange}
+                  />
+                  <Input
+                    onClick={() => setShowList(false)}
+                    type="number"
+                    placeholder="YYYY"
+                    name="death_year"
+                    min="1975"
+                    max={new Date().getFullYear()}
+                    value={formData.death_year || ''}
+                    onChange={handleInputChange}
+                  />
                 </div>
+                {(errors.death_month || errors.death_year || errors.death_date) && (
+                  <p className="text-red-500 text-sm mt-2">
+                    {errors.death_year || errors.death_month || errors.death_date}
+                  </p>
+                )}
+              </div>
             </div>
             <Input
               onClick={() => setShowList(false)}
               className="mb-2"
               type="number"
-              placeholder="Phone Number (Optional)"
               name="phone_number"
               label="Phone Number"
               value={formData.phone_number || ''}
@@ -459,7 +446,6 @@ export default function Relatives() {
               onClick={() => setShowList(false)}
               className="mb-2"
               label="Occupation"
-              placeholder="Occupation (Optional)"
               name="occupation"
               value={formData.occupation || ''}
               onChange={handleInputChange}
@@ -468,21 +454,19 @@ export default function Relatives() {
               onClick={() => setShowList(false)}
               className="mb-2"
               label="Education"
-              placeholder="Education (Optional)"
               name="education"
               value={formData.education || ''}
               onChange={handleInputChange}
             />
             <Input
               onClick={() => setShowList(false)}
-              className="mb-2"
+              className="mb-8"
               label="Address"
-              placeholder="Address (Optional)"
               name="address"
               value={formData.address || ''}
               onChange={handleInputChange}
             />
-            <div className="flex items-center gap-2 flex-wrap relative py-2">
+            {/* <div className="flex items-center gap-2 flex-wrap relative py-2">
                 <p className="text-sm font-medium">Lalavillai Family</p>              
                 <input 
                   type="checkbox" 
@@ -560,8 +544,8 @@ export default function Relatives() {
                   </div>)
                 )
               }
-            </div>
-            <ButtonSolid type="submit" className="w-full" buttonText="Update Member" />
+            </div> */}
+            <ButtonSolid type="submit" className="w-full" buttonText="Update Details" />
           </form>
         </div>
       </Container>

@@ -1,24 +1,22 @@
+'use client'
+
+import { useState } from "react"
 import { LinkButtonOutline, LinkButtonSolid } from "../../components/Button"
 
 export default function AdminDashboard() {
+    const [add, setAdd] = useState(true)
 
     return (
-        <div className="w-full flex flex-col px-6 py-10 max-w-3xl mx-auto">
-            {/* <div className="w-full max-w-2xl h-60 rounded-[40px] bg-main_background border-y-2 border-r-2 border-border_active border-dashed">
-                <div className="h-full bg-main_background w-8 "></div>
+        <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
+            <div className="relative flex mx-auto mb-8 md:mb-10 border-2 border-text_color rounded-2xl overflow-hidden w-fit">
+                <p onClick={() => setAdd(true)} className={`px-8 md:px-10 z-10 py-1 md:py-2 cursor-pointer ${add ? 'text-accent_contrast' : 'text-text_color'}  transition-all duration-500 font-semibold ease-in-out`}>Add</p>
+                <p onClick={() => setAdd(false)} className={`px-8 md:px-10 z-10 py-1 md:py-2 cursor-pointer ${add ? 'text-text_color' : 'text-accent_contrast'}  transition-all duration-500 font-semibold ease-in-out`}>Edit</p>
+                <span className={`absolute top-0 bottom-0 rounded-xl w-1/2 ${add ? 'left-0' : 'transform translate-x-full'} bg-accent_color transition-all duration-500 ease-in-out`}></span>
             </div>
-            <div className="w-full max-w-2xl h-60 rounded-[40px] bg-main_background -mt-[2px] border-y-2 border-l-2 border-border_active border-dashed">
-                <div className="h-full bg-main_background w-8 ml-auto mr-0"></div>
-            </div>
-            <div className="w-full max-w-2xl h-60 rounded-[40px] bg-main_background -mt-[2px] border-y-2 border-r-2 border-border_active border-dashed">
-                <div className="h-full bg-main_background w-8 "></div>
-            </div> */}
             
-            <LinkButtonOutline linkto='add_edit/add_member' className="w-full" buttonText="Add Member" />
-            <p className="text-text_color">You can edit member and also add some additional information over here</p>
-            <LinkButtonOutline linkto='add_edit/edit_member'  className="w-full" buttonText="Edit Member" />
-            <p className="text-text_color">Add all the members that not in this app before adding relationship</p>       
-            <LinkButtonSolid linkto="add_edit/add_relationship" className="w-full" buttonText="Add Relationship" />
+            <LinkButtonOutline linkto={`add_edit/${add ? 'add' : 'edit'}_member`} className="w-full mb-4" buttonText={`${add ? 'Add' : 'Edit'} Member`} />
+
+            <LinkButtonOutline linkto={`add_edit/${add ? 'add' : 'edit'}_relationship`}  className="w-full" buttonText={`${add ? 'Add' : 'Edit'} Relationship`} />
         </div>
     )
 }

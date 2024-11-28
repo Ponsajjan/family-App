@@ -8,7 +8,7 @@ import Link from "next/link";
 import { AddMember } from "@/utils/Icons";
 import { useToast } from '@/components/Toast';
 
-export default function AddUser() {
+export default function AddMemberDetails () {
   const toast = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -163,7 +163,6 @@ export default function AddUser() {
         <Input
           name="name"
           label="Name"
-          placeholder="Name"
           value={formData.name}
           onChange={handleInputChange}
           error={errors.name}
@@ -187,7 +186,7 @@ export default function AddUser() {
         </div>
         <div>
           <p className="text-sm font-medium">
-            Date Of Birth <span className="font-normal opacity-45">(Optional)</span>
+            Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
           </p>
           <div className="w-full mb-2 flex gap-2">
             <Input
@@ -231,18 +230,20 @@ export default function AddUser() {
           )}
         </div>
         <div className="relative py-2">
-          <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
-          <input
-            type="checkbox"
-            className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
-            name="deceased"
-            checked={formData.deceased}
-            onChange={handleInputChange}
-          />
+          <div className="pb-2">
+            <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
+            <input
+              type="checkbox"
+              className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
+              name="deceased"
+              checked={formData.deceased}
+              onChange={handleInputChange}
+            />
+          </div>
 
           <div className={`${showDeathDetails} pt-2`}>
             <p className="text-sm font-medium">
-              Date Of Death <span className="font-normal opacity-45">(Optional)</span>
+              Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
             </p>
             <p className="text-xs font-extralight absolute top-[14px] left-[100px]">
               (Remove checkmark if not Deceased)
@@ -292,7 +293,7 @@ export default function AddUser() {
         <Input
           className="mb-2"
           type="number"
-          placeholder="Phone Number (Optional)"
+          showOptional={true}
           name="phone_number"
           label="Phone Number"
           value={formData.phone_number}
@@ -300,7 +301,7 @@ export default function AddUser() {
         />
         <Input
           className="mb-2"
-          placeholder="Occupation (Optional)"
+          showOptional={true}
           name="occupation"
           label="Occupation"
           value={formData.occupation}
@@ -308,7 +309,7 @@ export default function AddUser() {
         />
         <Input
           className="mb-2"
-          placeholder="Education (Optional)"
+          showOptional={true}
           name="education"
           label="Education"
           value={formData.education}
@@ -316,7 +317,7 @@ export default function AddUser() {
         />
         <Input
           className="mb-8"
-          placeholder="Address (Optional)"
+          showOptional={true}
           name="address"
           label="Address"
           value={formData.address}

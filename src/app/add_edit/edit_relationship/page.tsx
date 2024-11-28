@@ -256,7 +256,7 @@ export default function EditMemberDetails () {
                 <EditMember />
               </Link>
               <p onClick={() => handleShowList('selectMember')} className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
-                Add Relationship
+                Edit {memberName ? memberName :'Member'}
               </p>
             </div>
             <div onClick={() => {setFormData(previousData); setErrors(noError);}}><ResetData /></div>

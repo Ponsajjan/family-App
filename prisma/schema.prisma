@@ -12,6 +12,7 @@ datasource db {
 
 model Member {
   id                    Int                   @id @default(autoincrement())
+  // dataLocked            Boolean               @default(false)
   name                  String
 
   birthDate             Int?

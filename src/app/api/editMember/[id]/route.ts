@@ -32,36 +32,36 @@ export async function GET(request: Request, context: any) {
           deathYear: true,
           additionalInfo: true,
           descendant: true,
-          father: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          mother: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          partner: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          fatherOf: {
-            select: {
-              id: true,
-              name: true, // Fetch only id and name of the children if the member is a father
-            },
-          },
-          motherOf: {
-            select: {
-              id: true,
-              name: true, // Fetch only id and name of the children if the member is a mother
-            },
-          },
+          // father: {
+          //   select: {
+          //     id: true,
+          //     name: true,
+          //   },
+          // },
+          // mother: {
+          //   select: {
+          //     id: true,
+          //     name: true,
+          //   },
+          // },
+          // partner: {
+          //   select: {
+          //     id: true,
+          //     name: true,
+          //   },
+          // },
+          // fatherOf: {
+          //   select: {
+          //     id: true,
+          //     name: true, // Fetch only id and name of the children if the member is a father
+          //   },
+          // },
+          // motherOf: {
+          //   select: {
+          //     id: true,
+          //     name: true, // Fetch only id and name of the children if the member is a mother
+          //   },
+          // },
         },
       });
 
