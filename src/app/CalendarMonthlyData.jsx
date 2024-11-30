@@ -1,5 +1,5 @@
 import Container from "@/components/Container";
-import { Birthday2, Deathday2 } from "@/utils/Icons";
+import { Birthday2, Deathday, Deathday2 } from "@/utils/Icons";
 import { format, differenceInYears } from 'date-fns';
 
 export default function CalendarMonthlyData({data, month, year}) {
@@ -68,9 +68,10 @@ export default function CalendarMonthlyData({data, month, year}) {
             <span className="border-t border-border_color block w-full"></span>
           </div>
           {sortedEvents.map((item, index) => (
-            <div key={index} className="pl-6" >
-              <div className="border-l border-border_color pt-1 pb-2 pl-4 pr-3">
+            <div key={index} className="pl-6 md:pl-4" >
+              <div className="border-l border-border_color pt-1 pb-2 pl-4 md:pl-3 pr-3">
                 <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-50'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
+                  {item.hasDate ?
                   <div className="border-t border-dashed border-text_color w-14 ml-2 mr-3">
                     <div className="flex flex-col border border-text_color rounded-b-sm">          
                       <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
@@ -78,15 +79,25 @@ export default function CalendarMonthlyData({data, month, year}) {
                       </span>
                       <span className="text-center font-semibold leading-5 py-0.5">{format(item.date, 'd')}</span>
                     </div>
-                  </div>
+                  </div> :
+                  <div className="w-14 ml-2 mr-3">
+                    <div className="flex justify-center items-center">          
+                      <Deathday />
+                    </div>
+                  </div>}
                   <div className='w-full flex justify-between items-center'>
                     <div>
-                      <div className='font-semibold capitalize leading-3'>{item.name}</div>
+                      <div className='font-semibold capitalize leading-5'>{item.name}</div>
                       <div className='text-xs font-light capitalize flex items-baseline gap-2'>
                         <span className="leading-3">
-                        {item.type === 'birthday' ? 'Born At:' : 'Died At:'} {item.date.getFullYear() == 1111 ? format(item.date, 'd MMM') : format(item.date, 'd MMM yyyy')}
+                        {item.type === 'birthday' ? 'Born At:' : 'Died At:'} 
+                        {item.date.getFullYear() == 1111 
+                        ? format(item.date, 'd MMM') 
+                        : !item.hasDate 
+                          ? format(item.date, 'MMM yyyy') 
+                          : format(item.date, 'd MMM yyyy')}
                         </span>
-                        {item.type === 'birthday' ? <Birthday2 /> : <Deathday2 />}
+                        {item.hasDate ? item.type === 'birthday' ? <Birthday2 /> : <Deathday2 /> : ''}
                       </div>
                     </div>
                     {(item.age === 'n/a' ||  item.date.getFullYear() === currentYear) ? "" : <p className="font-light border-l border-border_color w-10 text-center text-sm">{item.age}</p>}
@@ -107,7 +118,7 @@ export default function CalendarMonthlyData({data, month, year}) {
       {renderEventList(thisWeekEvents, "This Week")}
       {renderEventList(upcomingEvents, "Coming Up This Month")}
       {renderEventList(pastEvents, "Earlier This Month")}
-      {renderEventList(selectedMonthData, viewingMonth)}
+      {renderEventList(selectedMonthData, `${format(new Date(year, month), 'MMMM yyyy')}`)}
     </Container>
   );
 }

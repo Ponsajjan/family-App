@@ -91,8 +91,7 @@ export default function List() {
                                                 <div onClick={() => handleShowDetails(user.id)} className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
                                                     <div>
                                                         <div className="flex flex-wrap gap-2">
-                                                            {user.gender === "Male" && <Male />}
-                                                            {user.gender === "Female" && <Female />}
+                                                            {user.gender === "Male" ? <Male /> : <Female />}
                                                             <div className='font-semibold capitalize'>{user.name}</div>
                                                             {/* <div className="font-extralight opacity-65">(athan)</div> */}
                                                         </div>
@@ -143,8 +142,8 @@ export default function List() {
                     onClick={() => setShowDetails(false)}
                     className={`fixed md:hidden ${showDetails ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
                 />
-                <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
-                    <div className={showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}>{loadingDetails ? <Loading /> : <Details data={userDetails} openDetails={setShowDetails} />}</div>
+                <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
+                    <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>{loadingDetails ? <Loading /> : <Details data={userDetails} openDetails={setShowDetails} />}</div>
                 </div>
             </div>
         </div>

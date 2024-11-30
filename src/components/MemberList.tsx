@@ -9,11 +9,18 @@ import { ButtonSolid } from './Button';
 import Loading from './Loading';
 import { boolean } from 'zod';
 
+interface EachMember {
+  id: string;
+  name: string;
+}
 interface Member {
   id: string;
   name: string;
   gender: 'Male' | 'Female';
-  partner?: boolean;
+  father: EachMember | null;
+  mother: EachMember | null;
+  children: EachMember[];
+  partner?: EachMember | null;
   birthYear?: number;
   parentNames?: string;
 }
@@ -228,9 +235,34 @@ export default function MemberList({ forType='selectMember', birthYearThreshold=
                           {member.gender === "Male" ? <Male /> : <Female />}
                           <div className='font-semibold capitalize'>{member.name}</div>
                         </div>
-                        <div className='flex text-xs leading-3 opacity-65'>
-                          <div className='font-medium pr-1'>Parents:</div>
-                          <div>{member.parentNames || "No parent information"}</div>
+                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                        {/* Parents */}
+                        {(member?.father || member?.mother) ? (
+                            <>
+                            <span className="pr-1 font-semibold">
+                                Parents:
+                            </span>
+                            {member?.father && (
+                                <span className="pr-1">
+                                    {member?.father.name},
+                                </span>
+                            )}
+                            {member?.mother && (
+                                <span className="pr-1">
+                                    {member?.mother.name}
+                                </span>
+                            )}
+                            </>
+                        ) : member?.partner ? (
+                            <div>
+                                <span className="pr-1 font-semibold">
+                                    Partner:
+                                </span>
+                                <span className='pr-1'>
+                                    {member?.partner.name}
+                                </span>
+                            </div>
+                        ) : 'No relationship assigned yet'}
                         </div>
                       </div>
                     </div>

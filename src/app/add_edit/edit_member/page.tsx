@@ -8,7 +8,7 @@ import Input from "@/components/Input";
 import RadioButton from "@/components/RadioButton";
 import Checkbox from "@/components/CheckBox";
 import MemberList from "@/components/MemberList";
-import { CloseIcon, EditMember, ResetData } from "@/utils/Icons";
+import { ChangeMember, CloseIcon, EditMember, ResetData } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 
 export default function EditMemberDetails () {
@@ -62,7 +62,6 @@ export default function EditMemberDetails () {
     // children_id: [],
     // children: [],
   };
-  const [previousData, setPreviousData] = useState(defaultValue);
   const [formData, setFormData] = useState(defaultValue);
   const noError = { 
     name: "",
@@ -103,7 +102,12 @@ export default function EditMemberDetails () {
 
   const handleShowList = (field: string) => {
     setShowListFor(field);
-    setShowList(true);
+    setErrors(noError);
+    if (formData.name?.id) {
+      setShowList(prev => !prev);
+    } else {
+      setShowList(true);
+    }
   };
 
   useEffect(() => {
@@ -144,7 +148,6 @@ export default function EditMemberDetails () {
           }
           setFormData(formatedDbData);
           setMemberName(dbData.name)
-          setPreviousData(formatedDbData)
           console.log('user', dbData)
         } catch (error) {
             console.error('Error fetching user details:', error);
@@ -295,7 +298,7 @@ export default function EditMemberDetails () {
     <div className="md:flex text-text_color">
       <Container className='relative'>
         {!memberName && <div onClick={() => handleShowList('selectMember')} className={`fixed inset-0 z-10`}></div>}
-        {loading && <div className={`fixed inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
+        {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
             <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
@@ -304,16 +307,16 @@ export default function EditMemberDetails () {
               <Link href={"/add_edit"} className="block z-30">
                 <EditMember />
               </Link>
-              <p onClick={() => handleShowList('selectMember')} className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
+              <p className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
                 Edit {memberName ? memberName :'Member'}
               </p>
             </div>
-            <div onClick={() => {setFormData(previousData); setErrors(noError);}}><ResetData /></div>
+            <div className="cursor-pointer" onClick={() => handleShowList('selectMember')}><ChangeMember /></div>
           </div>
           <form className="text-text_color" onSubmit={handleSubmit}>
             <Input
               onClick={() => setShowList(false)}
-              className={`${memberName ? '' : 'outline-2 outline-offset-2 outline-border_active'} mb-2`}
+              className={`${memberName ? '' : 'outline-2 outline-dashed outline-offset-2 outline-border_active'} mb-2`}
               type="text"
               name="name"
               label="Name"
@@ -552,10 +555,12 @@ export default function EditMemberDetails () {
       {showList && (
       <div
         onClick={() => setShowList(false)}
-        className="fixed md:hidden inset-0 bg-gray-500 bg-opacity-75 z-[100]"
+        className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       /> )}
-      <div className={`${showList ? 'md:border-l md:border-border_color md:static fixed left-0 right-0 bottom-0 z-[100] rounded-t-md' : 'md:w-0 h-0 opacity-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
-        <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
+      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
+        <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
+          <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
+        </div>
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ import Input from "@/components/Input";
 import RadioButton from "@/components/RadioButton";
 import Checkbox from "@/components/CheckBox";
 import MemberList from "@/components/MemberList";
-import { CloseIcon, EditMember, ResetData } from "@/utils/Icons";
+import { AddRelationship, ChangeMember, CloseIcon, EditMember, MinusIcon, ResetData } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 
 export default function EditMemberDetails () {
@@ -21,73 +21,76 @@ export default function EditMemberDetails () {
   }
   interface DefaultValue {
     name: Member | null;
-    gender: string
+    gender: string | undefined;
     // father: Member | null;
     // mother: Member | null;
     partner: Member | null;
-    children_id: string[];
     children: Member[];
   }
 
   const defaultValue: DefaultValue = {
     name: null,
-    gender: 'Male',
+    gender: undefined,
     // father: null,
     // mother: null,
     partner: null,
-    children_id: [],
     children: [],
   };
-  const [previousData, setPreviousData] = useState(defaultValue);
-  const [formData, setFormData] = useState(defaultValue);
-  const noError = { 
-    name: "",
-    birth_date: "",
-    birth_month: "",
-    birth_year: "",
-    death_year: "",
-    death_month: "",
-    death_date: "" 
-  }
-  const [errors, setErrors] = useState(noError);
+  // const [previousData, setPreviousData] = useState(defaultValue);
+  const [prevformData, setPrevFormData] = useState(defaultValue);
+  const [newformData, setNewFormData] = useState(defaultValue);
+  // const noError = { 
+  //   name: "",
+  //   birth_date: "",
+  //   birth_month: "",
+  //   birth_year: "",
+  //   death_year: "",
+  //   death_month: "",
+  //   death_date: "" 
+  // }
+  // const [errors, setErrors] = useState(noError);
   const [loading, setLoading] = useState(false)
   const [showListFor, setShowListFor] = useState('selectMember');
   const [showList, setShowList] = useState(false);
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setShowList(false)
+  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setShowList(false)
 
-    const { name, value, type, checked } = e.target;
-    const id = formData.name?.id
+  //   const { name, value, type, checked } = e.target;
+  //   const id = formData.name?.id
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "name" 
-        ? { id:id, name: value }
-        : type === "checkbox" 
-        ? checked 
-        : value,
-    }));
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [name]: name === "name" 
+  //       ? { id:id, name: value }
+  //       : type === "checkbox" 
+  //       ? checked 
+  //       : value,
+  //   }));
 
-    // Clear error when input is updated
-    setErrors((prev) => ({ ...prev, [name]: "" })); 
-    console.log('formdata', formData)
-  };
+  //   // Clear error when input is updated
+  //   setErrors((prev) => ({ ...prev, [name]: "" })); 
+  //   console.log('formdata', formData)
+  // };
 
   // show and hide death details fields based on checkbox
 //   const showDeathDetails = formData.deceased ? "peer-checked:block" : "hidden"; 
 
   const handleShowList = (field: string) => {
     setShowListFor(field);
-    setShowList(true);
+    if (prevformData.name?.id) {
+      setShowList(prev => !prev);
+    } else {
+      setShowList(true);
+    }
   };
 
   useEffect(() => {
-    if (formData.name?.id) {
+    if (prevformData.name?.id) {
       const fetchUser = async () => {
         try {
           setLoading(true)
-          const response = await fetch(`/api/editMember/${formData.name?.id}`);
+          const response = await fetch(`/api/editRelationship/${prevformData.name?.id}`);
           if (!response.ok) throw new Error('Failed to fetch user details');
       
           const { data } = await response.json();
@@ -106,9 +109,9 @@ export default function EditMemberDetails () {
             children_id: childrenData ? childrenData.map((child: any) => child.id) : [],
             children: childrenData ? childrenData : [],
           }
-          setFormData(formatedDbData);
+          setPrevFormData(formatedDbData);
+          setNewFormData(defaultValue)
           setMemberName(dbData.name)
-          setPreviousData(formatedDbData)
           console.log('user', dbData)
         } catch (error) {
             console.error('Error fetching user details:', error);
@@ -119,12 +122,12 @@ export default function EditMemberDetails () {
   
       fetchUser()
     }
-  }, [formData.name?.id])
+  }, [prevformData.name?.id])
 
   const handleCancelSelectedValue = (item: any, key:any, id: string) => {
     if (!key) return;
   
-    setFormData((prev: any) => {
+    setNewFormData((prev: any) => {
       if (Array.isArray(prev[key])) {
         // Check if the item already exists
         const exists = prev[key].some((entry: any) => entry.id === id);
@@ -181,30 +184,30 @@ export default function EditMemberDetails () {
     //   return;
     // }
   
-    console.log("Form submitted:", formData);
+    console.log("Form submitted:", prevformData);
   
     try {
       setLoading(true);
   
-      const isMale = formData.gender === "Male";
-      const isFemale = formData.gender === "Female";
+      const isMale = prevformData.gender === "Male";
+      const isFemale = prevformData.gender === "Female";
 
       const memberData = {
-        name: formData.name?.name,
+        name: prevformData.name?.name,
         // fatherId: formData.father?.id ? parseInt(formData.father?.id, 10) : null,
         // motherId: formData.mother?.id ? parseInt(formData.mother?.id, 10) : null,
-        partnerId: formData.partner?.id ? parseInt(formData.partner?.id, 10) : null,
+        partnerId: prevformData.partner?.id ? parseInt(prevformData.partner?.id, 10) : null,
         ...(isMale && {
-          fatherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
+          fatherOf: prevformData.children && prevformData.children.length > 0 ? prevformData.children.map((child: any) => child.id) : [],
         }),
         ...(isFemale && {
-          motherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
+          motherOf: prevformData.children && prevformData.children.length > 0 ? prevformData.children.map((child: any) => child.id) : [],
         }),
       };
 
       console.log('memberData', memberData)
   
-      const response = await fetch(`/api/editMember/${formData.name?.id}`, {
+      const response = await fetch(`/api/editMember/${prevformData.name?.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -224,9 +227,9 @@ export default function EditMemberDetails () {
         toast.show("Member updated successfully", "success", 5000);
       }
   
-      setFormData(defaultValue);
+      setPrevFormData(defaultValue);
       setMemberName("");
-      setErrors(noError);
+      // setErrors(noError);
       setRefresh((prev) => !prev);
     } catch (error: any) {
       console.error("Error updating member:", error);
@@ -246,113 +249,88 @@ export default function EditMemberDetails () {
     <div className="md:flex text-text_color">
       <Container className='relative'>
         {!memberName && <div onClick={() => handleShowList('selectMember')} className={`fixed inset-0 z-10`}></div>}
-        {loading && <div className={`fixed inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
+        {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
             <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
               <Link href={"/add_edit"} className="block z-30">
-                <EditMember />
+                <AddRelationship />
               </Link>
               <p onClick={() => handleShowList('selectMember')} className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
                 Add Relationship
               </p>
             </div>
-            <div onClick={() => {setFormData(previousData); setErrors(noError);}}><ResetData /></div>
           </div>
           <form className="text-text_color" onSubmit={handleSubmit}>
-            <Input
-              onClick={() => setShowList(false)}
-              className={`${memberName ? '' : 'outline-2 outline-offset-2 outline-border_active'} mb-2`}
-              type="text"
-              placeholder="Select Member"
-              name="name"
-              label="Name"
-              value={formData.name?.name || ''}
-              error={errors.name}
-              onChange={handleInputChange}
-            />
-            {/* <div className="flex items-center gap-2 flex-wrap relative py-2">
-                <p className="text-sm font-medium">Lalavillai Family</p>              
-                <input 
-                  type="checkbox" 
-                  className="peer bg-main_background border border-border_active rounded-md" 
-                  name="descendant" 
-                  checked={formData.descendant}
-                  onChange={handleInputChange} 
-                />
-                <div className="hidden peer-checked:flex w-full gap-2">
-                  <div className='w-full'>
-                    <p className="text-sm">Father</p>
-                    <div
-                      onClick={() => handleShowList("selectFather")}
-                      className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md cursor-pointer"
-                    >
-                    {formData.father && formData.father?.name !== 'undefined' ? 
-                      <>
-                        <span className="py-2 w-full">{formData.father?.name}</span>
-                        <span
-                          onClick={(e) => {e.stopPropagation(); console.log('father')}}
-                          className="border border-border_color rounded-md h-fit">
-                          <CloseIcon />
-                        </span>
-                      </> :  <span className="text-gray-400 py-2">Select Father</span>}
-                    </div>
-                  </div>
-                  <div className="w-full">
-                    <p className="text-sm">Mother</p>
-                    <div
-                      onClick={() => handleShowList("selectMother")}
-                      className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md cursor-pointer"
-                    >
-                    {formData.mother && formData.mother?.name !== 'undefined' ? 
-                      <>
-                        <span className="py-2 w-full">{formData.mother?.name}</span>
-                        <span
-                          onClick={(e) => {e.stopPropagation(); console.log('mother')}}
-                          className="border border-border_color rounded-md h-fit">
-                          <CloseIcon />
-                        </span>
-                      </> : <span className="text-gray-400 py-2">Select Mother</span>}
-                  </div>
-                </div>
-              </div>
-            </div> */}
+            <p className="text-sm">Member</p>
+            <div 
+              onClick={() => handleShowList('selectMember')} 
+              className={`w-full flex justify-between items-center ${!prevformData.name || prevformData.name?.name == 'undefined' ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer`} 
+            >
+              {prevformData.name && prevformData.name?.name !== 'undefined' ? 
+                <>
+                  <span className="py-2 w-full">{prevformData.name?.name}</span> 
+                  <span><ChangeMember /></span>
+                </> :
+                <span className='py-2 w-full text-gray-400'>Select Member</span>}
+            </div>
+
             <p className="text-sm">Partner</p>
             <div 
-              onClick={() => handleShowList('selectPartner')} 
+              onClick={() => {
+                if (prevformData.partner && prevformData.partner?.name !== 'undefined') {
+                  setShowList(false);
+                } else {
+                  handleShowList('selectPartner');
+                }
+              }
+            }
               className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
             >
-              {formData.partner && formData.partner?.name !== 'undefined' ? 
-                <>
-                  <span className="py-2 w-full">{formData.partner?.name}</span>
-                  <span
-                    onClick={(e) => {e.stopPropagation(); console.log('partner')}}
-                    className="border border-border_color rounded-md h-fit">
-                    <CloseIcon />
-                  </span>
-                </> : <span className='py-2 w-full text-gray-400'>Select Partner</span>}
+              {(prevformData.partner && prevformData.partner?.name !== 'undefined')
+                ? <span className="py-2 w-full">{prevformData.partner?.name}</span>
+                : (newformData.partner && newformData.partner?.name !== 'undefined')
+                  ? <>
+                      <span className="py-2 w-full">{newformData.partner?.name}</span>
+                      <span
+                        onClick={() => console.log('hi')}
+                        className="border border-border_color rounded-md h-fit">
+                        <MinusIcon />
+                      </span>
+                    </>
+                  : <span className='py-2 w-full text-gray-400'>Select Partner</span>}
             </div>
-            <p className="text-sm">Children</p>
-            <div className='mb-8' >
-              {formData.children.length <= 0 ? (
-                <div onClick={() => handleShowList('selectChildren')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
-                  <span className='text-gray-400'>Select Children</span>
-                </div>) :
-                formData.children?.map((item: {id:any, name:string}, index:number) => (
-                  <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
-                    <span onClick={() => handleShowList('selectChildren')} className="py-2 w-full">{item?.name}</span>
-                    {formData.children.length > 0 && <span
-                      onClick={() => handleCancelSelectedValue(item?.name, 'children', item?.id)}
-                      className="border border-border_color rounded-md h-fit">
-                      <CloseIcon />
-                    </span>}
+
+            
+
+            {(prevformData.partner && prevformData.partner?.name !== 'undefined' || newformData.partner && newformData.partner?.name !== 'undefined') && 
+            <div>
+              {(prevformData.children.length > 0 || newformData.children.length > 0) && <p className="text-sm">Children</p>}
+              <>
+                {prevformData.children?.map((item: {id:any, name:string}, index:number) => (
+                  <div onClick={() => setShowList(false)} key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer" >
+                    <span className="py-2 w-full">{item?.name}</span>
                   </div>)
-                )
-              }
-            </div>
-            <ButtonSolid type="submit" className="w-full" buttonText="Update Details" />
+                )}
+              </>
+              <>
+                {newformData.children?.map((item: {id:any, name:string}, index:number) => (
+                  <div onClick={() => handleShowList('selectChildren')} key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer" >
+                    <span className="py-2 w-full">{item?.name}</span>
+                    <span
+                      onClick={(e) => {e.stopPropagation(); handleCancelSelectedValue(item?.name, 'children', item?.id)}}
+                      className="border border-border_color rounded-md h-fit">
+                      <MinusIcon />
+                    </span>
+                  </div>)
+                )}
+              </>
+            </div>}
+            <p className="cursor-pointer text-sm text-text_color" onClick={() => handleShowList('selectChildren')}>Add Children +</p>
+
+            <ButtonSolid type="submit" className="w-full mt-8" buttonText="Update Details" />
           </form>
         </div>
       </Container>
@@ -360,8 +338,8 @@ export default function EditMemberDetails () {
         onClick={() => setShowList(false)}
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       />
-      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
-        <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
+      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
+        <MemberList forType={showListFor} getSelectedValues={prevformData} setSelectedValue={showListFor == 'selectMember' ? setPrevFormData : setNewFormData} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
       </div>
     </div>
   );

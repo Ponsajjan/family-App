@@ -35,11 +35,11 @@ function page() {
             <li>Ensure profiles for all immediate family members are added.</li>
           </ul>
           <p className="mt-4 italic">
-            Note: All family member information is reviewed for accuracy and locked to maintain data integrity. For locked member details, please submit a note of changes to be made or contact the moderator directly.
+            Note: All family member information can be locked to maintain data integrity. For locked member, please submit a note for changes to be made or contact the moderator directly.
           </p>
         </div>
 
-
+{/* 
         <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
           <h2 className="text-xl font-semibold mb-4">Moderator List:</h2>
 
@@ -54,7 +54,7 @@ function page() {
 
   In the context of family relationships, this dynamic underscores the importance of open communication and emotional intelligence. By acknowledging the different ways we perceive and process our shared experiences, we can better navigate conflicts and build stronger connections. Understanding that every family member holds onto certain memories while letting go of others invites us to approach each other with greater compassion and a willingness to bridge our diverse perspectives. This empathy can help us heal and grow together, honoring each person’s journey and the unique ways they’ve learned to survive and thrive.
           </p>
-        </div>
+        </div> */}
       </div>
     </Container>
   </div>

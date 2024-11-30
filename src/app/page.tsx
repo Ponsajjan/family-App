@@ -1,7 +1,7 @@
 "use client";
 
 import Topnav from "@/components/Topnav";
-import { AllDates, Birthday, CloseIcon } from "@/utils/Icons";
+import { CloseIcon } from "@/utils/Icons";
 import React, { Suspense, useEffect, useState } from "react";
 import moment from "moment";
 import { Circle } from "@/utils/Icons";
@@ -81,6 +81,7 @@ export default function Home() {
   // Handlers for previous/next month navigation
   function getPreviousMonth() {
     setLoading(true)
+    setShowPopup(false)
     const previousMonth = new Date(calendarDate);
     previousMonth.setMonth(previousMonth.getMonth() - 1);
     setCalendarDate(previousMonth);
@@ -88,6 +89,7 @@ export default function Home() {
 
   function getNextMonth() {
     setLoading(true)
+    setShowPopup(false)
     const nextMonth = new Date(calendarDate);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
     setCalendarDate(nextMonth);
@@ -117,7 +119,7 @@ export default function Home() {
           if (user.birthday) {
             events.push(new Date(user.birthday).getDate());
           }
-          if (user.deathday) {
+          if (user.deathday && user.hasDate) {
             events.push(new Date(user.deathday).getDate());
           }
           return events;
@@ -138,7 +140,6 @@ export default function Home() {
   return (
     <div className="w-full">
       <Topnav>
-        <div className="ml-auto"><AllDates /></div>
       </Topnav>
       
       <div className="md:flex">
@@ -204,7 +205,7 @@ export default function Home() {
           <>
             <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[60vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
-              <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
+              <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
                 {showPopup && <p className="text-xl font-semibold text-text_color">{format(selectedDate, 'd MMM yyyy')}<span className="font-normal pl-2">({format(new Date(selectedDate).toISOString(), 'EEEE')})</span></p>}
                 <span onClick={() => setShowPopup(false)} className="hidden md:block border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
               </div>

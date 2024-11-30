@@ -19,31 +19,6 @@ export async function GET(request: Request, context: any) {
           id: true,
           name: true,
           gender: true,
-          phoneNumber: true,
-          address: true,
-          occupation: true,
-          education: true,
-          birthDate: true,
-          birthMonth: true,
-          birthYear: true,
-          deceased: true,
-          deathDate: true,
-          deathMonth: true,
-          deathYear: true,
-          additionalInfo: true,
-          descendant: true,
-          father: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          mother: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
           partner: {
             select: {
               id: true,

@@ -35,7 +35,7 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning={true}>
         <main id="MainDiv">
           <ToastProvider>
-            <div className="w-full bg-field_color transition-all duration-500 ease-in-out">
+            <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
               <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
                 <Sidenav />
                 {children}

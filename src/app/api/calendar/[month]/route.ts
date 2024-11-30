@@ -37,7 +37,10 @@ export async function GET(request: Request, context: any) {
       // Helper function to create ISO date string
       const getDateFromParts = (year: number | null, month: number, day: number | null) => {
         if (month && day) {
-          return new Date(year ?? 1111, month - 1, day).toISOString(); // Default year if missing
+          return new Date(year ?? 1111, month - 1, day).toISOString();
+        }
+        if (month && year) {
+          return new Date(year, month - 1, day ?? 1).toISOString();
         }
         return null;
       };
@@ -52,6 +55,7 @@ export async function GET(request: Request, context: any) {
             id: member.id,
             name: member.name,
             birthday: getDateFromParts(member.birthYear, member.birthMonth, member.birthDate),
+            hasDate: true
           });
         }
 
@@ -61,6 +65,7 @@ export async function GET(request: Request, context: any) {
             id: member.id,
             name: member.name,
             deathday: getDateFromParts(member.deathYear, member.deathMonth, member.deathDate),
+            hasDate: member.deathDate !== null 
           });
         }
 

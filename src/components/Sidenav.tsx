@@ -1,5 +1,5 @@
 "use client";
-import { BurgerMenuIcon, CalenderIcon, CloseIcon, DarkMode, FamilyProfessionals, LightMode, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
+import { BurgerMenuIcon, CalenderIcon, CloseIcon, Community, DarkMode, FamilyProfessionals, LightMode, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -45,6 +45,7 @@ export function Sidenav() {
                         <NavLink linkName="Relatives" link="relatives" onClick={() => navigateTo("/relatives")} />
                         <NavLink linkName="Relation" link="tree" onClick={() => navigateTo("/tree")} />
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/add_edit")} />
+                        {/* <NavLink linkName="Community" link="community" onClick={() => navigateTo("/community")} /> */}
                         <span  className="border-t border-border_color pt-2 mt-6 block mx-4"></span>
                         <NavLink linkName="Terms" link="terms" onClick={() => navigateTo("/terms")} />
                     </div>
@@ -81,6 +82,7 @@ export function NavLink({ link, linkName, onClick }: { link: string, linkName: s
                 {linkName === 'Relatives' && <RelativesIcon />}
                 {linkName === 'Relation' && <TreeIcon />}
                 {linkName === 'Add/Edit' && <FamilyProfessionals />}
+                {/* {linkName === 'Community' && <Community />} */}
                 {linkName === 'Terms' && <Terms />}
             </p>
             <p>{linkName}</p>
