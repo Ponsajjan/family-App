@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/Container";
-import { ButtonSolid } from "@/components/Button";
+import { ButtonSolid, LinkButtonOutline } from "@/components/Button";
 import Input from "@/components/Input";
 import RadioButton from "@/components/RadioButton";
 import Checkbox from "@/components/CheckBox";
 import MemberList from "@/components/MemberList";
-import { ChangeMember, CloseIcon, EditMember, ResetData } from "@/utils/Icons";
+import { AddMember, BackButton, ChangeMember, CloseIcon, EditMember, ResetData } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 
 export default function EditMemberDetails () {
@@ -34,11 +34,8 @@ export default function EditMemberDetails () {
     education: string;
     address: string;
     descendant: boolean;
-    // father: Member | null;
-    // mother: Member | null;
-    // partner: Member | null;
-    // children_id: string[];
-    // children: Member[];
+    hasPartner: boolean;
+    isParent: boolean;
   }
 
   const defaultValue: DefaultValue = {
@@ -56,11 +53,8 @@ export default function EditMemberDetails () {
     education: '',
     address: '',
     descendant: false,
-    // father: null,
-    // mother: null,
-    // partner: null,
-    // children_id: [],
-    // children: [],
+    hasPartner: false,
+    isParent: false,
   };
   const [formData, setFormData] = useState(defaultValue);
   const noError = { 
@@ -77,6 +71,11 @@ export default function EditMemberDetails () {
   const [showListFor, setShowListFor] = useState('selectMember');
   const [showList, setShowList] = useState(false);
   
+  const handleSelectedValue = (item: any, id: string) => {
+    setFormData((prev: any) => ({...prev, ['name']: { id, name: item }}));
+    setShowList(false)
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowList(false)
 
@@ -122,9 +121,6 @@ export default function EditMemberDetails () {
           const dbData = data[0];
           console.log('dbDatadbDatadbData', dbData)
 
-          // Determine children based on gender
-          const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
-
           const formatedDbData = {
             name:  {id: `${dbData.id}`, name: `${dbData.name}`},
             gender:  dbData.gender,
@@ -140,11 +136,8 @@ export default function EditMemberDetails () {
             education:  dbData.education,
             address:  dbData.address,
             descendant: dbData.descendant,
-            // father: {id: `${dbData.father?.id}`, name: `${dbData.father?.name}`},
-            // mother: {id: `${dbData.mother?.id}`, name: `${dbData.mother?.name}`},
-            // partner: {id: `${dbData.partner?.id}`, name: `${dbData.partner?.name}`},
-            // children_id: childrenData ? childrenData.map((child: any) => child.id) : [],
-            // children: childrenData ? childrenData : [],
+            hasPartner: dbData.partnerId ? true : false,
+            isParent: (dbData.fatherOf.length > 0 || dbData.motherOf.length > 0) ? true : false
           }
           setFormData(formatedDbData);
           setMemberName(dbData.name)
@@ -160,36 +153,36 @@ export default function EditMemberDetails () {
     }
   }, [formData.name?.id])
 
-  const handleCancelSelectedValue = (item: any, key:any, id: string) => {
-    if (!key) return;
+  // const handleCancelSelectedValue = (item: any, key:any, id: string) => {
+  //   if (!key) return;
   
-    setFormData((prev: any) => {
-      if (Array.isArray(prev[key])) {
-        // Check if the item already exists
-        const exists = prev[key].some((entry: any) => entry.id === id);
+  //   setFormData((prev: any) => {
+  //     if (Array.isArray(prev[key])) {
+  //       // Check if the item already exists
+  //       const exists = prev[key].some((entry: any) => entry.id === id);
   
-        if (exists) {
-          // Remove the existing entry
-          return {
-            ...prev,
-            [key]: prev[key].filter((entry: any) => entry.id !== id),
-          };
-        } else {
-          // Add the new entry
-          return {
-            ...prev,
-            [key]: [...prev[key], { id, name: item }],
-          };
-        }
-      }
+  //       if (exists) {
+  //         // Remove the existing entry
+  //         return {
+  //           ...prev,
+  //           [key]: prev[key].filter((entry: any) => entry.id !== id),
+  //         };
+  //       } else {
+  //         // Add the new entry
+  //         return {
+  //           ...prev,
+  //           [key]: [...prev[key], { id, name: item }],
+  //         };
+  //       }
+  //     }
   
-      // If not an array, initialize with the first object
-      return {
-        ...prev,
-        [key]: { id, name: item },
-      };
-    });
-  };
+  //     // If not an array, initialize with the first object
+  //     return {
+  //       ...prev,
+  //       [key]: { id, name: item },
+  //     };
+  //   });
+  // };
 
   // Validate required fields
   const validateForm = () => {
@@ -226,8 +219,6 @@ export default function EditMemberDetails () {
       setLoading(true);
   
       const deceased = formData.deceased;
-      const isMale = formData.gender === "Male";
-      const isFemale = formData.gender === "Female";
 
       const memberData = {
         name: formData.name?.name,
@@ -243,15 +234,7 @@ export default function EditMemberDetails () {
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
-        // fatherId: formData.father?.id ? parseInt(formData.father?.id, 10) : null,
-        // motherId: formData.mother?.id ? parseInt(formData.mother?.id, 10) : null,
-        // partnerId: formData.partner?.id ? parseInt(formData.partner?.id, 10) : null,
-        // ...(isMale && {
-        //   fatherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
-        // }),
-        // ...(isFemale && {
-        //   motherOf: formData.children && formData.children.length > 0 ? formData.children.map((child: any) => child.id) : [],
-        // }),
+
       };
 
       console.log('memberData', memberData)
@@ -297,26 +280,29 @@ export default function EditMemberDetails () {
   return (
     <div className="md:flex text-text_color">
       <Container className='relative'>
-        {!memberName && <div onClick={() => handleShowList('selectMember')} className={`fixed inset-0 z-10`}></div>}
         {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
             <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center">
-              <Link href={"/add_edit"} className="block z-30">
-                <EditMember />
+              <span className="hidden md:block"><EditMember /></span>
+              <Link href={"/add_edit"} className="md:hidden block">
+                <span><BackButton /></span>
               </Link>
               <p className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
                 Edit {memberName ? memberName :'Member'}
               </p>
             </div>
-            <div className="cursor-pointer" onClick={() => handleShowList('selectMember')}><ChangeMember /></div>
+            <div className="cursor-pointer" onClick={() => handleShowList('selectMember')}>
+            <span className="border border-border_color px-1 flex justify-center items-center rounded-md w-fit h-[38px]"><ChangeMember /></span>
+            </div>
           </div>
-          <form className="text-text_color" onSubmit={handleSubmit}>
+          <form className="text-text_color relative" onSubmit={handleSubmit}>
+            {!memberName && <div onClick={() => handleShowList('selectMember')} className={`absolute inset-0 z-10`}></div>}
             <Input
               onClick={() => setShowList(false)}
-              className={`${memberName ? '' : 'outline-2 outline-dashed outline-offset-2 outline-border_active'} mb-2`}
+              className={`${memberName ? '' : 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}
               type="text"
               name="name"
               label="Name"
@@ -329,16 +315,18 @@ export default function EditMemberDetails () {
               <RadioButton
                 label="Male"
                 name="gender"
+                disabled = {formData.hasPartner || formData.isParent}
                 value="Male"
                 checked={formData.gender === "Male"}
-                onChange={handleInputChange}
+                onChange={formData.hasPartner || formData.isParent ? () => {} : handleInputChange}
               />
               <RadioButton
                 label="Female"
                 name="gender"
+                disabled = {formData.hasPartner || formData.isParent}
                 value="Female"
                 checked={formData.gender === "Female"}
-                onChange={handleInputChange}
+                onChange={formData.hasPartner || formData.isParent ? () => {} : handleInputChange}
               />
             </div>
             <div>
@@ -548,8 +536,9 @@ export default function EditMemberDetails () {
                 )
               }
             </div> */}
-            <ButtonSolid type="submit" className="w-full" buttonText="Update Details" />
+            <ButtonSolid type="submit" className="w-full mb-4" buttonText="Update Details" />
           </form>
+          <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>
       </Container>
       {showList && (
@@ -559,7 +548,7 @@ export default function EditMemberDetails () {
       /> )}
       <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
-          <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={setFormData} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
+          <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
         </div>
       </div>
     </div>

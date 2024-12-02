@@ -32,36 +32,9 @@ export async function GET(request: Request, context: any) {
           deathYear: true,
           additionalInfo: true,
           descendant: true,
-          father: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          mother: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          partner: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          fatherOf: {
-            select: {
-              id: true,
-              name: true, // Fetch only id and name of the children if the member is a father
-            },
-          },
-          motherOf: {
-            select: {
-              id: true,
-              name: true, // Fetch only id and name of the children if the member is a mother
-            },
-          },
+          partnerId: true,
+          fatherOf: true,
+          motherOf: true,
         },
       });
 
@@ -101,47 +74,46 @@ export async function PUT(request: Request, context: any) {
       return NextResponse.json({ error: 'No data provided for update' }, { status: 400 });
     }
 
-    // Prepare the update data for the member
-    const updateData: any = { ...updatedData };
+    // Fetch the current member data
+    const existingMember = await prisma.member.findUnique({
+      where: { id: memberId },
+      include: {
+        partner: true,
+        fatherOf: true,
+        motherOf: true,
+      },
+    });
 
-    // Handle member's children relationships dynamically
-    if (updatedData.gender === "Male" && updatedData.fatherOf) {
-      updateData.fatherOf = {
-        connect: updatedData.fatherOf.map((childId: number) => ({ id: childId })),
-      };
-    } else if (updatedData.gender === "Female" && updatedData.motherOf) {
-      updateData.motherOf = {
-        connect: updatedData.motherOf.map((childId: number) => ({ id: childId })),
-      };
+    if (!existingMember) {
+      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
     }
+
+    // Check if the member has a partner
+    if (existingMember.partner) {
+      const currentGender = existingMember.gender;
+      const updatedGender = updatedData.gender;
+
+      // If the gender is being updated, validate it against the current gender
+      if (updatedGender && currentGender !== updatedGender) {
+        return NextResponse.json({
+          error: `Gender mismatch: Cannot update gender to ${updatedGender} as the member has a partner.`,
+        }, { status: 400 });
+      }
+    }
+
+    // Check if the member is a father or mother
+    if (existingMember.fatherOf.length > 0 || existingMember.motherOf.length > 0) {
+      return NextResponse.json({
+        error: 'Update not allowed: The member is listed as a parent of one or more children.',
+      }, { status: 400 });
+    }
+    
 
     // Update the member in the database
     const updatedMember = await prisma.member.update({
       where: { id: memberId },
-      data: updateData,
+      data: updatedData,
     });
-
-    // Handle updating the partner's relationships
-    if (updatedData.partnerId) {
-      const partnerUpdateData: any = {};
-
-      if (updatedData.gender === "Male" && updatedData.fatherOf) {
-        partnerUpdateData.motherOf = {
-          connect: updatedData.fatherOf.map((childId: number) => ({ id: childId })),
-        };
-      } else if (updatedData.gender === "Female" && updatedData.motherOf) {
-        partnerUpdateData.fatherOf = {
-          connect: updatedData.motherOf.map((childId: number) => ({ id: childId })),
-        };
-      }
-
-      if (Object.keys(partnerUpdateData).length > 0) {
-        await prisma.member.update({
-          where: { id: updatedData.partnerId },
-          data: partnerUpdateData,
-        });
-      }
-    }
 
     return NextResponse.json({
       success: true,

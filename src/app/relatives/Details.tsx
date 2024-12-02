@@ -1,6 +1,6 @@
 'use client'
 import Container from '@/components/Container';
-import { CloseIcon, Female2, Male2 } from '@/utils/Icons';
+import { CloseIcon, Female2, Male2, Verified } from '@/utils/Icons';
 import { format } from 'date-fns';
 import React from 'react';
 
@@ -11,29 +11,32 @@ export default function Details({ data, openDetails }: any) {
             <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
             <div className='flex gap-2 items-center w-full pb-3'>
                 <div className='border border-border_color p-2 rounded-md'>
-                    {data.gender === 'Male' ? <Male2 /> : <Female2 />}
+                    {data?.gender === 'Male' ? <Male2 /> : <Female2 />}
                 </div>
                 <div className='w-full'>
-                    <p className='text-lg font-semibold'>{data?.name || 'Name Unavailable'}</p>
+                    <p className='text-lg font-semibold flex items-center'>
+                        <span>{data?.name || 'Name Unavailable'}</span>
+                        {true && <span className='pl-2'><Verified /></span>}
+                    </p>
 
-                    {data?.birthDate && data?.birthMonth && data?.birthYear && (
+                    {data?.birthDate && data?.birthMonth && (
                         <div className='flex items-baseline gap-1 leading-5 text-sm'>
                             <p>Born At :</p>
-                            <p>{`${data.birthDate} ${format(data.birthMonth, 'MMM')} ${data.birthYear}`}</p>
+                            <p>{`${data?.birthDate} ${format(`${data?.birthMonth}`, 'MMM')} ${data?.birthYear ? data.birthYear : ''}`}</p>
                         </div>
                     )}
 
-                    {data?.deathDate && data?.deathMonth && (
+                    {data?.deathMonth && data?.deathYear && (
                         <div className='flex items-baseline gap-1 leading-5 text-sm'>
                             <p>Died At :</p>
-                            <p>{`${data.deathDate} ${format(data.deathMonth, 'MMM')} ${data.deathYear}`}</p>
+                            <p>{`${data?.deathDate ? data?.deathDate : ''} ${format(`${data?.deathMonth}`, 'MMM')} ${data?.deathYear}`}</p>
                         </div>
                     )}
                 </div>
             </div>
 
 
-            {(data?.father || data?.mother || data?.partner) &&
+            {(data?.father || data?.mother || data?.partner || data?.fatherOf.length > 0 || data?.motherOf.length > 0 ) &&
             <>
                 <div className='flex pt-3 items-center'>
                     <p className='font-semibold whitespace-nowrap pr-4'>Relation Information</p>
@@ -53,24 +56,36 @@ export default function Details({ data, openDetails }: any) {
                                 <div className='w-3/5 leading-5 md:leading-7'>{data?.mother.name}</div>
                             </>
                         )}
-                        {/* {data?.siblings && (
-                            <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.siblings.join(', ')}</div>
-                            </>
-                        )} */}
+
+                        {data?.siblings?.length > 0 && (
+                        <>
+                            <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Siblings</div>
+                            <div className='w-3/5 leading-5 md:leading-7'>
+                            {data.siblings.join(", ")}
+                            </div>
+                        </>
+                        )}
+
                         {data?.partner && (
                             <>
                                 <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Partner</div>
                                 <div className='w-3/5 leading-5 md:leading-7'>{data?.partner.name}</div>
                             </>
                         )}
-                        {/* {data?.children && (
-                            <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Children</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.children.join(', ')}</div>
-                            </>
-                        )} */}
+
+
+                        {(data?.fatherOf.length > 0 || data?.motherOf.length > 0) &&
+                        <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Children</div>}
+                        {data?.fatherOf.length > 0 && (  
+                            <div className='w-3/5 leading-5 md:leading-7'>
+                                {data.fatherOf.map((child: { name: string }) => child.name).join(", ")}
+                            </div>
+                        )}
+                        {data?.motherOf.length > 0 && (
+                            <div className='w-3/5 leading-5 md:leading-7'>
+                                {data.motherOf.map((child: { name: string }) => child.name).join(", ")}.
+                            </div>
+                        )}
                     </div>
                 </div>
             </>

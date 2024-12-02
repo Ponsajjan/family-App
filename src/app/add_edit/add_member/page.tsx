@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ButtonSolid } from "@/components/Button";
+import { ButtonSolid, LinkButtonOutline } from "@/components/Button";
 import Input from "@/components/Input";
 import RadioButton from "@/components/RadioButton";
 import Link from "next/link";
-import { AddMember } from "@/utils/Icons";
+import { AddMember, BackButton } from "@/utils/Icons";
 import { useToast } from '@/components/Toast';
 
 export default function AddMemberDetails () {
@@ -54,6 +54,7 @@ export default function AddMemberDetails () {
     const errors: any = {};
   
     if (!formData.name) errors.name = "Name is required";
+    if (formData.name == 'undefined' || formData.name == 'Undefined') errors.name = "Can not use this nane";
     if (formData.birth_date && !formData.birth_month) errors.birth_date = "Date of birth requires a month";
     if (formData.birth_month && !formData.birth_date) errors.birth_month = "Date of birth requires a date";
     if (formData.birth_year && (!formData.birth_month || !formData.birth_date)) 
@@ -152,8 +153,9 @@ export default function AddMemberDetails () {
   return (
     <div className="w-full md:max-w-xl p-4 mx-auto">
       <div className="flex justify-start items-center mb-4">
-        <Link href={"/add_edit"} className="block">
-          <AddMember />
+        <span className="hidden md:block"><AddMember /></span>
+        <Link href={"/add_edit"} className="md:hidden block">
+          <span><BackButton /></span>
         </Link>
         <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
           Add Member
@@ -325,6 +327,7 @@ export default function AddMemberDetails () {
         />
 
         <ButtonSolid type="submit" disabled={loading} className="w-full mb-4" buttonText={loading ? "Adding..." : "Add Member"} />
+        <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
       </form>
     </div>
   );

@@ -6,18 +6,20 @@ const Radio = ({
 //   onChange,
 //   name,
   label = '',
+  disabled = false,
   className = '',
   ...props
 }) => {
   return (
-    <label className="flex items-center space-x-2 cursor-pointer">
+    <label className={`flex items-center space-x-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
       <input
         type="radio"
         // checked={checked}
         // value={value}
         // onChange={onChange}
         // name={name}
-        className={`border border-border_active rounded-full ${className}`}
+        disabled={disabled}
+        className={`border border-border_active rounded-full ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
         {...props}
       />
       {label && <span className="text-sm font-medium">{label}</span>}

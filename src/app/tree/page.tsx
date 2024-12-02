@@ -1,6 +1,6 @@
 import Topnav from "@/components/Topnav"
 import TreeView from "./TreeView"
-import { SearchIcon } from "@/utils/Icons"
+import { Highlighter, SearchIcon } from "@/utils/Icons"
 
 const data = {
     "data": [
@@ -87,6 +87,7 @@ export default function Calender() {
     return (
         <div className="w-full">
             <Topnav>
+                <div className="ml-auto mr-0 w-auto border border-border_color rounded-md p-1 cursor-pointer"><Highlighter /></div>
             </Topnav>
             <div className="pl-2 md:px-8 pr-4 overflow-auto h-[calc(100vh-3rem)]">
                 <TreeView data={data.data} />

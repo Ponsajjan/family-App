@@ -60,75 +60,69 @@ export async function PUT(request: Request, context: any) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
 
-  // Ensure valid memberId
+  // Validate memberId
   if (isNaN(memberId)) {
     return NextResponse.json({ error: 'Invalid member ID' }, { status: 400 });
   }
 
   try {
-    // Parse the JSON body
-    const updatedData = await request.json();
+    const deleteData = await request.json();
 
-    console.log('updatedData', updatedData);
-
-    // Validate the request body
-    if (!updatedData || Object.keys(updatedData).length === 0) {
+    // Validate request body
+    if (!deleteData || Object.keys(deleteData).length === 0) {
       return NextResponse.json({ error: 'No data provided for update' }, { status: 400 });
     }
 
-    // Prepare the update data for the member
-    const updateData: any = { ...updatedData };
+    // Start processing updates
+    const updatePromises: Promise<any>[] = [];
 
-    // Handle member's children relationships dynamically
-    if (updatedData.gender === "Male" && updatedData.fatherOf) {
-      updateData.fatherOf = {
-        connect: updatedData.fatherOf.map((childId: number) => ({ id: childId })),
-      };
-    } else if (updatedData.gender === "Female" && updatedData.motherOf) {
-      updateData.motherOf = {
-        connect: updatedData.motherOf.map((childId: number) => ({ id: childId })),
-      };
+    // Handle partner removal
+    if (deleteData.partnerId) {
+      const partnerId = deleteData.partnerId;
+
+      updatePromises.push(
+        prisma.$transaction([
+          prisma.member.update({
+            where: { id: partnerId },
+            data: { partnerId: null },
+          }),
+          prisma.member.update({
+            where: { id: memberId },
+            data: { partnerId: null },
+          }),
+        ])
+      );
     }
 
-    // Update the member in the database
-    const updatedMember = await prisma.member.update({
-      where: { id: memberId },
-      data: updateData,
-    });
+    // Handle children relations removal
+    if (deleteData.childrenId) {
+      const removeChildRelation:number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
 
-    // Handle updating the partner's relationships
-    if (updatedData.partnerId) {
-      const partnerUpdateData: any = {};
-
-      if (updatedData.gender === "Male" && updatedData.fatherOf) {
-        partnerUpdateData.motherOf = {
-          connect: updatedData.fatherOf.map((childId: number) => ({ id: childId })),
-        };
-      } else if (updatedData.gender === "Female" && updatedData.motherOf) {
-        partnerUpdateData.fatherOf = {
-          connect: updatedData.motherOf.map((childId: number) => ({ id: childId })),
-        };
-      }
-
-      if (Object.keys(partnerUpdateData).length > 0) {
-        await prisma.member.update({
-          where: { id: updatedData.partnerId },
-          data: partnerUpdateData,
-        });
-      }
+      updatePromises.push(
+        Promise.all(
+          removeChildRelation.map((childId) =>
+            prisma.member.update({
+              where: { id: childId },
+              data: { fatherId: null, motherId: null },
+            })
+          )
+        )
+      );
     }
+
+    // Wait for all updates to complete
+    await Promise.all(updatePromises);
 
     return NextResponse.json({
       success: true,
       message: 'Member updated successfully',
-      data: updatedMember,
     });
   } catch (error: any) {
     console.error('Error updating member:', error);
 
+    // Handle specific Prisma error codes
     if (error.code === 'P2025') {
-      // Prisma-specific error for "Record not found"
-      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Record not found' }, { status: 404 });
     }
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

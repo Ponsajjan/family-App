@@ -19,6 +19,16 @@ export async function GET(request: Request, context: any) {
           id: true,
           name: true,
           gender: true,
+          father: {
+            select: {
+              id: true,
+            },
+          },
+          mother: {
+            select: {
+              id: true,
+            },
+          },
           partner: {
             select: {
               id: true,
@@ -28,13 +38,13 @@ export async function GET(request: Request, context: any) {
           fatherOf: {
             select: {
               id: true,
-              name: true, // Fetch only id and name of the children if the member is a father
+              name: true,
             },
           },
           motherOf: {
             select: {
               id: true,
-              name: true, // Fetch only id and name of the children if the member is a mother
+              name: true,
             },
           },
         },
@@ -109,6 +119,7 @@ export async function PUT(request: Request, context: any) {
           connect: updatedData.motherOf.map((childId: number) => ({ id: childId })),
         };
       }
+      partnerUpdateData.partnerId = memberId;
 
       if (Object.keys(partnerUpdateData).length > 0) {
         await prisma.member.update({
