@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from "@/db/db";
 
 export async function GET(request: Request, context: any) {
@@ -22,17 +21,21 @@ export async function GET(request: Request, context: any) {
           father: {
             select: {
               id: true,
+              fatherOf: true
             },
           },
           mother: {
             select: {
               id: true,
+              motherOf: true
             },
           },
           partner: {
             select: {
               id: true,
               name: true,
+              fatherId: true,
+              motherId: true
             },
           },
           fatherOf: {

@@ -10,30 +10,53 @@ import { useToast } from '@/components/Toast';
 
 export default function AddMemberDetails () {
   const toast = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    gender: "Male",
-    birth_date: "",
-    birth_month: "",
-    birth_year: "",
+
+  interface DefaultValue {
+    name: string;
+    gender: "Male" | "Female" | undefined;
+    birth_date: string | null;
+    birth_month: string | null;
+    birth_year: string | null;
+    deceased: boolean;
+    death_date: string | null;
+    death_month: string | null;
+    death_year: string | null;
+    phone_number: string;
+    occupation: string;
+    education: string;
+    address: string;
+    descendant: "Yes" | "No" | undefined;
+  }
+
+  const defaultValue: DefaultValue = {
+    name: '',
+    gender: undefined,
+    birth_date: null,
+    birth_month: null,
+    birth_year: null,
     deceased: false,
-    death_date: "",
-    death_month: "",
-    death_year: "",
-    phone_number: "",
-    occupation: "",
-    education: "",
-    address: "",
-  });
+    death_date: null,
+    death_month: null,
+    death_year: null,
+    phone_number: '',
+    occupation: '',
+    education: '',
+    address: '',
+    descendant: undefined,
+  };
+
+  const [formData, setFormData] = useState(defaultValue);
 
   const [errors, setErrors] = useState({ 
-    name: "",
-    birth_date: "",
-    birth_month: "",
-    birth_year: "",
-    death_year: "",
-    death_month: "",
-    death_date: "" 
+    name: '',
+    gender: '',
+    birth_date: '',
+    birth_month: '',
+    birth_year: '',
+    death_year: '',
+    death_month: '',
+    death_date: '',
+    descendant: '',
   });
   const [loading, setLoading] = useState(false)
 
@@ -55,6 +78,8 @@ export default function AddMemberDetails () {
   
     if (!formData.name) errors.name = "Name is required";
     if (formData.name == 'undefined' || formData.name == 'Undefined') errors.name = "Can not use this nane";
+    if (formData.gender === undefined) errors.gender = "Choose gender";
+    if (formData.descendant === undefined) errors.descendant = "Choose descendance";
     if (formData.birth_date && !formData.birth_month) errors.birth_date = "Date of birth requires a month";
     if (formData.birth_month && !formData.birth_date) errors.birth_month = "Date of birth requires a date";
     if (formData.birth_year && (!formData.birth_month || !formData.birth_date)) 
@@ -91,7 +116,7 @@ export default function AddMemberDetails () {
         birthDate: formData.birth_date ? parseInt(formData.birth_date, 10) : null,
         birthMonth: formData.birth_month ? parseInt(formData.birth_month, 10) : null,
         birthYear: formData.birth_year ? parseInt(formData.birth_year, 10) : null,
-        deceased,
+        deceased: formData.deceased,
         deathDate: deceased && formData.death_date ? parseInt(formData.death_date, 10) : null,
         deathMonth: deceased && formData.death_month ? parseInt(formData.death_month, 10) : null,
         deathYear: deceased && formData.death_year ? parseInt(formData.death_year, 10) : null,
@@ -99,6 +124,7 @@ export default function AddMemberDetails () {
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
+        descendent: formData.descendant === "Yes" || false
       };
   
       // API Call
@@ -123,19 +149,20 @@ export default function AddMemberDetails () {
   
       // Reset form
       setFormData({
-        name: "",
-        gender: "Male",
-        birth_date: "",
-        birth_month: "",
-        birth_year: "",
+        name: '',
+        gender: undefined,
+        birth_date: null,
+        birth_month: null,
+        birth_year: null,
         deceased: false,
-        death_date: "",
-        death_month: "",
-        death_year: "",
-        phone_number: "",
-        occupation: "",
-        education: "",
-        address: "",
+        death_date: null,
+        death_month: null,
+        death_year: null,
+        phone_number: '',
+        occupation: '',
+        education: '',
+        address: '',
+        descendant: undefined,
       });
     } catch (error: any) {
       console.error("Error adding user:", error);
@@ -165,26 +192,33 @@ export default function AddMemberDetails () {
         <Input
           name="name"
           label="Name"
-          value={formData.name}
+          value={formData.name || ''}
           onChange={handleInputChange}
           error={errors.name}
         />
-        <div className="flex gap-2 py-4">
-          <p className="text-sm font-medium">Gender:</p>
-          <RadioButton
-            label="Male"
-            name="gender"
-            value="Male"
-            checked={formData.gender === "Male"}
-            onChange={handleInputChange}
-          />
-          <RadioButton
-            label="Female"
-            name="gender"
-            value="Female"
-            checked={formData.gender === "Female"}
-            onChange={handleInputChange}
-          />
+        <div className="py-4">
+          <div className="flex gap-2">
+            <p className="text-sm font-medium">Gender:</p>
+            <RadioButton
+              label="Male"
+              name="gender"
+              value="Male"
+              checked={formData.gender === "Male"}
+              onChange={handleInputChange}
+            />
+            <RadioButton
+              label="Female"
+              name="gender"
+              value="Female"
+              checked={formData.gender === "Female"}
+              onChange={handleInputChange}
+            />
+          </div>
+          {(errors.gender) && (
+            <p className="text-red-500 text-sm">
+              {errors.gender}
+            </p>
+          )}
         </div>
         <div>
           <p className="text-sm font-medium">
@@ -199,7 +233,7 @@ export default function AddMemberDetails () {
               max="31"
               maxLength="2"
               label=""
-              value={formData.birth_date}
+              value={formData.birth_date || ''}
               onChange={handleInputChange}
             />
             <Input
@@ -210,7 +244,7 @@ export default function AddMemberDetails () {
               max="12"
               maxLength="2"
               label=""
-              value={formData.birth_month}
+              value={formData.birth_month || ''}
               onChange={handleInputChange}
             />
             <Input
@@ -221,7 +255,7 @@ export default function AddMemberDetails () {
               max={new Date().getFullYear()}
               maxLength="4"
               label=""
-              value={formData.birth_year}
+              value={formData.birth_year || ''}
               onChange={handleInputChange}
             />
           </div>
@@ -238,7 +272,7 @@ export default function AddMemberDetails () {
               type="checkbox"
               className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
               name="deceased"
-              checked={formData.deceased}
+              checked={formData.deceased || false}
               onChange={handleInputChange}
             />
           </div>
@@ -259,7 +293,7 @@ export default function AddMemberDetails () {
                 max="31"
                 maxLength="2"
                 label=""
-                value={formData.death_date}
+                value={formData.death_date || ''}
                 onChange={handleInputChange}
               />
               <Input
@@ -270,7 +304,7 @@ export default function AddMemberDetails () {
                 max="12"
                 maxLength="2"
                 label=""
-                value={formData.death_month}
+                value={formData.death_month || ''}
                 onChange={handleInputChange}
               />
               <Input
@@ -281,7 +315,7 @@ export default function AddMemberDetails () {
                 max={new Date().getFullYear()}
                 maxLength="4"
                 label=""
-                value={formData.death_year}
+                value={formData.death_year || ''}
                 onChange={handleInputChange}
               />
             </div>
@@ -298,7 +332,7 @@ export default function AddMemberDetails () {
           showOptional={true}
           name="phone_number"
           label="Phone Number"
-          value={formData.phone_number}
+          value={formData.phone_number || ''}
           onChange={handleInputChange}
         />
         <Input
@@ -306,7 +340,7 @@ export default function AddMemberDetails () {
           showOptional={true}
           name="occupation"
           label="Occupation"
-          value={formData.occupation}
+          value={formData.occupation || ''}
           onChange={handleInputChange}
         />
         <Input
@@ -314,19 +348,39 @@ export default function AddMemberDetails () {
           showOptional={true}
           name="education"
           label="Education"
-          value={formData.education}
+          value={formData.education || ''}
           onChange={handleInputChange}
         />
         <Input
-          className="mb-8"
+          className="mb-4"
           showOptional={true}
           name="address"
           label="Address"
-          value={formData.address}
+          value={formData.address || ''}
           onChange={handleInputChange}
         />
-
-        <ButtonSolid type="submit" disabled={loading} className="w-full mb-4" buttonText={loading ? "Adding..." : "Add Member"} />
+        <div className="mb-2 items-center">
+          <div>
+            <p className="text-sm font-medium">Family descendant</p>
+            {["Yes", "No"].map((option) => (
+              <RadioButton
+                key={option}
+                label={option}
+                name="descendant"
+                value={option} // "Yes" maps to true, "No" maps to false
+                checked={formData.descendant === option }
+                onChange={handleInputChange}
+                className="pt-2"
+              />
+            ))}
+          </div>
+          {(errors.descendant) && (
+            <p className="text-red-500 text-sm">
+              {errors.descendant}
+            </p>
+          )}
+        </div>
+        <ButtonSolid type="submit" disabled={loading} className="w-full mt-8 mb-4" buttonText={loading ? "Adding..." : "Add Member"} />
         <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
       </form>
     </div>

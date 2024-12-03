@@ -103,9 +103,15 @@ export async function PUT(request: Request, context: any) {
 
     // Check if the member is a father or mother
     if (existingMember.fatherOf.length > 0 || existingMember.motherOf.length > 0) {
-      return NextResponse.json({
-        error: 'Update not allowed: The member is listed as a parent of one or more children.',
-      }, { status: 400 });
+      const currentGender = existingMember.gender;
+      const updatedGender = updatedData.gender;
+
+      // If the gender is being updated, validate it against the current gender
+      if (updatedGender && currentGender !== updatedGender) {
+        return NextResponse.json({
+          error: 'Update not allowed: The member is listed as a parent of one or more children.',
+        }, { status: 400 });
+      }
     }
     
 

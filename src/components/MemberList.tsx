@@ -8,6 +8,7 @@ import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
 import Loading from './Loading';
 import { boolean } from 'zod';
+import Link from 'next/link';
 
 interface EachMember {
   id: string;
@@ -45,8 +46,6 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
   // console.log('excludeId', excludeId)
   const keyMap:any = {
     selectMember: "name",
-    selectFather: "father",
-    selectMother: "mother",
     selectPartner: "partner",
     selectChildren: "children",
   };
@@ -165,6 +164,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
         <div className='pb-14 h-[60vh] md:h-[calc(100vh-162px)] overflow-y-auto'>
         {loading ? 
           <Loading /> :
+          members.length > 0 ?
           Object.keys(groupedMembers).sort().map((letter) => (
             <div key={letter}>
               <div className="flex text-text_color items-center mx-3 bg-main_background sticky top-0 z-[9]">
@@ -218,7 +218,12 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
                 </div>
               ))}
             </div>
-          ))
+          )) :
+          <>
+            {forType === 'selectChildren' && <p className='text-center py-4'>No family member with parents unassigned</p>}
+            {forType === 'selectPartner' && <p className='text-center py-4'>No family member with partner unassigned</p>}
+            <div className='mx-auto w-fit border border-border_color px-4 py-0.5 rounded-full font-medium'><Link href='/add_edit/add_member'> Add Member +</Link></div>
+          </>  
         }
         {error && <div className="p-6 text-center">{error}</div>}
         </div>

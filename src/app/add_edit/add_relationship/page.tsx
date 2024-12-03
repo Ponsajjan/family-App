@@ -59,7 +59,11 @@ export default function EditMemberDetails () {
       
           const { data } = await response.json();
           const dbData = data[0];
-
+          // Ensure default values for relationships
+          const siblingData = [
+            ...(Array.isArray(dbData.father?.fatherOf) ? dbData.father.fatherOf : []),
+            ...(Array.isArray(dbData.mother?.motherOf) ? dbData.mother.motherOf : []),
+          ];
           // Determine children based on gender
           const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
 
@@ -77,11 +81,14 @@ export default function EditMemberDetails () {
           const excludeIds = [
             dbData?.id ? parseInt(dbData.id, 10) : null,
             dbData.partner?.id ? parseInt(dbData.partner.id, 10) : null,
+            dbData.partner?.fatherId ? parseInt(dbData.partner.fatherId, 10) : null,
+            dbData.partner?.motherId ? parseInt(dbData.partner.motherId, 10) : null,
             dbData.father?.id ? parseInt(dbData.father.id, 10) : null,
             dbData.mother?.id ? parseInt(dbData.mother.id, 10) : null,
+            ...(siblingData ? siblingData.map((sibling: any) => parseInt(sibling.id, 10)) : []),
             ...(childrenData ? childrenData.map((child: any) => parseInt(child.id, 10)) : []),
           ].filter(Boolean);
-          setExcludePartnerRelation(excludeIds);
+          setExcludeMemberRelation(excludeIds);
         } catch (error) {
             console.error('Error fetching user details:', error);
             if (toast) {
@@ -127,7 +134,6 @@ export default function EditMemberDetails () {
 
           const excludeIds = [
             dbData?.id ? parseInt(dbData.id, 10) : null,
-            dbData.partner?.id ? parseInt(dbData.partner.id, 10) : null,
             dbData.father?.id ? parseInt(dbData.father.id, 10) : null,
             dbData.mother?.id ? parseInt(dbData.mother.id, 10) : null,
             ...(childrenData ? childrenData.map((child: any) => parseInt(child.id, 10)) : []),
@@ -146,7 +152,10 @@ export default function EditMemberDetails () {
       }
   
       fetchPartner()
+    } else {
+      setExcludePartnerRelation([])
     }
+    setShowListFor('selectPartner');
   }, [newformData.partner?.id])
 
   const handleCancelPartnerValue = () => {
@@ -165,7 +174,6 @@ export default function EditMemberDetails () {
     }));
   
     setPatnerChildren([]);
-    setShowListFor('selectPartner');
   };
 
   const keyMap:any = {

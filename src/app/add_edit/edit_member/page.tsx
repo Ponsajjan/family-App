@@ -21,7 +21,7 @@ export default function EditMemberDetails () {
   }
   interface DefaultValue {
     name: Member | null;
-    gender: "Male" | "Female"; // Gender is restricted to specific string literals
+    gender: "Male" | "Female" | undefined; // Gender is restricted to specific string literals
     birth_date: string | null;
     birth_month: string | null;
     birth_year: string | null;
@@ -33,14 +33,14 @@ export default function EditMemberDetails () {
     occupation: string;
     education: string;
     address: string;
-    descendant: boolean;
+    descendant: string | undefined;
     hasPartner: boolean;
     isParent: boolean;
   }
 
   const defaultValue: DefaultValue = {
     name: null,
-    gender: "Male",
+    gender: undefined,
     birth_date: null,
     birth_month: null,
     birth_year: null,
@@ -52,7 +52,7 @@ export default function EditMemberDetails () {
     occupation: '',
     education: '',
     address: '',
-    descendant: false,
+    descendant: undefined,
     hasPartner: false,
     isParent: false,
   };
@@ -135,7 +135,7 @@ export default function EditMemberDetails () {
             occupation:  dbData.occupation,
             education:  dbData.education,
             address:  dbData.address,
-            descendant: dbData.descendant,
+            descendant: (dbData.descendant == true) ? 'Yes' : 'No',
             hasPartner: dbData.partnerId ? true : false,
             isParent: (dbData.fatherOf.length > 0 || dbData.motherOf.length > 0) ? true : false
           }
@@ -188,7 +188,8 @@ export default function EditMemberDetails () {
   const validateForm = () => {
     const errors: any = {};
   
-    if (!formData.name) errors.name = "Name is required";
+    if (!formData.name?.name) errors.name = "Name is required";
+    if (formData.name?.name == 'undefined' || formData.name?.name == 'Undefined') errors.name = "Can not use this nane";
     if (formData.birth_date && !formData.birth_month) errors.birth_date = "Date of birth requires a month";
     if (formData.birth_month && !formData.birth_date) errors.birth_month = "Date of birth requires a date";
     if (formData.birth_year && (!formData.birth_month || !formData.birth_date)) 
@@ -234,7 +235,7 @@ export default function EditMemberDetails () {
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
-
+        descendant: formData.descendant === 'Yes' ? true : false,
       };
 
       console.log('memberData', memberData)
@@ -378,7 +379,7 @@ export default function EditMemberDetails () {
                   type="checkbox"
                   className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
                   name="deceased"
-                  checked={formData.deceased}
+                  checked={formData.deceased || false}
                   onChange={handleInputChange}
                 />
               </div>
@@ -451,92 +452,27 @@ export default function EditMemberDetails () {
             />
             <Input
               onClick={() => setShowList(false)}
-              className="mb-8"
+              className="mb-4"
               label="Address"
               name="address"
               value={formData.address || ''}
               onChange={handleInputChange}
             />
-            {/* <div className="flex items-center gap-2 flex-wrap relative py-2">
-                <p className="text-sm font-medium">Lalavillai Family</p>              
-                <input 
-                  type="checkbox" 
-                  className="peer bg-main_background border border-border_active rounded-md" 
-                  name="descendant" 
-                  checked={formData.descendant}
-                  onChange={handleInputChange} 
-                />
-                <div className="hidden peer-checked:flex w-full gap-2">
-                  <div className='w-full'>
-                    <p className="text-sm">Father</p>
-                    <div
-                      onClick={() => handleShowList("selectFather")}
-                      className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md cursor-pointer"
-                    >
-                    {formData.father && formData.father?.name !== 'undefined' ? 
-                      <>
-                        <span className="py-2 w-full">{formData.father?.name}</span>
-                        <span
-                          onClick={(e) => {e.stopPropagation(); console.log('father')}}
-                          className="border border-border_color rounded-md h-fit">
-                          <CloseIcon />
-                        </span>
-                      </> :  <span className="text-gray-400 py-2">Select Father</span>}
-                    </div>
-                  </div>
-                  <div className="w-full">
-                    <p className="text-sm">Mother</p>
-                    <div
-                      onClick={() => handleShowList("selectMother")}
-                      className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md cursor-pointer"
-                    >
-                    {formData.mother && formData.mother?.name !== 'undefined' ? 
-                      <>
-                        <span className="py-2 w-full">{formData.mother?.name}</span>
-                        <span
-                          onClick={(e) => {e.stopPropagation(); console.log('mother')}}
-                          className="border border-border_color rounded-md h-fit">
-                          <CloseIcon />
-                        </span>
-                      </> : <span className="text-gray-400 py-2">Select Mother</span>}
-                  </div>
-                </div>
-              </div>
+            <div className="mb-2">
+              <p className="text-sm font-medium">Family descendant</p>
+              {["Yes", "No"].map((option) => (
+              <RadioButton
+                key={option}
+                label={option}
+                name="descendant"
+                value={option} // "Yes" maps to true, "No" maps to false
+                checked={formData.descendant === option }
+                onChange={handleInputChange}
+                className="pt-2"
+              />
+            ))}
             </div>
-            <p className="text-sm">Partner</p>
-            <div 
-              onClick={() => handleShowList('selectPartner')} 
-              className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" 
-            >
-              {formData.partner && formData.partner?.name !== 'undefined' ? 
-                <>
-                  <span className="py-2 w-full">{formData.partner?.name}</span>
-                  <span
-                    onClick={(e) => {e.stopPropagation(); console.log('partner')}}
-                    className="border border-border_color rounded-md h-fit">
-                    <CloseIcon />
-                  </span>
-                </> : <span className='py-2 w-full text-gray-400'>Select Partner</span>}
-            </div>
-            <p className="text-sm">Children</p>
-            <div className='mb-8' >
-              {formData.children.length <= 0 ? (
-                <div onClick={() => handleShowList('selectChildren')} className="w-full border p-2 bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
-                  <span className='text-gray-400'>Select Children</span>
-                </div>) :
-                formData.children?.map((item: {id:any, name:string}, index:number) => (
-                  <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer" >
-                    <span onClick={() => handleShowList('selectChildren')} className="py-2 w-full">{item?.name}</span>
-                    {formData.children.length > 0 && <span
-                      onClick={() => handleCancelSelectedValue(item?.name, 'children', item?.id)}
-                      className="border border-border_color rounded-md h-fit">
-                      <CloseIcon />
-                    </span>}
-                  </div>)
-                )
-              }
-            </div> */}
-            <ButtonSolid type="submit" className="w-full mb-4" buttonText="Update Details" />
+            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Update Details" />
           </form>
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>

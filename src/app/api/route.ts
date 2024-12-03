@@ -54,9 +54,10 @@ export async function GET(request: NextRequest) {
       case "selectChildren":
         memberList = await prisma.member.findMany({
           where: {
+            id: { notIn: excludeId },
             fatherId: null,
             motherId: null,
-            id: { notIn: excludeId },
+            descendant: true
           },
           select: {
             id: true,

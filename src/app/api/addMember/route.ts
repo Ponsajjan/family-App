@@ -21,6 +21,7 @@ export async function POST(request: Request) {
       occupation: formData.occupation || null,
       education: formData.education || null,
       address: formData.address || null,
+      descendant: formData.deceased === true || false,
     };
 
     // Save user to the database

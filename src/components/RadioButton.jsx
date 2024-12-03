@@ -11,7 +11,7 @@ const Radio = ({
   ...props
 }) => {
   return (
-    <label className={`flex items-center space-x-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+    <label className={`flex items-center space-x-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`}>
       <input
         type="radio"
         // checked={checked}
