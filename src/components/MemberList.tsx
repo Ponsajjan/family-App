@@ -39,7 +39,8 @@ interface MemberListProps {
 
 export default function MemberList({ forType='selectMember', gender=null, excludeId=[], setSelectedValue, openList, getSelectedValues, refreshList, multiselect }: MemberListProps) {
   const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showCousin, setShowCousin] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<any[]>([])
 
@@ -82,7 +83,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
         setMembers([])
         setError(null);
         
-        const response = await fetch(`/api?for=${forType}&gender=${gender}&excludeId=${excludeId}`, {
+        const response = await fetch(`/api?for=${forType}&gender=${gender}&excludeId=${excludeId}&showCousin=${showCousin}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -106,12 +107,12 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
 
     setFilteresUsed(forType)
     fetchMembers();
-  }, [forType, refreshList]);
+  }, [forType, refreshList, showCousin]);
 
   const handleSelectedValue = (item: any, id: string) => {
     setSelectedValue(item, id)
   };
-  
+
   const groupedMembers = members.reduce<{ [key: string]: Member[] }>((acc, member) => {
     const letter = member.name.charAt(0).toUpperCase();
     if (!acc[letter]) acc[letter] = [];
@@ -160,8 +161,23 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
             </li>
           </ul>
         </div>
-
-        <div className='pb-14 h-[60vh] md:h-[calc(100vh-162px)] overflow-y-auto'>
+        <div className='pb-14 h-[60vh] md:h-[calc(100vh-162px)] overflow-y-auto scroll-stable'>
+        {forType === 'selectPartner' && <div className='pt-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm'>
+          <p>Show Cousins List</p>
+          <label className="relative inline-flex items-center cursor-pointer p-1">
+            <span className='absolute left-[5px] z-10'><FilterClose /></span>
+            <input 
+                className="sr-only peer" 
+                type="checkbox" 
+                checked={showCousin} 
+                onChange={() => setShowCousin(prev => !prev)}
+            />
+            <span className='absolute right-[5px] z-10'><FilterSelect /></span>
+            <div className="peer rounded-full outline-none duration-75 border border-border_color after:duration-100 w-9 h-[18px] bg-accent_color peer-focus:outline-none after:absolute after:outline-none after:rounded-full after:h-4 after:w-4 after:bg-white after:flex after:justify-center after:items-center after:font-bold peer-checked:after:translate-x-[18px] peer-checked:after:border-border_active">
+            </div>
+          </label>
+          {/* <Checkbox onChange={() => setShowCousin(prev => !prev)} checked={showCousin} /> */}
+        </div>}
         {loading ? 
           <Loading /> :
           members.length > 0 ?
@@ -218,14 +234,18 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
                 </div>
               ))}
             </div>
-          )) :
+          )) : error ?
+          <div className="p-6 text-center">{error}</div> :
           <>
-            {forType === 'selectChildren' && <p className='text-center py-4'>No family member with parents unassigned</p>}
-            {forType === 'selectPartner' && <p className='text-center py-4'>No family member with partner unassigned</p>}
+            {forType === 'selectChildren' && <p className='text-center pt-10 pb-4'>No family descendent with parents unassigned</p>}
+            {forType === 'selectPartner' 
+            ? showCousin 
+              ? <p className='text-center pt-10 pb-4'>No family descendent with partner unassigned</p> 
+              : <p className='text-center pt-10 pb-4'>No member with partner unassigned</p>
+            : ''}
             <div className='mx-auto w-fit border border-border_color px-4 py-0.5 rounded-full font-medium'><Link href='/add_edit/add_member'> Add Member +</Link></div>
           </>  
         }
-        {error && <div className="p-6 text-center">{error}</div>}
         </div>
 
         {multiselect && <ButtonSolid buttonText={selectedValues.length <= 0 ? 'Close' : 'Submit'} onClick={() => openList((prev :any) => !prev)} className={`w-full absolute bottom-0 left-0 right-0 z-10 rounded-none ${selectedValues.length <= 0 ? 'opacity-45' : 'opacity-100'}`} />}

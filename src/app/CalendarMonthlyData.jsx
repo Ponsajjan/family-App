@@ -23,13 +23,13 @@ export default function CalendarMonthlyData({data, month, year}) {
           const eventDay = date.getDate();
           
           if (eventDay < todayDate) {
-            pastEvents.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(today, date) });
+            pastEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
           } else if (eventDay === todayDate) {
-            todayEvents.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(today, date) });
+            todayEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
           } else if (eventDay > todayDate && eventDay <= todayDate + 7) {
-            thisWeekEvents.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(today, date) });
+            thisWeekEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
           } else if (eventDay > todayDate + 7) {
-            upcomingEvents.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(today, date) });
+            upcomingEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
           }
         }
       };
@@ -41,7 +41,7 @@ export default function CalendarMonthlyData({data, month, year}) {
   } else {
     data?.forEach(user => {
       const selectedMonth = (date, type) => {
-        selectedMonthData.push({ ...user, type, date, age: date.getFullYear() == 1111 ? 'n/a' : differenceInYears(new Date(year, month), date) });
+        selectedMonthData.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(new Date(year, month), date) });
       };
   
       // Check birthdays and deathdays
@@ -91,7 +91,7 @@ export default function CalendarMonthlyData({data, month, year}) {
                       <div className='text-xs font-light capitalize flex items-baseline gap-2'>
                         <span className="leading-3">
                         {item.type === 'birthday' ? 'Born At:' : 'Died At:'} 
-                        {item.date.getFullYear() == 1111 
+                        {item.date.getFullYear() == 1900 
                         ? format(item.date, 'd MMM') 
                         : !item.hasDate 
                           ? format(item.date, 'MMM yyyy') 

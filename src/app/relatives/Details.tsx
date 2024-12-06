@@ -1,6 +1,6 @@
 'use client'
 import Container from '@/components/Container';
-import { CloseIcon, Female2, Male2, Verified } from '@/utils/Icons';
+import { CloseIcon, Condolences, Female2, Male2, Verified } from '@/utils/Icons';
 import { format } from 'date-fns';
 import React from 'react';
 
@@ -10,8 +10,9 @@ export default function Details({ data, openDetails }: any) {
         <Container className='text-text_color py-6 px-4 relative bg-main_background'>
             <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
             <div className='flex gap-2 items-center w-full pb-3'>
-                <div className='border border-border_color p-2 rounded-md'>
+                <div className='border border-border_color p-2 rounded-md relative'>
                     {data?.gender === 'Male' ? <Male2 /> : <Female2 />}
+                    {data?.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
                 </div>
                 <div className='w-full'>
                     <p className='text-lg font-semibold flex items-center'>
@@ -26,12 +27,15 @@ export default function Details({ data, openDetails }: any) {
                         </div>
                     )}
 
-                    {data?.deathMonth && data?.deathYear && (
-                        <div className='flex items-baseline gap-1 leading-5 text-sm'>
-                            <p>Died At :</p>
-                            <p>{`${data?.deathDate ? data?.deathDate : ''} ${format(`${data?.deathMonth}`, 'MMM')} ${data?.deathYear}`}</p>
-                        </div>
-                    )}
+                    {data?.deceased ?
+                        data?.deathMonth && data?.deathYear 
+                        ?  <div className='flex items-baseline gap-1 leading-5 text-sm'>
+                                <p>Died At :</p>
+                                <p>{`${data?.deathDate ? data?.deathDate : ''} ${format(`${data?.deathMonth}`, 'MMM')} ${data?.deathYear}`}</p>
+                            </div>
+                        : <p className='leading-5 text-sm'>Deceased</p>
+                        : ''
+                    }
                 </div>
             </div>
 
@@ -92,48 +96,54 @@ export default function Details({ data, openDetails }: any) {
             }
 
             {(data?.phoneNumber || data?.address) &&
-            <div className='flex pt-3 items-center'>
-                <p className='font-semibold whitespace-nowrap pr-4'>Contact Information</p>
-                <p className='border-t border-border_color w-full'></p>
-            </div>}
-            <div className='pl-1'>
-                <div className='flex flex-wrap mb-1 border-l border-border_color pl-2'>
-                    {data?.phoneNumber && (
-                        <>
-                            <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Phone no.</div>
-                            <div className='w-3/5 leading-5 md:leading-7'>{data?.phoneNumber}</div>
-                        </>
-                    )}
-                    {data?.address && (
-                        <>
-                            <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Address</div>
-                            <div className='w-3/5 leading-5 md:leading-7'>{data?.address}</div>
-                        </>
-                    )}
+            <>
+                <div className='flex pt-3 items-center'>
+                    <p className='font-semibold whitespace-nowrap pr-4'>Contact Information</p>
+                    <p className='border-t border-border_color w-full'></p>
                 </div>
-            </div>
+                <div className='pl-1'>
+                    <div className='flex flex-wrap mb-1 border-l border-border_color pl-2'>
+                        {data?.phoneNumber && (
+                            <>
+                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Phone no.</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.phoneNumber}</div>
+                            </>
+                        )}
+                        {data?.address && (
+                            <>
+                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Address</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.address}</div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </>
+            }
 
             {(data?.occupation || data?.education) &&
-            <div className='flex pt-3 items-center'>
-                <p className='font-semibold whitespace-nowrap pr-4'>Personal Information</p>
-                <p className='border-t border-border_color w-full'></p>
-            </div>}
-            <div className='pl-1'>
-                <div className='flex flex-wrap pb-1 border-l border-border_color pl-2'>
-                    {data?.occupation && (
-                        <>
-                            <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Occupation</div>
-                            <div className='w-3/5 leading-5 md:leading-7'>{data?.occupation}</div>
-                        </>
-                    )}
-                    {data?.education && (
-                        <>
-                            <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Education</div>
-                            <div className='w-3/5 leading-5 md:leading-7'>{data?.education}</div>
-                        </>
-                    )}
+            <>
+                <div className='flex pt-3 items-center'>
+                    <p className='font-semibold whitespace-nowrap pr-4'>Personal Information</p>
+                    <p className='border-t border-border_color w-full'></p>
                 </div>
-            </div>
+                <div className='pl-1'>
+                    <div className='flex flex-wrap pb-1 border-l border-border_color pl-2'>
+                        {data?.occupation && (
+                            <>
+                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Occupation</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.occupation}</div>
+                            </>
+                        )}
+                        {data?.education && (
+                            <>
+                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Education</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.education}</div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </>
+            }
 
         </Container>
     );

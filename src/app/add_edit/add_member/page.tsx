@@ -124,7 +124,7 @@ export default function AddMemberDetails () {
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
-        descendent: formData.descendant === "Yes" || false
+        descendant: formData.descendant === "Yes"
       };
   
       // API Call

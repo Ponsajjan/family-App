@@ -42,7 +42,7 @@ export async function GET(request: Request, context: { params: { month: string; 
     // Helper function to create ISO date string
     const getDateFromParts = (year: number | null, month: number, day: number | null) => {
       if (month && day) {
-        return new Date(year ?? 1111, month - 1, day).toISOString(); // Default year if missing
+        return new Date(year ?? 1900, month - 1, day).toISOString(); // Default year if missing
       }
       return null;
     };

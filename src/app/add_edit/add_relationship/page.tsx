@@ -250,7 +250,7 @@ export default function EditMemberDetails () {
     }
     try {
       setLoading(true);
-  
+      setShowList(false)
       const isMale = combinedData.gender === "Male";
       const isFemale = combinedData.gender === "Female";
 

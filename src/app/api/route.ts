@@ -6,17 +6,22 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const forType = searchParams.get("for");
   const gender = searchParams.get("gender");
-  
+  const showCousin = searchParams.get("showCousin") === "true"; // Parse to boolean
+
   // Parse excludeId to a number array
   const excludeIdParam = searchParams.get("excludeId");
-  const excludeId = excludeIdParam ? excludeIdParam.split(",").map(Number).filter(Boolean) : [];
+  const excludeId = excludeIdParam
+    ? excludeIdParam.split(",").map(Number).filter(Boolean)
+    : [];
 
-
-  console.log('hey hi hello h!', excludeId)
   try {
     let memberList: any[] = [];
 
-    // Build the query based on `for` parameter value
+    // Calculate current year minus 18
+    const currentYear = new Date().getFullYear();
+    const yearThreshold = currentYear - 18;
+
+
     switch (forType) {
       case "selectMember":
         memberList = await prisma.member.findMany({
@@ -38,6 +43,13 @@ export async function GET(request: NextRequest) {
             gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
             partnerId: null,
             id: { notIn: excludeId },
+            descendant: showCousin,
+            AND: {
+              OR: [
+                { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
+                { birthYear: null },
+              ],
+            }
           },
           select: {
             id: true,
@@ -57,7 +69,7 @@ export async function GET(request: NextRequest) {
             id: { notIn: excludeId },
             fatherId: null,
             motherId: null,
-            descendant: true
+            descendant: true,
           },
           select: {
             id: true,
@@ -75,7 +87,7 @@ export async function GET(request: NextRequest) {
           where: {
             OR: [
               { fatherOf: { some: {} } },
-              { motherOf: { some: {} } }, 
+              { motherOf: { some: {} } },
               { partnerId: { not: null } },
             ],
           },
@@ -92,7 +104,10 @@ export async function GET(request: NextRequest) {
 
       default:
         console.warn("Invalid 'forType' parameter:", forType);
-        return NextResponse.json({ error: `'${forType}' is not a valid 'for' parameter` }, { status: 400 });
+        return NextResponse.json(
+          { error: `'${forType}' is not a valid 'for' parameter` },
+          { status: 400 }
+        );
     }
 
     return NextResponse.json(memberList);
