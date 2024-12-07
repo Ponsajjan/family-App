@@ -30,12 +30,14 @@ model Member {
   address               String?
   occupation            String?
   education             String?
-  additionalInfo        MembersAdditionalInfo[]
+  additionalInfo        MemberEditRequest[]
   descendant            Boolean               @default(false)
   // Family relationships
   fatherId              Int?                  // Foreign key for father
   motherId              Int?                  // Foreign key for mother
   partnerId             Int?                  // Foreign key for partner
+
+  partnersRelation      PartnersRelation[]
 
   father                Member?               @relation("FatherOfChildren", fields: [fatherId], references: [id])
   mother                Member?               @relation("MotherOfChildren", fields: [motherId], references: [id])
@@ -53,10 +55,20 @@ model Member {
   updatedAt             DateTime              @updatedAt
 }
 
-model MembersAdditionalInfo {
+model MemberEditRequest {
   id                    Int                   @id @default(autoincrement())
-  topic                 String?
   details               String
+  member                Member                @relation(fields: [memberId], references: [id])
+  memberId              Int
+}
+
+model PartnersRelation {
+  id                    Int                   @id @default(autoincrement())
+  fatherName            String?
+  motherName            String?
+  // SiblingsNames         String[]
+  // SiblingsNames         Json 
+  SiblingsNames         String? 
   member                Member                @relation(fields: [memberId], references: [id])
   memberId              Int
 }
