@@ -1,97 +1,25 @@
-import Topnav from "@/components/Topnav"
-import TreeView from "./TreeView"
-import { Highlighter, SearchIcon } from "@/utils/Icons"
+import Topnav from "@/components/Topnav";
+import FetchFamilyTree from "./FetchFamilyTree";
+import DragScroll from "@/components/DragScroll";
 
-const data = {
-    "data": [
-        {
-            "gen": [{"name": "Jothi", "gender": "female"}, {"name": "raja", "gender": "male"}],
-            "next_gen": [
-                {
-                    "gen": [{"name": "jr sajjan", "gender": "male"}],
-                    "next_gen": []
-                },
-                {
-                    "gen": [{"name": "jr sudhan", "gender": "male"}],
-                    "next_gen": []
-                }
-            ]
-        },
-        {
-            "gen": [{"name": "mr.mohan", "gender": "male"}, {"name": "ms.mohan", "gender": "female"}],
-            "next_gen": [
-                {
-                    "gen": [{"name": "jr mohan I", "gender": "male"}, {"name": "ms mohana", "gender": "female"}],
-                    "next_gen": [
-                        {
-                            "gen": [{"name": "mohan II", "gender": "male"}],
-                            "next_gen": [
-                                {
-                                    "gen": [{"name": "jr mohan I", "gender": "male"}, {"name": "ms mohana", "gender": "female"}],
-                                    "next_gen": []
-                                }
-                            ]
-                        },
-                    ]
-                }
-            ]
-        },
-        {
-            "gen": [{"name": "susila", "gender": "female"}],
-            "next_gen": []
-        },
-        {
-            "gen": [{"name": "kala", "gender": "female"}],
-            "next_gen": []
-        },
-        {
-            "gen": [{"name": "rajam", "gender": "female"}],
-            "next_gen": []
-        },
-        {
-            "gen": [
-                {
-                    "name": "Babu", "gender": "male"
-                },
-                {
-                    "name": "ms. Babu", "gender": "female"
-                }
-            ],
-            "next_gen": [
-                {
-                    "gen": [
-                        {
-                            "name": "Vinod", "gender": "male"
-                        },
-                        {
-                            "name": "ms Vinod", "gender": "female"
-                        }
-                    ],
-                    "next_gen": [
-                        {   "gen": [
-                                {
-                                    "name": "Vinod I", "gender": "male"
-                                }
-                            ],
-                            "next_gen": []
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-}
+export default function FamilyTreePage() {
+  const topLevelMembers = [
+    { id: 24 }, { id: 31 }, { id: 30 }, { id: 29 },
+    { id: 25 }, { id: 22 }, { id: 4 }, { id: 20 },
+    { id: 8 }, { id: 28 }, { id: 3 }, { id: 33 },
+    { id: 32 }, { id: 34 }, { id: 35 }, { id: 15 },
+    { id: 23 }, { id: 13 }, { id: 26 }, { id: 17 },
+    { id: 14 },
+  ];
 
-
-export default function Calender() {
-    return (
-        <div className="w-full">
-            <Topnav>
-                <div className="ml-auto mr-0 w-auto border border-border_color rounded-md p-1 cursor-pointer"><Highlighter /></div>
-            </Topnav>
-            <div className="pl-2 md:px-8 pr-4 overflow-auto h-[calc(100vh-3rem)]">
-                <TreeView data={data.data} />
-            </div>
-        </div>
-    )
+  return (
+    <div className="w-full">
+      <Topnav />
+      {/* <div className="pl-2 md:px-8 pr-4 overflow-auto h-[calc(100vh-3rem)]"> */}
+      <DragScroll>
+        <FetchFamilyTree memberIds={topLevelMembers.map((member) => member.id)} />
+      </DragScroll>
+      {/* </div> */}
+    </div>
+  );
 }

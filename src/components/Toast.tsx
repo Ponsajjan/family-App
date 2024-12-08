@@ -56,7 +56,7 @@ function ToastProvider({children}: any) {
                         <div className="flex justify-between items-center gap-2">
                             {getToastStyle(type)}
                             <p className="md:text-xl text-text_color whitespace-nowrap">{component}</p>
-                            <button onClick={() => close(id)} className="transform rotate-45"><PlusIcon /></button>
+                            <button onClick={() => close(id)} className="w-6 h-6 transform rotate-45"><PlusIcon /></button>
                         </div>
                         <div className="progress active absolute bottom-0 left-0 w-full h-1 bg-field_hover"></div>
                     </div>

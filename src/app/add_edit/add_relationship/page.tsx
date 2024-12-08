@@ -5,7 +5,7 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import { ButtonSolid, LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton, ChangeMember, MinusIcon } from "@/utils/Icons";
+import { AddRelationship, BackButton, ChangeMember, MinusIcon, PlusIcon } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { useRouter } from 'next/navigation';
 
@@ -338,6 +338,10 @@ export default function EditMemberDetails () {
                 </> :
                 <span className='py-2 w-full text-gray-400'>Select Member</span>}
             </div>
+            <div className="flex items-center cursor-pointer text-xs mr-0 ml-auto py-1 px-4 border border-border_color rounded-full w-fit">
+              <span className="pr-2">Add Family members </span>
+              <span className="w-4 h-4"><PlusIcon /></span>
+            </div>
 
             <p className="text-sm">Partner</p>
             <div 
@@ -390,7 +394,10 @@ export default function EditMemberDetails () {
               </>
             </div>}
             {(prevformData.partner && prevformData.partner?.name !== 'undefined' || newformData.partner && newformData.partner?.name !== 'undefined') && 
-            <p className="cursor-pointer text-sm text-text_color px-2 w-fit border border-border_color rounded-full" onClick={() => handleShowList('selectChildren')}>Add Children +</p>}
+            <div className="flex items-center cursor-pointer text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit" onClick={() => handleShowList('selectChildren')}>
+              <span className="pr-2">Add Children</span>
+              <span className="w-4 h-4"><PlusIcon /></span>
+            </div>}
             <div className="mt-8 mb-4">
               <ButtonSolid type="submit" className="w-full" buttonText="Add Relationship" />
             </div>
