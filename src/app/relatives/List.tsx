@@ -6,8 +6,10 @@ import Details from './Details';
 import Container from "../../components/Container";
 import Link from 'next/link';
 import Loading from '@/components/Loading';
+import { useToast } from '@/components/Toast';
 
 export default function List() {
+    const toast = useToast();
     const [members, setMembers] = useState([]);
     // Manage state for showing/hiding details
     const [showDetails, setShowDetails] = useState(false);
@@ -34,8 +36,12 @@ export default function List() {
     
             const usersData = await response.json();
             setMembers(usersData);
-          } catch (error) {
-            console.error("Failed to fetch members:", error);
+          } catch (error: any) {
+            if (toast) {
+                toast.show( error.message || "Failed to fetch members", "error", 5000);
+            } else {
+                alert( error.message || "Failed to fetch members")
+            }
           } finally {
             setLoadingList(false)
           }
@@ -44,14 +50,14 @@ export default function List() {
         fetchUsers();
     }, []);
 
-     const groupedUsers = members.reduce((acc, user) => {
-        const initial = user.name.charAt(0).toUpperCase();
+     const groupedUsers = members.reduce((acc:any, user:any) => {
+        const initial = user.name?.charAt(0).toUpperCase();
         if (!acc[initial]) acc[initial] = [];
         acc[initial].push(user);
         return acc;
      }, {});
 
-    const handleShowDetails = async (user_id) => {
+    const handleShowDetails = async (user_id: string | number) => {
         try {
             setLoadingDetails(true)
             const response = await fetch(`/api/relatives/${user_id}`);
@@ -61,8 +67,12 @@ export default function List() {
 
             setUserDetails(user.data);
             setShowDetails(true);
-        } catch (error) {
-            console.error('Error fetching user details:', error);
+        } catch (error:any) {
+            if (toast) {
+                toast.show(error.message || "Error fetching user details", "error", 5000);
+            } else {
+                alert(error.message || "Error fetching user details")
+            }
         } finally {
             setLoadingDetails(false)
         }
@@ -86,7 +96,7 @@ export default function List() {
                                             <span className="border-t border-border_color block w-full"></span>
                                         </div>
                                         {/* Render list of members */}
-                                        {groupedUsers[letter].map((user) => (
+                                        {groupedUsers[letter].map((user: any) => (
                                         <div key={user.id} className="pl-4">
                                             <div className="border-l border-border_color pt-1 pb-2 pl-4 pr-3">
                                                 <div onClick={() => handleShowDetails(user.id)} className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">

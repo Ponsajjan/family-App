@@ -82,10 +82,11 @@ export default function EditMemberDetails () {
           setMemberName(dbData.name)
           setPreviousData(formatedDbData)
           // console.log('user', dbData)
-        } catch (error) {
-            console.error('Error fetching user details:', error);
+        } catch (error:any) {
             if (toast) {
-              toast.show("Error fetching user details", "error", 5000)
+              toast.show(error.message || "Error fetching user details", "error", 5000)
+            } else {
+              alert(error.message || 'Error fetching user details');
             }
             router.push('/add_edit');
         } finally {
@@ -188,8 +189,10 @@ export default function EditMemberDetails () {
         const errorData = await response.json();
         if (toast) {
           toast.show(errorData.error || "Failed to update member", "error", 5000)
+        } else {
+          alert(errorData.error || "Failed to update member")
         }
-        throw new Error(errorData.error || "Failed to update member");
+        // throw new Error(errorData.error || "Failed to update member");
       }
   
       const result = await response.json();

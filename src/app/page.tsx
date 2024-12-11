@@ -10,8 +10,10 @@ import Container from "@/components/Container";
 import Loading from "@/components/Loading";
 import OnDate from "./OnDate";
 import { format } from 'date-fns';
+import { useToast } from '@/components/Toast';
 
 export default function Home() {
+  const toast = useToast();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [eventDates, setEventDates] = useState([]);
@@ -127,8 +129,12 @@ export default function Home() {
 
         setDateList(datesList);
 
-      } catch (error) {
-        console.error("Failed to fetch event dates:", error);
+      } catch (error: any) {
+        if (toast) {
+          toast.show(error || "Failed to fetch event dates.", "error", 5000);
+        } else {
+          console.log(error)
+        }
       } finally {
         setLoading(false);
       }

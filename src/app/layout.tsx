@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Sidenav } from "@/components/Sidenav";
 import "./globals.css";
 import ToastProvider from "@/components/Toast";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,7 +15,9 @@ export const metadata: Metadata = {
   description: "Developed in intention to remember eachother",
 };
 
-export const viewport: Viewport ={
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
   themeColor: "FFFFFF",
 }
 
@@ -23,26 +26,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // useEffect(() => {
-  //   // Set initial theme based on localStorage or system preference
-  //   const storedTheme = localStorage.getItem("theme");
-  //   const defaultTheme = storedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  //   document.getElementById("MainDiv")?.classList.add(defaultTheme);
-  // }, []);
-  
+
   return (
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning={true}>
         <main id="MainDiv">
-          <ToastProvider>
-            <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
-              <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
-                <Sidenav />
-                {children}
+          <ThemeProvider>
+            <ToastProvider>
+              <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
+                <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+                  <Sidenav />
+                  {children}
+                </div>
               </div>
-            </div>
-            <div id='portal'></div>
-          </ToastProvider>
+              <div id='portal'></div>
+            </ToastProvider>
+          </ThemeProvider>
         </main>
       </body>
     </html>

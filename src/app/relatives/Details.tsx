@@ -40,7 +40,14 @@ export default function Details({ data, openDetails }: any) {
             </div>
 
 
-            {(data?.father || data?.mother || data?.partner || data?.fatherOf.length > 0 || data?.motherOf.length > 0 ) &&
+            {(data?.father ||
+                data?.mother ||
+                data?.partner ||
+                data?.fatherOf?.length > 0 ||
+                data?.motherOf?.length > 0 ||
+                data?.partnersRelation[0]?.fatherName ||
+                data?.partnersRelation[0]?.motherName ||
+                data?.partnersRelation[0]?.SiblingsNames) &&
             <>
                 <div className='flex pt-3 items-center'>
                     <p className='font-semibold whitespace-nowrap pr-4'>Relation Information</p>
@@ -62,11 +69,29 @@ export default function Details({ data, openDetails }: any) {
                         )}
 
                         {data?.siblings?.length > 0 && (
+                            <>
+                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Siblings</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.siblings?.join(", ")}</div>
+                            </>
+                        )}
+
+                        {!data?.deceased && data?.partnersRelation[0]?.fatherName && (
+                            <>
+                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Father</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.partnersRelation[0]?.fatherName}</div>
+                            </>
+                        )}
+                        {!data?.deceased && data?.partnersRelation[0]?.motherName && (
+                            <>
+                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Mother</div>
+                                <div className='w-3/5 leading-5 md:leading-7'>{data?.partnersRelation[0]?.motherName}</div>
+                            </>
+                        )}
+
+                        {!data?.deceased && data?.partnersRelation[0]?.SiblingsNames && (
                         <>
                             <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Siblings</div>
-                            <div className='w-3/5 leading-5 md:leading-7'>
-                            {data.siblings.join(", ")}
-                            </div>
+                            <div className='w-3/5 leading-5 md:leading-7'>{data?.partnersRelation[0]?.SiblingsNames}</div>
                         </>
                         )}
 
@@ -92,8 +117,7 @@ export default function Details({ data, openDetails }: any) {
                         )}
                     </div>
                 </div>
-            </>
-            }
+            </>}
 
             {(data?.phoneNumber || data?.address) &&
             <>

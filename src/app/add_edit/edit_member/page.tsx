@@ -34,8 +34,13 @@ export default function EditMemberDetails () {
     education: string;
     address: string;
     descendant: string | undefined;
+    fatherId: string,
+    motherId: string,
     hasPartner: boolean;
     isParent: boolean;
+    fatherName: string;
+    motherName: string;
+    siblingName: string;
   }
 
   const defaultValue: DefaultValue = {
@@ -53,8 +58,13 @@ export default function EditMemberDetails () {
     education: '',
     address: '',
     descendant: undefined,
+    fatherId: '',
+    motherId: '',
     hasPartner: false,
     isParent: false,
+    fatherName: '',
+    motherName: '',
+    siblingName: ''
   };
   const [formData, setFormData] = useState(defaultValue);
   const noError = { 
@@ -109,6 +119,13 @@ export default function EditMemberDetails () {
     }
   };
 
+  const showWarning = (input: string) => {
+    console.log(input)
+    if (toast) {
+      toast.show(`Can not change ${input} for this user`, "warning", 5000);
+    }
+  }
+
   useEffect(() => {
     if (formData.name?.id) {
       const fetchUser = async () => {
@@ -136,14 +153,23 @@ export default function EditMemberDetails () {
             education:  dbData.education,
             address:  dbData.address,
             descendant: (dbData.descendant == true) ? 'Yes' : 'No',
+            fatherId: dbData.fatherId,
+            motherId: dbData.motherId,
             hasPartner: dbData.partnerId ? true : false,
-            isParent: (dbData.fatherOf.length > 0 || dbData.motherOf.length > 0) ? true : false
+            isParent: (dbData.fatherOf.length > 0 || dbData.motherOf.length > 0) ? true : false,
+            fatherName: dbData.partnersRelation[0]?.fatherName,
+            motherName: dbData.partnersRelation[0]?.motherName,
+            siblingName: dbData.partnersRelation[0]?.SiblingsNames
           }
           setFormData(formatedDbData);
           setMemberName(dbData.name)
           console.log('user', dbData)
-        } catch (error) {
-            console.error('Error fetching user details:', error);
+        } catch (error: any) {
+            if (toast) {
+              toast.show(error.message || "Failed to update member", "error", 5000);
+            } else {
+              alert(error.message || "Failed to update member.");
+            }
         } finally {
             setLoading(false)
         }
@@ -152,37 +178,6 @@ export default function EditMemberDetails () {
       fetchUser()
     }
   }, [formData.name?.id])
-
-  // const handleCancelSelectedValue = (item: any, key:any, id: string) => {
-  //   if (!key) return;
-  
-  //   setFormData((prev: any) => {
-  //     if (Array.isArray(prev[key])) {
-  //       // Check if the item already exists
-  //       const exists = prev[key].some((entry: any) => entry.id === id);
-  
-  //       if (exists) {
-  //         // Remove the existing entry
-  //         return {
-  //           ...prev,
-  //           [key]: prev[key].filter((entry: any) => entry.id !== id),
-  //         };
-  //       } else {
-  //         // Add the new entry
-  //         return {
-  //           ...prev,
-  //           [key]: [...prev[key], { id, name: item }],
-  //         };
-  //       }
-  //     }
-  
-  //     // If not an array, initialize with the first object
-  //     return {
-  //       ...prev,
-  //       [key]: { id, name: item },
-  //     };
-  //   });
-  // };
 
   // Validate required fields
   const validateForm = () => {
@@ -220,7 +215,7 @@ export default function EditMemberDetails () {
       setLoading(true);
   
       const deceased = formData.deceased;
-
+      const descendant = formData.descendant === "Yes";
       const memberData = {
         name: formData.name?.name,
         gender: formData.gender,
@@ -228,14 +223,17 @@ export default function EditMemberDetails () {
         birthMonth: formData.birth_month ? parseInt(formData.birth_month, 10) : null,
         birthYear: formData.birth_year ? parseInt(formData.birth_year, 10) : null,
         deceased: deceased,
-        deathDate: deceased && formData.death_date ? parseInt(formData.death_date, 10) : null,
-        deathMonth: deceased && formData.death_month ? parseInt(formData.death_month, 10) : null,
-        deathYear: deceased && formData.death_year ? parseInt(formData.death_year, 10) : null,
+        deathDate: deceased ? formData.death_date ? parseInt(formData.death_date, 10) : null : null,
+        deathMonth: deceased ? formData.death_month ? parseInt(formData.death_month, 10) : null : null,
+        deathYear: deceased ? formData.death_year ? parseInt(formData.death_year, 10) : null : null,
         phoneNumber: formData.phone_number,
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
-        descendant: formData.descendant === 'Yes' ? true : false,
+        descendant: descendant,
+        fatherName: descendant ? null : formData.fatherName, 
+        motherName: descendant ? null : formData.motherName,
+        siblingName: descendant ? null : formData.siblingName
       };
 
       console.log('memberData', memberData)
@@ -265,8 +263,6 @@ export default function EditMemberDetails () {
       setErrors(noError);
       setRefresh((prev) => !prev);
     } catch (error: any) {
-      console.error("Error updating member:", error);
-  
       if (toast) {
         toast.show(error.message || "Failed to update member", "error", 5000);
       } else {
@@ -316,18 +312,18 @@ export default function EditMemberDetails () {
               <RadioButton
                 label="Male"
                 name="gender"
-                disabled = {formData.hasPartner || formData.isParent}
+                // disabled = {formData.hasPartner || formData.isParent}
                 value="Male"
                 checked={formData.gender === "Male"}
-                onChange={formData.hasPartner || formData.isParent ? () => {} : handleInputChange}
+                onChange={formData.hasPartner || formData.isParent ? () => {showWarning('gender')} : handleInputChange}
               />
               <RadioButton
                 label="Female"
                 name="gender"
-                disabled = {formData.hasPartner || formData.isParent}
+                // disabled = {formData.hasPartner || formData.isParent}
                 value="Female"
                 checked={formData.gender === "Female"}
-                onChange={formData.hasPartner || formData.isParent ? () => {} : handleInputChange}
+                onChange={formData.hasPartner || formData.isParent ? () => {showWarning('gender')} : handleInputChange}
               />
             </div>
             <div>
@@ -458,7 +454,7 @@ export default function EditMemberDetails () {
               value={formData.address || ''}
               onChange={handleInputChange}
             />
-            <div className="mb-2">
+            <div className="flex justify-start items-center mb-4 gap-2">
               <p className="text-sm font-medium">Family descendant</p>
               {["Yes", "No"].map((option) => (
               <RadioButton
@@ -467,11 +463,42 @@ export default function EditMemberDetails () {
                 name="descendant"
                 value={option} // "Yes" maps to true, "No" maps to false
                 checked={formData.descendant === option }
-                onChange={handleInputChange}
-                className="pt-2"
+                onChange={formData.fatherId || formData.motherId ? () => {showWarning('descendancy')} : handleInputChange }
               />
             ))}
             </div>
+            {formData?.descendant === 'No' && <div className="p-2 border border-border_color rounded-lg">
+            <div className="flex gap-2 mb-2">
+              <div>
+                <Input
+                  showOptional={true}
+                  name="motherName"
+                  label="Mother"
+                  value={formData.motherName || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Input
+                  showOptional={true}
+                  name="fatherName"
+                  label="Father"
+                  value={formData.fatherName || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <div>
+              <Input
+                showOptional={true}
+                name="siblingName"
+                label="Siblings"
+                placeholder="Name1, Name2, ..."
+                value={formData.siblingName || ''}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>}
             <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Update Details" />
           </form>
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />

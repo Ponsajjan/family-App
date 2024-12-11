@@ -7,6 +7,7 @@ import RadioButton from "@/components/RadioButton";
 import Link from "next/link";
 import { AddMember, BackButton } from "@/utils/Icons";
 import { useToast } from '@/components/Toast';
+import Container from "@/components/Container";
 
 export default function AddMemberDetails () {
   const toast = useToast();
@@ -26,6 +27,9 @@ export default function AddMemberDetails () {
     education: string;
     address: string;
     descendant: "Yes" | "No" | undefined;
+    father: string;
+    mother: string;
+    siblings: string;
   }
 
   const defaultValue: DefaultValue = {
@@ -43,6 +47,9 @@ export default function AddMemberDetails () {
     education: '',
     address: '',
     descendant: undefined,
+    father: '',
+    mother: '',
+    siblings: ''
   };
 
   const [formData, setFormData] = useState(defaultValue);
@@ -110,6 +117,7 @@ export default function AddMemberDetails () {
   
       // Prepare member data
       const deceased = formData.deceased;
+      const descendant = formData.descendant === "Yes";
       const memberData = {
         name: formData.name,
         gender: formData.gender,
@@ -124,7 +132,10 @@ export default function AddMemberDetails () {
         occupation: formData.occupation,
         education: formData.education,
         address: formData.address,
-        descendant: formData.descendant === "Yes"
+        descendant: descendant,
+        father: descendant ? null : formData.father,
+        mother: descendant ? null : formData.mother,
+        siblings: descendant ? null : formData.siblings
       };
   
       // API Call
@@ -163,13 +174,16 @@ export default function AddMemberDetails () {
         education: '',
         address: '',
         descendant: undefined,
+        father: '',
+        mother: '',
+        siblings: ''
       });
     } catch (error: any) {
-      console.error("Error adding user:", error);
-  
       // Show toast for error
       if (toast) {
         toast.show(error.message || "An unexpected error occurred.", "error", 5000);
+      } else {
+        alert("An unexpected error occurred")
       }
     } finally {
       setLoading(false);
@@ -178,190 +192,190 @@ export default function AddMemberDetails () {
   
 
   return (
-    <div className="w-full md:max-w-xl p-4 mx-auto">
-      <div className="flex justify-start items-center mb-4">
-        <span className="hidden md:block"><AddMember /></span>
-        <Link href={"/add_edit"} className="md:hidden block">
-          <span><BackButton /></span>
-        </Link>
-        <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
-          Add Member
-        </p>
-      </div>
-      <form className="text-text_color" onSubmit={handleSubmit}>
-        <Input
-          name="name"
-          label="Name"
-          value={formData.name || ''}
-          onChange={handleInputChange}
-          error={errors.name}
-        />
-        <div className="py-4">
-          <div className="flex gap-2">
-            <p className="text-sm font-medium">Gender:</p>
-            <RadioButton
-              label="Male"
-              name="gender"
-              value="Male"
-              checked={formData.gender === "Male"}
-              onChange={handleInputChange}
-            />
-            <RadioButton
-              label="Female"
-              name="gender"
-              value="Female"
-              checked={formData.gender === "Female"}
-              onChange={handleInputChange}
-            />
-          </div>
-          {(errors.gender) && (
-            <p className="text-red-500 text-sm">
-              {errors.gender}
-            </p>
-          )}
-        </div>
-        <div>
-          <p className="text-sm font-medium">
-            Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
+    <Container>
+      <div className="w-full md:max-w-xl p-4 mx-auto">
+        <div className="flex justify-start items-center mb-4">
+          <span className="hidden md:block"><AddMember /></span>
+          <Link href={"/add_edit"} className="md:hidden block">
+            <span><BackButton /></span>
+          </Link>
+          <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
+            Add Member
           </p>
-          <div className="w-full mb-2 flex gap-2">
-            <Input
-              type="number"
-              placeholder="DD"
-              name="birth_date"
-              min="1"
-              max="31"
-              maxLength="2"
-              label=""
-              value={formData.birth_date || ''}
-              onChange={handleInputChange}
-            />
-            <Input
-              type="number"
-              placeholder="MM"
-              name="birth_month"
-              min="1"
-              max="12"
-              maxLength="2"
-              label=""
-              value={formData.birth_month || ''}
-              onChange={handleInputChange}
-            />
-            <Input
-              type="number"
-              placeholder="YYYY(Opt)"
-              name="birth_year"
-              min="1975"
-              max={new Date().getFullYear()}
-              maxLength="4"
-              label=""
-              value={formData.birth_year || ''}
-              onChange={handleInputChange}
-            />
-          </div>
-          {(errors.birth_date || errors.birth_month || errors.birth_year) && (
-            <p className="text-red-500 text-sm">
-              {errors.birth_date || errors.birth_month || errors.birth_year}
-            </p>
-          )}
         </div>
-        <div className="relative py-2">
-          <div className="pb-2">
-            <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
-            <input
-              type="checkbox"
-              className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
-              name="deceased"
-              checked={formData.deceased || false}
-              onChange={handleInputChange}
-            />
+        <form className="text-text_color" onSubmit={handleSubmit}>
+          <Input
+            name="name"
+            label="Name"
+            value={formData.name || ''}
+            onChange={handleInputChange}
+            error={errors.name}
+          />
+          <div className="py-4">
+            <div className="flex gap-2">
+              <p className="text-sm font-medium">Gender:</p>
+              <RadioButton
+                label="Male"
+                name="gender"
+                value="Male"
+                checked={formData.gender === "Male"}
+                onChange={handleInputChange}
+              />
+              <RadioButton
+                label="Female"
+                name="gender"
+                value="Female"
+                checked={formData.gender === "Female"}
+                onChange={handleInputChange}
+              />
+            </div>
+            {(errors.gender) && (
+              <p className="text-red-500 text-sm">
+                {errors.gender}
+              </p>
+            )}
           </div>
-
-          <div className={`${showDeathDetails} pt-2`}>
+          <div>
             <p className="text-sm font-medium">
-              Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
+              Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
             </p>
-            <p className="text-xs font-extralight absolute top-[14px] left-[100px]">
-              (Remove checkmark if not Deceased)
-            </p>
-            <div className="w-full flex gap-2">
+            <div className="w-full mb-2 flex gap-2">
               <Input
                 type="number"
-                placeholder="DD(Opt)"
-                name="death_date"
+                placeholder="DD"
+                name="birth_date"
                 min="1"
                 max="31"
                 maxLength="2"
                 label=""
-                value={formData.death_date || ''}
+                value={formData.birth_date || ''}
                 onChange={handleInputChange}
               />
               <Input
                 type="number"
                 placeholder="MM"
-                name="death_month"
+                name="birth_month"
                 min="1"
                 max="12"
                 maxLength="2"
                 label=""
-                value={formData.death_month || ''}
+                value={formData.birth_month || ''}
                 onChange={handleInputChange}
               />
               <Input
                 type="number"
-                placeholder="YYYY"
-                name="death_year"
+                placeholder="YYYY(Opt)"
+                name="birth_year"
                 min="1975"
                 max={new Date().getFullYear()}
                 maxLength="4"
                 label=""
-                value={formData.death_year || ''}
+                value={formData.birth_year || ''}
                 onChange={handleInputChange}
               />
             </div>
-            {(errors.death_month || errors.death_year || errors.death_date) && (
-              <p className="text-red-500 text-sm mt-2">
-                {errors.death_year || errors.death_month || errors.death_date}
+            {(errors.birth_date || errors.birth_month || errors.birth_year) && (
+              <p className="text-red-500 text-sm">
+                {errors.birth_date || errors.birth_month || errors.birth_year}
               </p>
             )}
           </div>
-        </div>
-        <Input
-          className="mb-2"
-          type="number"
-          showOptional={true}
-          name="phone_number"
-          label="Phone Number"
-          value={formData.phone_number || ''}
-          onChange={handleInputChange}
-        />
-        <Input
-          className="mb-2"
-          showOptional={true}
-          name="occupation"
-          label="Occupation"
-          value={formData.occupation || ''}
-          onChange={handleInputChange}
-        />
-        <Input
-          className="mb-2"
-          showOptional={true}
-          name="education"
-          label="Education"
-          value={formData.education || ''}
-          onChange={handleInputChange}
-        />
-        <Input
-          className="mb-4"
-          showOptional={true}
-          name="address"
-          label="Address"
-          value={formData.address || ''}
-          onChange={handleInputChange}
-        />
-        <div className="mb-2 items-center">
-          <div>
-            <p className="text-sm font-medium">Family descendant</p>
+          <div className="relative py-2">
+            <div className="pb-2">
+              <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
+              <input
+                type="checkbox"
+                className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
+                name="deceased"
+                checked={formData.deceased || false}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className={`${showDeathDetails} pt-2`}>
+              <p className="text-sm font-medium">
+                Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
+              </p>
+              <p className="text-xs font-extralight absolute top-[14px] left-[100px]">
+                (Remove checkmark if not Deceased)
+              </p>
+              <div className="w-full flex gap-2">
+                <Input
+                  type="number"
+                  placeholder="DD(Opt)"
+                  name="death_date"
+                  min="1"
+                  max="31"
+                  maxLength="2"
+                  label=""
+                  value={formData.death_date || ''}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  type="number"
+                  placeholder="MM"
+                  name="death_month"
+                  min="1"
+                  max="12"
+                  maxLength="2"
+                  label=""
+                  value={formData.death_month || ''}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  type="number"
+                  placeholder="YYYY"
+                  name="death_year"
+                  min="1975"
+                  max={new Date().getFullYear()}
+                  maxLength="4"
+                  label=""
+                  value={formData.death_year || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              {(errors.death_month || errors.death_year || errors.death_date) && (
+                <p className="text-red-500 text-sm mt-2">
+                  {errors.death_year || errors.death_month || errors.death_date}
+                </p>
+              )}
+            </div>
+          </div>
+          <Input
+            className="mb-2"
+            type="number"
+            showOptional={true}
+            name="phone_number"
+            label="Phone Number"
+            value={formData.phone_number || ''}
+            onChange={handleInputChange}
+          />
+          <Input
+            className="mb-2"
+            showOptional={true}
+            name="occupation"
+            label="Occupation"
+            value={formData.occupation || ''}
+            onChange={handleInputChange}
+          />
+          <Input
+            className="mb-2"
+            showOptional={true}
+            name="education"
+            label="Education"
+            value={formData.education || ''}
+            onChange={handleInputChange}
+          />
+          <Input
+            className="mb-4"
+            showOptional={true}
+            name="address"
+            label="Address"
+            value={formData.address || ''}
+            onChange={handleInputChange}
+          />
+          <div className="flex justify-start items-center gap-2 mb-4">
+            <p className="text-sm font-medium">Family descendant:</p>
             {["Yes", "No"].map((option) => (
               <RadioButton
                 key={option}
@@ -370,7 +384,6 @@ export default function AddMemberDetails () {
                 value={option} // "Yes" maps to true, "No" maps to false
                 checked={formData.descendant === option }
                 onChange={handleInputChange}
-                className="pt-2"
               />
             ))}
           </div>
@@ -379,10 +392,42 @@ export default function AddMemberDetails () {
               {errors.descendant}
             </p>
           )}
-        </div>
-        <ButtonSolid type="submit" disabled={loading} className="w-full mt-8 mb-4" buttonText={loading ? "Adding..." : "Add Member"} />
-        <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
-      </form>
-    </div>
+          {formData?.descendant === 'No' && <div className="p-2 border border-border_color rounded-lg">
+            <div className="flex gap-2 mb-2">
+              <div>
+                <Input
+                  showOptional={true}
+                  name="mother"
+                  label="Mother"
+                  value={formData.mother || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <Input
+                  showOptional={true}
+                  name="father"
+                  label="Father"
+                  value={formData.father || ''}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+            <div>
+              <Input
+                showOptional={true}
+                name="siblings"
+                label="Siblings"
+                placeholder="Name1, Name2, ..."
+                value={formData.siblings || ''}
+                onChange={handleInputChange}
+              />
+            </div>
+          </div>}
+          <ButtonSolid type="submit" disabled={loading} className="w-full mt-8 mb-4" buttonText={loading ? "Adding..." : "Add Member"} />
+          <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
+        </form>
+      </div>
+    </Container>
   );
 }

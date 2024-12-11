@@ -22,6 +22,11 @@ import { NextRequest } from "next/server"; // Import NextRequest if needed for h
 export async function GET(request: NextRequest) {
 
   try {
+    // Extract search parameters
+    const { searchParams } = new URL(request.url);
+    const searchQuery = searchParams.get("search") || ""; // Get 'search' parameter, default to empty string
+
+    // Fetch data from Prisma with filtering
     const memberList = await prisma.member.findMany({
       select: {
         id: true,
@@ -30,24 +35,34 @@ export async function GET(request: NextRequest) {
         phoneNumber: true,
         father: {
           select: {
-            name: true, // Select only the father's name
+            name: true,
           },
         },
         mother: {
           select: {
-            name: true, // Select only the mother's name
+            name: true,
           },
         },
         partner: {
           select: {
-            name: true, // Select only the partner's name
+            name: true,
           },
         },
       },
       orderBy: { name: "asc" },
     });
 
-    return NextResponse.json(memberList);
+    // Perform case-insensitive filtering in JavaScript
+    const filteredList = memberList.filter((member) => {
+      return (
+        member.name.toLowerCase().includes(searchQuery) ||
+        member.father?.name?.toLowerCase().includes(searchQuery) ||
+        member.mother?.name?.toLowerCase().includes(searchQuery) ||
+        member.partner?.name?.toLowerCase().includes(searchQuery)
+      );
+    });
+
+    return NextResponse.json(filteredList);
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Error fetching users" }, { status: 500 });

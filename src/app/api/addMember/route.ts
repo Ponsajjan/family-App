@@ -24,12 +24,28 @@ export async function POST(request: Request) {
       descendant: formData.descendant,
     };
 
+    if (!formData.gender) {
+      return NextResponse.json({
+        error: 'Gender not assigned',
+      }, { status: 400 });
+    }
     // Save user to the database
-    const newUser = await prisma.member.create({
+    const newMember = await prisma.member.create({
       data: user,
     });
 
-    return NextResponse.json({ success: true, user: newUser });
+    if (formData.descendant === false) {
+      await prisma.partnersRelation.create({
+        data: {
+          fatherName: formData.father || null,
+          motherName: formData.mother || null,
+          SiblingsNames: formData.siblings || null,
+          memberId: newMember.id, // Link PartnersRelation to the newly created Member
+        },
+      });
+    }
+
+    return NextResponse.json({ success: true, user: newMember });
   } catch (error) {
     console.error("Error adding user:", error);
     return NextResponse.json(

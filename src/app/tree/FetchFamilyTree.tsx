@@ -83,5 +83,13 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
 
 export default async function FetchFamilyTree({ memberIds }: { memberIds: number[] }) {
   const data = await fetchFamilyTree(memberIds);
-  return <TreeView data={data} />;
+  return (
+    <>
+      <div className="flex">
+        <TreeView data={data} />
+        <div className="pr-6"></div>
+      </div>
+      <div className="pb-6"></div>
+    </>
+  )
 }

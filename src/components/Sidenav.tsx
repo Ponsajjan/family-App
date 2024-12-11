@@ -2,27 +2,13 @@
 import { BurgerMenuIcon, CalenderIcon, CloseIcon, Community, DarkMode, FamilyProfessionals, LightMode, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import Topnav from "./Topnav";
+import { useState } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function Sidenav() {
     const [showNav, setShowNav] = useState(false);
-    const [theme, setTheme] = useState<string>("light");
+    const { theme, toggleTheme } = useTheme();
     const router = useRouter();
-
-    useEffect(() => {
-        // Update theme in localStorage and class on <div>
-        const element = document.getElementById("MainDiv");
-        if (element) {
-            element.classList.remove("light", "dark");
-            element.classList.add(theme);
-        }
-        localStorage.setItem("theme", theme);
-    }, [theme]);
-
-    const toggleTheme = () => {
-        setTheme(prevTheme => (prevTheme === "light" ? "dark" : "light"));
-    };
 
     const navigateTo = (link: string) => {
         router.push(link);

@@ -45,6 +45,14 @@ export async function GET(request: Request, context: any) {
         motherOf: {
           select: { name: true },
         },
+        partnersRelation: {
+          select: {
+            id: true,
+            fatherName: true,
+            motherName: true,
+            SiblingsNames: true,
+          },
+        },
       },
     });
 

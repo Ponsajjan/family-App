@@ -7,7 +7,7 @@ import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
 import Loading from './Loading';
-import { boolean } from 'zod';
+import { useToast } from '@/components/Toast';
 import Link from 'next/link';
 
 interface EachMember {
@@ -38,6 +38,7 @@ interface MemberListProps {
 }
 
 export default function MemberList({ forType='selectMember', gender=null, excludeId=[], setSelectedValue, openList, getSelectedValues, refreshList, multiselect }: MemberListProps) {
+  const toast = useToast();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showCousin, setShowCousin] = useState<boolean>(false);
@@ -97,8 +98,12 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
         const membersData: Member[] = await response.json();
         const sortedMembers = membersData.sort((a, b) => a.name.localeCompare(b.name));
         setMembers(sortedMembers);
-      } catch (error) {
-        console.error("Failed to fetch members:", error);
+      } catch (error: any) {
+        if (toast) {
+          toast.show(error.message || "Failed to fetch members", "error", 5000);
+        } else {
+          alert(error.message || "Failed to fetch members")
+        }
         setError("Failed to fetch members. Please try again later.");
       } finally {
         setLoading(false)

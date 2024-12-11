@@ -33,8 +33,18 @@ export async function GET(request: Request, context: any) {
           additionalInfo: true,
           descendant: true,
           partnerId: true,
+          fatherId: true,
+          motherId: true,
           fatherOf: true,
           motherOf: true,
+          partnersRelation: {
+            select: {
+              id: true,
+              fatherName: true,
+              motherName: true,
+              SiblingsNames: true,
+            },
+          },
         },
       });
 
@@ -78,6 +88,8 @@ export async function PUT(request: Request, context: any) {
     const existingMember = await prisma.member.findUnique({
       where: { id: memberId },
       include: {
+        father: true,
+        mother: true,
         partner: true,
         fatherOf: true,
         motherOf: true,
@@ -94,7 +106,7 @@ export async function PUT(request: Request, context: any) {
       const updatedGender = updatedData.gender;
 
       // If the gender is being updated, validate it against the current gender
-      if (updatedGender && currentGender !== updatedGender) {
+      if (updatedGender && (currentGender !== updatedGender)) {
         return NextResponse.json({
           error: `Gender mismatch: Cannot update gender to ${updatedGender} as the member has a partner.`,
         }, { status: 400 });
@@ -113,13 +125,56 @@ export async function PUT(request: Request, context: any) {
         }, { status: 400 });
       }
     }
-    
+
+    if (existingMember.father || existingMember.mother) {
+      return NextResponse.json({
+        error: 'Update not allowed: The member is already assigned as a descendant',
+      }, { status: 400 });
+    }
+    const deceased = updatedData.deceased === true; // Handle as a boolean
+
+    const memberUpdateData = {
+      name: updatedData.name,
+      gender: updatedData.gender,
+      birthDate: updatedData.birthDate ? parseInt(updatedData.birthDate, 10) : null,
+      birthMonth: updatedData.birthMonth ? parseInt(updatedData.birthMonth, 10) : null,
+      birthYear: updatedData.birthYear ? parseInt(updatedData.birthYear, 10) : null,
+      deceased: deceased,
+      deathDate: deceased && updatedData.deathDate ? parseInt(updatedData.deathDate, 10) : null,
+      deathMonth: deceased && updatedData.deathMonth ? parseInt(updatedData.deathMonth, 10) : null,
+      deathYear: deceased && updatedData.deathYear ? parseInt(updatedData.deathYear, 10) : null,
+      phoneNumber: updatedData.phoneNumber,
+      occupation: updatedData.occupation || null,
+      education: updatedData.education || null,
+      address: updatedData.address || null,
+      descendant: updatedData.descendant,
+    };
 
     // Update the member in the database
     const updatedMember = await prisma.member.update({
       where: { id: memberId },
-      data: updatedData,
+      data: memberUpdateData,
     });
+
+
+
+    // Handle `partnersRelation` update if descendant is false
+    if (updatedData.descendant === false) {
+      await prisma.partnersRelation.upsert({
+        where: { memberId: memberId },
+        update: {
+          fatherName: updatedData.fatherName || null,
+          motherName: updatedData.motherName || null,
+          SiblingsNames: updatedData.siblingName || null,
+        },
+        create: {
+          memberId: memberId,
+          fatherName: updatedData.fatherName || null,
+          motherName: updatedData.motherName || null,
+          SiblingsNames: updatedData.siblingName || null,
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,

@@ -89,11 +89,12 @@ export default function EditMemberDetails () {
             ...(childrenData ? childrenData.map((child: any) => parseInt(child.id, 10)) : []),
           ].filter(Boolean);
           setExcludeMemberRelation(excludeIds);
-        } catch (error) {
-            console.error('Error fetching user details:', error);
-            if (toast) {
-              toast.show("Error fetching user details", "error", 5000)
-            }
+        } catch (error: any) {
+          if (toast) {
+            toast.show(error.message || "Error fetching user details", "error", 5000)
+          } else {
+            alert(error.message || 'Error fetching user details');
+          }
             router.push('/add_edit');
         } finally {
             setLoading(false)
@@ -140,11 +141,12 @@ export default function EditMemberDetails () {
           ].filter(Boolean);
           setExcludePartnerRelation(excludeIds);
 
-        } catch (error) {
-            console.error('Error fetching user details:', error);
-            if (toast) {
-              toast.show("Error fetching user details", "error", 5000)
-            }
+        } catch (error: any) {
+          if (toast) {
+            toast.show(error.message || "Error fetching user details", "error", 5000)
+          } else {
+            alert(error.message || 'Error fetching user details');
+          }
             router.push('/add_edit');
         } finally {
             setLoading(false)
@@ -294,8 +296,6 @@ export default function EditMemberDetails () {
       setMemberName("");
       setRefresh((prev) => !prev);
     } catch (error: any) {
-      console.error("Error updating member:", error);
-  
       if (toast) {
         toast.show(error.message || "Failed to update member", "error", 5000);
       } else {
@@ -337,10 +337,6 @@ export default function EditMemberDetails () {
                   <span><ChangeMember /></span>
                 </> :
                 <span className='py-2 w-full text-gray-400'>Select Member</span>}
-            </div>
-            <div className="flex items-center cursor-pointer text-xs mr-0 ml-auto py-1 px-4 border border-border_color rounded-full w-fit">
-              <span className="pr-2">Add Family members </span>
-              <span className="w-4 h-4"><PlusIcon /></span>
             </div>
 
             <p className="text-sm">Partner</p>

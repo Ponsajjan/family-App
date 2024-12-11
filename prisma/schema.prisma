@@ -64,11 +64,15 @@ model MemberEditRequest {
 
 model PartnersRelation {
   id                    Int                   @id @default(autoincrement())
+  memberId              Int                   @unique // Ensure memberId is unique
   fatherName            String?
   motherName            String?
   // SiblingsNames         String[]
   // SiblingsNames         Json 
   SiblingsNames         String? 
   member                Member                @relation(fields: [memberId], references: [id])
-  memberId              Int
+
+  // Automatically handled by Prisma
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

@@ -112,10 +112,9 @@ export const SvgArrow = () => {
 
 export const SvgArrowStraight = () => {
     return (
-<svg width="52" height="12" viewBox="0 0 52 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 6L10 11.7735V0.226497L0 6ZM52 6L42 0.226497V11.7735L52 6ZM9 7H43V5H9V7Z" />
-</svg>
-
+        <svg width="52" height="12" viewBox="0 0 52 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 6L10 11.7735V0.226497L0 6ZM52 6L42 0.226497V11.7735L52 6ZM9 7H43V5H9V7Z" />
+        </svg>
     )
 }
 
