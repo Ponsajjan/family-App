@@ -149,7 +149,7 @@ export default function Home() {
       </Topnav>
       
       <div className="md:flex">
-        <Container className='px-3 md:border-r md:border-border_color pb-3 w-full max-w-5xl'>
+        <Container className='pl-3 pr-[6px] md:border-r md:border-border_color pb-3 w-full max-w-5xl'>
           <div className="w-full lg:max-w-xl mx-auto mt-6">
             <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">

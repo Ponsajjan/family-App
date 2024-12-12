@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             gender: true,
+            descendant: true,
             father: { select: { name: true } },
             mother: { select: { name: true } },
             partner: { select: { name: true } },

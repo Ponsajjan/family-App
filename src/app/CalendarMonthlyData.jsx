@@ -73,7 +73,7 @@ export default function CalendarMonthlyData({data, month, year}) {
         {sortedEvents.map((item, index) => (
           <div key={index} className="pl-6 md:pl-4" >
             <div className="border-l border-border_color pt-1 pb-2 pl-4 md:pl-3 pr-3">
-              <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-50'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
+              <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-60'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
                 {item.hasDate ?
                 <div className="border-t border-dashed border-text_color w-14 ml-2 mr-3">
                   <div className="flex flex-col border border-text_color rounded-b-sm">          
@@ -120,8 +120,8 @@ export default function CalendarMonthlyData({data, month, year}) {
     <Container>
       <div className="hidden md:block pt-3 sticky top-0 bg-main_background z-10"></div>
       {renderEventList(todayEvents, "Today")}
-      {renderEventList(thisWeekEvents, "This Week")}
-      {renderEventList(upcomingEvents, "Coming Up This Month")}
+      {renderEventList(thisWeekEvents, "Later This Week")}
+      {renderEventList(upcomingEvents, "Later This Month")}
       {renderEventList(pastEvents, "Earlier This Month")}
       {renderEventList(selectedMonthData, `${format(new Date(year, month), 'MMMM yyyy')}`)}
     </Container>
