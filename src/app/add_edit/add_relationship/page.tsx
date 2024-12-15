@@ -37,8 +37,9 @@ export default function EditMemberDetails () {
 
   const [prevformData, setPrevFormData] = useState(defaultValue);
   const [newformData, setNewFormData] = useState(defaultValue);
-  const [partnerChildren, setPatnerChildren] = useState<any>([])
+  const [partnerChildren, setPatnerChildren] = useState<any[]>([])
   const [combinedData, setCombinedData] = useState(defaultValue);
+  const [descendant, setDescendant] = useState<boolean | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [showListFor, setShowListFor] = useState('selectMember');
@@ -60,10 +61,10 @@ export default function EditMemberDetails () {
           const { data } = await response.json();
           const dbData = data[0];
           // Ensure default values for relationships
-          const siblingData = [
+          const siblingData = [new Set([
             ...(Array.isArray(dbData.father?.fatherOf) ? dbData.father.fatherOf : []),
             ...(Array.isArray(dbData.mother?.motherOf) ? dbData.mother.motherOf : []),
-          ];
+          ])];
           // Determine children based on gender
           const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
 
@@ -73,6 +74,8 @@ export default function EditMemberDetails () {
             partner: {id: `${dbData.partner?.id}`, name: `${dbData.partner?.name}`},
             children: childrenData ? childrenData : [],
           }
+          console.log('dbData.descendant', dbData)
+          setDescendant(dbData.descendant)
           setPrevFormData(formatedDbData);
           setNewFormData(defaultValue)
           setCombinedData(formatedDbData)
@@ -120,17 +123,27 @@ export default function EditMemberDetails () {
           const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
 
 
-          if (childrenData && Array.isArray(childrenData)) {
-            const formattedChildren = childrenData?.map((child) => ({
-              id: child.id,
-              name: child.name,
-            }));
-          
-            setPatnerChildren(formattedChildren);
-            setCombinedData((prev) => ({
-              ...prev,
-              children: [...prev.children, ...formattedChildren],
-            }));
+          if (childrenData.length > 0 && Array.isArray(childrenData)) {
+            // In case partner seperates and reunite no need to show children twice
+            setPatnerChildren(() => {
+              const memberChildren = new Set(prevformData.children.map((child) => child.id));
+              const uniqueChildren = [
+                ...childrenData.filter((child) => !memberChildren.has(child.id)),
+              ];
+  
+              return uniqueChildren;
+            });
+            setCombinedData((prev) => {
+              const memberChildren = new Set(prevformData.children.map((child) => child.id));
+              const uniqueChildren = [
+                ...childrenData.filter((child) => !memberChildren.has(child.id)),
+              ];
+
+              return {
+                ...prev,
+                children: uniqueChildren,
+              }
+            });
           }
 
           const excludeIds = [
@@ -218,6 +231,8 @@ export default function EditMemberDetails () {
   
     if (showListFor === 'selectMember') {
       setPrevFormData((prev: any) => ({ ...prev, 'name': { id, name: item } }));
+      setPatnerChildren([])
+      setCombinedData(defaultValue)
       setShowList(false);
     } else {
       setNewFormData(updateData);
@@ -359,26 +374,26 @@ export default function EditMemberDetails () {
 
             
 
-            {(prevformData.children.length > 0 || newformData.children.length > 0) &&
+            {(prevformData.children.length > 0 || newformData.children.length > 0 || partnerChildren.length > 0) &&
             <div>
-              {(prevformData.children.length > 0 || newformData.children.length > 0) && <p className="text-sm">Children</p>}
+              <p className="text-sm">Children</p>
               <>
-                {prevformData.children?.map((item: {id:any, name:string}, index:number) => (
-                  <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
+                {prevformData.children?.map((item: {id:any, name:string}) => (
+                  <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
                     <span className="py-2 w-full">{item?.name}</span>
                   </div>)
                 )}
               </>
               <>
-                {partnerChildren?.map((item: {id:any, name:string}, index:number) => (
-                  <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
+                {partnerChildren?.map((item: {id:any, name:string}) => (
+                  <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
                     <span className="py-2 w-full">{item?.name}</span>
                   </div>)
                 )}
               </>
               <>
-                {newformData.children?.map((item: {id:any, name:string}, index:number) => (
-                  <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                {newformData.children?.map((item: {id:any, name:string}) => (
+                  <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
                     <span className="py-2 w-full">{item?.name}</span>
                     <span
                       onClick={() => handleRemoveChildren(item?.id)}
@@ -407,7 +422,7 @@ export default function EditMemberDetails () {
       />
       <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
-          <MemberList forType={showListFor} gender={prevformData?.gender} excludeId={[...excludeMemberRelation, ...excludePartnerRelation]} getSelectedValues={newformData} setSelectedValue={ handleSelectedValue } openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
+          <MemberList forType={showListFor} gender={prevformData?.gender} excludeId={[...excludeMemberRelation, ...excludePartnerRelation]} getSelectedValues={newformData} setSelectedValue={ handleSelectedValue } openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor} descendant={descendant} />
         </div>
       </div>
     </div>

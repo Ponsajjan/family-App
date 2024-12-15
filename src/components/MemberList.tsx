@@ -35,9 +35,10 @@ interface MemberListProps {
   getSelectedValues: any;
   refreshList: boolean;
   multiselect: boolean;
+  descendant: boolean | null;
 }
 
-export default function MemberList({ forType='selectMember', gender=null, excludeId=[], setSelectedValue, openList, getSelectedValues, refreshList, multiselect }: MemberListProps) {
+export default function MemberList({ forType='selectMember', gender=null, excludeId=[], descendant=null, setSelectedValue, openList, getSelectedValues, refreshList, multiselect }: MemberListProps) {
   const toast = useToast();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -84,7 +85,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
         setMembers([])
         setError(null);
         
-        const response = await fetch(`/api?for=${forType}&gender=${gender}&excludeId=${excludeId}&showCousin=${showCousin}`, {
+        const response = await fetch(`/api?for=${forType}&gender=${gender}&excludeId=${excludeId}&descendant=${descendant}&showCousin=${showCousin}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -167,7 +168,8 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
           </ul>
         </div>
         <div className='pb-14 h-[60vh] md:h-[calc(100vh-162px)] overflow-y-auto scroll-stable'>
-        {forType === 'selectPartner' && <div className='pt-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm'>
+        {(forType === 'selectPartner' && descendant === true) && 
+        (<div className='py-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm border-b border-border_color'>
           <p>Show Cousins List</p>
           <label className="relative inline-flex items-center cursor-pointer p-1">
             <span className='absolute left-[5px] z-10'><FilterClose /></span>
@@ -181,8 +183,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
             <div className="peer rounded-full outline-none duration-75 border border-border_color after:duration-100 w-9 h-[18px] bg-accent_color peer-focus:outline-none after:absolute after:outline-none after:rounded-full after:h-4 after:w-4 after:bg-white after:flex after:justify-center after:items-center after:font-bold peer-checked:after:translate-x-[18px] peer-checked:after:border-border_active">
             </div>
           </label>
-          {/* <Checkbox onChange={() => setShowCousin(prev => !prev)} checked={showCousin} /> */}
-        </div>}
+        </div>)}
         {loading ? 
           <Loading /> :
           members.length > 0 ?
@@ -242,10 +243,10 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
           )) : error ?
           <div className="p-6 text-center">{error}</div> :
           <>
-            {forType === 'selectChildren' && <p className='text-center pt-10 pb-4'>No family descendent with parents unassigned</p>}
+            {forType === 'selectChildren' && <p className='text-center pt-10 pb-4'>No family descendant with parents unassigned</p>}
             {forType === 'selectPartner' 
             ? showCousin 
-              ? <p className='text-center pt-10 pb-4'>No family descendent with partner unassigned</p> 
+              ? <p className='text-center pt-10 pb-4'>No family members with partner unassigned</p> 
               : <p className='text-center pt-10 pb-4'>No member with partner unassigned</p>
             : ''}
             <div className='mx-auto w-fit border border-border_color px-4 py-0.5 rounded-full font-medium'><Link href='/add_edit/add_member'> Add Member +</Link></div>

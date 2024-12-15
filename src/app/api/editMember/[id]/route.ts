@@ -74,6 +74,11 @@ export async function PUT(request: Request, context: any) {
   }
 
   try {
+    // Utility function to capitalize each word
+    const capitalizeWords = (str: string) => {
+      return str.replace(/\b\w/g, (char) => char.toUpperCase());
+    };
+
     // Parse the JSON body
     const updatedData = await request.json();
 
@@ -134,7 +139,7 @@ export async function PUT(request: Request, context: any) {
     const deceased = updatedData.deceased === true; // Handle as a boolean
 
     const memberUpdateData = {
-      name: updatedData.name,
+      name: capitalizeWords(updatedData.name),
       gender: updatedData.gender,
       birthDate: updatedData.birthDate ? parseInt(updatedData.birthDate, 10) : null,
       birthMonth: updatedData.birthMonth ? parseInt(updatedData.birthMonth, 10) : null,
@@ -163,15 +168,19 @@ export async function PUT(request: Request, context: any) {
       await prisma.partnersRelation.upsert({
         where: { memberId: memberId },
         update: {
-          fatherName: updatedData.fatherName || null,
-          motherName: updatedData.motherName || null,
-          SiblingsNames: updatedData.siblingName || null,
+          fatherName: updatedData.fatherName ? capitalizeWords(updatedData.fatherName) : null,
+          motherName: updatedData.motherName ? capitalizeWords(updatedData.motherName) : null,
+          SiblingsNames: updatedData.siblingName
+            ? updatedData.siblingName.map((sibling: string) => capitalizeWords(sibling))
+            : null,
         },
         create: {
           memberId: memberId,
-          fatherName: updatedData.fatherName || null,
-          motherName: updatedData.motherName || null,
-          SiblingsNames: updatedData.siblingName || null,
+          fatherName: updatedData.fatherName ? capitalizeWords(updatedData.fatherName) : null,
+          motherName: updatedData.motherName ? capitalizeWords(updatedData.motherName) : null,
+          SiblingsNames: updatedData.siblingName
+            ? updatedData.siblingName.map((sibling: string) => capitalizeWords(sibling))
+            : null,
         },
       });
     }

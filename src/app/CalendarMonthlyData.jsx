@@ -10,6 +10,7 @@ export default function CalendarMonthlyData({data, month, year}) {
 
   const pastEvents = [];
   const todayEvents = [];
+  const tomorrowEvents = [];
   const thisWeekEvents = [];
   const upcomingEvents = [];
   
@@ -29,6 +30,8 @@ export default function CalendarMonthlyData({data, month, year}) {
             pastEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
           } else if (eventDay === todayDate) {
             todayEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
+          } else if (eventDay === todayDate + 1) {
+            tomorrowEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
           } else if (eventDay > todayDate && eventDay <= weekEndDate) {
             thisWeekEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
           } else {
@@ -120,6 +123,7 @@ export default function CalendarMonthlyData({data, month, year}) {
     <Container>
       <div className="hidden md:block pt-3 sticky top-0 bg-main_background z-10"></div>
       {renderEventList(todayEvents, "Today")}
+      {renderEventList(tomorrowEvents, "Tomorrow")}
       {renderEventList(thisWeekEvents, "Later This Week")}
       {renderEventList(upcomingEvents, "Later This Month")}
       {renderEventList(pastEvents, "Earlier This Month")}

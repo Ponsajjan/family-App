@@ -139,7 +139,7 @@ export default function EditMemberDetails () {
     setNoChanges(false)
     setDeleteData((prev: any) => ({
       ...prev,
-      partnerId: previousData.partner?.id,
+      partnerId: parseInt(previousData.partner?.id || ''),
       childrenId: previousData.children?.map((child: any) => child.id) || [],
     }));
     setFormData((prev: any) => ({
@@ -319,7 +319,7 @@ export default function EditMemberDetails () {
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       />
       <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
-        <MemberList forType={'editRelationship'} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} refreshList={refreshList} multiselect={false}/>
+        <MemberList forType={'editRelationship'} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} refreshList={refreshList} multiselect={false} descendant={null} />
       </div>
     </div>
   );

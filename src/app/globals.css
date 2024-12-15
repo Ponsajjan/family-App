@@ -260,3 +260,8 @@ input[type="radio"]:checked::after {
     opacity: 1; /* Show text after 2 seconds */
   }
 }
+
+.input-not-placeholder:focus,
+.input-not-placeholder:not(:placeholder-shown) {
+  width: 100%;
+}

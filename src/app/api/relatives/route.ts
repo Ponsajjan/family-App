@@ -24,49 +24,44 @@ export async function GET(request: NextRequest) {
   try {
     // Extract search parameters
     const { searchParams } = new URL(request.url);
-    const searchQuery = searchParams.get("search") || ""; // Get 'search' parameter, default to empty string
+    const searchQuery = searchParams.get("search") || ""; // Search term
+    const page = parseInt(searchParams.get("page") || "1", 10); // Current page
+    const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
 
-    // Fetch data from Prisma with filtering
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Fetch data from Prisma
     const memberList = await prisma.member.findMany({
+      where: {
+        // name: { contains: searchQuery, mode: "insensitive" },
+        name: { contains: searchQuery },
+      },
       select: {
         id: true,
         name: true,
         gender: true,
         phoneNumber: true,
-        father: {
-          select: {
-            name: true,
-          },
-        },
-        mother: {
-          select: {
-            name: true,
-          },
-        },
-        partner: {
-          select: {
-            name: true,
-          },
-        },
+        father: { select: { name: true } },
+        mother: { select: { name: true } },
+        partner: { select: { name: true } },
       },
       orderBy: { name: "asc" },
+      skip,
+      take: limit,
     });
 
-    // Perform case-insensitive filtering in JavaScript
-    const filteredList = memberList.filter((member) => {
-      return (
-        member.name.toLowerCase().includes(searchQuery) ||
-        member.father?.name?.toLowerCase().includes(searchQuery) ||
-        member.mother?.name?.toLowerCase().includes(searchQuery) ||
-        member.partner?.name?.toLowerCase().includes(searchQuery)
-      );
+    // Total count for pagination
+    const totalCount = await prisma.member.count({
+      // where: { name: { contains: searchQuery, mode: "insensitive" } },
+      where: {
+        name: { contains: searchQuery },
+      }
     });
 
-    return NextResponse.json(filteredList);
+    return NextResponse.json({ data: memberList, totalCount });
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Error fetching users" }, { status: 500 });
   }
 }
-
-

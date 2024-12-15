@@ -9,7 +9,7 @@ function page() {
     <Container>
       <div className="max-w-4xl mx-auto p-4">
         <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
-          Shanmuga Nadar Family Birthday & Remembrance App
+          Shanmuga Nadar Family, Birthday & Remembrance
         </h1>
 
         <p className="text-lg text-center mb-3">

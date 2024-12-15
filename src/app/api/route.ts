@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const forType = searchParams.get("for");
   const gender = searchParams.get("gender");
+  const descendant = searchParams.get("descendant");
   const showCousin = searchParams.get("showCousin") === "true"; // Parse to boolean
 
   // Parse excludeId to a number array
@@ -25,11 +26,13 @@ export async function GET(request: NextRequest) {
     switch (forType) {
       case "selectMember":
         memberList = await prisma.member.findMany({
+          // where: {
+          //   descendant: true,
+          // },
           select: {
             id: true,
             name: true,
             gender: true,
-            descendant: true,
             father: { select: { name: true } },
             mother: { select: { name: true } },
             partner: { select: { name: true } },
@@ -44,7 +47,7 @@ export async function GET(request: NextRequest) {
             gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
             partnerId: null,
             id: { notIn: excludeId },
-            descendant: showCousin,
+            descendant: descendant ? showCousin : false,
             AND: {
               OR: [
                 { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18

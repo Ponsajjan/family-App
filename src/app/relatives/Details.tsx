@@ -21,7 +21,7 @@ export default function Details({ data, openDetails }: any) {
                     </p>
 
                     {data?.birthDate && data?.birthMonth && (
-                        <div className='flex items-baseline gap-1 leading-5 text-sm'>
+                        <div className='flex items-baseline gap-1 text-sm'>
                             <p>Born At :</p>
                             <p>{`${data?.birthDate} ${format(`${data?.birthMonth}`, 'MMM')} ${data?.birthYear ? data.birthYear : ''}`}</p>
                         </div>
@@ -29,11 +29,11 @@ export default function Details({ data, openDetails }: any) {
 
                     {data?.deceased ?
                         data?.deathMonth && data?.deathYear 
-                        ?  <div className='flex items-baseline gap-1 leading-5 text-sm'>
+                        ?  <div className='flex items-baseline gap-1 text-sm'>
                                 <p>Died At :</p>
                                 <p>{`${data?.deathDate ? data?.deathDate : ''} ${format(`${data?.deathMonth}`, 'MMM')} ${data?.deathYear}`}</p>
                             </div>
-                        : <p className='leading-5 text-sm'>Deceased</p>
+                        : <p className='text-sm'>Deceased</p>
                         : ''
                     }
                 </div>
@@ -57,61 +57,61 @@ export default function Details({ data, openDetails }: any) {
                     <div className='flex flex-wrap border-l border-border_color pl-2'>
                         {data?.father && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Father</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.father.name}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
+                                <div className='w-3/5 md:leading-7'>{data?.father.name}</div>
                             </>
                         )}
                         {data?.mother && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Mother</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.mother.name}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
+                                <div className='w-3/5 md:leading-7'>{data?.mother.name}</div>
                             </>
                         )}
 
                         {data?.siblings?.length > 0 && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.siblings?.join(", ")}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
+                                <div className='w-3/5 md:leading-7'>{data?.siblings?.join(", ")}</div>
                             </>
                         )}
 
                         {!data?.deceased && data?.partnersRelation[0]?.fatherName && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Father</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.partnersRelation[0]?.fatherName}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
+                                <div className='w-3/5 md:leading-7'>{data?.partnersRelation[0]?.fatherName}</div>
                             </>
                         )}
                         {!data?.deceased && data?.partnersRelation[0]?.motherName && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Mother</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.partnersRelation[0]?.motherName}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
+                                <div className='w-3/5 md:leading-7'>{data?.partnersRelation[0]?.motherName}</div>
                             </>
                         )}
 
                         {!data?.deceased && data?.partnersRelation[0]?.SiblingsNames && (
                         <>
-                            <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Siblings</div>
-                            <div className='w-3/5 leading-5 md:leading-7'>{data?.partnersRelation[0]?.SiblingsNames}</div>
+                            <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
+                            <div className='w-3/5 md:leading-7'>{data?.partnersRelation[0]?.SiblingsNames}</div>
                         </>
                         )}
 
                         {data?.partner && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Partner</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.partner.name}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
+                                <div className='w-3/5 md:leading-7'>{data?.partner.name}</div>
                             </>
                         )}
 
 
                         {(data?.fatherOf.length > 0 || data?.motherOf.length > 0) &&
-                        <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Children</div>}
+                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>}
                         {data?.fatherOf.length > 0 && (  
-                            <div className='w-3/5 leading-5 md:leading-7'>
+                            <div className='w-3/5 md:leading-7'>
                                 {data.fatherOf.map((child: { name: string }) => child.name).join(", ")}
                             </div>
                         )}
                         {data?.motherOf.length > 0 && (
-                            <div className='w-3/5 leading-5 md:leading-7'>
+                            <div className='w-3/5 md:leading-7'>
                                 {data.motherOf.map((child: { name: string }) => child.name).join(", ")}.
                             </div>
                         )}
@@ -129,14 +129,14 @@ export default function Details({ data, openDetails }: any) {
                     <div className='flex flex-wrap mb-1 border-l border-border_color pl-2'>
                         {data?.phoneNumber && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Phone no.</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.phoneNumber}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Phone no.</div>
+                                <div className='w-3/5 md:leading-7'>{data?.phoneNumber}</div>
                             </>
                         )}
                         {data?.address && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Address</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.address}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Address</div>
+                                <div className='w-3/5 md:leading-7'>{data?.address}</div>
                             </>
                         )}
                     </div>
@@ -154,14 +154,14 @@ export default function Details({ data, openDetails }: any) {
                     <div className='flex flex-wrap pb-1 border-l border-border_color pl-2'>
                         {data?.occupation && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Occupation</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.occupation}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Occupation</div>
+                                <div className='w-3/5 md:leading-7'>{data?.occupation}</div>
                             </>
                         )}
                         {data?.education && (
                             <>
-                                <div className='w-2/5 leading-5 md:leading-7 font-medium capitalize'>Education</div>
-                                <div className='w-3/5 leading-5 md:leading-7'>{data?.education}</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Education</div>
+                                <div className='w-3/5 md:leading-7'>{data?.education}</div>
                             </>
                         )}
                     </div>

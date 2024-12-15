@@ -3,12 +3,17 @@ import prisma from "@/db/db"; // Adjust the import path as needed
 
 export async function POST(request: Request) {
   try {
+    // Utility function to capitalize each word
+    const capitalizeWords = (str: string) => {
+      return str.replace(/\b\w/g, (char) => char.toUpperCase());
+    };
+
     // Parse the JSON payload from the request body
     const formData = await request.json(); 
     const deceased = formData.deceased === true; // Handle as a boolean
 
     const user = {
-      name: formData.name,
+      name: capitalizeWords(formData.name),
       gender: formData.gender,
       birthDate: formData.birthDate ? parseInt(formData.birthDate, 10) : null,
       birthMonth: formData.birthMonth ? parseInt(formData.birthMonth, 10) : null,
@@ -37,9 +42,11 @@ export async function POST(request: Request) {
     if (formData.descendant === false) {
       await prisma.partnersRelation.create({
         data: {
-          fatherName: formData.father || null,
-          motherName: formData.mother || null,
-          SiblingsNames: formData.siblings || null,
+          fatherName: formData.father ? capitalizeWords(formData.father) : null,
+          motherName: formData.mother ? capitalizeWords(formData.mother) : null,
+          SiblingsNames: formData.siblings
+            ? formData.siblings.map((sibling: string) => capitalizeWords(sibling))
+            : null,
           memberId: newMember.id, // Link PartnersRelation to the newly created Member
         },
       });

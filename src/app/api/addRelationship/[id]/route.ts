@@ -18,6 +18,7 @@ export async function GET(request: Request, context: any) {
           id: true,
           name: true,
           gender: true,
+          descendant: true,
           father: {
             select: {
               id: true,
