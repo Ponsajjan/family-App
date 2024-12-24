@@ -44,9 +44,7 @@ export async function POST(request: Request) {
         data: {
           fatherName: formData.father ? capitalizeWords(formData.father) : null,
           motherName: formData.mother ? capitalizeWords(formData.mother) : null,
-          SiblingsNames: formData.siblings
-            ? formData.siblings.map((sibling: string) => capitalizeWords(sibling))
-            : null,
+          SiblingsNames: formData.siblings ? capitalizeWords(formData.siblings) : null,
           memberId: newMember.id, // Link PartnersRelation to the newly created Member
         },
       });

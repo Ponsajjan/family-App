@@ -66,6 +66,7 @@ export default function EditMemberDetails () {
     motherName: '',
     siblingName: ''
   };
+  const [prevData, setPrevData] = useState(defaultValue);
   const [formData, setFormData] = useState(defaultValue);
   const noError = { 
     name: "",
@@ -161,6 +162,7 @@ export default function EditMemberDetails () {
             motherName: dbData.partnersRelation[0]?.motherName,
             siblingName: dbData.partnersRelation[0]?.SiblingsNames
           }
+          setPrevData(formatedDbData)
           setFormData(formatedDbData);
           setMemberName(dbData.name)
           console.log('user', dbData)
@@ -200,6 +202,13 @@ export default function EditMemberDetails () {
     return errors;
   };
 
+  const handleSwapData = () => {
+    setPrevData(prev => {
+        setFormData(prevData);
+        return formData;
+    });
+};
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
@@ -235,8 +244,6 @@ export default function EditMemberDetails () {
         motherName: descendant ? null : formData.motherName,
         siblingName: descendant ? null : formData.siblingName
       };
-
-      console.log('memberData', memberData)
   
       const response = await fetch(`/api/editMember/${formData.name?.id}`, {
         method: "PUT",
@@ -281,32 +288,39 @@ export default function EditMemberDetails () {
             <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-3">
             <div className="flex items-center">
               <span className="hidden md:block"><EditMember /></span>
               <Link href={"/add_edit"} className="md:hidden block">
                 <span><BackButton /></span>
               </Link>
-              <p className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
+              <p className="cursor-default text-2xl font-semibold text-text_color underline pl-3">
                 Edit {memberName ? memberName :'Member'}
               </p>
             </div>
-            <div className="cursor-pointer" onClick={() => handleShowList('selectMember')}>
-            <span className="border border-border_color px-1 flex justify-center items-center rounded-md w-fit h-[38px]"><ChangeMember /></span>
+            <div className="cursor-pointer" onClick={() => handleSwapData()}>
+              <ResetData />
             </div>
           </div>
           <form className="text-text_color relative" onSubmit={handleSubmit}>
             {!memberName && <div onClick={() => handleShowList('selectMember')} className={`absolute inset-0 z-10`}></div>}
-            <Input
-              onClick={() => setShowList(false)}
-              className={`${memberName ? '' : 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}
-              type="text"
-              name="name"
-              label="Name"
-              value={formData.name?.name || ''}
-              error={errors.name}
-              onChange={handleInputChange}
-            />
+            <div className="w-full">
+              <span className="text-sm font-medium" >Name</span>
+              <div className={`border border-border_color z-0 rounded-md overflow-hidden flex items-center relative ${!memberName && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
+                <input
+                  onClick={() => setShowList(false)}
+                  className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color`}
+                  type="text"
+                  name="name"
+                  value={formData.name?.name || ''}
+                  onChange={handleInputChange}
+                />
+                <div onClick={() => handleShowList('selectMember')} className="cursor-pointer z-50 border border-border_color px-1 flex justify-center items-center rounded-md w-fit h-8 mr-[2px]">
+                  <ChangeMember />
+                </div>
+              </div>
+              {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+            </div>
             <div className="flex gap-2 py-4">
               <p className="text-sm font-medium">Gender:</p>
               <RadioButton
@@ -511,7 +525,7 @@ export default function EditMemberDetails () {
       /> )}
       <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
-          <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor}/>
+          <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor} descendant={null} />
         </div>
       </div>
     </div>

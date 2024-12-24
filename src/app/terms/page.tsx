@@ -13,14 +13,14 @@ function page() {
         </h1>
 
         <p className="text-lg text-center mb-3">
-          This app is created exclusively for the Shanmuga Nadar family in efforts to honor and remember significant dates such as birthdays and remembrance.
+        This app is created exclusively for the Shanmuga Nadar family to honor and remember significant dates, such as birthdays and anniversaries of remembrance.
         </p>
 
         <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
           <h2 className="text-xl font-semibold mb-4">Access is limited to:</h2>
           <ul className="list-disc list-inside">
             <li>Direct descendants of Shanmuga Nadar</li>
-            <li>Their partners (spouses or significant others)</li>
+            <li>Their partners (spouse or significant other)</li>
           </ul>
           <p className="mt-4 italic opacity-65">
             Note: Extended family members (such as aunts, uncles, and cousins) are excluded to maintain simplicity and focus on close family connections, ensuring that each member remains relevant to each other.
@@ -30,9 +30,7 @@ function page() {
         <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
           <h2 className="text-xl font-semibold mb-4">Guidelines:</h2>
           <ul className="list-disc list-inside space-y-2">
-            <li>Keep your contact information current.</li>
-            <li>Ensure family descendant is marked correctly</li>
-            <li>Ensure profiles for all immediate family members are added.</li>
+            <li>Ensure family descendants are accurately recorded</li>
             <li>Add family relationships (partner & children) if any.</li>
           </ul>
           <p className="mt-4 italic opacity-65">

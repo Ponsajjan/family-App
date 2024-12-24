@@ -170,17 +170,13 @@ export async function PUT(request: Request, context: any) {
         update: {
           fatherName: updatedData.fatherName ? capitalizeWords(updatedData.fatherName) : null,
           motherName: updatedData.motherName ? capitalizeWords(updatedData.motherName) : null,
-          SiblingsNames: updatedData.siblingName
-            ? updatedData.siblingName.map((sibling: string) => capitalizeWords(sibling))
-            : null,
+          SiblingsNames: updatedData.siblingName ? capitalizeWords(updatedData.siblingName) : null,
         },
         create: {
           memberId: memberId,
           fatherName: updatedData.fatherName ? capitalizeWords(updatedData.fatherName) : null,
           motherName: updatedData.motherName ? capitalizeWords(updatedData.motherName) : null,
-          SiblingsNames: updatedData.siblingName
-            ? updatedData.siblingName.map((sibling: string) => capitalizeWords(sibling))
-            : null,
+          SiblingsNames: updatedData.siblingName ? capitalizeWords(updatedData.siblingName) : null,
         },
       });
     }

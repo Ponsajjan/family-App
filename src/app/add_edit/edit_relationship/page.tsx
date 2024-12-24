@@ -226,7 +226,7 @@ export default function EditMemberDetails () {
           <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
         </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-3">
             <div className="flex items-center">
               <span className="hidden md:block"><AddRelationship /></span>
               <Link href={"/add_edit"} className="md:hidden block">

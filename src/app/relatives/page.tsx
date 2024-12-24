@@ -221,9 +221,9 @@ export default function Relatives() {
                   ))}
                 </div>
               )))}
-              <div className="px-4 py-2">
+              <div className="h-10 px-4 py-2">
                 {loadingList && <p>Loading....</p>}
-                {!loadingList && !hasMore && <p>End ...</p> }
+                {!loadingList && !hasMore && <p>,,,</p> }
               </div>
             </div>
           </div>}

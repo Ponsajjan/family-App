@@ -194,7 +194,7 @@ export default function AddMemberDetails () {
   return (
     <Container>
       <div className="w-full md:max-w-xl p-4 mx-auto">
-        <div className="flex justify-start items-center mb-4">
+        <div className="flex justify-start items-center mb-3">
           <span className="hidden md:block"><AddMember /></span>
           <Link href={"/add_edit"} className="md:hidden block">
             <span><BackButton /></span>
