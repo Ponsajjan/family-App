@@ -188,12 +188,12 @@ export default function Home() {
                       (current_date == date && current_month == month + 1 && current_year == year) ? "bg-accent_color text-accent_contrast" : ""
                     } ${dateList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
                   >
-                        {dateList?.includes(date) && !loading && <p className={`${current_month == month + 1 && current_date == date ? "invert" : ""}`}>
-                          <Circle />
-                        </p>}
-                        <p className={`absolute p-0.5`}>
-                          {date}
-                        </p>
+                    {dateList?.includes(date) && !loading && <p className={`${current_month == month + 1 && current_date == date ? "invert" : ""}`}>
+                      <Circle />
+                    </p>}
+                    <p className={`absolute p-0.5`}>
+                      {date}
+                    </p>
                   </div>
                 );
               })}

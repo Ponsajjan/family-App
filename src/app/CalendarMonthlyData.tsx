@@ -2,23 +2,39 @@ import Container from "@/components/Container";
 import { Birthday2, Deathday, Deathday2 } from "@/utils/Icons";
 import { format, differenceInYears } from 'date-fns';
 
-export default function CalendarMonthlyData({data, month, year}) {
+interface CalendarMonthlyDataProps {
+  data: any;
+  month: number;
+  year: number;
+}
+
+interface CalendarMonthlyEvent {
+  name: string;
+  type: string;
+  date: Date;
+  age: number | string;
+  hasDate?: boolean;
+}
+
+export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
+  const {data, month, year} = props;
+  
   const today = new Date();
   const todayDate = today.getDate();
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
 
-  const pastEvents = [];
-  const todayEvents = [];
-  const tomorrowEvents = [];
-  const thisWeekEvents = [];
-  const upcomingEvents = [];
+  const pastEvents: CalendarMonthlyEvent[] = [];
+  const todayEvents: CalendarMonthlyEvent[] = [];
+  const tomorrowEvents: CalendarMonthlyEvent[] = [];
+  const thisWeekEvents: CalendarMonthlyEvent[] = [];
+  const upcomingEvents: CalendarMonthlyEvent[] = [];
   
-  const selectedMonthData = [];
+  const selectedMonthData: CalendarMonthlyEvent[] = [];
 
-  if (currentMonth === month && currentYear === year) {
-    data?.forEach(user => {
-      const categorizeEvent = (date, type) => {
+  if (currentMonth === month && currentYear === year) { //for current month in current year
+    data?.forEach((user:any) => {
+      const categorizeEvent = (date:any, type:any) => {
         if (date && date.getMonth() === month) {
           const eventDay = date.getDate();   
           // Calculate the current week's start (Monday) and end (Sunday)
@@ -39,31 +55,29 @@ export default function CalendarMonthlyData({data, month, year}) {
           }
         }
       };
-  
-      // Check birthdays and deathdays
+
       if (user.birthday) categorizeEvent(new Date(user.birthday), 'birthday');
       if (user.deathday) categorizeEvent(new Date(user.deathday), 'deathday');
     });
-  } else {
-    data?.forEach(user => {
-      const selectedMonth = (date, type) => {
+  } else { //for other months
+    data?.forEach((user:any) => {
+      const selectedMonth = (date:any, type:any) => {
         selectedMonthData.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(new Date(year, month), date) });
       };
-  
-      // Check birthdays and deathdays
+
       if (user.birthday) selectedMonth(new Date(user.birthday), 'birthday');
       if (user.deathday) selectedMonth(new Date(user.deathday), 'deathday');
     });
   }
 
-  const renderEventList = (events, title) => {
-    // Sort events by date in ascending order within the current month
+  const renderEventList = (events:any, title:any) => {
+
     let sortedEvents
     
     if (title === "Earlier This Month") {
-      sortedEvents = events.sort((a, b) => b.date.getDate() - a.date.getDate());
+      sortedEvents = events.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => b.date.getDate() - a.date.getDate());
     } else {
-      sortedEvents = events.sort((a, b) => a.date.getDate() - b.date.getDate());
+      sortedEvents = events.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => a.date.getDate() - b.date.getDate());
     }
   
     return (
@@ -73,7 +87,7 @@ export default function CalendarMonthlyData({data, month, year}) {
           <span className="font-medium pr-1 whitespace-nowrap">{title}</span>
           <span className="border-t border-border_color block w-full"></span>
         </div>
-        {sortedEvents.map((item, index) => (
+        {sortedEvents.map((item:any, index:number) => (
           <div key={index} className="pl-6 md:pl-4" >
             <div className="border-l border-border_color pt-1 pb-2 pl-4 md:pl-3 pr-3">
               <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-60'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
@@ -81,7 +95,7 @@ export default function CalendarMonthlyData({data, month, year}) {
                 <div className="border-t border-dashed border-text_color w-14 ml-2 mr-3">
                   <div className="flex flex-col border border-text_color rounded-b-sm">          
                     <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
-                      {format(new Date(year, month, format(item.date, 'd')).toISOString(), 'EEE').toUpperCase()}
+                      {format(new Date(year, month, parseInt(format(item.date, 'd'))).toISOString(), 'EEE').toUpperCase()}
                     </span>
                     <span className="text-center font-semibold leading-5 py-0.5">{format(item.date, 'd')}</span>
                   </div>

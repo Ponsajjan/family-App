@@ -8,30 +8,10 @@ import Link from "next/link";
 import { AddMember, BackButton } from "@/utils/Icons";
 import { useToast } from '@/components/Toast';
 import Container from "@/components/Container";
+import { DefaultValue, FormError } from "@/types/add__edit/add_member/types";
 
 export default function AddMemberDetails () {
   const toast = useToast();
-
-  interface DefaultValue {
-    name: string;
-    gender: "Male" | "Female" | undefined;
-    birth_date: string | null;
-    birth_month: string | null;
-    birth_year: string | null;
-    deceased: boolean;
-    death_date: string | null;
-    death_month: string | null;
-    death_year: string | null;
-    phone_number: string;
-    occupation: string;
-    education: string;
-    address: string;
-    descendant: "Yes" | "No" | undefined;
-    father: string;
-    mother: string;
-    siblings: string;
-  }
-
   const defaultValue: DefaultValue = {
     name: '',
     gender: undefined,
@@ -51,10 +31,8 @@ export default function AddMemberDetails () {
     mother: '',
     siblings: ''
   };
-
   const [formData, setFormData] = useState(defaultValue);
-
-  const [errors, setErrors] = useState({ 
+  const [errors, setErrors] = useState<FormError>({ 
     name: '',
     gender: '',
     birth_date: '',
@@ -66,7 +44,6 @@ export default function AddMemberDetails () {
     descendant: '',
   });
   const [loading, setLoading] = useState(false)
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -75,10 +52,8 @@ export default function AddMemberDetails () {
     }));
     setErrors((prev) => ({ ...prev, [name]: "" })); // Clear error when input is updated
   };
-
   // show and hide death details fields based on checkbox
   const showDeathDetails = formData.deceased ? "peer-checked:block" : "hidden"; 
-
   // Validate required fields
   const validateForm = () => {
     const errors: any = {};
@@ -246,7 +221,7 @@ export default function AddMemberDetails () {
                 name="birth_date"
                 min="1"
                 max="31"
-                maxLength="2"
+                maxLength={2}
                 label=""
                 value={formData.birth_date || ''}
                 onChange={handleInputChange}
@@ -257,7 +232,7 @@ export default function AddMemberDetails () {
                 name="birth_month"
                 min="1"
                 max="12"
-                maxLength="2"
+                maxLength={2}
                 label=""
                 value={formData.birth_month || ''}
                 onChange={handleInputChange}
@@ -268,7 +243,7 @@ export default function AddMemberDetails () {
                 name="birth_year"
                 min="1975"
                 max={new Date().getFullYear()}
-                maxLength="4"
+                maxLength={4}
                 label=""
                 value={formData.birth_year || ''}
                 onChange={handleInputChange}
@@ -306,7 +281,7 @@ export default function AddMemberDetails () {
                   name="death_date"
                   min="1"
                   max="31"
-                  maxLength="2"
+                  maxLength={2}
                   label=""
                   value={formData.death_date || ''}
                   onChange={handleInputChange}
@@ -317,7 +292,7 @@ export default function AddMemberDetails () {
                   name="death_month"
                   min="1"
                   max="12"
-                  maxLength="2"
+                  maxLength={2}
                   label=""
                   value={formData.death_month || ''}
                   onChange={handleInputChange}
@@ -328,7 +303,7 @@ export default function AddMemberDetails () {
                   name="death_year"
                   min="1975"
                   max={new Date().getFullYear()}
-                  maxLength="4"
+                  maxLength={4}
                   label=""
                   value={formData.death_year || ''}
                   onChange={handleInputChange}

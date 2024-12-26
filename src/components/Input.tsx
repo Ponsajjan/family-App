@@ -1,14 +1,20 @@
-import React from 'react'
+import React, { InputHTMLAttributes } from 'react';
 
-function Input({
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+    showOptional?: boolean;
+    label?: string;
+    error?: string;
+}
+
+const Input: React.FC<InputProps> = ({
     showOptional = false,
     label = "",
     type = "text",
     placeholder = "",
     className = "",
     error = "",
-    ...props
-}) {
+    ...restProps
+}) => {
   return (
     <>
       <label className='w-full'>
@@ -18,10 +24,8 @@ function Input({
               type={type}
               placeholder={placeholder}
               name={label}
-              // value={value}
-              // onChange={onChange}
               className={`p-2 border border-border_color outline-none focus:border-border_active text-sm rounded-md w-full bg-field_color ${className}`}
-              {...props}
+              {...restProps}
           />
       </label>
       {error && <p className="text-red-500 text-sm">{error}</p>}

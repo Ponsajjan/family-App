@@ -1,24 +1,24 @@
 import React from 'react';
 
-const Checkbox = ({ 
-  // checked,
-  // value,
-  // onChange,
+interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  className?: string;
+  label?: string;
+  name?: string;
+}
+
+const Checkbox: React.FC<CheckboxProps> = ({ 
   className = '',
   label = '',
   name = '',
-  ...props
+  ...restProps
 }) => {
   return (
     <label className="flex items-center space-x-2 cursor-pointer">
       <input
         type="checkbox"
-        // checked={checked}
-        // onChange={onChange}
-        // value={value}
         name={name}
         className={`bg-main_background border border-border_active rounded-md ${className}`}
-        {...props}
+        {...restProps}
       />
       {label && <span className="text-sm font-medium">{label}</span>}
     </label>

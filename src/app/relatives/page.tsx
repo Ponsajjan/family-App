@@ -141,7 +141,7 @@ export default function Relatives() {
     const regex = new RegExp(`(${searchText})`, 'gi'); // Match search term case-insensitively
     return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>'); // Wrap matches with a span
   }
-
+  console.log('hihello', members)
   return (
     <div className="w-full">
       <Topnav>
