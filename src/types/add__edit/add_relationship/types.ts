@@ -1,5 +1,5 @@
 interface Member {
-    id: string;
+    id: number;
     name: string;
 }
 export interface AddRelationFormValuesType {

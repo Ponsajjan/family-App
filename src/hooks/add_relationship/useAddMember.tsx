@@ -24,36 +24,18 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                         throw new Error('Failed to fetch user details');
                     }
                     const { data } = await response.json();
-                    const dbData = data[0];
-                    // Extract sibling and children data
-                    const siblingData = [new Set([
-                    ...(Array.isArray(dbData.father?.fatherOf) ? dbData.father.fatherOf : []),
-                    ...(Array.isArray(dbData.mother?.motherOf) ? dbData.mother.motherOf : []),
-                    ])];
-                    const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
-
+                    
                     const formatedDbData = {
-                        id: dbData.id || undefined,
-                        name:  dbData.name || undefined,
-                        gender: dbData.gender || undefined,
-                        partner: dbData.partner ? {id: dbData.partner.id, name: dbData.partner.name} : null,
-                        children: childrenData ? childrenData : [],
+                        id: data.id || undefined,
+                        name:  data.name || undefined,
+                        gender: data.gender || undefined,
+                        partner: data.partner ? {id: data.partner.id, name: data.partner.name} : null,
+                        children: data.childrenData ? data.childrenData : [],
                     }
                     // Update states
-                    setDescendant(dbData.descendant)
+                    setDescendant(data.descendant)
                     setSelectedMemberData(formatedDbData);
-
-                    const excludeIds = [
-                        dbData?.id ? parseInt(dbData.id, 10) : null,
-                        dbData.partner?.id ? parseInt(dbData.partner.id, 10) : null,
-                        dbData.partner?.fatherId ? parseInt(dbData.partner.fatherId, 10) : null,
-                        dbData.partner?.motherId ? parseInt(dbData.partner.motherId, 10) : null,
-                        dbData.father?.id ? parseInt(dbData.father.id, 10) : null,
-                        dbData.mother?.id ? parseInt(dbData.mother.id, 10) : null,
-                        ...(siblingData ? siblingData.map((sibling: any) => parseInt(sibling.id, 10)) : []),
-                        ...(childrenData ? childrenData.map((child: any) => parseInt(child.id, 10)) : []),
-                    ].filter(Boolean);
-                    setExcludeMemberRelation(excludeIds);
+                    setExcludeMemberRelation(data.excludeIds);
                 } catch (error: any) {
                     if (toast) {
                         toast.show(error.message || "Error fetching user details", "error", 5000)
@@ -66,6 +48,11 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                 }
             }
             fetchUser()
+        } else {
+            setMemberloading(false)
+            setDescendant(null)
+            setSelectedMemberData(AddRelationDefaultFormValue)
+            setExcludeMemberRelation([])
         }
     }, [selectedMemberId])
     return {

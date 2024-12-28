@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { AddRelationFormValuesType } from "@/types/add__edit/add_relationship/types";
 
-export async function GET(request: Request, context: any) {
+export async function GET(request: Request) {
     const url = new URL(request.url);
     const id = parseInt(url.pathname.split('/').pop() || '');
     
@@ -10,7 +11,7 @@ export async function GET(request: Request, context: any) {
     }
 
     try {
-      const data = await prisma.member.findMany({
+      const fetchedData = await prisma.member.findMany({
         where: {
           id: id,
         },
@@ -54,6 +55,34 @@ export async function GET(request: Request, context: any) {
         },
       });
 
+      const dbData = fetchedData[0];
+      // Extract sibling and children data
+      const siblingData = [new Set([
+        ...(Array.isArray(dbData.father?.fatherOf) ? dbData.father.fatherOf : []),
+        ...(Array.isArray(dbData.mother?.motherOf) ? dbData.mother.motherOf : []),
+      ])];
+      const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
+
+      // Format the data
+      const data = {
+        id: dbData.id,
+        name: dbData.name,
+        gender: dbData.gender,
+        descendant: dbData.descendant,
+        partner: dbData.partner,
+        childrenData: childrenData,
+        excludeIds: [
+          dbData?.id ? dbData.id : null,
+          dbData.father?.id ? dbData.father?.id : null,
+          dbData.mother?.id ? dbData.mother?.id : null,
+          dbData.partner?.id ? dbData.partner.id : null,
+          dbData.partner?.fatherId ? dbData.partner?.fatherId : null,
+          dbData.partner?.motherId ? dbData.partner?.motherId : null,
+          ...(siblingData ? siblingData.map((sibling: any) => sibling.id) : []),
+          ...(childrenData ? childrenData.map((child: any) => child.id) : []),
+        ].filter(Boolean), // Remove null values from the array // also need to include the logged in Sembahalingum's ID to exclude from the list
+
+      };
       return NextResponse.json({ data });
     } catch (error) {
       console.error(error);
@@ -61,16 +90,7 @@ export async function GET(request: Request, context: any) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-export async function PUT(request: Request, context: any) {
+export async function PUT(request: Request) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
 
@@ -80,50 +100,29 @@ export async function PUT(request: Request, context: any) {
   }
 
   try {
-    // Parse the JSON body
-    const updatedData = await request.json();
+    const updatedData = await request.json(); // Parse the JSON body
 
-    console.log('updatedData', updatedData);
-
-    // Validate the request body
-    if (!updatedData || Object.keys(updatedData).length === 0) {
+    if (!updatedData || Object.keys(updatedData).length === 0) { // Ensure data is provided
       return NextResponse.json({ error: 'No data provided for update' }, { status: 400 });
-    }
-
-    // Prepare the update data for the member
-    const updateData: any = { ...updatedData };
-
-    // Handle member's children relationships dynamically
-    if (updatedData.gender === "Male" && updatedData.fatherOf) {
-      updateData.fatherOf = {
-        connect: updatedData.fatherOf.map((childId: number) => ({ id: childId })),
-      };
-    } else if (updatedData.gender === "Female" && updatedData.motherOf) {
-      updateData.motherOf = {
-        connect: updatedData.motherOf.map((childId: number) => ({ id: childId })),
-      };
     }
 
     // Update the member in the database
     const updatedMember = await prisma.member.update({
       where: { id: memberId },
-      data: updateData,
+      data: updatedData,
     });
 
     // Handle updating the partner's relationships
     if (updatedData.partnerId) {
       const partnerUpdateData: any = {};
-
-      if (updatedData.gender === "Male" && updatedData.fatherOf) {
-        partnerUpdateData.motherOf = {
-          connect: updatedData.fatherOf.map((childId: number) => ({ id: childId })),
-        };
-      } else if (updatedData.gender === "Female" && updatedData.motherOf) {
-        partnerUpdateData.fatherOf = {
-          connect: updatedData.motherOf.map((childId: number) => ({ id: childId })),
-        };
-      }
+      
       partnerUpdateData.partnerId = memberId;
+      if (updatedData.fatherOf) {
+        partnerUpdateData.motherOf = updatedData.fatherOf;
+      } 
+      if (updatedData.motherOf) {
+        partnerUpdateData.fatherOf = updatedData.motherOf;
+      }
 
       if (Object.keys(partnerUpdateData).length > 0) {
         await prisma.member.update({

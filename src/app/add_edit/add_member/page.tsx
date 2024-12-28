@@ -5,7 +5,6 @@ import Link from "next/link";
 import { AddMember, BackButton } from "@/utils/Icons";
 import Container from "@/components/Container";
 import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue } from "@/types/add__edit/add_member/types";
-import { handleSubmitAPI } from "@/utils/add_edit/add_members/handleSubmitAPI";
 import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateForm";
 import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
@@ -25,7 +24,7 @@ export default function AddMemberDetails () {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errorMessage = validateAddMemberForm(formData);  
     if (Object.keys(errorMessage).length) {
@@ -34,15 +33,57 @@ export default function AddMemberDetails () {
     }
     try {
       setLoading(true);
-      handleSubmitAPI(formData);
-      if (toast) {
-        toast.show("Member added successfully!", "success", 5000);
+      const deceased = formData.deceased;
+      const descendant = formData.descendant === "Yes";
+      const memberData = {
+        name: formData.name,
+        gender: formData.gender,
+        birthDate: formData.birth_date ? parseInt(formData.birth_date, 10) : null,
+        birthMonth: formData.birth_month ? parseInt(formData.birth_month, 10) : null,
+        birthYear: formData.birth_year ? parseInt(formData.birth_year, 10) : null,
+        deceased: formData.deceased,
+        deathDate: deceased && formData.death_date ? parseInt(formData.death_date, 10) : null,
+        deathMonth: deceased && formData.death_month ? parseInt(formData.death_month, 10) : null,
+        deathYear: deceased && formData.death_year ? parseInt(formData.death_year, 10) : null,
+        phoneNumber: formData.phone_number,
+        occupation: formData.occupation,
+        education: formData.education,
+        address: formData.address,
+        descendant: descendant,
+        father: descendant ? null : formData.father,
+        mother: descendant ? null : formData.mother,
+        siblings: descendant ? null : formData.siblings
+      };
+    
+      // API Call
+      const response = await fetch("/api/addMember", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(memberData),
+      });
+    
+      // Handle API response
+      const result = await response.json();
+      if (!response.ok) {
+        if (toast) {
+          toast.show(result.error || "Something went wrong", "error", 5000);
+        }
+        throw new Error(result.error || "Something went wrong");
+        // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
+      } else {
+        if (toast) {
+          toast.show(result.message, "success", 5000);
+        }
       }
+
       setFormData(AddMemberDefaultFormValue);
     } catch (error: any) {
       if (toast) {
         toast.show(error.message || "An unexpected error occurred.", "error", 5000);
       }
+      throw new Error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

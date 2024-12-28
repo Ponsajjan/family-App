@@ -24,40 +24,26 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                     if (!response.ok) throw new Error('Failed to fetch user details');
                 
                     const { data } = await response.json();
-                    const dbData = data[0];
-                    // // Extract sibling and children data
-                    // const siblingData = [new Set([
-                    //     ...(Array.isArray(dbData.father?.fatherOf) ? dbData.father.fatherOf : []),
-                    //     ...(Array.isArray(dbData.mother?.motherOf) ? dbData.mother.motherOf : []),
-                    // ])];
-                    const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
-
-                    let uniqueChildren = childrenData;
-                    if (childrenData.length > 0 && Array.isArray(childrenData)) {
-                    // In case partner seperates and reunite no need to show children twice
+                    
+                    let uniqueChildren = data.childrenData;
+                    if (data.childrenData.length > 0 && Array.isArray(data.childrenData)) {
+                    // In case partner seperates and reunites with the same member
                     const memberChildren = new Set(selectedMemberData.children.map((child:any) => child.id));
                     uniqueChildren = [
-                        ...childrenData.filter((child) => !memberChildren.has(child.id)),
+                        ...data.childrenData.filter((child: {id: number, name:string}) => !memberChildren.has(child.id)),
                     ];
         
                     }
                     const formatedDbData = {
-                        id: dbData.id || undefined,
-                        name: dbData.name || undefined,
+                        id: data.id || undefined,
+                        name: data.name || undefined,
                         gender: undefined,
                         partner: null,
                         children: uniqueChildren ? uniqueChildren : [],
                     }
         
                     setSelectedPartnerData(formatedDbData);
-
-                    const excludeIds = [
-                        dbData?.id ? parseInt(dbData.id, 10) : null,
-                        dbData.father?.id ? parseInt(dbData.father.id, 10) : null,
-                        dbData.mother?.id ? parseInt(dbData.mother.id, 10) : null,
-                        ...(childrenData ? childrenData.map((child: any) => parseInt(child.id, 10)) : []),
-                    ].filter(Boolean);
-                    setExcludePartnerRelation(excludeIds);
+                    setExcludePartnerRelation(data.excludeIds);
 
                 } catch (error: any) {
                     if (toast) {
@@ -73,6 +59,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
 
             fetchPartner()
         } else {
+            setPartnerLoading(false);
             setSelectedPartnerData(AddRelationDefaultFormValue);
             setExcludePartnerRelation([]);
         }

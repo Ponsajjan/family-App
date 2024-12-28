@@ -10,10 +10,13 @@ import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue } from "@/types/add__edit/add_relationship/types";
 import AddRelationShipForm from "@/components/forms/AddRelationShipForm";
+import { useToast } from "@/components/Toast";
 
 export default function EditMemberDetails () {
+  const toast = useToast();
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>();
   const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [newChildrenData, setNewChildrenData] = useState(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState('selectMember');
@@ -35,7 +38,7 @@ export default function EditMemberDetails () {
     setShowList(true);
   };
 
-  const handleSelectedValue = (name: string, id: number) => {
+  const handleSelectedValue = (name: string, id: number, select: string) => {
   
     const updateData = (prev: any) => {
       if (Array.isArray(prev['children'])) {
@@ -52,94 +55,110 @@ export default function EditMemberDetails () {
           };
         }
       }
-
-      setShowList(false);
-      return {
-        ...prev,
-        ['children']: { id, name },
-      };
     };
   
-    if (showListFor === 'selectMember') {
-      setSelectedMemberId(id)
-      setSelectedPartnerId(null)
-      setShowList(false);
-    } else if (showListFor === 'selectPartner') {
-      setSelectedPartnerId(id)
-      setError(null)
-      setShowList(false);
-    } else {
-      setNewChildrenData(updateData);
+    switch (select) {
+      case 'selectMember':
+        setSelectedMemberId(id);
+        setSelectedPartnerId(null);
+        setShowList(false);
+        break;
+    
+      case 'selectPartner':
+        setSelectedPartnerId(id);
+        setError(null);
+        setShowList(false);
+        break;
+    
+      case 'selectChildren':
+        setNewChildrenData(updateData);
+        break;
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedPartnerData.name?.id == null) {
+
+    if (selectedPartnerData.id === undefined && selectedMemberData.partner === null) { // No partner selected
       setError('Select partner');
       return
-    } else { setError(null) }
-    // try {
-    //   setLoading(true);
-    //   setShowList(false)
-    //   const isMale = combinedData.gender === "Male";
-    //   const isFemale = combinedData.gender === "Female";
+    }
+    if (selectedPartnerData.id === undefined && newChildrenData.children.length === 0) { // No changes made
+      return
+    }
+    try {
+      setLoading(true);
+      setShowList(false)
+      const isMale = selectedMemberData.gender === "Male";
+      const isFemale = selectedMemberData.gender === "Female";
 
-    //   const memberData = {
-    //     gender: combinedData.gender,
-    //     partnerId: combinedData.partner?.id ? parseInt(combinedData.partner?.id, 10) : null,
-    //     ...(isMale && {
-    //       fatherOf: combinedData.children && combinedData.children.length > 0 ? combinedData.children.map((child: any) => child.id) : [],
-    //     }),
-    //     ...(isFemale && {
-    //       motherOf: combinedData.children && combinedData.children.length > 0 ? combinedData.children.map((child: any) => child.id) : [],
-    //     }),
-    //   };
+      const memberData = {
+        partnerId: selectedMemberData.partner?.id ? selectedMemberData.partner?.id : selectedPartnerData.id,
+        ...(isMale && {
+          fatherOf: {connect: [
+            ...selectedMemberData.children.map((child: {name: string, id: number}) => ({ id: child.id })),
+            ...newChildrenData.children.map((child: {name: string, id: number}) => ({ id: child.id })),
+            ...selectedPartnerData.children.map((child: {name: string, id: number}) => ({ id: child.id }))
+          ]},
+        }),
+        ...(isFemale && {
+          motherOf: {connect: [
+            ...selectedMemberData.children.map((child: {name: string, id: number}) => ({ id: child.id })),
+            ...newChildrenData.children.map((child: {name: string, id: number}) => ({ id: child.id })),
+            ...selectedPartnerData.children.map((child: {name: string, id: number}) => ({ id: child.id }))
+          ]},
+        }),
+      };
   
-    //   const response = await fetch(`/api/addRelationship/${combinedData.name?.id}`, {
-    //     method: "PUT",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(memberData),
-    //   });
+      const response = await fetch(`/api/addRelationship/${selectedMemberData?.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(memberData),
+      });
   
-    //   if (!response.ok) {
-    //     const errorData = await response.json();
-    //     if (toast) {
-    //       toast.show(errorData.error || "Failed to update member", "error", 5000)
-    //     }
-    //     throw new Error(errorData.error || "Failed to update member");
-    //   }
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (toast) {
+          toast.show(errorData.error || "Failed to update member", "error", 5000)
+        }
+        throw new Error(errorData.error || "Failed to update member");
+      }
   
-    //   const result = await response.json();
-    //   console.log("Member updated successfully:", result);
+      const result = await response.json();
+      if (!response.ok) {
+        if (toast) {
+          toast.show(result.error || "Something went wrong", "error", 5000);
+        }
+        throw new Error(result.error || "Something went wrong");
+        // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
+      } else {
+        if (toast) {
+          toast.show(result.message, "success", 5000);
+        }
+      }
   
-    //   if (toast) {
-    //     toast.show("Member updated successfully", "success", 5000);
-    //   }
-  
-    //   setSelectedMemberData(defaultValue);
-    //   setSelectedPartnerData(defaultValue);
-    //   // setCombinedData(defaultValue);
-    //   setMemberName("");
-    //   setRefresh((prev) => !prev);
-    // } catch (error: any) {
-    //   if (toast) {
-    //     toast.show(error.message || "Failed to update member", "error", 5000);
-    //   } else {
-    //     alert(error.message || "Failed to update member.");
-    //   }
-    // } finally {
-    //   setLoading(false);
-    // }
+      // Reset the form
+      setSelectedMemberId(null);
+      setSelectedPartnerId(null);
+      setNewChildrenData(AddRelationDefaultFormValue);
+    } catch (error: any) {
+      if (toast) {
+        toast.show(error.message || "Failed to update member", "error", 5000);
+      } else {
+        alert(error.message || "Failed to update member.");
+      }
+    } finally {
+      setLoading(false);
+    }
     return
   };
 
   return (
     <div className="md:flex text-text_color">
       <Container className='relative'>
-        {(memberloading || patnerLoading) && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
+        {(memberloading || patnerLoading || loading) && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
             <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
