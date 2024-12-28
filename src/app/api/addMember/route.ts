@@ -50,7 +50,10 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({ success: true, user: newMember });
+    return NextResponse.json({ 
+      success: true, 
+      message: "User added successfully", 
+      user: newMember });
   } catch (error) {
     console.error("Error adding user:", error);
     return NextResponse.json(

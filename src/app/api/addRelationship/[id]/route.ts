@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
-import { AddRelationFormValuesType } from "@/types/add__edit/add_relationship/types";
 
 export async function GET(request: Request) {
     const url = new URL(request.url);

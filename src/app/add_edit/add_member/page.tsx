@@ -81,9 +81,9 @@ export default function AddMemberDetails () {
       setFormData(AddMemberDefaultFormValue);
     } catch (error: any) {
       if (toast) {
-        toast.show(error.message || "An unexpected error occurred.", "error", 5000);
+        toast.show(error.error || "An unexpected error occurred.", "error", 5000);
       }
-      throw new Error(error.message || "Something went wrong");
+      throw new Error(error.error || "Something went wrong");
     } finally {
       setLoading(false);
     }

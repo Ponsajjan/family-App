@@ -145,9 +145,9 @@ export default function EditMemberDetails () {
       setNewChildrenData(AddRelationDefaultFormValue);
     } catch (error: any) {
       if (toast) {
-        toast.show(error.message || "Failed to update member", "error", 5000);
+        toast.show(error.error || "Failed to update member", "error", 5000);
       } else {
-        alert(error.message || "Failed to update member.");
+        alert(error.error || "Failed to update member.");
       }
     } finally {
       setLoading(false);
