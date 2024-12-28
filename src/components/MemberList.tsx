@@ -15,7 +15,7 @@ interface EachMember {
   name: string;
 }
 interface Member {
-  id: string;
+  id: number;
   name: string;
   gender: 'Male' | 'Female';
   father: EachMember | null;
@@ -33,12 +33,11 @@ interface MemberListProps {
   setSelectedValue: any;
   openList: any;
   getSelectedValues: any;
-  refreshList: boolean;
   multiselect: boolean;
   descendant: boolean | null;
 }
 
-export default function MemberList({ forType='selectMember', gender=null, excludeId=[], descendant=null, setSelectedValue, openList, getSelectedValues, refreshList, multiselect }: MemberListProps) {
+export default function MemberList({ forType='selectMember', gender=null, excludeId=[], descendant=null, setSelectedValue, openList, getSelectedValues, multiselect }: MemberListProps) {
   const toast = useToast();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -113,9 +112,9 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
 
     setFilteresUsed(forType)
     fetchMembers();
-  }, [forType, refreshList, showCousin]);
+  }, [forType, showCousin]);
 
-  const handleSelectedValue = (item: any, id: string) => {
+  const handleSelectedValue = (item: string, id: number) => {
     setSelectedValue(item, id)
   };
 

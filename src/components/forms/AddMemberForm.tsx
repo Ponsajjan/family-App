@@ -186,7 +186,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
             value={formData.address || ''}
             onChange={handleInputChange}
             />
-            <div className="flex justify-start items-center gap-2 mb-4">
+            <div className="flex justify-start items-center gap-2">
             <p className="text-sm font-medium">Family descendant:</p>
             {["Yes", "No"].map((option) => (
                 <RadioButton
@@ -204,37 +204,37 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 {errors.descendant}
             </p>
             )}
-            {formData?.descendant === 'No' && <div className="p-2 border border-border_color rounded-lg">
-            <div className="flex gap-2 mb-2">
-                <div>
-                <Input
-                    showOptional={true}
-                    name="mother"
-                    label="Mother"
-                    value={formData.mother || ''}
-                    onChange={handleInputChange}
-                />
+            {formData?.descendant === 'No' && <div className="p-2 mt-4 border border-border_color rounded-lg">
+                <div className="flex gap-2 mb-2">
+                    <div>
+                    <Input
+                        showOptional={true}
+                        name="mother"
+                        label="Mother"
+                        value={formData.mother || ''}
+                        onChange={handleInputChange}
+                    />
+                    </div>
+                    <div>
+                    <Input
+                        showOptional={true}
+                        name="father"
+                        label="Father"
+                        value={formData.father || ''}
+                        onChange={handleInputChange}
+                    />
+                    </div>
                 </div>
                 <div>
-                <Input
+                    <Input
                     showOptional={true}
-                    name="father"
-                    label="Father"
-                    value={formData.father || ''}
+                    name="siblings"
+                    label="Siblings"
+                    placeholder="Name1, Name2, ..."
+                    value={formData.siblings || ''}
                     onChange={handleInputChange}
-                />
+                    />
                 </div>
-            </div>
-            <div>
-                <Input
-                showOptional={true}
-                name="siblings"
-                label="Siblings"
-                placeholder="Name1, Name2, ..."
-                value={formData.siblings || ''}
-                onChange={handleInputChange}
-                />
-            </div>
             </div>}
             <ButtonSolid type="submit" disabled={loading} className="w-full mt-8 mb-4" buttonText={loading ? "Adding..." : "Add Member"} />
             <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />

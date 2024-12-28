@@ -306,7 +306,7 @@ export default function EditMemberDetails () {
             {!memberName && <div onClick={() => handleShowList('selectMember')} className={`absolute inset-0 z-10`}></div>}
             <div className="w-full">
               <span className="text-sm font-medium" >Name</span>
-              <div className={`border border-border_color z-0 rounded-md overflow-hidden flex items-center relative ${!memberName && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
+              <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!memberName && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
                 <input
                   onClick={() => setShowList(false)}
                   className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color`}
@@ -315,7 +315,7 @@ export default function EditMemberDetails () {
                   value={formData.name?.name || ''}
                   onChange={handleInputChange}
                 />
-                <div onClick={() => handleShowList('selectMember')} className="cursor-pointer z-50 border border-border_color px-1 flex justify-center items-center rounded-md w-fit h-8 mr-[2px]">
+                <div onClick={() => handleShowList('selectMember')} className="cursor-pointer bg-main_background z-50 border border-border_color px-1 flex justify-center items-center rounded-md w-fit h-8 mr-[2px]">
                   <ChangeMember />
                 </div>
               </div>
@@ -525,7 +525,7 @@ export default function EditMemberDetails () {
       /> )}
       <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
-          <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} refreshList={refreshList} multiselect={'selectChildren' === showListFor} descendant={null} />
+          <MemberList forType={showListFor} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} multiselect={'selectChildren' === showListFor} descendant={null} />
         </div>
       </div>
     </div>
