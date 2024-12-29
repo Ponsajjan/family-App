@@ -187,17 +187,17 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
             onChange={handleInputChange}
             />
             <div className="flex justify-start items-center gap-2">
-            <p className="text-sm font-medium">Family descendant:</p>
-            {["Yes", "No"].map((option) => (
-                <RadioButton
-                key={option}
-                label={option}
-                name="descendant"
-                value={option} // "Yes" maps to true, "No" maps to false
-                checked={formData.descendant === option }
-                onChange={handleInputChange}
-                />
-            ))}
+                <p className="text-sm font-medium">Family descendant:</p>
+                {["Yes", "No"].map((option) => (
+                    <RadioButton
+                    key={option}
+                    label={option}
+                    name="descendant"
+                    value={option} // "Yes" maps to true, "No" maps to false
+                    checked={formData.descendant === option }
+                    onChange={handleInputChange}
+                    />
+                ))}
             </div>
             {(errors.descendant) && (
             <p className="text-red-500 text-sm">

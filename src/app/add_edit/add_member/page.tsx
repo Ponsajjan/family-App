@@ -4,16 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { AddMember, BackButton } from "@/utils/Icons";
 import Container from "@/components/Container";
-import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue } from "@/types/add__edit/add_member/types";
+import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue, AddMemberFormValueTypes, AddMemberFormErrorTypes } from "@/types/add__edit/add_member/types";
 import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateForm";
 import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
 
 export default function AddMemberDetails () {
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(AddMemberDefaultFormValue);
-  const [errors, setErrors] = useState(AddMemberDefaultErrorValue);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [formData, setFormData] = useState<AddMemberFormValueTypes>(AddMemberDefaultFormValue);
+  const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;

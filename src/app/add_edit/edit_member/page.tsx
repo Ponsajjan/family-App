@@ -6,79 +6,17 @@ import Container from "@/components/Container";
 import { ButtonSolid, LinkButtonOutline } from "@/components/Button";
 import Input from "@/components/Input";
 import RadioButton from "@/components/RadioButton";
-import Checkbox from "@/components/CheckBox";
 import MemberList from "@/components/MemberList";
-import { AddMember, BackButton, ChangeMember, CloseIcon, EditMember, ResetData } from "@/utils/Icons";
+import { BackButton, ChangeMember, EditMember, ResetData } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
+import { EditMemberDefaultFormErrorValue, EditMemberDefaultFormValue, EditMemberFormErrorTypes, EditMemberFormValueTypes } from "@/types/add__edit/edit_member/types";
 
 export default function EditMemberDetails () {
   const toast = useToast();
-  const [memberName, setMemberName] = useState('');
-  const [refreshList, setRefresh] = useState(true);
-  interface Member {
-    id: string;
-    name: string;
-  }
-  interface DefaultValue {
-    name: Member | null;
-    gender: "Male" | "Female" | undefined; // Gender is restricted to specific string literals
-    birth_date: string | null;
-    birth_month: string | null;
-    birth_year: string | null;
-    deceased: boolean;
-    death_date: string | null;
-    death_month: string | null;
-    death_year: string | null;
-    phone_number: string;
-    occupation: string;
-    education: string;
-    address: string;
-    descendant: string | undefined;
-    fatherId: string,
-    motherId: string,
-    hasPartner: boolean;
-    isParent: boolean;
-    fatherName: string;
-    motherName: string;
-    siblingName: string;
-  }
-
-  const defaultValue: DefaultValue = {
-    name: null,
-    gender: undefined,
-    birth_date: null,
-    birth_month: null,
-    birth_year: null,
-    deceased: false,
-    death_date: null,
-    death_month: null,
-    death_year: null,
-    phone_number: '',
-    occupation: '',
-    education: '',
-    address: '',
-    descendant: undefined,
-    fatherId: '',
-    motherId: '',
-    hasPartner: false,
-    isParent: false,
-    fatherName: '',
-    motherName: '',
-    siblingName: ''
-  };
-  const [prevData, setPrevData] = useState(defaultValue);
-  const [formData, setFormData] = useState(defaultValue);
-  const noError = { 
-    name: "",
-    birth_date: "",
-    birth_month: "",
-    birth_year: "",
-    death_year: "",
-    death_month: "",
-    death_date: "" 
-  }
-  const [errors, setErrors] = useState(noError);
+  const [formData, setFormData] = useState<EditMemberFormValueTypes>(EditMemberDefaultFormValue);
+  const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
   const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false);
   const [showListFor, setShowListFor] = useState('selectMember');
   const [showList, setShowList] = useState(false);
   
@@ -104,7 +42,6 @@ export default function EditMemberDetails () {
 
     // Clear error when input is updated
     setErrors((prev) => ({ ...prev, [name]: "" })); 
-    console.log('formdata', formData)
   };
 
   // show and hide death details fields based on checkbox
@@ -112,7 +49,7 @@ export default function EditMemberDetails () {
 
   const handleShowList = (field: string) => {
     setShowListFor(field);
-    setErrors(noError);
+    setErrors(EditMemberDefaultFormErrorValue);
     if (formData.name?.id) {
       setShowList(prev => !prev);
     } else {
@@ -121,7 +58,6 @@ export default function EditMemberDetails () {
   };
 
   const showWarning = (input: string) => {
-    console.log(input)
     if (toast) {
       toast.show(`Can not change ${input} for this user`, "warning", 5000);
     }
@@ -137,43 +73,41 @@ export default function EditMemberDetails () {
       
           const { data } = await response.json();
           const dbData = data[0];
-          console.log('dbDatadbDatadbData', dbData)
 
           const formatedDbData = {
-            name:  {id: `${dbData.id}`, name: `${dbData.name}`},
-            gender:  dbData.gender,
-            birth_date:  dbData.birthDate || null,
-            birth_month:  dbData.birthMonth || null,
-            birth_year:  dbData.birthYear || null,
+            name: {id: parseInt(`${dbData.id}`), name: `${dbData.name}`},
+            gender: dbData.gender ? dbData.gender === "Male" ? "Male" : "Female" : undefined,
+            birth_date: dbData.birthDate || null,
+            birth_month: dbData.birthMonth || null,
+            birth_year: dbData.birthYear || null,
             deceased: dbData.deceased,
-            death_date:  dbData.deathDate || null,
-            death_month:  dbData.deathMonth || null,
-            death_year:  dbData.deathYear || null,
-            phone_number:  dbData.phoneNumber,
-            occupation:  dbData.occupation,
-            education:  dbData.education,
-            address:  dbData.address,
+            death_date: dbData.deathDate || null,
+            death_month: dbData.deathMonth || null,
+            death_year: dbData.deathYear || null,
+            phone_number: dbData.phoneNumber,
+            occupation: dbData.occupation,
+            education: dbData.education,
+            address: dbData.address,
             descendant: (dbData.descendant == true) ? 'Yes' : 'No',
+
             fatherId: dbData.fatherId,
             motherId: dbData.motherId,
             hasPartner: dbData.partnerId ? true : false,
             isParent: (dbData.fatherOf.length > 0 || dbData.motherOf.length > 0) ? true : false,
-            fatherName: dbData.partnersRelation[0]?.fatherName,
-            motherName: dbData.partnersRelation[0]?.motherName,
-            siblingName: dbData.partnersRelation[0]?.SiblingsNames
+
+            father: dbData.partnersRelation[0]?.father,
+            mother: dbData.partnersRelation[0]?.mother,
+            sibling: dbData.partnersRelation[0]?.SiblingsNames
           }
-          setPrevData(formatedDbData)
           setFormData(formatedDbData);
-          setMemberName(dbData.name)
-          console.log('user', dbData)
         } catch (error: any) {
-            if (toast) {
-              toast.show(error.message || "Failed to update member", "error", 5000);
-            } else {
-              alert(error.message || "Failed to update member.");
-            }
+          if (toast) {
+            toast.show(error.message || "Failed to update member", "error", 5000);
+          } else {
+            alert(error.message || "Failed to update member.");
+          }
         } finally {
-            setLoading(false)
+          setLoading(false)
         }
       }
   
@@ -189,8 +123,7 @@ export default function EditMemberDetails () {
     if (formData.name?.name == 'undefined' || formData.name?.name == 'Undefined') errors.name = "Can not use this nane";
     if (formData.birth_date && !formData.birth_month) errors.birth_date = "Date of birth requires a month";
     if (formData.birth_month && !formData.birth_date) errors.birth_month = "Date of birth requires a date";
-    if (formData.birth_year && (!formData.birth_month || !formData.birth_date)) 
-      errors.birth_year = "Date and month are required";
+    if (formData.birth_year && (!formData.birth_month || !formData.birth_date)) errors.birth_year = "Date and month are required";
   
     if (formData.deceased) {
       if (formData.death_date && (!formData.death_month || !formData.death_year)) 
@@ -202,13 +135,6 @@ export default function EditMemberDetails () {
     return errors;
   };
 
-  const handleSwapData = () => {
-    setPrevData(prev => {
-        setFormData(prevData);
-        return formData;
-    });
-};
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
   
@@ -218,10 +144,8 @@ export default function EditMemberDetails () {
       return;
     }
   
-    console.log("Form submitted:", formData);
-  
     try {
-      setLoading(true);
+      setSubmitting(true);
   
       const deceased = formData.deceased;
       const descendant = formData.descendant === "Yes";
@@ -240,9 +164,9 @@ export default function EditMemberDetails () {
         education: formData.education,
         address: formData.address,
         descendant: descendant,
-        fatherName: descendant ? null : formData.fatherName, 
-        motherName: descendant ? null : formData.motherName,
-        siblingName: descendant ? null : formData.siblingName
+        father: descendant ? null : formData.father, 
+        mother: descendant ? null : formData.mother,
+        sibling: descendant ? null : formData.sibling
       };
   
       const response = await fetch(`/api/editMember/${formData.name?.id}`, {
@@ -265,10 +189,8 @@ export default function EditMemberDetails () {
         toast.show("Member updated successfully", "success", 5000);
       }
   
-      setFormData(defaultValue);
-      setMemberName("");
-      setErrors(noError);
-      setRefresh((prev) => !prev);
+      setFormData(EditMemberDefaultFormValue);
+      setErrors(EditMemberDefaultFormErrorValue);
     } catch (error: any) {
       if (toast) {
         toast.show(error.message || "Failed to update member", "error", 5000);
@@ -276,7 +198,7 @@ export default function EditMemberDetails () {
         alert(error.message || "Failed to update member.");
       }
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
   
@@ -295,18 +217,15 @@ export default function EditMemberDetails () {
                 <span><BackButton /></span>
               </Link>
               <p className="cursor-default text-2xl font-semibold text-text_color underline pl-3">
-                Edit {memberName ? memberName :'Member'}
+                Edit {formData.name?.name ? formData.name?.name  :'Member'}
               </p>
-            </div>
-            <div className="cursor-pointer" onClick={() => handleSwapData()}>
-              <ResetData />
             </div>
           </div>
           <form className="text-text_color relative" onSubmit={handleSubmit}>
-            {!memberName && <div onClick={() => handleShowList('selectMember')} className={`absolute inset-0 z-10`}></div>}
+            {!formData.name?.name  && <div onClick={() => handleShowList('selectMember')} className={`absolute inset-0 z-10`}></div>}
             <div className="w-full">
               <span className="text-sm font-medium" >Name</span>
-              <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!memberName && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
+              <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!formData.name?.name  && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
                 <input
                   onClick={() => setShowList(false)}
                   className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color`}
@@ -468,8 +387,8 @@ export default function EditMemberDetails () {
               value={formData.address || ''}
               onChange={handleInputChange}
             />
-            <div className="flex justify-start items-center mb-4 gap-2">
-              <p className="text-sm font-medium">Family descendant</p>
+            <div className="flex justify-start items-center gap-2">
+              <p className="text-sm font-medium">Family descendant:</p>
               {["Yes", "No"].map((option) => (
               <RadioButton
                 key={option}
@@ -481,23 +400,23 @@ export default function EditMemberDetails () {
               />
             ))}
             </div>
-            {formData?.descendant === 'No' && <div className="p-2 border border-border_color rounded-lg">
+            {formData?.descendant === 'No' && <div className="p-2 mt-4 border border-border_color rounded-lg">
             <div className="flex gap-2 mb-2">
               <div>
                 <Input
                   showOptional={true}
-                  name="motherName"
+                  name="mother"
                   label="Mother"
-                  value={formData.motherName || ''}
+                  value={formData.mother || ''}
                   onChange={handleInputChange}
                 />
               </div>
               <div>
                 <Input
                   showOptional={true}
-                  name="fatherName"
+                  name="father"
                   label="Father"
-                  value={formData.fatherName || ''}
+                  value={formData.father || ''}
                   onChange={handleInputChange}
                 />
               </div>
@@ -505,15 +424,15 @@ export default function EditMemberDetails () {
             <div>
               <Input
                 showOptional={true}
-                name="siblingName"
+                name="sibling"
                 label="Siblings"
                 placeholder="Name1, Name2, ..."
-                value={formData.siblingName || ''}
+                value={formData.sibling || ''}
                 onChange={handleInputChange}
               />
             </div>
           </div>}
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Update Details" />
+            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Update..." : "Add Member"} />
           </form>
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>

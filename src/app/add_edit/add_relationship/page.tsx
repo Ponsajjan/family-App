@@ -8,7 +8,7 @@ import MemberList from "@/components/MemberList";
 import { AddRelationship, BackButton } from "@/utils/Icons";
 import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
-import { AddRelationDefaultFormValue } from "@/types/add__edit/add_relationship/types";
+import { AddRelationDefaultFormValue, AddRelationFormValuesType } from "@/types/add__edit/add_relationship/types";
 import AddRelationShipForm from "@/components/forms/AddRelationShipForm";
 import { useToast } from "@/components/Toast";
 
@@ -16,11 +16,11 @@ export default function EditMemberDetails () {
   const toast = useToast();
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>();
   const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [newChildrenData, setNewChildrenData] = useState(AddRelationDefaultFormValue);
-  const [showListFor, setShowListFor] = useState('selectMember');
-  const [showList, setShowList] = useState(false);
+  const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
+  const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
+  const [showList, setShowList] = useState<boolean>(false);
 
   const {
     memberloading,
@@ -33,7 +33,7 @@ export default function EditMemberDetails () {
     selectedPartnerData,
     excludePartnerRelation} = useAddPartner({selectedPartnerId, selectedMemberData});
  
-  const handleShowList = (field: string) => {
+  const handleShowList = (field: 'selectMember' | 'selectChildren' | 'selectPartner') => {
     setShowListFor(field);
     setShowList(true);
   };
