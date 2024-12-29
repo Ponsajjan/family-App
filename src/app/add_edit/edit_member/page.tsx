@@ -228,7 +228,7 @@ export default function EditMemberDetails () {
               <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!formData.name?.name  && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
                 <input
                   onClick={() => setShowList(false)}
-                  className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color`}
+                  className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color disabled:cursor-not-allowed`}
                   type="text"
                   name="name"
                   value={formData.name?.name || ''}
@@ -360,6 +360,7 @@ export default function EditMemberDetails () {
               type="number"
               name="phone_number"
               label="Phone Number"
+              maxLength={14}
               value={formData.phone_number || ''}
               onChange={handleInputChange}
             />

@@ -1,6 +1,6 @@
 import Container from "@/components/Container";
 import { Birthday2, Deathday, Deathday2 } from "@/utils/Icons";
-import { format, differenceInYears } from 'date-fns';
+import { format } from 'date-fns';
 
 interface CalendarMonthlyDataProps {
   data: any;
@@ -36,6 +36,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
     data?.forEach((user:any) => {
       const categorizeEvent = (date:any, type:any) => {
         if (date && date.getMonth() === month) {
+            console.log('data', new Date(year, month), today, date)
           const eventDay = date.getDate();   
           // Calculate the current week's start (Monday) and end (Sunday)
           const currentDayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -43,15 +44,15 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
           const weekEndDate = weekStartDate + 6; // Sunday of the same week
       
           if (eventDay < todayDate) {
-            pastEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
+            pastEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay === todayDate) {
-            todayEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
+            todayEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay === todayDate + 1) {
-            tomorrowEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
+            tomorrowEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay > todayDate && eventDay <= weekEndDate) {
-            thisWeekEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
+            thisWeekEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else {
-            upcomingEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(today, date) });
+            upcomingEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           }
         }
       };
@@ -62,7 +63,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
   } else { //for other months
     data?.forEach((user:any) => {
       const selectedMonth = (date:any, type:any) => {
-        selectedMonthData.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : differenceInYears(new Date(year, month), date) });
+        selectedMonthData.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (new Date(year, month).getFullYear() - date.getFullYear()) });
       };
 
       if (user.birthday) selectedMonth(new Date(user.birthday), 'birthday');

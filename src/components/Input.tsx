@@ -24,7 +24,7 @@ const Input: React.FC<InputProps> = ({
               type={type}
               placeholder={placeholder}
               name={label}
-              className={`p-2 border border-border_color outline-none focus:border-border_active text-sm rounded-md w-full bg-field_color ${className}`}
+              className={`p-2 border border-border_color outline-none focus:border-border_active text-sm rounded-md w-full bg-field_color disabled:cursor-not-allowed ${className}`}
               {...restProps}
           />
       </label>
