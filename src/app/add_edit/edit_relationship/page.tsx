@@ -3,90 +3,43 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/Container";
-import { ButtonSolid, LinkButtonOutline } from "@/components/Button";
+import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton, ChangeMember, CloseIcon, Divorced, EditMember, ResetData } from "@/utils/Icons";
+import { AddRelationship, BackButton, ResetData } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { useRouter } from 'next/navigation';
+import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
+import EditRelationShipForm from "@/components/forms/EditRelationShipForm";
 
 export default function EditMemberDetails () {
   const toast = useToast();
   const router = useRouter();
-  const [memberName, setMemberName] = useState('');
-  const [refreshList, setRefresh] = useState(true);
-  const [noChanges, setNoChanges] = useState(true);
-  interface Member {
-    id: string;
-    name: string;
-  }
-  interface DefaultValue {
-    name: Member | null;
-    gender: string | undefined;
-    partner: Member | null;
-    children: Member[];
-  }
-
-  interface DefaultDelete {
-    partnerId: Member | null;
-    childrenId: any[];
-  }
-
-  const defaultValue: DefaultValue = {
-    name: null,
-    gender: undefined,
-    partner: null,
-    children: [],
-  };
-
-  const defaultDelete: DefaultDelete = {
-    partnerId: null,
-    childrenId: [],
-  };
-
-  const [previousData, setPreviousData] = useState(defaultValue);
-  const [formData, setFormData] = useState(defaultValue);
-  const [deleteData, setDeleteData] = useState(defaultDelete);
-
-  const [loading, setLoading] = useState(false);
-  const [showList, setShowList] = useState(false);
+  const [noChanges, setNoChanges] = useState<boolean>(true);
+  const [previousData, setPreviousData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
+  const [formData, setFormData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
+  const [deleteData, setDeleteData] = useState<DeleteValueTypes>(editRelationshipDefaultDeleteValue);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showList, setShowList] = useState<boolean>(false);
 
   const handleShowList = () => {
     setShowList(true)
   };
 
   useEffect(() => {
-    if (formData.name?.id) {
+    if (formData.name) {
       const fetchUser = async () => {
         try {
           setLoading(true)
-          const response = await fetch(`/api/editRelationship/${formData.name?.id}`);
+          const response = await fetch(`/api/editRelationship/${formData.name}`);
           if (!response.ok) throw new Error('Failed to fetch user details');
-      
           const { data } = await response.json();
-          const dbData = data[0];
-          // console.log('dbDatadbDatadbData', dbData)
-
-          // Determine children based on gender
-          const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
-
-          const formatedDbData = {
-            name:  {id: `${dbData.id}`, name: `${dbData.name}`},
-            // father: {id: `${dbData.father?.id}`, name: `${dbData.father?.name}`},
-            // mother: {id: `${dbData.mother?.id}`, name: `${dbData.mother?.name}`},
-            gender: dbData.gender,
-            partner: {id: `${dbData.partner?.id}`, name: `${dbData.partner?.name}`},
-            // children_id: childrenData ? childrenData.map((child: any) => child.id) : [],
-            children: childrenData ? childrenData : [],
-          }
-          setFormData(formatedDbData);
-          setMemberName(dbData.name)
-          setPreviousData(formatedDbData)
-          // console.log('user', dbData)
+          setFormData(data);
+          setPreviousData(data)
         } catch (error:any) {
             if (toast) {
-              toast.show(error.message || "Error fetching user details", "error", 5000)
+              toast.show(error.error || "Error fetching user details", "error", 5000)
             } else {
-              alert(error.message || 'Error fetching user details');
+              console.error(error.error || 'Error fetching user details');
             }
             router.push('/add_edit');
         } finally {
@@ -96,15 +49,14 @@ export default function EditMemberDetails () {
   
       fetchUser()
     }
-  }, [formData.name?.id])
+  }, [formData.name])
 
-  const handleRemoveChildrenValue = (item: any, key:any, id: string) => {
-    if (!key) return;
+  const handleRemoveChildrenValue = (id: number, name: string) => {
     setNoChanges(false);
     setFormData((prev: any) => {
-      if (Array.isArray(prev[key])) {
-        // Check if the item already exists
-        const exists = prev[key].some((entry: any) => entry.id === id);
+      if (Array.isArray(prev['children'])) {
+        // Check if the name already exists
+        const exists = prev['children'].some((entry: any) => entry.id === id);
   
         if (exists) {
            // If the entry exists, remove it and add it to setDeleteData
@@ -116,13 +68,13 @@ export default function EditMemberDetails () {
           // Remove the existing entry
           return {
             ...prev,
-            [key]: prev[key].filter((entry: any) => entry.id !== id),
+            ['children']: prev['children'].filter((entry: any) => entry.id !== id),
           };
         } else {
           // Add the new entry
           return {
             ...prev,
-            [key]: [...prev[key], { id, name: item }],
+            ['children']: [...prev['children'], { id, name: name }],
           };
         }
       }
@@ -130,7 +82,7 @@ export default function EditMemberDetails () {
       // If not an array, initialize with the first object
       return {
         ...prev,
-        [key]: { id, name: item },
+        ['children']: { id, name: name },
       };
     });
   };
@@ -139,7 +91,7 @@ export default function EditMemberDetails () {
     setNoChanges(false)
     setDeleteData((prev: any) => ({
       ...prev,
-      partnerId: parseInt(previousData.partner?.id || ''),
+      partnerId: previousData.partner?.id,
       childrenId: previousData.children?.map((child: any) => child.id) || [],
     }));
     setFormData((prev: any) => ({
@@ -153,7 +105,7 @@ export default function EditMemberDetails () {
     setNoChanges(false)
     setDeleteData((prev: any) => ({
       ...prev,
-      partnerId: parseInt(previousData.partner?.id || ''),
+      partnerId: previousData.partner?.id,
     }));
     setFormData((prev: any) => ({
       ...prev,
@@ -166,8 +118,6 @@ export default function EditMemberDetails () {
     setShowList(false)
   };
 
-  console.log("Form deleteData:", deleteData);
-  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (noChanges) {
@@ -176,8 +126,7 @@ export default function EditMemberDetails () {
   
     try {
       setLoading(true);
-  
-      const response = await fetch(`/api/editRelationship/${formData.name?.id}`, {
+      const response = await fetch(`/api/editRelationship/${formData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -202,9 +151,8 @@ export default function EditMemberDetails () {
         toast.show("Member updated successfully", "success", 5000);
       }
   
-      setFormData(defaultValue);
-      setMemberName("");
-      setRefresh((prev) => !prev);
+      setFormData(editRelationshipDefaultFormValue);
+      setDeleteData(editRelationshipDefaultDeleteValue);
       setNoChanges(true)
     } catch (error: any) {
       console.error("Error updating member:", error);
@@ -238,79 +186,14 @@ export default function EditMemberDetails () {
             </div>
             <div className="cursor-pointer" onClick={() => setFormData(previousData)}><ResetData /></div>
           </div>
-          <form className="text-text_color relative" onSubmit={handleSubmit}>
-            {!memberName && <div onClick={() => handleShowList()} className={`absolute inset-0 z-10`}></div>}
-            <p className="text-sm">Member</p>
-            <div 
-              onClick={() => handleShowList()} 
-              className={`w-full flex justify-between ${!formData.name || formData.name?.name == 'undefined' ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer`} 
-            >
-              {formData.name && formData.name?.name !== 'undefined' ? 
-                <>
-                  <span className="py-2 w-full">{formData.name?.name}</span> 
-                  <span><ChangeMember /></span>
-                </> :
-                <span className='py-2 w-full text-gray-400'>Select Member</span>}
-            </div>
-
-
-
-
-
-            {!formData.name || formData.name?.name === 'undefined' ? 
-              <>
-                <p className="text-sm">Partner</p>
-                <div className="w-full px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer" >
-                  <span className='block py-2 w-full text-gray-400'>Select Partner</span> 
-                </div>
-              </> :
-              formData.partner && formData.partner?.name !== 'undefined' ? 
-              <>
-                <p className="text-sm">Partner</p>
-                <div className="w-full flex justify-between items-center pl-2 pr-[3px] border bg-field_color border-border_color text-sm rounded-md mb-2" >
-                  <span className="py-2 w-full">{formData.partner?.name}</span>
-                  <div className="flex gap-2 items-center border border-border_color px-2 py-0.5 rounded-md">
-                    <span 
-                      onClick={() => handleDivorcePartner()}
-                      className="block border-r border-border_color w-9 h-6 pr-3 cursor-pointer">
-                      <Divorced />
-                    </span>
-                    <span
-                      onClick={() => handleRemovePartnerValue()}
-                      className="block h-fit cursor-pointer">
-                      <CloseIcon />
-                    </span>
-                  </div>
-                </div>
-              </>: 
-              <></>
-            }
-
-
-
-
-
-
-
-
-
-
-            {formData.children.length > 0 && 
-            <>
-              <p className="text-sm">Children</p>
-              {formData.children?.map((item: {id:any, name:string}, index:number) => (
-                <div key={index} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
-                  <span className="py-2 w-full">{item?.name}</span>
-                  {formData.children.length > 0 && <span
-                    onClick={() => handleRemoveChildrenValue(item?.name, 'children', item?.id)}
-                    className="border border-border_color rounded-md h-fit  cursor-pointer">
-                    <CloseIcon />
-                  </span>}
-                </div>)
-              )}
-            </>}
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Update Details" />
-          </form>
+          <EditRelationShipForm 
+            handleShowList={handleShowList}
+            handleRemovePartnerValue={handleRemovePartnerValue}
+            handleDivorcePartner={handleDivorcePartner}
+            handleRemoveChildrenValue={handleRemoveChildrenValue}
+            handleSubmit={handleSubmit}
+            formData={formData}
+          />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>
       </Container>

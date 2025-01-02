@@ -135,7 +135,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
 
   
   return (
-    <Container>
+    <Container className='pl-3 pr-[6px] scroll-stable'>
       <div className="hidden md:block pt-3 sticky top-0 bg-main_background z-10"></div>
       {renderEventList(todayEvents, "Today")}
       {renderEventList(tomorrowEvents, "Tomorrow")}

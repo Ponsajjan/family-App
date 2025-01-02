@@ -11,13 +11,14 @@ export async function GET(request: Request, context: any) {
     }
 
     try {
-      const data = await prisma.member.findMany({
+      const dbData = await prisma.member.findMany({
         where: {
           id: id,
         },
         select: {
           id: true,
           name: true,
+          verified: true,
           gender: true,
           phoneNumber: true,
           address: true,
@@ -30,23 +31,51 @@ export async function GET(request: Request, context: any) {
           deathDate: true,
           deathMonth: true,
           deathYear: true,
-          additionalInfo: true,
           descendant: true,
           partnerId: true,
           fatherId: true,
           motherId: true,
           fatherOf: true,
           motherOf: true,
-          partnersRelation: {
+          nonDescendantRelation: {
             select: {
               id: true,
               fatherName: true,
               motherName: true,
-              SiblingsNames: true,
+              siblingNames: true,
             },
           },
         },
       });
+
+      const member = dbData[0];
+      const data = {
+        formData: {
+          id: member.id,
+          name: member.name,
+          gender: member.gender,
+          birth_date: member.birthDate,
+          birth_month: member.birthMonth,
+          birth_year: member.birthYear,
+          deceased: member.deceased,
+          death_date: member.deathDate,
+          death_month: member.deathMonth,
+          death_year: member.deathYear,
+          phone_number: member.phoneNumber,
+          occupation: member.occupation,
+          education: member.education,
+          address: member.address,
+          descendant: (member.descendant === true) ? 'Yes' : 'No',
+          father: member.nonDescendantRelation?.[0]?.fatherName,
+          mother: member.nonDescendantRelation?.[0]?.motherName,
+          siblings: member.nonDescendantRelation?.[0]?.siblingNames,
+        },
+        allowEdit: {
+          dataLocked: member.verified,
+          editGender: (member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId),
+          editDescendant: (member.fatherId || member.motherId)
+        }
+      }
 
       return NextResponse.json({ data });
     } catch (error) {
@@ -163,20 +192,20 @@ export async function PUT(request: Request, context: any) {
 
 
 
-    // Handle `partnersRelation` update if descendant is false
+    // Handle `nonDescendantRelation` update if descendant is false
     if (updatedData.descendant === false) {
-      await prisma.partnersRelation.upsert({
+      await prisma.nonDescendantRelation.upsert({
         where: { memberId: memberId },
         update: {
-          fatherName: updatedData.fatherName ? capitalizeWords(updatedData.fatherName) : null,
-          motherName: updatedData.motherName ? capitalizeWords(updatedData.motherName) : null,
-          SiblingsNames: updatedData.siblingName ? capitalizeWords(updatedData.siblingName) : null,
+          fatherName: updatedData.father ? capitalizeWords(updatedData.father) : null,
+          motherName: updatedData.mother ? capitalizeWords(updatedData.mother) : null,
+          siblingNames: updatedData.siblings ? capitalizeWords(updatedData.siblings) : null,
         },
         create: {
           memberId: memberId,
-          fatherName: updatedData.fatherName ? capitalizeWords(updatedData.fatherName) : null,
-          motherName: updatedData.motherName ? capitalizeWords(updatedData.motherName) : null,
-          SiblingsNames: updatedData.siblingName ? capitalizeWords(updatedData.siblingName) : null,
+          fatherName: updatedData.father ? capitalizeWords(updatedData.father) : null,
+          motherName: updatedData.mother ? capitalizeWords(updatedData.mother) : null,
+          siblingNames: updatedData.siblings ? capitalizeWords(updatedData.siblings) : null,
         },
       });
     }

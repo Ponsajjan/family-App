@@ -11,7 +11,7 @@ import { useToast } from '@/components/Toast';
 import Link from 'next/link';
 
 interface EachMember {
-  id: string;
+  id: number;
   name: string;
 }
 interface Member {
@@ -207,7 +207,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
                         </div>
                         <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
                         {(member?.father || member?.mother) ? (
-                            <>
+                          <>
                             <span className="pr-1 font-semibold">
                                 Parents:
                             </span>
@@ -221,16 +221,16 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
                                     {member?.mother.name}
                                 </span>
                             )}
-                            </>
+                          </>
                         ) : member?.partner ? (
-                            <div>
-                                <span className="pr-1 font-semibold">
-                                    Partner:
-                                </span>
-                                <span className='pr-1'>
-                                    {member?.partner.name}
-                                </span>
-                            </div>
+                          <div>
+                            <span className="pr-1 font-semibold">
+                              Partner:
+                            </span>
+                            <span className='pr-1'>
+                              {member?.partner.name}
+                            </span>
+                          </div>
                         ) : 'No relationship assigned yet'}
                         </div>
                       </div>
@@ -248,7 +248,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
               ? <p className='text-center pt-10 pb-4'>No family members with partner unassigned</p> 
               : <p className='text-center pt-10 pb-4'>No member with partner unassigned</p>
             : ''}
-            <div className='mx-auto w-fit border border-border_color px-4 py-0.5 rounded-full font-medium'><Link href='/add_edit/add_member'> Add Member +</Link></div>
+            <div className='mx-auto w-fit border border-border_color px-4 py-0.5 rounded-full font-medium mt-16'><Link href='/add_edit/add_member'> Add Member +</Link></div>
           </>  
         }
         </div>

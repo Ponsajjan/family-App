@@ -5,13 +5,13 @@ export async function POST(request: Request) {
   try {
     // Utility function to capitalize each word
     const capitalizeWords = (str: string) => {
-      return str.replace(/\b\w/g, (char) => char.toUpperCase());
+      return str.replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
     };
 
     // Parse the JSON payload from the request body
     const formData = await request.json(); 
     const deceased = formData.deceased === true; // Handle as a boolean
-
+    
     const user = {
       name: capitalizeWords(formData.name),
       gender: formData.gender,
@@ -40,12 +40,12 @@ export async function POST(request: Request) {
     });
 
     if (formData.descendant === false) {
-      await prisma.partnersRelation.create({
+      await prisma.nonDescendantRelation.create({
         data: {
           fatherName: formData.father ? capitalizeWords(formData.father) : null,
           motherName: formData.mother ? capitalizeWords(formData.mother) : null,
-          SiblingsNames: formData.siblings ? capitalizeWords(formData.siblings) : null,
-          memberId: newMember.id, // Link PartnersRelation to the newly created Member
+          siblingNames: formData.siblings ? formData.siblings.map((sibling: string) => capitalizeWords(sibling)).join(", ") : null,
+          memberId: newMember.id, // Link nonDescendantRelation to the newly created Member
         },
       });
     }

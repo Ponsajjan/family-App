@@ -7,7 +7,7 @@ import React from 'react';
 export default function Details({ data, openDetails }: any) {
 
     return (
-        <Container className='text-text_color py-6 px-4 relative bg-main_background'>
+        <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
             <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
             <div className='flex gap-2 items-center w-full pb-3'>
                 <div className='border border-border_color p-2 rounded-md relative'>
@@ -45,9 +45,9 @@ export default function Details({ data, openDetails }: any) {
                 data?.partner ||
                 data?.fatherOf?.length > 0 ||
                 data?.motherOf?.length > 0 ||
-                data?.partnersRelation[0]?.fatherName ||
-                data?.partnersRelation[0]?.motherName ||
-                data?.partnersRelation[0]?.SiblingsNames) &&
+                data?.nonDescendantRelation[0]?.fatherName ||
+                data?.nonDescendantRelation[0]?.motherName ||
+                data?.nonDescendantRelation[0]?.siblingNames) &&
             <>
                 <div className='flex pt-3 items-center'>
                     <p className='font-semibold whitespace-nowrap pr-4'>Relation Information</p>
@@ -75,23 +75,23 @@ export default function Details({ data, openDetails }: any) {
                             </>
                         )}
 
-                        {!data?.deceased && data?.partnersRelation[0]?.fatherName && (
+                        {!data?.deceased && data?.nonDescendantRelation[0]?.fatherName && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                <div className='w-3/5 md:leading-7'>{data?.partnersRelation[0]?.fatherName}</div>
+                                <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.fatherName}</div>
                             </>
                         )}
-                        {!data?.deceased && data?.partnersRelation[0]?.motherName && (
+                        {!data?.deceased && data?.nonDescendantRelation[0]?.motherName && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                <div className='w-3/5 md:leading-7'>{data?.partnersRelation[0]?.motherName}</div>
+                                <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.motherName}</div>
                             </>
                         )}
 
-                        {!data?.deceased && data?.partnersRelation[0]?.SiblingsNames && (
+                        {!data?.deceased && data?.nonDescendantRelation[0]?.siblingNames && (
                         <>
                             <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                            <div className='w-3/5 md:leading-7'>{data?.partnersRelation[0]?.SiblingsNames}</div>
+                            <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.siblingNames}</div>
                         </>
                         )}
 

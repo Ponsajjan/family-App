@@ -11,68 +11,68 @@ datasource db {
 }
 
 model Member {
-  id                    Int                   @id @default(autoincrement())
-  // dataLocked            Boolean               @default(false)
-  name                  String
-
-  birthDate             Int?
-  birthMonth            Int?
-  birthYear             Int?
-
-  deceased              Boolean               @default(false)
-
-  deathDate             Int?
-  deathMonth            Int?
-  deathYear             Int?
-  
-  gender                String?
-  phoneNumber           String?
-  address               String?
-  occupation            String?
-  education             String?
-  additionalInfo        MemberEditRequest[]
-  descendant            Boolean               @default(false)
+  id                         Int                   @id @default(autoincrement())
+  verified                   Boolean?              @default(false)
+  name                       String
+     
+  birthDate                  Int?
+  birthMonth                 Int?
+  birthYear                  Int?
+     
+  deceased                   Boolean               @default(false)
+     
+  deathDate                  Int?
+  deathMonth                 Int?
+  deathYear                  Int?
+       
+  gender                     String?
+  phoneNumber                String?
+  address                    String?
+  occupation                 String?
+  education                  String?
+  additionalInfo             MemberEditRequest[]
+  descendant                 Boolean               @default(false)
   // Family relationships
-  fatherId              Int?                  // Foreign key for father
-  motherId              Int?                  // Foreign key for mother
-  partnerId             Int?                  // Foreign key for partner
+  fatherId                   Int?                  // Foreign key for father
+  motherId                   Int?                  // Foreign key for mother
+  partnerId                  Int?                  // Foreign key for partner
 
-  partnersRelation      PartnersRelation[]
+  nonDescendantRelation      nonDescendantRelation[]
 
-  father                Member?               @relation("FatherOfChildren", fields: [fatherId], references: [id])
-  mother                Member?               @relation("MotherOfChildren", fields: [motherId], references: [id])
+  father                     Member?               @relation("FatherOfChildren", fields: [fatherId], references: [id])
+  mother                     Member?               @relation("MotherOfChildren", fields: [motherId], references: [id])
   
   // get Partner Pair values
-  partner               Member?               @relation("PartnerRelation", fields: [partnerId], references: [id])
-  partnerOf             Member[]              @relation("PartnerRelation")  // Opposite relation for partner
+  partner                    Member?               @relation("PartnerRelation", fields: [partnerId], references: [id])
+  partnerOf                  Member[]              @relation("PartnerRelation")  // Opposite relation for partner
 
   // Children having member as father list
-  fatherOf              Member[]              @relation("FatherOfChildren") // Opposite relation for father
-  motherOf              Member[]              @relation("MotherOfChildren") // Opposite relation for mother
+  fatherOf                   Member[]              @relation("FatherOfChildren") // Opposite relation for father
+  motherOf                   Member[]              @relation("MotherOfChildren") // Opposite relation for mother
   
   // Handled automaticly by prisma
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
+  createdAt                  DateTime              @default(now())
+  updatedAt                  DateTime              @updatedAt
 }
 
 model MemberEditRequest {
-  id                    Int                   @id @default(autoincrement())
-  details               String
-  member                Member                @relation(fields: [memberId], references: [id])
-  memberId              Int
+  id                         Int                   @id @default(autoincrement())
+  details                    String
+  member                     Member                @relation(fields: [memberId], references: [id])
+  memberId                   Int
 }
 
-model PartnersRelation {
-  id                    Int                   @id @default(autoincrement())
-  memberId              Int                   @unique // Ensure memberId is unique
-  fatherName            String?
-  motherName            String?
-  // SiblingsNames         String[]
-  // SiblingsNames         Json 
-  SiblingsNames         String? 
-  member                Member                @relation(fields: [memberId], references: [id])
+model nonDescendantRelation {
+  id                         Int                   @id @default(autoincrement())
+  memberId                   Int                   @unique // Ensure memberId is unique
+  fatherName                 String?
+  motherName                 String?
+  // siblingNames            String[]
+  // siblingNames            Json 
+  siblingNames               String? 
+  member                     Member                @relation(fields: [memberId], references: [id])
 
   // Automatically handled by Prisma
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
 }

@@ -45,12 +45,12 @@ export async function GET(request: Request, context: any) {
         motherOf: {
           select: { name: true },
         },
-        partnersRelation: {
+        nonDescendantRelation: {
           select: {
             id: true,
             fatherName: true,
             motherName: true,
-            SiblingsNames: true,
+            siblingNames: true,
           },
         },
       },

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AddMember, BackButton } from "@/utils/Icons";
 import Container from "@/components/Container";
 import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue, AddMemberFormValueTypes, AddMemberFormErrorTypes } from "@/types/add__edit/add_member/types";
-import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateForm";
+import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateAddMemberForm";
 import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
 
@@ -54,7 +54,7 @@ export default function AddMemberDetails () {
         mother: descendant ? null : formData.mother,
         siblings: descendant ? null : formData.siblings
       };
-    
+      console.log('memberData', memberData)
       // API Call
       const response = await fetch("/api/addMember", {
         method: "POST",

@@ -1,25 +1,25 @@
 /*
   Warnings:
 
-  - Added the required column `updatedAt` to the `PartnersRelation` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `updatedAt` to the `nonDescendantRelation` table without a default value. This is not possible if the table is not empty.
 
 */
 -- RedefineTables
 PRAGMA defer_foreign_keys=ON;
 PRAGMA foreign_keys=OFF;
-CREATE TABLE "new_PartnersRelation" (
+CREATE TABLE "new_nonDescendantRelation" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "memberId" INTEGER NOT NULL,
     "fatherName" TEXT,
     "motherName" TEXT,
-    "SiblingsNames" TEXT,
+    "siblingNames" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "PartnersRelation_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "nonDescendantRelation_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
-INSERT INTO "new_PartnersRelation" ("SiblingsNames", "fatherName", "id", "memberId", "motherName") SELECT "SiblingsNames", "fatherName", "id", "memberId", "motherName" FROM "PartnersRelation";
-DROP TABLE "PartnersRelation";
-ALTER TABLE "new_PartnersRelation" RENAME TO "PartnersRelation";
-CREATE UNIQUE INDEX "PartnersRelation_memberId_key" ON "PartnersRelation"("memberId");
+INSERT INTO "new_nonDescendantRelation" ("siblingNames", "fatherName", "id", "memberId", "motherName") SELECT "siblingNames", "fatherName", "id", "memberId", "motherName" FROM "nonDescendantRelation";
+DROP TABLE "nonDescendantRelation";
+ALTER TABLE "new_nonDescendantRelation" RENAME TO "nonDescendantRelation";
+CREATE UNIQUE INDEX "nonDescendantRelation_memberId_key" ON "nonDescendantRelation"("memberId");
 PRAGMA foreign_keys=ON;
 PRAGMA defer_foreign_keys=OFF;

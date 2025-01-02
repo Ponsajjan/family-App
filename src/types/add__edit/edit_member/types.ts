@@ -1,29 +1,22 @@
-interface Member {
-    id: number | null;
-    name: string;
-  }
 export interface EditMemberFormValueTypes {
-    name: Member | null;
-    gender: string | undefined; // Gender is restricted to specific string literals
-    birth_date: string | null;
-    birth_month: string | null;
-    birth_year: string | null;
+    id: number | null,
+    name: string;
+    gender: 'Male' | 'Female' | undefined;
+    birth_date: string | number | null;
+    birth_month: string | number | null;
+    birth_year: string | number | null;
     deceased: boolean;
-    death_date: string | null;
-    death_month: string | null;
-    death_year: string | null;
-    phone_number: string;
+    death_date: string | number | null;
+    death_month: string | number | null;
+    death_year: string | number | null;
+    phone_number: string | number | null;
     occupation: string;
     education: string;
     address: string;
     descendant: string | undefined;
-    fatherId: string,
-    motherId: string,
-    hasPartner: boolean;
-    isParent: boolean;
     father: string;
     mother: string;
-    sibling: string;
+    siblings: string;
 };
 
 export interface EditMemberFormErrorTypes {
@@ -37,7 +30,8 @@ export interface EditMemberFormErrorTypes {
 }
 
 export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
-    name: null,
+    id: null,
+    name: '',
     gender: undefined,
     birth_date: null,
     birth_month: null,
@@ -46,18 +40,14 @@ export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
     death_date: null,
     death_month: null,
     death_year: null,
-    phone_number: '',
+    phone_number: null,
     occupation: '',
     education: '',
     address: '',
     descendant: undefined,
-    fatherId: '',
-    motherId: '',
-    hasPartner: false,
-    isParent: false,
     father: '',
     mother: '',
-    sibling: ''
+    siblings: ''
 };
 
 export const EditMemberDefaultFormErrorValue: EditMemberFormErrorTypes = {
@@ -69,3 +59,14 @@ export const EditMemberDefaultFormErrorValue: EditMemberFormErrorTypes = {
     death_month: '',
     death_date: ''
 };
+
+export interface AllowedEditTypes {
+    dataLocked: boolean,
+    editGender: boolean,
+    editDescendant: boolean
+}
+export const DefaultAllowedEdits: AllowedEditTypes = {
+    dataLocked: false,
+    editGender: false,
+    editDescendant: false
+}

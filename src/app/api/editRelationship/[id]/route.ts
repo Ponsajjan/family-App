@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server";
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from "@/db/db";
+import { Children } from "react";
 
 export async function GET(request: Request, context: any) {
     const url = new URL(request.url);
     const id = parseInt(url.pathname.split('/').pop() || '');
-    
     if (!id) {
       return NextResponse.json({ error: "Member ID is required and should be a valid number." });
     }
-
     try {
-      const data = await prisma.member.findMany({
+      const dbData = await prisma.member.findMany({
         where: {
           id: id,
         },
@@ -28,17 +27,25 @@ export async function GET(request: Request, context: any) {
           fatherOf: {
             select: {
               id: true,
-              name: true, // Fetch only id and name of the children if the member is a father
+              name: true,
             },
           },
           motherOf: {
             select: {
               id: true,
-              name: true, // Fetch only id and name of the children if the member is a mother
+              name: true,
             },
           },
         },
       });
+      const member = dbData[0]
+      const data = {
+        id: member.id,
+        name: member.name,
+        gender: member.gender,
+        partner: member.partner,
+        children: member.fatherOf.length > 0 ? member.fatherOf : (member.motherOf.length > 0 ? member.motherOf : [])
+      }
 
       return NextResponse.json({ data });
     } catch (error) {

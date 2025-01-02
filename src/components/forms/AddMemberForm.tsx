@@ -86,9 +86,9 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 onChange={handleInputChange}
                 />
             </div>
-            {(errors.birth_date || errors.birth_month || errors.birth_year) && (
+            {(errors.birth_day) && (
                 <p className="text-red-500 text-sm">
-                {errors.birth_date || errors.birth_month || errors.birth_year}
+                {errors.birth_day}
                 </p>
             )}
             </div>
@@ -146,9 +146,9 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                     onChange={handleInputChange}
                 />
                 </div>
-                {(errors.death_month || errors.death_year || errors.death_date) && (
+                {(errors.death_day) && (
                 <p className="text-red-500 text-sm mt-2">
-                    {errors.death_year || errors.death_month || errors.death_date}
+                    {errors.death_day}
                 </p>
                 )}
             </div>

@@ -21,12 +21,8 @@ export interface AddMemberFormValueTypes {
 export interface AddMemberFormErrorTypes {
     name?: string,
     gender?: string,
-    birth_date?: string,
-    birth_month?: string,
-    birth_year?: string,
-    death_year?: string,
-    death_month?: string,
-    death_date?: string,
+    birth_day?: string,
+    death_day?: string,
     descendant?: string,
 }
 
@@ -53,11 +49,7 @@ export const AddMemberDefaultFormValue: AddMemberFormValueTypes = {
 export const AddMemberDefaultErrorValue: AddMemberFormErrorTypes = { 
     name: '',
     gender: '',
-    birth_date: '',
-    birth_month: '',
-    birth_year: '',
-    death_year: '',
-    death_month: '',
-    death_date: '',
+    birth_day: '',
+    death_day: '',
     descendant: '',
   };

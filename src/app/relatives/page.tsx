@@ -145,13 +145,13 @@ export default function Relatives() {
   return (
     <div className="w-full">
       <Topnav>
-        <div className="relative w-full ml-2">
+        <div className="relative w-full md:w-64 ml-auto mr-0">
           <input
             value={searchInput}
             onChange={(e)=> handleAssemblySearch(e.target.value)}
             type="text"
             placeholder="Search"
-            className="ml-auto peer mr-0 input-not-placeholder block p-1 pl-4 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md  bg-main_background"
+            className="ml-auto peer mr-0 input-not-placeholder block p-1 pl-4 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
           />
           <span className="absolute right-[5px] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
             <SearchIcon />

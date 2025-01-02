@@ -18,11 +18,11 @@ CREATE TABLE "MemberEditRequest" (
 );
 
 -- CreateTable
-CREATE TABLE "PartnersRelation" (
+CREATE TABLE "nonDescendantRelation" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "fatherName" TEXT,
     "motherName" TEXT,
-    "SiblingsNames" TEXT,
+    "siblingNames" TEXT,
     "memberId" INTEGER NOT NULL,
-    CONSTRAINT "PartnersRelation_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "nonDescendantRelation_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
