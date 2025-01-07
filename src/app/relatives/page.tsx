@@ -103,17 +103,6 @@ export default function Relatives() {
       container?.removeEventListener('scroll', handleScroll);
     };
   }, [params]);
-      
-  // Optimize groupedUsers calculation
-  const groupedUsers = useMemo(() => {
-    return members.reduce((acc: Record<string, any[]>, user) => {
-      const initial = user.name?.charAt(0).toUpperCase();
-      if (!initial) return acc;
-      acc[initial] = acc[initial] || [];
-      acc[initial].push(user);
-      return acc;
-    }, {});
-  }, [members]);
 
   const handleShowDetails = async (user_id: string | number) => {
     try {
@@ -141,7 +130,7 @@ export default function Relatives() {
     const regex = new RegExp(`(${searchText})`, 'gi'); // Match search term case-insensitively
     return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>'); // Wrap matches with a span
   }
-  console.log('hihello', members)
+
   return (
     <div className="w-full">
       <Topnav>
@@ -165,62 +154,59 @@ export default function Relatives() {
         {/* Left panel: User List */}
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
           <div className='md:pt-4'></div>
-          {!loadingList && !groupedUsers ? (
+          {!loadingList && !members ? (
           <p className='p-4'>No members found.</p>
           ) : 
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
-              {(Object.keys(groupedUsers).sort().map((letter) => (
-                <div key={letter}>                                
-                  <div className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10 pb-1">
-                    <span className="font-semibold pr-1 whitespace-nowrap">{letter}</span>
-                    <span className="border-t border-border_color block w-full"></span>
-                  </div>
-                  {/* Render list of members */}
-                  {groupedUsers[letter].map((user: any) => (
-                    <div key={user.id} className="pl-4">
-                      <div className="border-l border-border_color pt-1 pb-2 pl-4 pr-3">
-                        <div 
-                          onClick={() => handleShowDetails(user.id)} 
-                          className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
-                        >
-                          <div>
-                            <div className="flex flex-wrap gap-2">
-                              {user.gender === "Male" ? <Male /> : <Female />}
-                              <div
-                                className="font-semibold"
-                                dangerouslySetInnerHTML={{
-                                __html: highlightText(user.name, searchInput),
-                              }}
-                              />
+              {members.map((user: any) => (
+                user.gender === "Letter" ?
+                <div key={user.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10 pb-1">
+                  <span className="font-semibold pr-1 whitespace-nowrap">{user.name}</span>
+                  <span className="border-t border-border_color block w-full"></span>
+                </div> :
+                <div key={user.id} className="pl-4">
+                  <div className="border-l border-border_color pt-1 pb-2 pl-4 pr-3">
+                    <div 
+                      onClick={() => handleShowDetails(user.id)} 
+                      className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
+                    >
+                      <div>
+                        <div className="flex flex-wrap gap-2">
+                          {user.gender === "Male" && <Male /> }
+                          {user.gender === "Female" && <Female />}
+                          <div
+                            className="font-semibold"
+                            dangerouslySetInnerHTML={{
+                            __html: highlightText(user.name, searchInput),
+                          }}
+                          />
+                        </div>
+                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                            {/* Render other details as usual */}
+                            {(user.father || user.mother) ? (
+                            <>
+                              <span className="pr-1 font-semibold">Parents:</span>
+                              {user.father && <span className="pr-1">{user.father.name},</span>}
+                              {user.mother && <span className="pr-1">{user.mother.name}</span>}
+                            </>
+                            ) : user.partner ? (
+                            <div>
+                              <span className="pr-1 font-semibold">Partner:</span>
+                              <span className="pr-1">{user.partner.name}</span>
                             </div>
-                            <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                                {/* Render other details as usual */}
-                                {(user.father || user.mother) ? (
-                                <>
-                                  <span className="pr-1 font-semibold">Parents:</span>
-                                  {user.father && <span className="pr-1">{user.father.name},</span>}
-                                  {user.mother && <span className="pr-1">{user.mother.name}</span>}
-                                </>
-                                ) : user.partner ? (
-                                <div>
-                                  <span className="pr-1 font-semibold">Partner:</span>
-                                  <span className="pr-1">{user.partner.name}</span>
-                                </div>
-                                ) : 'No relationship assigned yet'}
-                            </div>
-                          </div>
-                          {user.phoneNumber && (
-                          <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${user.phoneNumber}`}>
-                            <Call />
-                          </Link>
-                          )}
+                            ) : 'No relationship assigned yet'}
                         </div>
                       </div>
+                      {user.phoneNumber && (
+                      <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${user.phoneNumber}`}>
+                        <Call />
+                      </Link>
+                      )}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              )))}
+              ))}
               <div className="h-10 px-4 py-2">
                 {loadingList && <p>Loading....</p>}
                 {!loadingList && !hasMore && <p>,,,</p> }

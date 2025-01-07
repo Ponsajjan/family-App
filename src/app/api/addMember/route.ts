@@ -3,19 +3,14 @@ import prisma from "@/db/db"; // Adjust the import path as needed
 
 export async function POST(request: Request) {
   try {
-    // Utility function to capitalize each word
-    const capitalizeWords = (str: string) => {
-      return str.replace(/\b\w/g, (char) => char.toUpperCase()).replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
-    };
-
     // Parse the JSON payload from the request body
     const formData = await request.json(); 
     const deceased = formData.deceased === true; // Handle as a boolean
     
     const user = {
-      name: capitalizeWords(formData.name),
+      name: formData.name,
       gender: formData.gender,
-      birthDate: formData.birthDate ? parseInt(formData.birthDate, 10) : null,
+      birthDate: formData.birthDate ? formData.birthDate : null,
       birthMonth: formData.birthMonth ? parseInt(formData.birthMonth, 10) : null,
       birthYear: formData.birthYear ? parseInt(formData.birthYear, 10) : null,
       deceased: deceased,
@@ -42,9 +37,9 @@ export async function POST(request: Request) {
     if (formData.descendant === false) {
       await prisma.nonDescendantRelation.create({
         data: {
-          fatherName: formData.father ? capitalizeWords(formData.father) : null,
-          motherName: formData.mother ? capitalizeWords(formData.mother) : null,
-          siblingNames: formData.siblings ? formData.siblings.map((sibling: string) => capitalizeWords(sibling)).join(", ") : null,
+          fatherName: formData.father ? formData.father : null,
+          motherName: formData.mother ? formData.mother : null,
+          siblingNames: formData.siblings ? formData.siblings : null,
           memberId: newMember.id, // Link nonDescendantRelation to the newly created Member
         },
       });

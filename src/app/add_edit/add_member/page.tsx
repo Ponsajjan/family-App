@@ -26,9 +26,15 @@ export default function AddMemberDetails () {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // if (toast) {
+    //   toast.show("Test Toast An unexpected error occurred An unexpected error occurred", "error", 5000);
+    // }
+
     const errorMessage = validateAddMemberForm(formData);  
     if (Object.keys(errorMessage).length) {
       setErrors(errorMessage);
+      alert((Object.keys(errorMessage)));
       return;
     }
     try {
@@ -79,6 +85,7 @@ export default function AddMemberDetails () {
       }
 
       setFormData(AddMemberDefaultFormValue);
+      setErrors(AddMemberDefaultErrorValue);
     } catch (error: any) {
       if (toast) {
         toast.show(error.error || "An unexpected error occurred.", "error", 5000);

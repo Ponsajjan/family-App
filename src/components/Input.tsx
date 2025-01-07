@@ -28,7 +28,7 @@ const Input: React.FC<InputProps> = ({
               {...restProps}
           />
       </label>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </>
   )
 }

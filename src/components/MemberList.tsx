@@ -1,8 +1,7 @@
 'use client';
 
-import { Female, Filter, FilterClose, FilterSelect, Male, SearchIcon } from '@/utils/Icons';
+import { Female, FilterClose, FilterSelect, Male, SearchIcon } from '@/utils/Icons';
 import React, { useEffect, useState } from 'react';
-import Container from "@/components/Container";
 import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';

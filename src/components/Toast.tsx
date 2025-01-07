@@ -50,9 +50,9 @@ function ToastProvider({children}: any) {
         <ToastContext.Provider value={{show, close}}>
             {children}
             {(toasts.length > 0) && <div className="fixed bg-gray-400/50 inset-0 cursor-not-allowed z-[103]"></div>}
-            <div className="fixed top-24 left-1/2 transform -translate-x-1/2 space-y-1 z-[104]">
+            <div className="fixed top-24 left-1/2 transform -translate-x-1/2 flex flex-col mx-auto items-center justify-center space-y-1 z-[104] w-full px-4">
                 {toasts.map(({id, component, type}) => (
-                    <div key={id} className={`toast_in delay-100 transition-all duration-300 ease-in-out md:min-w-60 bg-field_color relative p-2 border border-border_active overflow-hidden rounded-md`}>
+                    <div key={id} className={`toast_in delay-100 transition-all duration-300 ease-in-out md:min-w-60  max-w-80 bg-field_color relative p-2 border border-border_active overflow-hidden rounded-md`}>
                         <div className="flex justify-between gap-2">
                             {getToastStyle(type)}
                             <p className="md:text-xl text-text_color w-72">{component}</p>

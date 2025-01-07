@@ -1,5 +1,6 @@
 import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
+import Link from 'next/link'
 import React from 'react'
 
 function page() {
@@ -18,7 +19,7 @@ function page() {
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
             <h2 className="text-xl font-semibold mb-4">Access is limited to:</h2>
-            <ul className="list-disc list-inside">
+            <ul className="list-disc list-inside space-y-2">
               <li>Direct descendants of Shanmuga Nadar</li>
               <li>Their partner (spouse or significant other)</li>
             </ul>
@@ -34,37 +35,11 @@ function page() {
               <li>Add family relationships (partner & children) if any.</li>
             </ul>
             <p className="mt-4 italic opacity-65">
-              Note: Family member information can be locked to maintain data integrity. For locked member, please submit a note for changes to be made or contact the moderator directly.
+              Note: Family member information can be locked to maintain data integrity. For locked member, please submit a note for changes to be made or contact 
+              the <Link className='border-b border-border_color' href={'#'}>moderator</Link> directly.
             </p>
           </div>
-
-          {/* Moderator List Section */}
-          <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Moderator List:</h2>
-            <ul className="list-disc list-inside">
-              <li>Ponsajjan</li>
-            </ul>
-            <p className="mt-4 italic opacity-65">
-              Moderators are responsible for maintaining the integrity of the app and approving any critical changes.
-            </p>
-          </div>
-
-          {/* Contribution Section */}
-          {/* <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4"> */}
-            <h2 className="text-xl font-semibold mb-4">Contribute to the App:</h2>
-            <p className="mb-4">
-              This app is open for improvements. If you'd like to suggest changes or add new features, please fork the code from the GitHub repository and submit your contributions.
-            </p>
-            <a 
-              href="https://github.com/your-repo-link" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="text-blue-500 underline"
-            >
-              Fork the repository on GitHub
-            </a>
-          </div>
-        {/* </div> */}
+        </div>
       </Container>
     </div>
   )

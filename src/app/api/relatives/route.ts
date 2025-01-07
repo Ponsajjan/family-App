@@ -20,7 +20,6 @@ import { NextRequest } from "next/server"; // Import NextRequest if needed for h
 
 
 export async function GET(request: NextRequest) {
-
   try {
     // Extract search parameters
     const { searchParams } = new URL(request.url);
@@ -28,13 +27,12 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10); // Current page
     const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
 
-    // Calculate pagination
+    // Calculate skip for pagination
     const skip = (page - 1) * limit;
 
-    // Fetch data from Prisma
+    // Fetch paginated data from Prisma
     const memberList = await prisma.member.findMany({
       where: {
-        // name: { contains: searchQuery, mode: "insensitive" },
         name: { contains: searchQuery },
       },
       select: {
@@ -53,15 +51,45 @@ export async function GET(request: NextRequest) {
 
     // Total count for pagination
     const totalCount = await prisma.member.count({
-      // where: { name: { contains: searchQuery, mode: "insensitive" } },
       where: {
         name: { contains: searchQuery },
-      }
+      },
     });
 
-    return NextResponse.json({ data: memberList, totalCount });
+    // Add starting letter headers to the paginated data
+    const groupedData:any = [];
+    let currentLetter = "";
+
+    memberList.forEach((member) => {
+      const firstLetter = member.name.charAt(0).toUpperCase();
+
+      // If this is a new starting letter, add a header entry
+      if (firstLetter !== currentLetter) {
+        currentLetter = firstLetter;
+        groupedData.push({
+          id: firstLetter,
+          name: firstLetter,
+          gender: "Letter",
+          phoneNumber: null,
+          father: null,
+          mother: null,
+          partner: null,
+        });
+      }
+
+      // Add the current member to the grouped data
+      groupedData.push(member);
+    });
+
+    // Return paginated data with headers
+    return NextResponse.json({
+      data: groupedData,
+      totalCount,
+    });
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Error fetching users" }, { status: 500 });
   }
 }
+
+

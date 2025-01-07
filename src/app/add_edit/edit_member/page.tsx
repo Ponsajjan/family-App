@@ -68,7 +68,7 @@ export default function EditMemberDetails () {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors = validateEditMemberForm({formData});
+    const newErrors = validateEditMemberForm(formData);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;

@@ -2,14 +2,14 @@ export interface EditMemberFormValueTypes {
     id: number | null,
     name: string;
     gender: 'Male' | 'Female' | undefined;
-    birth_date: string | number | null;
-    birth_month: string | number | null;
-    birth_year: string | number | null;
+    birth_date: string | null;
+    birth_month: string | null;
+    birth_year: string | null;
     deceased: boolean;
-    death_date: string | number | null;
-    death_month: string | number | null;
-    death_year: string | number | null;
-    phone_number: string | number | null;
+    death_date: string | null;
+    death_month: string | null;
+    death_year: string | null;
+    phone_number: string | null;
     occupation: string;
     education: string;
     address: string;
@@ -20,13 +20,9 @@ export interface EditMemberFormValueTypes {
 };
 
 export interface EditMemberFormErrorTypes {
-    name: string
-    birth_date: string,
-    birth_month: string,
-    birth_year: string,
-    death_year: string,
-    death_month: string,
-    death_date: string   
+    name?: string
+    birth_day?: string,
+    death_day?: string,  
 }
 
 export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
@@ -52,12 +48,8 @@ export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
 
 export const EditMemberDefaultFormErrorValue: EditMemberFormErrorTypes = {
     name: '',
-    birth_date: '',
-    birth_month: '',
-    birth_year: '',
-    death_year: '',
-    death_month: '',
-    death_date: ''
+    birth_day: '',
+    death_day: '',
 };
 
 export interface AllowedEditTypes {

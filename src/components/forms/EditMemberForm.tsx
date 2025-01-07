@@ -28,12 +28,11 @@ function EditMemberForm({
 
     return (
         <form className="text-text_color relative" onSubmit={handleSubmit}>
-            {!formData.name  && <div onClick={() => setShowList(true)} className={`absolute inset-0 z-10`}></div>}
+            {!formData.id  && <div onClick={() => setShowList(true)} className={`absolute inset-0 z-10`}></div>}
             <div className="w-full">
             <span className="text-sm font-medium" >Name</span>
-            <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!formData.name  && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
+            <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!formData.id  && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
                 <input
-                onClick={() => setShowList(false)}
                 className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color disabled:cursor-not-allowed`}
                 type="text"
                 name="name"
@@ -44,7 +43,7 @@ function EditMemberForm({
                 <ChangeMember />
                 </div>
             </div>
-            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+            {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
             </div>
             <div className="flex gap-2 py-4">
             <p className="text-sm font-medium">Gender:</p>
@@ -71,7 +70,7 @@ function EditMemberForm({
             </p>
             <div className="w-full mb-2 flex gap-2">
                 <Input
-                    onClick={() => setShowList(false)}
+
                     type="number"
                     placeholder="DD"
                     name="birth_date"
@@ -81,7 +80,7 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 <Input
-                    onClick={() => setShowList(false)}
+
                     type="number"
                     placeholder="MM"
                     name="birth_month"
@@ -91,7 +90,7 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 <Input
-                    onClick={() => setShowList(false)}
+
                     type="number"
                     placeholder="YYYY(Opt)"
                     name="birth_year"
@@ -101,9 +100,9 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
             </div>
-            {(errors.birth_date || errors.birth_month || errors.birth_year) && (
-                <p className="text-red-500 text-sm">
-                {errors.birth_date || errors.birth_month || errors.birth_year}
+            {(errors.birth_day) && (
+                <p className="text-red-500 text-sm mt-2">
+                {errors.birth_day}
                 </p>
             )}
             </div>
@@ -123,7 +122,7 @@ function EditMemberForm({
                 <p className='text-xs font-extralight absolute top-[14px] left-[100px]'>(Remove checkmark if not Deceased)</p>
                 <div className="w-full flex gap-2">
                 <Input
-                    onClick={() => setShowList(false)}
+
                     type="number"
                     placeholder="DD(Opt)"
                     name="death_date"
@@ -133,7 +132,7 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 <Input
-                    onClick={() => setShowList(false)}
+
                     type="number"
                     placeholder="MM"
                     name="death_month"
@@ -143,7 +142,7 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 <Input
-                    onClick={() => setShowList(false)}
+
                     type="number"
                     placeholder="YYYY"
                     name="death_year"
@@ -153,15 +152,14 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 </div>
-                {(errors.death_month || errors.death_year || errors.death_date) && (
+                {(errors.death_day) && (
                 <p className="text-red-500 text-sm mt-2">
-                    {errors.death_year || errors.death_month || errors.death_date}
+                    {errors.death_day}
                 </p>
                 )}
             </div>
             </div>
             <Input
-                onClick={() => setShowList(false)}
                 className="mb-2"
                 type="number"
                 name="phone_number"
@@ -171,7 +169,6 @@ function EditMemberForm({
                 onChange={handleInputChange}
             />
             <Input
-                onClick={() => setShowList(false)}
                 className="mb-2"
                 label="Occupation"
                 name="occupation"
@@ -179,7 +176,6 @@ function EditMemberForm({
                 onChange={handleInputChange}
             />
             <Input
-                onClick={() => setShowList(false)}
                 className="mb-2"
                 label="Education"
                 name="education"
@@ -187,7 +183,6 @@ function EditMemberForm({
                 onChange={handleInputChange}
             />
             <Input
-                onClick={() => setShowList(false)}
                 className="mb-4"
                 label="Address"
                 name="address"
@@ -239,7 +234,7 @@ function EditMemberForm({
             />
             </div>
         </div>}
-        <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Updateing..." : "Add Member"} />
+        <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Updateing..." : "Update Member"} />
     </form>
     )
 }
