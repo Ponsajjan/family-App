@@ -7,15 +7,24 @@ export async function POST(request: Request) {
     const formData = await request.json(); 
     const deceased = formData.deceased === true; // Handle as a boolean
     
+    // Utility function
+    const capitalizeWords = (name: string) => {
+      return name.replace(/\b\w/g, (char) => char.toUpperCase())
+      .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
+    }
+    const formatTwoDigits = (value: number | null) => {
+      return value !== null ? parseInt(String(value).padStart(2, '0'), 10) : null;
+    };
+
     const user = {
-      name: formData.name,
+      name: capitalizeWords(formData.name),
       gender: formData.gender,
-      birthDate: formData.birthDate ? formData.birthDate : null,
-      birthMonth: formData.birthMonth ? parseInt(formData.birthMonth, 10) : null,
+      birthDate: formData.birthDate ? formatTwoDigits(formData.birthDate) : null,
+      birthMonth: formData.birthMonth ? formatTwoDigits(formData.birthMonth) : null,
       birthYear: formData.birthYear ? parseInt(formData.birthYear, 10) : null,
       deceased: deceased,
-      deathDate: deceased && formData.deathDate ? parseInt(formData.deathDate, 10) : null,
-      deathMonth: deceased && formData.deathMonth ? parseInt(formData.deathMonth, 10) : null,
+      deathDate: deceased && formData.deathDate ? formatTwoDigits(formData.deathDate) : null,
+      deathMonth: deceased && formData.deathMonth ? formatTwoDigits(formData.deathMonth) : null,
       deathYear: deceased && formData.deathYear ? parseInt(formData.deathYear, 10) : null,
       phoneNumber: formData.phoneNumber,
       occupation: formData.occupation || null,

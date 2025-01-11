@@ -48,19 +48,24 @@ export async function GET(request: Request, context: any) {
         },
       });
 
+      const capitalizeWords = (name: string) => {
+        return name.replace(/\b\w/g, (char) => char.toUpperCase())
+        .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
+      }
+
       const member = dbData[0];
       const data = {
         formData: {
           id: member.id,
-          name: member.name,
+          name: capitalizeWords(member.name),
           gender: member.gender,
-          birth_date: member.birthDate,
-          birth_month: member.birthMonth,
-          birth_year: member.birthYear,
+          birth_date: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
+          birth_month: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
+          birth_year: member.birthYear ? String(member.birthYear) : null,
           deceased: member.deceased,
-          death_date: member.deathDate,
-          death_month: member.deathMonth,
-          death_year: member.deathYear,
+          death_date: member.deathDate ? String(member.deathDate).padStart(2, '0') : null,
+          death_month: member.deathMonth ? String(member.deathMonth).padStart(2, '0') : null,
+          death_year: member.deathYear ? String(member.deathYear) : null,
           phone_number: member.phoneNumber,
           occupation: member.occupation,
           education: member.education,

@@ -75,11 +75,16 @@ export default function EditMemberDetails () {
     }
     try {
       setSubmitting(true);
+      const capitalizeWords = (name: string) => {
+        return name.replace(/\b\w/g, (char) => char.toUpperCase())
+        .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
+      }
+
       const deceased = formData.deceased;
       const descendant = formData.descendant === "Yes";
       const memberData = {
         id: formData.id,
-        name: formData.name,
+        name: capitalizeWords(formData.name),
         gender: formData.gender,
         birthDate: formData.birth_date || null,
         birthMonth: formData.birth_month || null,

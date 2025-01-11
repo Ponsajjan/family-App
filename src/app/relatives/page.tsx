@@ -28,17 +28,17 @@ export default function Relatives() {
   const [hasMore, setHasMore] = useState(true);
   const [params, setParams] = useState({
     page: 1,
-    limit: 30,
+    limit: 50,
     search: "",
   });
 
   const handleSetSearchFilter = useDebounce((value) => {
-    setMembers([])    
     setParams((prevParams) => ({
       ...prevParams,
       search: value,
       page: 1,
     }));
+    setMembers([])    
   }, 900);
 
   const handleAssemblySearch = (input: string) => {
@@ -102,7 +102,7 @@ export default function Relatives() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params]);
+  }, [params, hasMore, toast]);
 
   const handleShowDetails = async (user_id: string | number) => {
     try {

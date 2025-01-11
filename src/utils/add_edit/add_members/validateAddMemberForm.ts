@@ -25,7 +25,7 @@ export const validateAddMemberForm = (formData:AddMemberFormValueTypes) => {
       if (year && !validator.isDate(`${day}-${month}-${year}`, { format, strictMode: true })) {
         return "Enter a valid date!";
       }
-
+      return undefined;
     }
 
     // Birth date validation
@@ -33,11 +33,15 @@ export const validateAddMemberForm = (formData:AddMemberFormValueTypes) => {
       if (!formData.birth_month || !formData.birth_date) {
         errorMessage.birth_day = "Date and month are required";
       } else {
-        validateDate(
-          formData.birth_date,
-          formData.birth_month,
-          formData.birth_year
-        );
+        const error =
+          validateDate(
+            formData.birth_date,
+            formData.birth_month,
+            formData.birth_year
+          );
+        if (error) {
+          errorMessage.birth_day = error
+        }
       }
     }
 
@@ -46,11 +50,15 @@ export const validateAddMemberForm = (formData:AddMemberFormValueTypes) => {
       if (!formData.death_year || !formData.death_month) {
         errorMessage.death_day = "Death anniversary requires a month and year";
       } else {
-        validateDate(
-          formData.death_date,
-          formData.death_month,
-          formData.death_year
-        );
+        const error =
+          validateDate(
+            formData.death_date,
+            formData.death_month,
+            formData.death_year
+          );
+        if (error) {
+          errorMessage.death_day = error
+        }
       }
     }
   

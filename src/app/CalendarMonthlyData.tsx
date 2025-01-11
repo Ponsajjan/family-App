@@ -89,7 +89,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
           <span className="border-t border-border_color block w-full"></span>
         </div>
         {sortedEvents.map((item:any, index:number) => (
-          <div key={index} className="pl-6 md:pl-4" >
+          <div key={index} className="pl-5 md:pl-4" >
             <div className="border-l border-border_color pt-1 pb-2 pl-4 md:pl-3 pr-3">
               <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-60'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
                 {item.hasDate ?

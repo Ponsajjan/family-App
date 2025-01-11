@@ -2,33 +2,22 @@ import { NextResponse } from "next/server"
 import prisma from "@/db/db"; // Adjust the import path as needed
 import { NextRequest } from "next/server"; // Import NextRequest if needed for handling query params
 
-// export async function GET(request: Request) {
-//   try {
-//     const users = await prisma.user.findMany({
-//       // where: { id: user_id },
-//       select: {
-//         id: true,
-//         name: true,
-//       },
-//       orderBy: { name: "asc" },
-//     });
-//     return NextResponse.json( users );
-//   } catch (error) {
-//     return NextResponse.json({ error: 'Error fetching users' });
-//   }
-// }
-
+let currentLetter = "";
 
 export async function GET(request: NextRequest) {
   try {
     // Extract search parameters
     const { searchParams } = new URL(request.url);
-    const searchQuery = searchParams.get("search") || ""; // Search term
     const page = parseInt(searchParams.get("page") || "1", 10); // Current page
     const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
+    const searchQuery = searchParams.get("search") || ""; // Search term
 
     // Calculate skip for pagination
     const skip = (page - 1) * limit;
+
+    if (page === 1) {
+      currentLetter = "";
+    }
 
     // Fetch paginated data from Prisma
     const memberList = await prisma.member.findMany({
@@ -58,7 +47,6 @@ export async function GET(request: NextRequest) {
 
     // Add starting letter headers to the paginated data
     const groupedData:any = [];
-    let currentLetter = "";
 
     memberList.forEach((member) => {
       const firstLetter = member.name.charAt(0).toUpperCase();

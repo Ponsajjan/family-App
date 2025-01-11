@@ -57,22 +57,19 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
     function setFilteresUsed(forType: string) {
       switch (forType) {
         case 'selectMember':
-          setAppliedFilters(['Male', 'Female', 'Partner Assigned', 'Partner Unassigned', 'Parents Assigned', 'Parents Unassigned']);
+          setAppliedFilters(['All']);
           break;
-        case 'selectFather':
-          setAppliedFilters(['Male', 'Partner Assigned', 'Parents Assigned', 'Parents Unassigned']);
-          break;
-        case 'selectMother':
-          setAppliedFilters(['Female', 'Partner Assigned', 'Parents Assigned', 'Parents Unassigned']);
+        case 'selectPartner':
+          setAppliedFilters([gender === 'Male' ? 'Female' : 'Male', 'Partner Unassigned']);
           break;
         case 'selectChildren':
-          setAppliedFilters(['Male', 'Female', 'Partner Assigned', 'Partner Unassigned', 'Parents Unassigned']);
+          setAppliedFilters(['Descendant', 'Parents Unassigned']);
           break;
         case 'editRelationship':
-          setAppliedFilters(['Male', 'Female', 'Partner Assigned', 'Parents Assigned', 'Partner Unassigned', 'Parents Unassigned']);
+          setAppliedFilters(['Partner Assigned', 'Children Assigned']);
           break;
         default:
-          setAppliedFilters([]);
+          setAppliedFilters(['All']);
           break;
       }
     }
@@ -133,8 +130,6 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
               <Input
                 placeholder={
                   forType === "selectMember" ? "Select Member To Edit" : 
-                  forType === "selectFather" ? "Select Father" : 
-                  forType === "selectMother" ? "Select Mother" : 
                   forType === "selectPartner" ? "Select partner" : 
                   "Select Children"
                 }  className="pl-9"
@@ -145,27 +140,14 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
             </div>
           </div>
           <ul className='p-2 flex gap-2 flex-nowrap overflow-x-auto min-h-[42px] scroll-stable'>
-            <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              {appliedFilters.includes('Male') ? <FilterSelect /> : <FilterClose />} <span>Male</span>
-            </li>
-            <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              {appliedFilters.includes('Female') ? <FilterSelect /> : <FilterClose />} <span>Female</span>
-            </li>
-            <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              {appliedFilters.includes('Partner Assigned') ? <FilterSelect /> : <FilterClose />} <span className='whitespace-nowrap'>Partner Assigned</span>
-            </li>
-            <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              {appliedFilters.includes('Partner Unassigned') ? <FilterSelect /> : <FilterClose />} <span className='whitespace-nowrap'>Partner Unassigned</span>
-            </li>
-            <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              {appliedFilters.includes('Parents Assigned') ? <FilterSelect /> : <FilterClose />} <span className='whitespace-nowrap'>Parents Assigned</span>
-            </li>
-            <li className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
-              {appliedFilters.includes('Parents Unassigned') ? <FilterSelect /> : <FilterClose />} <span className='whitespace-nowrap'>Parents Unassigned</span>
-            </li>
+            {appliedFilters?.map((item, index) => 
+              <li key={index} className='py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between'>
+                <FilterSelect /><span>{item}</span>
+              </li>
+            )}
           </ul>
         </div>
-        <div className='pb-14 h-[60vh] md:h-[calc(100vh-162px)] overflow-y-auto scroll-stable'>
+        <div className='pb-14 h-[60vh] md:h-[calc(100vh-154px)] overflow-y-auto scroll-stable'>
         {(forType === 'selectPartner' && descendant === true) && 
         (<div className='py-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm border-b border-border_color'>
           <p>Show Cousins List</p>
