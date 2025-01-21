@@ -57,7 +57,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
     function setFilteresUsed(forType: string) {
       switch (forType) {
         case 'selectMember':
-          setAppliedFilters(['All']);
+          setAppliedFilters(['All Members']);
           break;
         case 'selectPartner':
           setAppliedFilters([gender === 'Male' ? 'Female' : 'Male', 'Partner Unassigned']);
@@ -223,13 +223,17 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
           )) : error ?
           <div className="p-6 text-center">{error}</div> :
           <>
-            {forType === 'selectChildren' && <p className='text-center pt-10 pb-4'>No family descendant with parents unassigned</p>}
-            {forType === 'selectPartner' 
-            ? showCousin 
-              ? <p className='text-center pt-10 pb-4'>No family members with partner unassigned</p> 
-              : <p className='text-center pt-10 pb-4'>No member with partner unassigned</p>
+            {forType === 'selectChildren' && 
+              <p className='text-center pt-10 pb-4 px-2'>No family descendant with parents unassigned</p>}
+            {forType === 'selectPartner' ? showCousin 
+              ? <p className='text-center pt-10 pb-4 px-2'>No family members with partner unassigned</p> 
+              : <p className='text-center pt-10 pb-4 px-2'>No member with partner unassigned</p>
             : ''}
-            <div className='mx-auto w-fit border border-border_color px-4 py-0.5 rounded-full font-medium mt-16'><Link href='/add_edit/add_member'> Add Member +</Link></div>
+            {forType === 'editRelationship' && 
+              <p className='text-center pt-10 pb-4 px-2'>No member with partner/children assigned</p>}
+            {forType === 'editRelationship' 
+              ? <div className='mx-auto w-fit border border-border_color px-4 py-0.5 rounded-full font-medium mt-16'><Link href='/add_edit/add_relationship'> Add Relationship +</Link></div> 
+              : <div className='mx-auto w-fit border border-border_color px-4 py-0.5 rounded-full font-medium mt-16'><Link href='/add_edit/add_member'> Add Member +</Link></div>}
           </>  
         }
         </div>

@@ -10,7 +10,8 @@ export async function POST(request: Request) {
     // Utility function
     const capitalizeWords = (name: string) => {
       return name.replace(/\b\w/g, (char) => char.toUpperCase())
-      .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
+      .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .replace(/,\s*\w/g, (char) => char.toUpperCase());
     }
     const formatTwoDigits = (value: number | null) => {
       return value !== null ? parseInt(String(value).padStart(2, '0'), 10) : null;
@@ -46,9 +47,9 @@ export async function POST(request: Request) {
     if (formData.descendant === false) {
       await prisma.nonDescendantRelation.create({
         data: {
-          fatherName: formData.father ? formData.father : null,
-          motherName: formData.mother ? formData.mother : null,
-          siblingNames: formData.siblings ? formData.siblings : null,
+          fatherName: formData.father ? capitalizeWords(formData.father) : null,
+          motherName: formData.mother ? capitalizeWords(formData.mother) : null,
+          siblingNames: formData.siblings ? capitalizeWords(formData.siblings) : null,
           memberId: newMember.id, // Link nonDescendantRelation to the newly created Member
         },
       });

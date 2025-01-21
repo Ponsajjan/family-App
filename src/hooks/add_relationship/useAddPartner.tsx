@@ -51,7 +51,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                     } else {
                         alert(error.message || 'Error fetching user details');
                     }
-                        router.push('/add_edit');
+                    router.push('/add_edit');
                 } finally {
                     setPartnerLoading(false)
                 }

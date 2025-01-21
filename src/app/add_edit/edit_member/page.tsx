@@ -13,12 +13,13 @@ import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEd
 
 export default function EditMemberDetails () {
   const toast = useToast();
-  const [showList, setShowList] = useState<boolean>(false);
+  const [showList, setShowList] = useState(false);
+  const [editedUser, setEditedUser] = useState('')
   const [formData, setFormData] = useState<EditMemberFormValueTypes>(EditMemberDefaultFormValue);
   const [allowedEdit, setAllowedEdit] = useState<AllowedEditTypes>(DefaultAllowedEdits);
   const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
-  const [loading, setLoading] = useState<boolean>(false)
-  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false);
   
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -33,6 +34,7 @@ export default function EditMemberDetails () {
           const response = await fetch(`/api/editMember/${formData.id}`);
           if (!response.ok) throw new Error('Failed to fetch user details');
           const { data } = await response.json();
+          setEditedUser(data.formData.name)
           setFormData(data.formData);
           setAllowedEdit(data.allowEdit)
           setErrors(EditMemberDefaultFormErrorValue);
@@ -75,16 +77,16 @@ export default function EditMemberDetails () {
     }
     try {
       setSubmitting(true);
-      const capitalizeWords = (name: string) => {
-        return name.replace(/\b\w/g, (char) => char.toUpperCase())
-        .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
-      }
+      // const capitalizeWords = (name: string) => {
+      //   return name.replace(/\b\w/g, (char) => char.toUpperCase())
+      //   .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
+      // }
 
       const deceased = formData.deceased;
       const descendant = formData.descendant === "Yes";
       const memberData = {
         id: formData.id,
-        name: capitalizeWords(formData.name),
+        name: formData.name,
         gender: formData.gender,
         birthDate: formData.birth_date || null,
         birthMonth: formData.birth_month || null,
@@ -117,6 +119,7 @@ export default function EditMemberDetails () {
       if (toast) {
         toast.show(result.message, "success", 5000);
       }
+      setEditedUser('')
       setFormData(EditMemberDefaultFormValue);
       setErrors(EditMemberDefaultFormErrorValue);
     } catch (error: any) {
@@ -144,7 +147,7 @@ export default function EditMemberDetails () {
                 <span><BackButton /></span>
               </Link>
               <p className="cursor-default text-2xl font-semibold text-text_color underline pl-3">
-                Edit {formData.name ? formData.name  :'Member'}
+                Edit {editedUser ? editedUser  :'Member'}
               </p>
               {formData.name && <div className="cursor-pointer ml-4">
                 <DeleteRecord />

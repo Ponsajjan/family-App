@@ -48,16 +48,16 @@ export async function GET(request: Request, context: any) {
         },
       });
 
-      const capitalizeWords = (name: string) => {
-        return name.replace(/\b\w/g, (char) => char.toUpperCase())
-        .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
-      }
+      // const capitalizeWords = (name: string) => {
+      //   return name.replace(/\b\w/g, (char) => char.toUpperCase())
+      //   .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
+      // }
 
       const member = dbData[0];
       const data = {
         formData: {
           id: member.id,
-          name: capitalizeWords(member.name),
+          name: member.name,
           gender: member.gender,
           birth_date: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
           birth_month: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
@@ -89,15 +89,6 @@ export async function GET(request: Request, context: any) {
     }
 }
 
-
-
-
-
-
-
-
-
-
 export async function PUT(request: Request, context: any) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
@@ -109,14 +100,12 @@ export async function PUT(request: Request, context: any) {
 
   try {
     // Utility function to capitalize each word
-    const capitalizeWords = (str: string) => {
-      return str.replace(/\b\w/g, (char) => char.toUpperCase());
-    };
+    // const capitalizeWords = (str: string) => {
+    //   return str.replace(/\b\w/g, (char) => char.toUpperCase());
+    // };
 
     // Parse the JSON body
     const updatedData = await request.json();
-
-    console.log('updatedData', updatedData);
 
     // Validate the request body
     if (!updatedData || Object.keys(updatedData).length === 0) {
@@ -173,7 +162,7 @@ export async function PUT(request: Request, context: any) {
     const deceased = updatedData.deceased === true; // Handle as a boolean
 
     const memberUpdateData = {
-      name: capitalizeWords(updatedData.name),
+      name: updatedData.name,
       gender: updatedData.gender,
       birthDate: updatedData.birthDate ? parseInt(updatedData.birthDate, 10) : null,
       birthMonth: updatedData.birthMonth ? parseInt(updatedData.birthMonth, 10) : null,
@@ -202,15 +191,15 @@ export async function PUT(request: Request, context: any) {
       await prisma.nonDescendantRelation.upsert({
         where: { memberId: memberId },
         update: {
-          fatherName: updatedData.father ? capitalizeWords(updatedData.father) : null,
-          motherName: updatedData.mother ? capitalizeWords(updatedData.mother) : null,
-          siblingNames: updatedData.siblings ? capitalizeWords(updatedData.siblings) : null,
+          fatherName: updatedData.father ? updatedData.father : null,
+          motherName: updatedData.mother ? updatedData.mother : null,
+          siblingNames: updatedData.siblings ? updatedData.siblings : null,
         },
         create: {
           memberId: memberId,
-          fatherName: updatedData.father ? capitalizeWords(updatedData.father) : null,
-          motherName: updatedData.mother ? capitalizeWords(updatedData.mother) : null,
-          siblingNames: updatedData.siblings ? capitalizeWords(updatedData.siblings) : null,
+          fatherName: updatedData.father ? updatedData.father : null,
+          motherName: updatedData.mother ? updatedData.mother : null,
+          siblingNames: updatedData.siblings ? updatedData.siblings : null,
         },
       });
     }

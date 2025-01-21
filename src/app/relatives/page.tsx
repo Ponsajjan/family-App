@@ -161,12 +161,12 @@ export default function Relatives() {
             <div className='max-w-xl mx-auto'>
               {members.map((user: any) => (
                 user.gender === "Letter" ?
-                <div key={user.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10 pb-1">
-                  <span className="font-semibold pr-1 whitespace-nowrap">{user.name}</span>
+                <div key={user.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10 py-1">
+                  <span className="font-semibold pr-1">{user.name}</span>
                   <span className="border-t border-border_color block w-full"></span>
                 </div> :
                 <div key={user.id} className="pl-4">
-                  <div className="border-l border-border_color pt-1 pb-2 pl-4 pr-3">
+                  <div className="border-l border-border_color py-1 pl-4 pr-3">
                     <div 
                       onClick={() => handleShowDetails(user.id)} 
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"

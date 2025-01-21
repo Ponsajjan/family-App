@@ -27,14 +27,15 @@ export default function AddMemberDetails () {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // if (toast) {
-    //   toast.show("Test Toast An unexpected error occurred An unexpected error occurred", "error", 5000);
-    // }
+    const capitalizeWords = (name: string) => {
+      return name.replace(/\b\w/g, (char) => char.toUpperCase())
+      .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .replace(/,\s*\w/g, (char) => char.toUpperCase());
+    }
 
     const errorMessage = validateAddMemberForm(formData);  
     if (Object.keys(errorMessage).length) {
       setErrors(errorMessage);
-      alert((Object.keys(errorMessage)));
       return;
     }
     try {
@@ -42,7 +43,7 @@ export default function AddMemberDetails () {
       const deceased = formData.deceased;
       const descendant = formData.descendant === "Yes";
       const memberData = {
-        name: formData.name,
+        name: capitalizeWords(formData.name),
         gender: formData.gender,
         birthDate: formData.birth_date ? parseInt(formData.birth_date, 10) : null,
         birthMonth: formData.birth_month ? parseInt(formData.birth_month, 10) : null,
@@ -56,9 +57,9 @@ export default function AddMemberDetails () {
         education: formData.education,
         address: formData.address,
         descendant: descendant,
-        father: descendant ? null : formData.father,
-        mother: descendant ? null : formData.mother,
-        siblings: descendant ? null : formData.siblings
+        father: descendant ? null : capitalizeWords(formData.father),
+        mother: descendant ? null : capitalizeWords(formData.mother),
+        siblings: descendant ? null : capitalizeWords(formData.siblings)
       };
       console.log('memberData', memberData)
       // API Call

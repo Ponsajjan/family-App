@@ -84,13 +84,13 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
     return (
       sortedEvents.length > 0 && (
       <div>
-        <div className="flex text-text_color items-center px-3 bg-main_background sticky top-12 md:top-0 z-10">
+        <div className="flex text-text_color items-center px-3 py-1 bg-main_background sticky top-12 md:top-0 z-10">
           <span className="font-medium pr-1 whitespace-nowrap">{title}</span>
           <span className="border-t border-border_color block w-full"></span>
         </div>
-        {sortedEvents.map((item:any, index:number) => (
-          <div key={index} className="pl-5 md:pl-4" >
-            <div className="border-l border-border_color pt-1 pb-2 pl-4 md:pl-3 pr-3">
+        <div className="pl-5 md:pl-4 pb-1">
+          {sortedEvents.map((item:any, index:number) => (
+            <div key={index} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3">
               <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-60'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
                 {item.hasDate ?
                 <div className="border-t border-dashed border-text_color w-14 ml-2 mr-3">
@@ -111,7 +111,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
                     <div className='font-semibold capitalize leading-5'>{item.name}</div>
                     <div className='text-xs font-light capitalize flex items-baseline gap-2'>
                       <span className="leading-3">
-                      {item.type === 'birthday' ? 'Born At:' : 'Died At:'} 
+                      {item.type === 'birthday' ? 'Born At: ' : 'Died At: '} 
                       {item.date.getFullYear() == 1900 
                       ? format(item.date, 'd MMM') 
                       : !item.hasDate 
@@ -125,8 +125,8 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
       )
     );
