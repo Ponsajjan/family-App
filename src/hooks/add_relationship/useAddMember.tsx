@@ -16,12 +16,12 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
 
     useEffect(() => {
         if (selectedMemberId) {
-            const fetchUser = async () => {
+            const fetchMember = async () => {
                 try {
                     setMemberloading(true)
                     const response = await fetch(`/api/addRelationship/${selectedMemberId}`);
                     if (!response.ok) {
-                        throw new Error('Failed to fetch user details');
+                        throw new Error('Failed to fetch member details');
                     }
                     const { data } = await response.json();
                     
@@ -38,16 +38,16 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                     setExcludeMemberRelation(data.excludeIds);
                 } catch (error: any) {
                     if (toast) {
-                        toast.show(error.message || "Error fetching user details", "error", 5000)
+                        toast.show(error.message || "Error fetching member details", "error", 5000)
                     } else {
-                        alert(error.message || 'Error fetching user details');
+                        alert(error.message || 'Error fetching member details');
                     }
                     router.push('/add_edit');
                 } finally {
                     setMemberloading(false)
                 }
             }
-            fetchUser()
+            fetchMember()
         } else {
             setMemberloading(false)
             setDescendant(null)

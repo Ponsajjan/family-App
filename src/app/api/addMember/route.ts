@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return value !== null ? parseInt(String(value).padStart(2, '0'), 10) : null;
     };
 
-    const user = {
+    const member = {
       name: capitalizeWords(formData.name),
       gender: formData.gender,
       birthDate: formData.birthDate ? formatTwoDigits(formData.birthDate) : null,
@@ -39,9 +39,9 @@ export async function POST(request: Request) {
         error: 'Gender not assigned',
       }, { status: 400 });
     }
-    // Save user to the database
+    // Save member to the database
     const newMember = await prisma.member.create({
-      data: user,
+      data: member,
     });
 
     if (formData.descendant === false) {
@@ -57,12 +57,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       success: true, 
-      message: "User added successfully", 
-      user: newMember });
+      message: "Member added successfully", 
+      member: newMember });
   } catch (error) {
-    console.error("Error adding user:", error);
+    console.error("Error adding member:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to add user" },
+      { success: false, error: "Failed to add member" },
       { status: 500 }
     );
   }

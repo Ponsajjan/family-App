@@ -159,7 +159,7 @@ export default function EditMemberDetails () {
     <div className="md:flex text-text_color">
       <Container className='relative'>
         {(memberloading || patnerLoading || loading) && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
-            <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
+            <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
           <div className="flex justify-between items-center mb-3">
@@ -191,7 +191,7 @@ export default function EditMemberDetails () {
         onClick={() => setShowList(false)}
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       />
-      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
+      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
           <MemberList 
             forType={showListFor} 

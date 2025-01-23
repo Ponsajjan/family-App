@@ -14,7 +14,7 @@ import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEd
 export default function EditMemberDetails () {
   const toast = useToast();
   const [showList, setShowList] = useState(false);
-  const [editedUser, setEditedUser] = useState('')
+  const [editedMember, setEditedMember] = useState('')
   const [formData, setFormData] = useState<EditMemberFormValueTypes>(EditMemberDefaultFormValue);
   const [allowedEdit, setAllowedEdit] = useState<AllowedEditTypes>(DefaultAllowedEdits);
   const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
@@ -28,13 +28,13 @@ export default function EditMemberDetails () {
   
   useEffect(() => {
     if (formData.id) {
-      const fetchUser = async () => {
+      const fetchMember = async () => {
         try {
           setLoading(true)
           const response = await fetch(`/api/editMember/${formData.id}`);
-          if (!response.ok) throw new Error('Failed to fetch user details');
+          if (!response.ok) throw new Error('Failed to fetch member details');
           const { data } = await response.json();
-          setEditedUser(data.formData.name)
+          setEditedMember(data.formData.name)
           setFormData(data.formData);
           setAllowedEdit(data.allowEdit)
           setErrors(EditMemberDefaultFormErrorValue);
@@ -49,7 +49,7 @@ export default function EditMemberDetails () {
         }
       }
   
-      fetchUser()
+      fetchMember()
     }
   }, [formData.id]);
 
@@ -119,7 +119,7 @@ export default function EditMemberDetails () {
       if (toast) {
         toast.show(result.message, "success", 5000);
       }
-      setEditedUser('')
+      setEditedMember('')
       setFormData(EditMemberDefaultFormValue);
       setErrors(EditMemberDefaultFormErrorValue);
     } catch (error: any) {
@@ -137,7 +137,7 @@ export default function EditMemberDetails () {
     <div className="md:flex text-text_color">
       <Container className='relative'>
         {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
-            <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
+            <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
           <div className="mb-3">
@@ -147,7 +147,7 @@ export default function EditMemberDetails () {
                 <span><BackButton /></span>
               </Link>
               <p className="cursor-default text-2xl font-semibold text-text_color underline pl-3">
-                Edit {editedUser ? editedUser  :'Member'}
+                Edit {editedMember ? editedMember  :'Member'}
               </p>
               {formData.name && <div className="cursor-pointer ml-4">
                 <DeleteRecord />
@@ -171,7 +171,7 @@ export default function EditMemberDetails () {
         onClick={() => setShowList(false)}
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       /> )}
-      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
+      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
           <MemberList 
             forType={'selectMember'} 

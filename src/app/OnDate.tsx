@@ -15,19 +15,19 @@ interface CategorizedEvent extends Event {
 
 function OnDate({ events, selectedDate }: { events: Event[], selectedDate: any }) {
     
-    const dateEventList: CategorizedEvent[] = events?.flatMap((user) => {
+    const dateEventList: CategorizedEvent[] = events?.flatMap((member) => {
         const result: CategorizedEvent[] = [];
         const addEvent = (date: Date, type: 'birthday' | 'deathday') => {
             const year = date.getFullYear();
             result.push({
-                ...user,
+                ...member,
                 type,
                 date,
                 age: year === 1900 ? 'n/a' : differenceInYears(selectedDate, date),
             });
         };
-        if (user.birthday) addEvent(new Date(user.birthday), 'birthday');
-        if (user.deathday) addEvent(new Date(user.deathday), 'deathday');
+        if (member.birthday) addEvent(new Date(member.birthday), 'birthday');
+        if (member.deathday) addEvent(new Date(member.deathday), 'deathday');
         return result;
     }) || [];
 

@@ -21,7 +21,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                 try {
                     setPartnerLoading(true)
                     const response = await fetch(`/api/addRelationship/${selectedPartnerId}`);
-                    if (!response.ok) throw new Error('Failed to fetch user details');
+                    if (!response.ok) throw new Error('Failed to fetch member details');
                 
                     const { data } = await response.json();
                     
@@ -47,9 +47,9 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
 
                 } catch (error: any) {
                     if (toast) {
-                        toast.show(error.message || "Error fetching user details", "error", 5000)
+                        toast.show(error.message || "Error fetching member details", "error", 5000)
                     } else {
-                        alert(error.message || 'Error fetching user details');
+                        alert(error.message || 'Error fetching member details');
                     }
                     router.push('/add_edit');
                 } finally {

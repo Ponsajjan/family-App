@@ -19,7 +19,7 @@ function EditMemberForm({
     const toast = useToast();
     const showWarning = (input: string) => {
         if (toast) {
-            toast.show(`Can not change ${input} for this user`, "warning", 5000);
+            toast.show(`Can not change ${input} for this member`, "warning", 5000);
         }
     }
 
@@ -33,14 +33,14 @@ function EditMemberForm({
             <span className="text-sm font-medium" >Name</span>
             <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!formData.id  && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
                 <input
-                className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color disabled:cursor-not-allowed`}
-                type="text"
-                name="name"
-                value={formData.name || ''}
-                onChange={handleInputChange}
+                    className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color disabled:cursor-not-allowed`}
+                    type="text"
+                    name="name"
+                    value={formData.name || ''}
+                    onChange={handleInputChange}
                 />
                 <div onClick={() => setShowList(true)} className="cursor-pointer bg-main_background z-50 border border-border_color px-1 flex justify-center items-center rounded-md w-fit h-8 mr-[2px]">
-                <ChangeMember />
+                    <ChangeMember />
                 </div>
             </div>
             {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
@@ -70,7 +70,6 @@ function EditMemberForm({
             </p>
             <div className="w-full mb-2 flex gap-2">
                 <Input
-
                     type="number"
                     placeholder="DD"
                     name="birth_date"
@@ -80,7 +79,6 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 <Input
-
                     type="number"
                     placeholder="MM"
                     name="birth_month"
@@ -90,7 +88,6 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 <Input
-
                     type="number"
                     placeholder="YYYY(Opt)"
                     name="birth_year"
@@ -122,7 +119,6 @@ function EditMemberForm({
                 <p className='text-xs font-extralight absolute top-[14px] left-[100px]'>(Remove checkmark if not Deceased)</p>
                 <div className="w-full flex gap-2">
                 <Input
-
                     type="number"
                     placeholder="DD(Opt)"
                     name="death_date"
@@ -132,7 +128,6 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 <Input
-
                     type="number"
                     placeholder="MM"
                     name="death_month"
@@ -142,7 +137,6 @@ function EditMemberForm({
                     onChange={handleInputChange}
                 />
                 <Input
-
                     type="number"
                     placeholder="YYYY"
                     name="death_year"
@@ -190,7 +184,7 @@ function EditMemberForm({
                 onChange={handleInputChange}
             />
             <div className="flex justify-start items-center gap-2">
-            <p className="text-sm font-medium">Family descendant:</p>
+            <p className="text-sm font-medium">Family descendant: </p>
             {["Yes", "No"].map((option) => (
             <RadioButton
                 key={option}
@@ -202,36 +196,37 @@ function EditMemberForm({
             />
             ))}
             </div>
-            {formData?.descendant === 'No' && <div className="p-2 mt-4 border border-border_color rounded-lg">
-            <div className="flex gap-2 mb-2">
+            {formData?.descendant === 'No' && 
+            <div className="p-2 mt-4 border border-border_color rounded-lg">
+                <div className="flex gap-2 mb-2">
+                    <div>
+                        <Input
+                        showOptional={true}
+                        name="mother"
+                        label="Mother"
+                        value={formData.mother || ''}
+                        onChange={handleInputChange}
+                        />
+                    </div>
+                    <div>
+                        <Input
+                        showOptional={true}
+                        name="father"
+                        label="Father"
+                        value={formData.father || ''}
+                        onChange={handleInputChange}
+                        />
+                    </div>
+                </div>
             <div>
                 <Input
-                showOptional={true}
-                name="mother"
-                label="Mother"
-                value={formData.mother || ''}
-                onChange={handleInputChange}
+                    showOptional={true}
+                    name="siblings"
+                    label="Siblings"
+                    placeholder="Name1, Name2, ..."
+                    value={formData.siblings || ''}
+                    onChange={handleInputChange}
                 />
-            </div>
-            <div>
-                <Input
-                showOptional={true}
-                name="father"
-                label="Father"
-                value={formData.father || ''}
-                onChange={handleInputChange}
-                />
-            </div>
-            </div>
-            <div>
-            <Input
-                showOptional={true}
-                name="siblings"
-                label="Siblings"
-                placeholder="Name1, Name2, ..."
-                value={formData.siblings || ''}
-                onChange={handleInputChange}
-            />
             </div>
         </div>}
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Updateing..." : "Update Member"} />

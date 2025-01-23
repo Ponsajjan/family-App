@@ -22,7 +22,10 @@ export async function GET(request: NextRequest) {
     // Fetch paginated data from Prisma
     const memberList = await prisma.member.findMany({
       where: {
-        name: { contains: searchQuery },
+        name: {
+          contains: searchQuery,
+          // mode: "insensitive", // PostgreSQL-specific support in Prisma
+        },
       },
       select: {
         id: true,
@@ -75,8 +78,8 @@ export async function GET(request: NextRequest) {
       totalCount,
     });
   } catch (error) {
-    console.error("Error fetching users:", error);
-    return NextResponse.json({ error: "Error fetching users" }, { status: 500 });
+    console.error("Error fetching members:", error);
+    return NextResponse.json({ error: "Error fetching members" }, { status: 500 });
   }
 }
 

@@ -33,7 +33,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
   const selectedMonthData: CalendarMonthlyEvent[] = [];
 
   if (currentMonth === month && currentYear === year) { //for current month in current year
-    data?.forEach((user:any) => {
+    data?.forEach((member:any) => {
       const categorizeEvent = (date:any, type:any) => {
         if (date && date.getMonth() === month) {
             console.log('data', new Date(year, month), today, date)
@@ -44,30 +44,30 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
           const weekEndDate = weekStartDate + 6; // Sunday of the same week
       
           if (eventDay < todayDate) {
-            pastEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            pastEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay === todayDate) {
-            todayEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            todayEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay === todayDate + 1) {
-            tomorrowEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            tomorrowEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay > todayDate && eventDay <= weekEndDate) {
-            thisWeekEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            thisWeekEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else {
-            upcomingEvents.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            upcomingEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           }
         }
       };
 
-      if (user.birthday) categorizeEvent(new Date(user.birthday), 'birthday');
-      if (user.deathday) categorizeEvent(new Date(user.deathday), 'deathday');
+      if (member.birthday) categorizeEvent(new Date(member.birthday), 'birthday');
+      if (member.deathday) categorizeEvent(new Date(member.deathday), 'deathday');
     });
   } else { //for other months
-    data?.forEach((user:any) => {
+    data?.forEach((member:any) => {
       const selectedMonth = (date:any, type:any) => {
-        selectedMonthData.push({ ...user, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (new Date(year, month).getFullYear() - date.getFullYear()) });
+        selectedMonthData.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (new Date(year, month).getFullYear() - date.getFullYear()) });
       };
 
-      if (user.birthday) selectedMonth(new Date(user.birthday), 'birthday');
-      if (user.deathday) selectedMonth(new Date(user.deathday), 'deathday');
+      if (member.birthday) selectedMonth(new Date(member.birthday), 'birthday');
+      if (member.deathday) selectedMonth(new Date(member.deathday), 'deathday');
     });
   }
 

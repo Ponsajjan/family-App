@@ -26,30 +26,30 @@ export default function EditMemberDetails () {
   };
 
   useEffect(() => {
-    if (formData.name) {
-      const fetchUser = async () => {
+    if (formData.id) {
+      const fetchMembers = async () => {
         try {
           setLoading(true)
-          const response = await fetch(`/api/editRelationship/${formData.name}`);
-          if (!response.ok) throw new Error('Failed to fetch user details');
+          const response = await fetch(`/api/editRelationship/${formData.id}`);
+          if (!response.ok) throw new Error('Failed to fetch member details');
           const { data } = await response.json();
           setFormData(data);
-          setPreviousData(data)
+          setPreviousData(data);
         } catch (error:any) {
             if (toast) {
-              toast.show(error.error || "Error fetching user details", "error", 5000)
+              toast.show(error.error || "Error fetching member details", "error", 5000);
             } else {
-              console.error(error.error || 'Error fetching user details');
+              console.error(error.error || 'Error fetching member details');
             }
             router.push('/add_edit');
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
       }
   
-      fetchUser()
+      fetchMembers()
     }
-  }, [formData.name])
+  }, [formData.id, toast, router]);
 
   const handleRemoveChildrenValue = (id: number, name: string) => {
     setNoChanges(false);
@@ -57,14 +57,12 @@ export default function EditMemberDetails () {
       if (Array.isArray(prev['children'])) {
         // Check if the name already exists
         const exists = prev['children'].some((entry: any) => entry.id === id);
-  
         if (exists) {
            // If the entry exists, remove it and add it to setDeleteData
           setDeleteData((prevDeleted: any) => ({
             ...prevDeleted,
             ['childrenId']: [...prevDeleted['childrenId'], id ],
           }));
-
           // Remove the existing entry
           return {
             ...prev,
@@ -113,9 +111,9 @@ export default function EditMemberDetails () {
     }))
   }
 
-  const handleSelectedValue = (item: any, id: string) => {
-    setFormData((prev: any) => ({...prev, ['name']: { id, name: item }}));
-    setShowList(false)
+  const handleSelectedValue = (name: string, id: number) => {
+    setFormData((prev) => ({ ...prev, name, id }));
+    setShowList(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -171,7 +169,7 @@ export default function EditMemberDetails () {
     <div className="md:flex text-text_color">
       <Container className='relative'>
         {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
-          <p className="mt-20 px-2 bg-field_color border border-border_color rounded-md z-[100]">loading...</p>
+          <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
         </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
           <div className="flex justify-between items-center mb-3">
@@ -201,7 +199,7 @@ export default function EditMemberDetails () {
         onClick={() => setShowList(false)}
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       />
-      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-x-hidden ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto overflow-y-auto`}>
+      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
         <MemberList forType={'editRelationship'} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} multiselect={false} descendant={null} />
       </div>
     </div>

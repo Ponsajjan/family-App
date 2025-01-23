@@ -116,13 +116,13 @@ export default function Home() {
         setEventDates(eventDates);
 
         // Process data to create a list of event dates (day only)
-        const datesList = eventDates.flatMap((user: any) => {
+        const datesList = eventDates.flatMap((member: any) => {
           const events = [];
-          if (user.birthday) {
-            events.push(new Date(user.birthday).getDate());
+          if (member.birthday) {
+            events.push(new Date(member.birthday).getDate());
           }
-          if (user.deathday && user.hasDate) {
-            events.push(new Date(user.deathday).getDate());
+          if (member.deathday && member.hasDate) {
+            events.push(new Date(member.deathday).getDate());
           }
           return events;
         });
