@@ -67,41 +67,36 @@ export default function Details({ data, openDetails }: any) {
                                 <div className='w-3/5 md:leading-7'>{data?.mother.name}</div>
                             </>
                         )}
-
                         {data?.siblings?.length > 0 && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
                                 <div className='w-3/5 md:leading-7'>{data?.siblings?.join(", ")}</div>
                             </>
                         )}
-
-                        {!data?.deceased && data?.nonDescendantRelation[0]?.fatherName && (
+                        {data?.nonDescendantRelation[0]?.fatherName && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
                                 <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.fatherName}</div>
                             </>
                         )}
-                        {!data?.deceased && data?.nonDescendantRelation[0]?.motherName && (
+                        {data?.nonDescendantRelation[0]?.motherName && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
                                 <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.motherName}</div>
                             </>
                         )}
-
-                        {!data?.deceased && data?.nonDescendantRelation[0]?.siblingNames && (
+                        {data?.nonDescendantRelation[0]?.siblingNames && (
                         <>
                             <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
                             <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.siblingNames}</div>
                         </>
                         )}
-
                         {data?.partner && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
                                 <div className='w-3/5 md:leading-7'>{data?.partner.name}</div>
                             </>
                         )}
-
 
                         {(data?.fatherOf.length > 0 || data?.motherOf.length > 0) &&
                         <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>}

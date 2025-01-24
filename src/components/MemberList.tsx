@@ -180,7 +180,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
     setSelectedValue(item, id, select);
   };
 
-  function highlightText(text: string, searchText: string): string {
+  function highlightSearchText(text: string, searchText: string): string {
     if (!searchText) return text; // Return the original text if no search term is provided
     const regex = new RegExp(`(${searchText})`, 'gi'); // Match search term case-insensitively
     return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>'); // Wrap matches with a span
@@ -239,7 +239,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
             <>
               {members.map((member: any, index) => (
                 member.gender === "Letter" ?
-                <div key={index} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10 py-1">
+                <div key={index} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10">
                   <span className="font-semibold pr-1">{member.name}</span>
                   <span className="border-t border-border_color block w-full"></span>
                 </div> :
@@ -256,7 +256,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
                           <div
                             className="font-semibold"
                             dangerouslySetInnerHTML={{
-                            __html: highlightText(member.name, searchInput),
+                            __html: highlightSearchText(member.name, params.search),
                           }}
                           />
                         </div>

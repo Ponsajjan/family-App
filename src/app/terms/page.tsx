@@ -32,7 +32,7 @@ function page() {
             <h2 className="text-xl font-semibold mb-4">Guidelines:</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>Ensure family descendants are accurately recorded</li>
-              <li>Add family relationships (partner & children) if any.</li>
+              <li>Add family relationships (partner | children) if any.</li>
             </ul>
             <p className="mt-4 italic opacity-65">
               Note: Family member information can be locked to maintain data integrity. For locked member, please submit a note for changes to be made or contact 

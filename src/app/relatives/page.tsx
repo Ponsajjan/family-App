@@ -153,7 +153,6 @@ export default function Relatives() {
       <div className="w-full md:flex">
         {/* Left panel: Member List */}
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
-          <div className='md:pt-4'></div>
           {!loadingList && !members ? (
           <p className='p-4'>No members found.</p>
           ) : 
@@ -161,12 +160,12 @@ export default function Relatives() {
             <div className='max-w-xl mx-auto'>
               {members.map((member: any) => (
                 member.gender === "Letter" ?
-                <div key={member.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10 py-1">
+                <div key={member.id} className="flex text-text_color items-center px-3 md:pt-1 bg-main_background sticky top-0 z-10">
                   <span className="font-semibold pr-1">{member.name}</span>
                   <span className="border-t border-border_color block w-full"></span>
                 </div> :
                 <div key={member.id} className="pl-4">
-                  <div className="border-l border-border_color py-1 pl-4 pr-3">
+                  <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
                       onClick={() => handleShowDetails(member.id)} 
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
@@ -178,7 +177,7 @@ export default function Relatives() {
                           <div
                             className="font-semibold"
                             dangerouslySetInnerHTML={{
-                            __html: highlightText(member.name, searchInput),
+                            __html: highlightText(member.name, params.search),
                           }}
                           />
                         </div>
