@@ -2,6 +2,8 @@ import Topnav from "@/components/Topnav";
 import FetchFamilyTree from "./FetchFamilyTree";
 import DragScroll from "@/components/DragScroll";
 
+export const dynamic = "force-dynamic"
+
 export default function FamilyTreePage() {
   const topLevelMembers = [
     { id: 24 }, { id: 31 }, { id: 30 }, { id: 29 },

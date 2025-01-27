@@ -48,38 +48,59 @@ const TreeView = ({ data }: { data: any[] }) => {
 
 // Fetch the family tree data and return JSX
 async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
-  if (!memberIds || memberIds.length === 0) return [];
+  try {
+    if (!memberIds || memberIds.length === 0) return [];
 
-  const members = await prisma.member.findMany({
-    where: { id: { in: memberIds } },
-    include: {
-      fatherOf: { select: { id: true, name: true, gender: true } },
-      motherOf: { select: { id: true, name: true, gender: true } },
-      partner: { select: { id: true, name: true, gender: true } },
-    },
-  });
+    let members = [];
+    try {
+      if (!prisma?.member?.findMany) {
+        throw new Error("Prisma is not initialized or 'findMany' method is unavailable.");
+      }
+    
+      members = await prisma.member.findMany({
+        where: { id: { in: memberIds } },
+        include: {
+          fatherOf: { select: { id: true, name: true, gender: true } },
+          motherOf: { select: { id: true, name: true, gender: true } },
+          partner: { select: { id: true, name: true, gender: true } },
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching members:", error);
+      throw new Error("Failed to fetch members data.");
+    }
 
-  return await Promise.all(
-    members.map(async (member) => {
-      const childIds = [
-        ...member.fatherOf.map((child) => child.id),
-        ...member.motherOf.map((child) => child.id),
-      ];
+    return await Promise.all(
+      members.map(async (member) => {
+        try {
+          const childIds = [
+            ...member.fatherOf.map((child) => child.id),
+            ...member.motherOf.map((child) => child.id),
+          ];
 
-      const nextGen = await fetchFamilyTree(childIds);
+          const nextGen = await fetchFamilyTree(childIds);
 
-      const currentGen = [
-        { name: member.name, gender: member.gender },
-        ...(member.partner ? [{ name: member.partner.name, gender: member.partner.gender }] : []),
-      ];
+          const currentGen = [
+            { name: member.name, gender: member.gender },
+            ...(member.partner ? [{ name: member.partner.name, gender: member.partner.gender }] : []),
+          ];
 
-      return {
-        gen: currentGen,
-        next_gen: nextGen,
-      };
-    })
-  );
+          return {
+            gen: currentGen,
+            next_gen: nextGen,
+          };
+        } catch (innerError) {
+          console.error(`Error processing member ${member.id}:`, innerError);
+          return null;
+        }
+      })
+    );
+  } catch (error) {
+    console.error("Error fetching family tree:", error);
+    return []
+  }
 }
+
 
 export default async function FetchFamilyTree({ memberIds }: { memberIds: number[] }) {
   const data = await fetchFamilyTree(memberIds);

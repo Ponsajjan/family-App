@@ -131,9 +131,9 @@ export default function Home() {
 
       } catch (error: any) {
         if (toast) {
-          toast.show(error || "Failed to fetch event dates.", "error", 5000);
+          toast.show(error.message || "Failed to fetch event dates.", "error", 5000);
         } else {
-          console.log(error)
+          console.log(error.message)
         }
       } finally {
         setLoading(false);

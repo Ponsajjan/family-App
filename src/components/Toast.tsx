@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useRef, useCallback, useMemo } from "react";
 import { Error, Info, PlusIcon, Success, Warning } from "@/utils/Icons";
 
 interface Toast {
@@ -10,59 +10,82 @@ interface Toast {
 }
 
 interface ToastContextType {
-    show: (component:string, type: 'info' | 'success' | 'error' | 'warning', timeout:number) => void;
+    show: (component: string, type: Toast["type"], timeout?: number) => void;
     close: (id: number) => void;
 }
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined)
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export const useToast = () => useContext(ToastContext)
+export const useToast = () => {
+    const context = useContext(ToastContext);
+    // if (!context) {
+    //     throw Error("useToast must be used within a ToastProvider");
+    // }
+    return context;
+};
 
-function ToastProvider({children}: any) {
-    const [toasts, setToasts] = useState<Toast[]>([])
+function ToastProvider({ children }: { children: React.ReactNode }) {
+    const [toasts, setToasts] = useState<Toast[]>([]);
+    const timeoutsRef = useRef<{ [key: number]: NodeJS.Timeout }>({});
 
+    // `show` is memoized and will not change across renders
+    const show = useCallback(
+        (component: string, type: Toast["type"] = 'info', timeout: number = 5000) => {
+            const id = Date.now();
+            setToasts((prevToasts) => [...prevToasts, { id, component, type }]);
 
-    const show = (component:string, type: 'info' | 'success' | 'error' | 'warning' = 'info', timeout:number = 5000) => {
-        const id = Date.now()
-        setToasts(prevToasts => [...prevToasts, {id, component, type}])
-    
-        setTimeout(() => close(id), timeout)
-    }
+            const timeoutId = setTimeout(() => {
+                close(id);
+            }, timeout);
+            timeoutsRef.current[id] = timeoutId;
+        },
+        []
+    );
 
-    const close = (id:number) => {
-        setToasts ((toasts) => toasts.filter((toasts) => toasts.id !== id))
-    }
-    
-    const getToastStyle = (type:string) => {
-        switch (type) {
-            case "success":
-                return (<Success /> )
-            case "error":
-                return (<Error />);
-            case "warning":
-                return (<Warning />);
-            default:
-                return (<Info />);
-        }
+    // `close` is also memoized
+    const close = useCallback((id: number) => {
+        clearTimeout(timeoutsRef.current[id]);
+        delete timeoutsRef.current[id];
+        setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+    }, []);
+
+    // Memoized context value ensures that the value reference never changes
+    const contextValue = useMemo(() => ({ show, close }), [show, close]);
+
+    const toastIcons: { [key in Toast["type"]]: any } = {
+        success: <Success />,
+        error: <Error />,
+        warning: <Warning />,
+        info: <Info />,
     };
 
     return (
-        <ToastContext.Provider value={{show, close}}>
+        <ToastContext.Provider value={contextValue}>
             {children}
-            {(toasts.length > 0) && <div className="fixed bg-gray-400/50 inset-0 cursor-not-allowed z-[103]"></div>}
-            <div className="fixed top-24 left-1/2 transform -translate-x-1/2 flex flex-col mx-auto items-center justify-center space-y-1 z-[104] w-full px-4">
-                {toasts.map(({id, component, type}) => (
-                    <div key={id} className={`toast_in delay-100 transition-all duration-300 ease-in-out w-full md:min-w-60 max-w-96 bg-field_color relative p-2 border border-border_active overflow-hidden rounded-md`}>
+            <div
+                className="fixed top-24 left-1/2 transform -translate-x-1/2 flex flex-col mx-auto items-center justify-center space-y-1 z-[104] w-full px-4"
+                aria-live="polite"
+            >
+                {toasts.map(({ id, component, type }) => (
+                    <div
+                        key={id}
+                        role="alert"
+                        aria-live="assertive"
+                        className="toast_in delay-100 transition-all duration-300 ease-in-out w-full md:min-w-60 max-w-96 bg-field_color relative p-2 border border-border_active overflow-hidden rounded-md"
+                    >
                         <div className="flex justify-between gap-2">
-                            {getToastStyle(type)}
+                            {toastIcons[type]}
                             <p className="md:text-xl text-text_color w-72">{component}</p>
-                            <button onClick={() => close(id)} className="w-6 h-6 transform rotate-45"><PlusIcon /></button>
+                            <button onClick={() => close(id)} className="w-6 h-6 transform rotate-45">
+                                <PlusIcon />
+                            </button>
                         </div>
                         <div className="progress active absolute bottom-0 left-0 w-full h-1 bg-field_hover"></div>
                     </div>
                 ))}
             </div>
         </ToastContext.Provider>
-    )
+    );
 }
-export default ToastProvider
+
+export default ToastProvider;
