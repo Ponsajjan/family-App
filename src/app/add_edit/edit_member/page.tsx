@@ -179,7 +179,7 @@ export default function EditMemberDetails () {
             setSelectedValue={handleSelectedValue} 
             openList={setShowList} 
             multiselect={false} 
-            descendant={null} /> 
+            descendant={null} />
         </div>
       </div>
     </div>
