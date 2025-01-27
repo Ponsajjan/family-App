@@ -141,7 +141,7 @@ export default function Home() {
     }
 
     fetchEventDates();
-  }, [month]);
+  }, [month, toast]);
 
   return (
     <div className="w-full">

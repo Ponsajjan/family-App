@@ -174,7 +174,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [forType, showCousin, params, hasMore, toast]);
+  }, [forType, showCousin, params, hasMore, toast, descendant, excludeId, gender]);
 
   const handleSelectedValue = (item: string, id: number, select: string) => {
     setSelectedValue(item, id, select);
@@ -292,7 +292,7 @@ export default function MemberList({ forType='selectMember', gender=null, exclud
             <div className="p-6 text-center">{error}</div> :
             <>
               {members.length == 0 && searchInput.length > 0 ? 
-                <p className='text-center pt-10 pb-4 px-2'>No members found for '{params.search}'</p> :
+                <p className='text-center pt-10 pb-4 px-2'>No members found for &#39;{params.search}&#39;</p> :
                 <>
                   {forType === 'selectChildren' && 
                     <p className='text-center pt-10 pb-4 px-2'>No family descendant with parents unassigned</p>}

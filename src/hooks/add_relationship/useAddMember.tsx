@@ -54,7 +54,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
             setSelectedMemberData(AddRelationDefaultFormValue)
             setExcludeMemberRelation([])
         }
-    }, [selectedMemberId])
+    }, [selectedMemberId, router, toast])
     return {
         memberloading,
         descendant,
