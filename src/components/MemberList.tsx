@@ -37,7 +37,7 @@ interface MemberListProps {
   descendant: boolean | null;
 }
 
-export default function MemberList({ forType='selectMember', gender=null, excludeId=[], descendant=null, setSelectedValue, openList, getSelectedValues, multiselect }: MemberListProps) {
+export default function MemberList({ forType='selectMember', gender=null, excludeId='', descendant=null, setSelectedValue, openList, getSelectedValues, multiselect }: MemberListProps) {
   const toast = useToast();
   const [members, setMembers] = useState<Member[]>([]);
   const [showCousin, setShowCousin] = useState<boolean>(false);
