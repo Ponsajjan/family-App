@@ -2,30 +2,52 @@ import { NextResponse } from "next/server";
 import { generateToken } from "@/utils/auth";
 import prisma from "@/db/db";
 
+interface LoginRequestBody {
+  password: string;
+}
+
+interface LoginResponse {
+  id: number;
+  forDescendanceOf: string;
+  mainMemberId: number;
+  password: string;
+  moderatorName: string;
+  moderatorContact: string;
+  moderatorPassword: string;
+}
+
 export async function POST(request: Request) {
   try {
-    const { password } = await request.json(); 
-    
+    const { password }: LoginRequestBody = await request.json();
+
+    if (!password) {
+      return NextResponse.json(
+        { success: false, error: "Password is required" },
+        { status: 400 }
+      );
+    }
+
     // Try finding the password in the database
-    let login = await prisma.auth.findUnique({ where: { password } });
+    let login: LoginResponse | null = await prisma.auth.findUnique({
+      where: { password },
+    });
 
     // If no match is found in DB, check the environment variable
-    if (!login && password === process.env.SUPER_ADMIN_PASSWORD) {
-      login = { 
-        id:108,
+    if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
+      login = {
+        id: 108, // Avoid hardcoding; consider generating a unique ID
         forDescendanceOf: "superAdmin",
-        mainMemberId: -1,
-        password: process.env.SUPER_ADMIN_PASSWORD || 'trust me, there is a password',
-        moderatorName: "hi",
-        moderatorContact: "hi",
-        moderatorPassword: "hi"
-
-     };
+        mainMemberId: -1, // Avoid hardcoding; consider a better default
+        password: process.env.SUPER_ADMIN_PASSWORD,
+        moderatorName: "superAdmin",
+        moderatorContact: "N/A",
+        moderatorPassword: "N/A",
+      };
     }
 
     if (!login) {
       return NextResponse.json(
-        { success: false, error: "No match found" },
+        { success: false, error: "Invalid credentials" },
         { status: 403 }
       );
     }
@@ -37,12 +59,11 @@ export async function POST(request: Request) {
       userType: login.forDescendanceOf === "superAdmin" ? "superAdmin" : "member",
     });
 
-    return NextResponse.json({ message: "Login successful", token });
-
+    return NextResponse.json({ success: true, message: "Login successful", token });
   } catch (error) {
     console.error("Error logging in:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to log in" },
+      { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }
