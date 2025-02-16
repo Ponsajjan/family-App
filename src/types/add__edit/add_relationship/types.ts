@@ -10,6 +10,12 @@ export interface AddRelationFormValuesType {
     children: Member[];
 }
 
+export interface memberListConstrainType {
+    gender: 'Male' | 'Female' | null | undefined;
+    excludeId: number[],
+    descendant: boolean | null
+}
+
 export const AddRelationDefaultFormValue: AddRelationFormValuesType = {
     id: undefined,
     name: undefined,

@@ -8,7 +8,7 @@ import MemberList from "@/components/MemberList";
 import { AddRelationship, BackButton } from "@/utils/Icons";
 import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
-import { AddRelationDefaultFormValue, AddRelationFormValuesType } from "@/types/add__edit/add_relationship/types";
+import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
 import AddRelationShipForm from "@/components/forms/AddRelationShipForm";
 import { useToast } from "@/components/Toast";
 
@@ -20,11 +20,15 @@ export default function EditMemberDetails () {
   const [error, setError] = useState<string | null>(null);
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
-  // const [showList, setShowList] = useState<boolean>(false);
+  const [showList, setShowList] = useState<boolean>(false);
   
-  const [showList, setShowListqq] = useState<boolean>(true);
-  const [showListqq, setShowList] = useState<boolean>(false);
-
+  // const [showList, setShowListqq] = useState<boolean>(true);
+  // const [showListqq, setShowList] = useState<boolean>(false);
+  const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
+    gender: null,
+    excludeId: [],
+    descendant: null
+  })
   const {
     memberloading,
     descendant,
@@ -38,6 +42,12 @@ export default function EditMemberDetails () {
  
   const handleShowList = (field: 'selectMember' | 'selectChildren' | 'selectPartner') => {
     setShowListFor(field);
+    setMemberListConstrain((prevParams) => ({
+      ...prevParams,
+      gender: selectedMemberData?.gender,
+      excludeId: [...excludeMemberRelation, ...excludePartnerRelation],
+      descendant: descendant
+    }));
     setShowList(true);
   };
 
@@ -198,13 +208,13 @@ export default function EditMemberDetails () {
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
           <MemberList 
             forType={showListFor} 
-            gender={selectedMemberData?.gender} 
-            excludeId={[...excludeMemberRelation, ...excludePartnerRelation]} 
+            gender={memberListConstrain?.gender} 
+            excludeId={memberListConstrain?.excludeId} 
             getSelectedValues={newChildrenData} 
             setSelectedValue={ handleSelectedValue } 
             openList={setShowList} 
             multiselect={'selectChildren' === showListFor} 
-            descendant={descendant} 
+            descendant={memberListConstrain?.descendant} 
           />
         </div>
       </div>

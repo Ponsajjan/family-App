@@ -68,12 +68,6 @@ export default function EditMemberDetails () {
             ...prev,
             ['children']: prev['children'].filter((entry: any) => entry.id !== id),
           };
-        } else {
-          // Add the new entry
-          return {
-            ...prev,
-            ['children']: [...prev['children'], { id, name: name }],
-          };
         }
       }
   
