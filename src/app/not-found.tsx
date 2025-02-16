@@ -1,11 +1,30 @@
-import React from 'react'
+"use client";
 
-function not_found() {
-  return (
-  <div className="w-full">
-    <div className="h-12 border-b border-border_color sticky top-0 left-0 w-full bg-field_color flex gap-2 items-center justify-between text-text_color pl-10 pr-2 font-bold text-lg z-[98]">
-    </div>
-      <div className='text-text_color flex justify-center items-center w-full h-[calc(100%-48px)]'>
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function Page() {
+  const router = useRouter();
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+      const cookies = document.cookie.split("; ").find(row => row.startsWith("token="));
+      if (cookies) {
+          setHasToken(true);
+          const redirectTimer = setTimeout(() => {
+            router.push('/')
+          }, 2000)
+      
+          return () => clearTimeout(redirectTimer)
+      } else {
+          setHasToken(false);
+          router.push("/login");
+      }
+  }, [router]);
+
+  if (hasToken) {
+    return (
+      <div className='text-text_color flex justify-center items-center w-full h-screen'>
         <span>
           <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 24 24" fill="none">
             <path fillRule="evenodd" clipRule="evenodd" d="M9.29289 1.29289C9.48043 1.10536 9.73478 1 10 1H18C19.6569 1 21 2.34315 21 4V8C21 8.55228 20.5523 9 20 9C19.4477 9 19 8.55228 19 
@@ -17,8 +36,8 @@ function not_found() {
         </span>
         <span className='pl-2 mt-4'>Page Not Found !</span>
       </div>
-  </div>
-  )
-}
+    )
+  }
 
-export default not_found
+  return null;
+}

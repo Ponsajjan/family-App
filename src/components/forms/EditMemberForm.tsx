@@ -178,7 +178,7 @@ function EditMemberForm({
             />
             <Input
                 className="mb-4"
-                label="Address"
+                label="Location State/Country"
                 name="address"
                 value={formData.address || ''}
                 onChange={handleInputChange}

@@ -5,7 +5,7 @@ interface Member {
 export interface AddRelationFormValuesType {
     id: number | undefined;
     name: string | undefined;
-    gender: string | undefined;
+    gender?: 'Male' | 'Female' | null;
     partner: Member | null;
     children: Member[];
 }

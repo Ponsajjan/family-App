@@ -130,7 +130,7 @@ export default function Details({ data, openDetails }: any) {
                         )}
                         {data?.address && (
                             <>
-                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Address</div>
+                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Location</div>
                                 <div className='w-3/5 md:leading-7'>{data?.address}</div>
                             </>
                         )}

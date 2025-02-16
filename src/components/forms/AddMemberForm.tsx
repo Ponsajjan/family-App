@@ -182,7 +182,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
             className="mb-4"
             showOptional={true}
             name="address"
-            label="Address"
+            label="Location State/Country"
             value={formData.address || ''}
             onChange={handleInputChange}
             />

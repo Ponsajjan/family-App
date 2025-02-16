@@ -10,8 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Auth {
+  id                         Int                  @id @default(autoincrement())
+  forDescendanceOf           String
+  mainMemberId               Int                  
+  moderatorName              String               
+  moderatorContact           String               
+  moderatorPassword          String               
+  password                   String               @unique
+}
 model Member {
   id                         Int                   @id @default(autoincrement())
+  descendantOf               String
   verified                   Boolean?              @default(false)
   name                       String
      

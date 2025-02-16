@@ -3,22 +3,34 @@ import prisma from "@/db/db"; // Adjust the import path as needed
 
 export async function POST(request: Request) {
   try {
-    // Parse the JSON payload from the request body
-    const formData = await request.json(); 
-    const deceased = formData.deceased === true; // Handle as a boolean
-    
-    // Utility function
+    const formData = await request.json();
+    const deceased = formData.deceased === true;
+
+    // Utility function to capitalize words
     const capitalizeWords = (name: string) => {
-      return name.replace(/\b\w/g, (char) => char.toUpperCase())
-      .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .replace(/,\s*\w/g, (char) => char.toUpperCase());
-    }
-    const formatTwoDigits = (value: number | null) => {
-      return value !== null ? parseInt(String(value).padStart(2, '0'), 10) : null;
+      return name
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+        .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .replace(/,\s*\w/g, (char) => char.toUpperCase());
     };
 
+    // Utility function to format two digits
+    const formatTwoDigits = (value: number | null) => {
+      return value !== null ? parseInt(String(value).padStart(2, "0"), 10) : null;
+    };
+
+    // Validate required fields
+    if (!formData.name || !formData.gender) {
+      return NextResponse.json(
+        { error: "Name and gender are required." },
+        { status: 400 }
+      );
+    }
+
+    // Prepare member data
     const member = {
       name: capitalizeWords(formData.name),
+      descendantOf: "test", // Hardcoded for now
       gender: formData.gender,
       birthDate: formData.birthDate ? formatTwoDigits(formData.birthDate) : null,
       birthMonth: formData.birthMonth ? formatTwoDigits(formData.birthMonth) : null,
@@ -34,31 +46,34 @@ export async function POST(request: Request) {
       descendant: formData.descendant,
     };
 
-    if (!formData.gender) {
-      return NextResponse.json({
-        error: 'Gender not assigned',
-      }, { status: 400 });
-    }
-    // Save member to the database
-    const newMember = await prisma.member.create({
-      data: member,
+    // Use a transaction to ensure atomicity
+    const result = await prisma.$transaction(async (prisma) => {
+      // Create the member
+      const newMember = await prisma.member.create({
+        data: member,
+      });
+
+      // If the member is not a descendant and has relatives, create nonDescendantRelation
+      let nonDescendantRelatives = null;
+      if (formData.descendant === false && (formData.father || formData.mother || formData.siblings)) {
+        nonDescendantRelatives = await prisma.nonDescendantRelation.create({
+          data: {
+            fatherName: formData.father ? capitalizeWords(formData.father) : null,
+            motherName: formData.mother ? capitalizeWords(formData.mother) : null,
+            siblingNames: formData.siblings ? capitalizeWords(formData.siblings) : null,
+            memberId: newMember.id, // Link nonDescendantRelation to the newly created Member
+          },
+        });
+      }
+
+      return { member: newMember, nonDescendantRelatives };
     });
 
-    if (formData.descendant === false) {
-      await prisma.nonDescendantRelation.create({
-        data: {
-          fatherName: formData.father ? capitalizeWords(formData.father) : null,
-          motherName: formData.mother ? capitalizeWords(formData.mother) : null,
-          siblingNames: formData.siblings ? capitalizeWords(formData.siblings) : null,
-          memberId: newMember.id, // Link nonDescendantRelation to the newly created Member
-        },
-      });
-    }
-
-    return NextResponse.json({ 
-      success: true, 
-      message: "Member added successfully", 
-      member: newMember });
+    return NextResponse.json({
+      success: true,
+      message: "Member added successfully",
+      data: result,
+    });
   } catch (error) {
     console.error("Error adding member:", error);
     return NextResponse.json(

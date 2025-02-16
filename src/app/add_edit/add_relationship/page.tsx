@@ -20,7 +20,10 @@ export default function EditMemberDetails () {
   const [error, setError] = useState<string | null>(null);
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
-  const [showList, setShowList] = useState<boolean>(false);
+  // const [showList, setShowList] = useState<boolean>(false);
+  
+  const [showList, setShowListqq] = useState<boolean>(true);
+  const [showListqq, setShowList] = useState<boolean>(false);
 
   const {
     memberloading,

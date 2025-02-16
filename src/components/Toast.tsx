@@ -28,6 +28,13 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
     const [toasts, setToasts] = useState<Toast[]>([]);
     const timeoutsRef = useRef<{ [key: number]: NodeJS.Timeout }>({});
 
+    // `close` is memoized
+    const close = useCallback((id: number) => {
+        clearTimeout(timeoutsRef.current[id]);
+        delete timeoutsRef.current[id];
+        setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+    }, []);
+
     // `show` is memoized and will not change across renders
     const show = useCallback(
         (component: string, type: Toast["type"] = 'info', timeout: number = 5000) => {
@@ -39,15 +46,8 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
             }, timeout);
             timeoutsRef.current[id] = timeoutId;
         },
-        []
+        [close] // Add `close` to the dependency array
     );
-
-    // `close` is also memoized
-    const close = useCallback((id: number) => {
-        clearTimeout(timeoutsRef.current[id]);
-        delete timeoutsRef.current[id];
-        setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
-    }, []);
 
     // Memoized context value ensures that the value reference never changes
     const contextValue = useMemo(() => ({ show, close }), [show, close]);

@@ -35,18 +35,18 @@ enum ForType {
 }
 
 interface MemberListProps {
-  forType: ForType;
+  forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship'; // Restricted subset
   gender?: 'Male' | 'Female' | null;
-  excludeId?: number | null;
+  excludeId?: number[] | null;
   setSelectedValue: (item: string, id: number, select: string) => void;
   openList: any;
-  getSelectedValues: { [key: string]: EachMember[] };
+  getSelectedValues: any;
   multiselect: boolean;
   descendant: boolean | null;
 }
 
 export default function MemberList({
-  forType = ForType.SelectMember,
+  forType = 'selectMember',
   gender = null,
   excludeId = null,
   descendant = null,
@@ -108,7 +108,7 @@ export default function MemberList({
   }, [forType, showCousin]);
 
   useEffect(() => {
-    function setFiltersUsed(forType: ForType) {
+    function setFiltersUsed(forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship') {
       switch (forType) {
         case ForType.SelectMember:
           setAppliedFilters(['All Members']);

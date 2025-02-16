@@ -265,3 +265,12 @@ input[type="radio"]:checked::after {
 .input-not-placeholder:not(:placeholder-shown) {
   width: 100%;
 }
+
+table {
+  width: 100%;
+}
+
+thead, tbody, tr, th, td {
+  text-align: left;
+  padding: 2px;
+}
