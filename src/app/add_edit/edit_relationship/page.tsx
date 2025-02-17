@@ -18,6 +18,7 @@ export default function EditMemberDetails () {
   const [previousData, setPreviousData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
   const [formData, setFormData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
   const [deleteData, setDeleteData] = useState<DeleteValueTypes>(editRelationshipDefaultDeleteValue);
+  const [partnerId, setPartnerId] = useState<number | undefined | null>(null)
   const [loading, setLoading] = useState<boolean>(false);
   const [showList, setShowList] = useState<boolean>(false);
 
@@ -34,6 +35,7 @@ export default function EditMemberDetails () {
           if (!response.ok) throw new Error('Failed to fetch member details');
           const { data } = await response.json();
           setFormData(data);
+          setPartnerId(data.partner?.id)
           setPreviousData(data);
         } catch (error:any) {
             if (toast) {
@@ -51,7 +53,7 @@ export default function EditMemberDetails () {
     }
   }, [formData.id, toast, router]);
 
-  const handleRemoveChildrenValue = (id: number, name: string) => {
+  const handleRemoveChildrenValue = (name: string, id: number,) => {
     setNoChanges(false);
     setFormData((prev: any) => {
       if (Array.isArray(prev['children'])) {
@@ -74,7 +76,7 @@ export default function EditMemberDetails () {
       // If not an array, initialize with the first object
       return {
         ...prev,
-        ['children']: { id, name: name },
+        ['children']: { id, name },
       };
     });
   };
@@ -123,7 +125,7 @@ export default function EditMemberDetails () {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(deleteData),
+        body: JSON.stringify({deleteData:deleteData, partnerId:partnerId }),
       });
   
       if (!response.ok) {
@@ -133,7 +135,7 @@ export default function EditMemberDetails () {
         } else {
           alert(errorData.error || "Failed to update member")
         }
-        // throw new Error(errorData.error || "Failed to update member");
+        throw new Error(errorData.error || "Failed to update member");
       }
   
       const result = await response.json();
@@ -194,7 +196,12 @@ export default function EditMemberDetails () {
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       />
       <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
-        <MemberList forType={'editRelationship'} getSelectedValues={formData} setSelectedValue={handleSelectedValue} openList={setShowList} multiselect={false} descendant={null} />
+        <MemberList 
+          forType={'editRelationship'} 
+          getSelectedValues={formData} 
+          setSelectedValue={handleSelectedValue} 
+          openList={setShowList} multiselect={false} 
+          descendant={null} />
       </div>
     </div>
   );

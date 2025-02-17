@@ -38,17 +38,19 @@ export async function GET(request: Request) {
               fatherId: true,
               motherId: true
             },
-          },
+          }, 
           fatherOf: {
             select: {
               id: true,
               name: true,
+              partnerId: true,
             },
           },
           motherOf: {
             select: {
               id: true,
               name: true,
+              partnerId: true
             },
           },
         },
@@ -61,6 +63,7 @@ export async function GET(request: Request) {
         ...(Array.isArray(dbData.mother?.motherOf) ? dbData.mother.motherOf : []),
       ])];
       const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
+      const inLaw = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
 
       // Format the data
       const data = {
@@ -79,6 +82,7 @@ export async function GET(request: Request) {
           dbData.partner?.motherId ? dbData.partner?.motherId : null,
           ...(siblingData ? siblingData.map((sibling: any) => sibling.id) : []),
           ...(childrenData ? childrenData.map((child: any) => child.id) : []),
+          ...(inLaw ? childrenData.map((child: any) => child.partnerId) : []),
         ].filter(Boolean), // Remove null values from the array // also need to include the logged in Sembahalingum's ID to exclude from the list
 
       };

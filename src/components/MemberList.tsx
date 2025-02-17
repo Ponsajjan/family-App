@@ -1,7 +1,7 @@
 'use client';
 
 import { Call, Female, FilterClose, FilterSelect, Male, SearchIcon } from '@/utils/Icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
@@ -64,7 +64,7 @@ export default function MemberList({
   const [loadingList, setLoadingList] = useState(false);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [switchingList, setSwitchingList] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [params, setParams] = useState({
     page: 1,
     limit: 16,
@@ -95,7 +95,7 @@ export default function MemberList({
 
   const selectedValues = getSelectedValues[keyMap[forType]] || [];
 
-  useEffect(() => {
+  useMemo(() => {
     setMembers([]);
     setParams((prevParams) => ({
       ...prevParams,
@@ -103,7 +103,7 @@ export default function MemberList({
       page: 1,
     }));
     setSearchInput('');
-    setHasMore(true);
+    setHasMore(false);
     setSwitchingList(true);
   }, [forType, showCousin]);
 

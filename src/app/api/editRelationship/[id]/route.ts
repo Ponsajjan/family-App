@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from "@/db/db";
-import { Children } from "react";
 
 export async function GET(request: Request, context: any) {
     const url = new URL(request.url);
@@ -73,7 +71,10 @@ export async function PUT(request: Request, context: any) {
   }
 
   try {
-    const deleteData = await request.json();
+    const {deleteData, partnerId} = await request.json();
+
+    console.log('deleteDatadeleteDatadeleteData', deleteData);
+    console.log('partnerIdpartnerIdpartnerId', partnerId);
 
     // Validate request body
     if (!deleteData || Object.keys(deleteData).length === 0) {
@@ -103,18 +104,43 @@ export async function PUT(request: Request, context: any) {
 
     // Handle children relations removal
     if (deleteData.childrenId) {
-      const removeChildRelation:number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
-
+      const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
+    
+      // Update the member's fatherOf and motherOf relationships
       updatePromises.push(
-        Promise.all(
-          removeChildRelation.map((childId) =>
-            prisma.member.update({
-              where: { id: childId },
-              data: { fatherId: null, motherId: null },
-            })
-          )
-        )
+        prisma.member.update({
+          where: { id: memberId },
+          data: {
+            // Remove children from fatherOf if it exists
+            fatherOf: {
+              disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+            },
+            // Remove children from motherOf if it exists
+            motherOf: {
+              disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+            },
+          },
+        })
       );
+    
+      // Update the partner's fatherOf and motherOf relationships (if partner exists)
+      if ((partnerId !== null && partnerId !== undefined) && deleteData.partnerId === null) {
+        updatePromises.push(
+          prisma.member.update({
+            where: { id: partnerId },
+            data: {
+              // Remove children from fatherOf if it exists
+              fatherOf: {
+                disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+              },
+              // Remove children from motherOf if it exists
+              motherOf: {
+                disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+              },
+            },
+          })
+        );
+      }
     }
 
     // Wait for all updates to complete

@@ -25,7 +25,7 @@ export default function Relatives() {
   const [loadingList, setLoadingList] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [params, setParams] = useState({
     page: 1,
     limit: 50,

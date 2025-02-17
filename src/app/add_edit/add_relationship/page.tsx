@@ -41,14 +41,16 @@ export default function EditMemberDetails () {
     excludePartnerRelation} = useAddPartner({selectedPartnerId, selectedMemberData});
  
   const handleShowList = (field: 'selectMember' | 'selectChildren' | 'selectPartner') => {
+    setShowList(true);
+    if (field === showListFor) return // this is stop fetching in MemberList
     setShowListFor(field);
+    // This if to triger MemberList fetch only when 'showListFor' value changes
     setMemberListConstrain((prevParams) => ({
       ...prevParams,
       gender: selectedMemberData?.gender,
       excludeId: [...excludeMemberRelation, ...excludePartnerRelation],
       descendant: descendant
     }));
-    setShowList(true);
   };
 
   const handleSelectedValue = (name: string, id: number, select: string) => {
