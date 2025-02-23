@@ -56,12 +56,13 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
       if (!prisma?.member?.findMany) {
         throw new Error("Prisma is not initialized or 'findMany' method is unavailable.");
       }
-    
+
+      // Fetch members with their relationships and order field
       members = await prisma.member.findMany({
         where: { id: { in: memberIds } },
         include: {
-          fatherOf: { select: { id: true, name: true, gender: true } },
-          motherOf: { select: { id: true, name: true, gender: true } },
+          fatherOf: { select: { id: true, name: true, gender: true, order: true } }, // Include order field
+          motherOf: { select: { id: true, name: true, gender: true, order: true } }, // Include order field
           partner: { select: { id: true, name: true, gender: true } },
         },
       });
@@ -70,16 +71,25 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
       throw new Error("Failed to fetch members data.");
     }
 
+    // Sort members by their order value
+    members.sort((a, b) => a.order - b.order);
+
     return await Promise.all(
       members.map(async (member) => {
         try {
+          // Combine fatherOf and motherOf children and deduplicate by ID
           const childIds = [
             ...member.fatherOf.map((child) => child.id),
             ...member.motherOf.map((child) => child.id),
           ];
 
+          // Fetch the next generation recursively
           const nextGen = await fetchFamilyTree(childIds);
 
+          // Sort nextGen based on the order value of each child
+          nextGen.sort((a, b) => a.order - b.order);
+
+          // Current generation data
           const currentGen = [
             { name: member.name, gender: member.gender },
             ...(member.partner ? [{ name: member.partner.name, gender: member.partner.gender }] : []),
@@ -97,13 +107,13 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
     );
   } catch (error) {
     console.error("Error fetching family tree:", error);
-    return []
+    return [];
   }
 }
 
-
 export default async function FetchFamilyTree({ memberIds }: { memberIds: number[] }) {
   const data = await fetchFamilyTree(memberIds);
+  console.log(JSON.stringify(data, null, 2));
   return (
     <>
       <div className="flex">

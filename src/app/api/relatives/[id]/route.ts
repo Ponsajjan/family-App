@@ -17,6 +17,7 @@ export async function GET(request: Request, context: any) {
         id: true,
         name: true,
         gender: true,
+        verified: true,
         phoneNumber: true,
         address: true,
         occupation: true,

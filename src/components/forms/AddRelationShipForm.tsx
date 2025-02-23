@@ -1,12 +1,14 @@
 import { ChangeMember, MinusIcon, PlusIcon } from '@/utils/Icons'
-import React from 'react'
+import { useRef } from 'react'
 import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
+import DropArea from '../DropArea';
 
 interface AddRelationShipFormPropType {
     selectedMemberData: AddRelationFormValuesType;
     selectedPartnerData: AddRelationFormValuesType;
     newChildrenData: AddRelationFormValuesType;
+    setNewChildrenData: (value: AddRelationFormValuesType) => void;
     setSelectedPartnerId: (value: number | null | undefined) => void;
     setShowListFor: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
     handleShowList: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
@@ -14,10 +16,12 @@ interface AddRelationShipFormPropType {
     handleSubmit: any;
     error: string | null;
 }
+
 function AddRelationShipForm({
     selectedMemberData,
     selectedPartnerData,
     newChildrenData,
+    setNewChildrenData,
     setSelectedPartnerId,
     setShowListFor,
     handleShowList,
@@ -25,6 +29,26 @@ function AddRelationShipForm({
     handleSubmit,
     error
 }: AddRelationShipFormPropType) {
+
+    const dragItem = useRef<number>(0);
+    const dragOverItem = useRef<number>(0);
+
+    const handleDragStart = (index: number) => {
+        dragItem.current = index;
+    };
+
+    const handleDragEnter = (index: number) => {
+        dragOverItem.current = index;
+    };
+
+    const handleDrop = () => {
+        const list = newChildrenData.children;
+        const dragItemContent = list[dragItem.current];
+        list.splice(dragItem.current, 1);
+        list.splice(dragOverItem.current, 0, dragItemContent);
+        setNewChildrenData({ ...newChildrenData, children: list });
+    };
+
   return (
     <form className="text-text_color relative" onSubmit={handleSubmit}>
         {!selectedMemberData?.name && <div onClick={() => handleShowList('selectMember')} className={`absolute inset-0 z-10`}></div>}
@@ -78,8 +102,14 @@ function AddRelationShipForm({
                 )}
             </>
             <>
-                {newChildrenData?.children.map((item: {id:any, name:string}) => (
-                <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                {newChildrenData?.children.map((item: {id:any, name:string}, index) => (
+                <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 cursor-grab`} 
+                    draggable={true}
+                    onDragStart={() => handleDragStart(index)}
+                    onDragEnter={() => handleDragEnter(index)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                >
                     <span className="py-2 w-full">{item?.name}</span>
                     <span
                         onClick={() => {handleSelectedValue(item?.name, item?.id, 'selectChildren')}}
@@ -95,9 +125,7 @@ function AddRelationShipForm({
             <span className="pr-2">Add Children</span>
             <span className="w-4 h-4"><PlusIcon /></span>
         </div>}
-        <div className="mt-8 mb-4">
-            <ButtonSolid type="submit" className="w-full" buttonText="Add Relationship" />
-        </div>
+        <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />
     </form>
   )
 }

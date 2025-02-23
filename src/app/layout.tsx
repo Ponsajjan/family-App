@@ -33,17 +33,19 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className} suppressHydrationWarning={true}>
           <main id="MainDiv">
-            <noscript>hu hu hu</noscript>
+            <noscript>hu hu hu..</noscript>
             <ThemeProvider>
-              <ToastProvider>
                 <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
                   <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
                     <Sidenav />
-                    {children}
+                    <div className="w-full relative">
+                      <ToastProvider>
+                        {children}
+                        <div id='portal'></div>
+                      </ToastProvider>
+                    </div>
                   </div>
                 </div>
-                <div id='portal'></div>
-              </ToastProvider>
             </ThemeProvider>
           </main>
         </body>

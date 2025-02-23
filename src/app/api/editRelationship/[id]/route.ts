@@ -4,9 +4,11 @@ import prisma from "@/db/db";
 export async function GET(request: Request, context: any) {
     const url = new URL(request.url);
     const id = parseInt(url.pathname.split('/').pop() || '');
+
     if (!id) {
       return NextResponse.json({ error: "Member ID is required and should be a valid number." });
     }
+
     try {
       const dbData = await prisma.member.findMany({
         where: {
@@ -26,24 +28,37 @@ export async function GET(request: Request, context: any) {
             select: {
               id: true,
               name: true,
+              order: true,
             },
           },
           motherOf: {
             select: {
               id: true,
               name: true,
+              order: true,
             },
           },
         },
       });
-      const member = dbData[0]
+
+      const member = dbData[0];
+
+      // Combine fatherOf and motherOf children
+      const children = member.fatherOf.length > 0 ? member.fatherOf : member.motherOf.length > 0 ? member.motherOf : [];
+
+      // Sort children by order
+      if (children && Array.isArray(children)) {
+        children.sort((a, b) => a.order - b.order);
+      }
+
+      // Format the data
       const data = {
         id: member.id,
         name: member.name,
         gender: member.gender,
         partner: member.partner,
-        children: member.fatherOf.length > 0 ? member.fatherOf : (member.motherOf.length > 0 ? member.motherOf : [])
-      }
+        children: children,
+      };
 
       return NextResponse.json({ data });
     } catch (error) {
@@ -71,10 +86,7 @@ export async function PUT(request: Request, context: any) {
   }
 
   try {
-    const {deleteData, partnerId} = await request.json();
-
-    console.log('deleteDatadeleteDatadeleteData', deleteData);
-    console.log('partnerIdpartnerIdpartnerId', partnerId);
+    const { deleteData, hasPartner, childrenOrder } = await request.json();
 
     // Validate request body
     if (!deleteData || Object.keys(deleteData).length === 0) {
@@ -86,12 +98,12 @@ export async function PUT(request: Request, context: any) {
 
     // Handle partner removal
     if (deleteData.partnerId) {
-      const partnerId = deleteData.partnerId;
+      const partnerIdToRemove = deleteData.partnerId;
 
       updatePromises.push(
         prisma.$transaction([
           prisma.member.update({
-            where: { id: partnerId },
+            where: { id: partnerIdToRemove },
             data: { partnerId: null },
           }),
           prisma.member.update({
@@ -103,9 +115,9 @@ export async function PUT(request: Request, context: any) {
     }
 
     // Handle children relations removal
-    if (deleteData.childrenId) {
+    if (deleteData.childrenId && Array.isArray(deleteData.childrenId)) {
       const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
-    
+
       // Update the member's fatherOf and motherOf relationships
       updatePromises.push(
         prisma.member.update({
@@ -122,12 +134,12 @@ export async function PUT(request: Request, context: any) {
           },
         })
       );
-    
+
       // Update the partner's fatherOf and motherOf relationships (if partner exists)
-      if ((partnerId !== null && partnerId !== undefined) && deleteData.partnerId === null) {
+      if (hasPartner !== null && hasPartner !== undefined && !deleteData.partnerId) {
         updatePromises.push(
           prisma.member.update({
-            where: { id: partnerId },
+            where: { id: hasPartner },
             data: {
               // Remove children from fatherOf if it exists
               fatherOf: {
@@ -138,6 +150,19 @@ export async function PUT(request: Request, context: any) {
                 disconnect: removeChildRelation.map((childId) => ({ id: childId })),
               },
             },
+          })
+        );
+      }
+    }
+
+    // Handle children order update
+    if (childrenOrder && Array.isArray(childrenOrder)) {
+      for (let i = 0; i < childrenOrder.length; i++) {
+        const child = childrenOrder[i];
+        updatePromises.push(
+          prisma.member.update({
+            where: { id: child.id },
+            data: { order: i + 1 }, // Update the order based on the position in the array
           })
         );
       }

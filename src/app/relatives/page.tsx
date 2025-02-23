@@ -9,26 +9,20 @@ import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
-// import { revalidatePath } from 'next/cache';
-
-// export const dynamic = "force-dynamic"
-// export const revalidate = 0;
 
 export default function Relatives() {
-  // revalidatePath('/relatives');
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
   const [members, setMembers] = useState<any[] | never[]>([]);
-  // Manage state for showing/hiding details
   const [showDetails, setShowDetails] = useState(false);
-  const [memberDetails, setMemberDetails] = useState(false);
+  const [memberDetails, setMemberDetails] = useState(null);
   const [loadingList, setLoadingList] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [params, setParams] = useState({
     page: 1,
-    limit: 50,
+    limit: 30,
     search: "",
   });
 
@@ -38,7 +32,7 @@ export default function Relatives() {
       search: value,
       page: 1,
     }));
-    setMembers([])    
+    setMembers([]);
   }, 900);
 
   const handleAssemblySearch = (input: string) => {
@@ -47,29 +41,28 @@ export default function Relatives() {
   };
 
   useEffect(() => {
-    let isFetching = false; // Track ongoing fetch
+    let isFetching = false;
     async function fetchMembers() {
-      if (isFetching) return; // Prevent overlapping requests
+      if (isFetching) return;
       try {
         setLoadingList(true);
         isFetching = true;
-  
+
         const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
-            cache: 'no-store', // Ensure no caching
+            cache: 'no-store',
           }
         );
-  
+
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const { data, totalCount } = await response.json();
-  
-        // Append new data while avoiding duplicates
+
         setMembers((prev) => [...new Set([...prev, ...data])]);
-  
+
         const totalPages = Math.ceil(totalCount / params.limit);
         setHasMore(params.page < totalPages);
       } catch (error: any) {
@@ -79,9 +72,9 @@ export default function Relatives() {
         isFetching = false;
       }
     }
-  
+
     fetchMembers();
-  
+
     const handleScroll = () => {
       if (
         containerRef.current &&
@@ -95,10 +88,10 @@ export default function Relatives() {
         }));
       }
     };
-  
+
     const container = containerRef.current;
     container?.addEventListener('scroll', handleScroll);
-  
+
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
@@ -126,9 +119,9 @@ export default function Relatives() {
   };
 
   function highlightText(text: string, searchText: string): string {
-    if (!searchText) return text; // Return the original text if no search term is provided
-    const regex = new RegExp(`(${searchText})`, 'gi'); // Match search term case-insensitively
-    return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>'); // Wrap matches with a span
+    if (!searchText) return text;
+    const regex = new RegExp(`(${searchText})`, 'gi');
+    return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>');
   }
 
   return (
@@ -151,7 +144,6 @@ export default function Relatives() {
         </div>
       </Topnav>
       <div className="w-full md:flex">
-        {/* Left panel: Member List */}
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
           {!loadingList && !members ? (
           <p className='p-4'>No members found.</p>
@@ -182,7 +174,6 @@ export default function Relatives() {
                           />
                         </div>
                         <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                            {/* Render other details as usual */}
                             {(member.father || member.mother) ? (
                             <>
                               <span className="pr-1 font-semibold">Parents:</span>

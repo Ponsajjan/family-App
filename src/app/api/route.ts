@@ -25,7 +25,8 @@ export async function GET(request: NextRequest) {
   const excludeId = excludeIdParam
     ? excludeIdParam.split(",").map(Number).filter(Boolean)
     : [];
-
+  // Exclude the member for selectPartner
+  // Exclude the member and partner for selectChildren
   try {
     let memberList: any[] = [];
     const groupedData:any = [];

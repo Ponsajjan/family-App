@@ -80,6 +80,7 @@ export async function GET(request: Request, context: any) {
         dataLocked: member.verified,
         editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
         editDescendant: member.fatherId || member.motherId,
+        deleteOption: !member.fatherId && !member.motherId && !member.partnerId && member.fatherOf.length === 0 && member.motherOf.length === 0,
       },
     };
 
@@ -318,4 +319,4 @@ export async function DELETE(request: Request, context: any) {
       { status: 500 }
     );
   }
-}
+}  

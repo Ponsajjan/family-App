@@ -11,59 +11,65 @@ import { useRouter } from 'next/navigation';
 import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
 import EditRelationShipForm from "@/components/forms/EditRelationShipForm";
 
-export default function EditMemberDetails () {
+export default function EditMemberDetails() {
   const toast = useToast();
   const router = useRouter();
   const [noChanges, setNoChanges] = useState<boolean>(true);
   const [previousData, setPreviousData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
   const [formData, setFormData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
   const [deleteData, setDeleteData] = useState<DeleteValueTypes>(editRelationshipDefaultDeleteValue);
-  const [partnerId, setPartnerId] = useState<number | undefined | null>(null)
+  const [hasPartner, setHasPatner] = useState<number | undefined | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showList, setShowList] = useState<boolean>(false);
 
   const handleShowList = () => {
-    setShowList(true)
+    setShowList(true);
   };
 
   useEffect(() => {
     if (formData.id) {
       const fetchMembers = async () => {
         try {
-          setLoading(true)
+          setLoading(true);
           const response = await fetch(`/api/editRelationship/${formData.id}`);
           if (!response.ok) throw new Error('Failed to fetch member details');
           const { data } = await response.json();
+
+          // Ensure children are sorted by order
+          if (data.children && Array.isArray(data.children)) {
+            data.children.sort((a: any, b: any) => a.order - b.order);
+          }
+
           setFormData(data);
-          setPartnerId(data.partner?.id)
+          setHasPatner(data.partner?.id);
           setPreviousData(data);
-        } catch (error:any) {
-            if (toast) {
-              toast.show(error.error || "Error fetching member details", "error", 5000);
-            } else {
-              console.error(error.error || 'Error fetching member details');
-            }
-            router.push('/add_edit');
+        } catch (error: any) {
+          if (toast) {
+            toast.show(error.error || "Error fetching member details", "error", 5000);
+          } else {
+            console.error(error.error || 'Error fetching member details');
+          }
+          router.push('/add_edit');
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-      }
-  
-      fetchMembers()
+      };
+
+      fetchMembers();
     }
   }, [formData.id, toast, router]);
 
-  const handleRemoveChildrenValue = (name: string, id: number,) => {
+  const handleRemoveChildrenValue = (name: string, id: number) => {
     setNoChanges(false);
     setFormData((prev: any) => {
       if (Array.isArray(prev['children'])) {
         // Check if the name already exists
         const exists = prev['children'].some((entry: any) => entry.id === id);
         if (exists) {
-           // If the entry exists, remove it and add it to setDeleteData
+          // If the entry exists, remove it and add it to setDeleteData
           setDeleteData((prevDeleted: any) => ({
             ...prevDeleted,
-            ['childrenId']: [...prevDeleted['childrenId'], id ],
+            ['childrenId']: [...prevDeleted['childrenId'], id],
           }));
           // Remove the existing entry
           return {
@@ -72,7 +78,7 @@ export default function EditMemberDetails () {
           };
         }
       }
-  
+
       // If not an array, initialize with the first object
       return {
         ...prev,
@@ -81,22 +87,8 @@ export default function EditMemberDetails () {
     });
   };
 
-  const handleRemovePartnerValue = () => {
-    setNoChanges(false)
-    setDeleteData((prev: any) => ({
-      ...prev,
-      partnerId: previousData.partner?.id,
-      childrenId: previousData.children?.map((child: any) => child.id) || [],
-    }));
-    setFormData((prev: any) => ({
-      ...prev,
-      partner: null,
-      children: [],
-    }))
-  }
-
   const handleDivorcePartner = () => {
-    setNoChanges(false)
+    setNoChanges(false);
     setDeleteData((prev: any) => ({
       ...prev,
       partnerId: previousData.partner?.id,
@@ -104,8 +96,8 @@ export default function EditMemberDetails () {
     setFormData((prev: any) => ({
       ...prev,
       partner: null,
-    }))
-  }
+    }));
+  };
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -115,9 +107,9 @@ export default function EditMemberDetails () {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (noChanges) {
-      return
+      return;
     }
-  
+
     try {
       setLoading(true);
       const response = await fetch(`/api/editRelationship/${formData.id}`, {
@@ -125,32 +117,32 @@ export default function EditMemberDetails () {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({deleteData:deleteData, partnerId:partnerId }),
+        body: JSON.stringify({ deleteData: deleteData, hasPartner: hasPartner, childrenOrder: formData.children }),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         if (toast) {
-          toast.show(errorData.error || "Failed to update member", "error", 5000)
+          toast.show(errorData.error || "Failed to update member", "error", 5000);
         } else {
-          alert(errorData.error || "Failed to update member")
+          alert(errorData.error || "Failed to update member");
         }
         throw new Error(errorData.error || "Failed to update member");
       }
-  
+
       const result = await response.json();
       console.log("Member updated successfully:", result);
-  
+
       if (toast) {
         toast.show("Member updated successfully", "success", 5000);
       }
-  
+
       setFormData(editRelationshipDefaultFormValue);
       setDeleteData(editRelationshipDefaultDeleteValue);
-      setNoChanges(true)
+      setNoChanges(true);
     } catch (error: any) {
       console.error("Error updating member:", error);
-  
+
       if (toast) {
         toast.show(error.message || "Failed to update member", "error", 5000);
       } else {
@@ -168,25 +160,23 @@ export default function EditMemberDetails () {
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
         </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center">
-              <span className="hidden md:block"><AddRelationship /></span>
-              <Link href={"/add_edit"} className="md:hidden block">
-                <span><BackButton /></span>
-              </Link>
-              <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
-                Edit Relationship
-              </p>
-            </div>
-            <div className="cursor-pointer" onClick={() => setFormData(previousData)}><ResetData /></div>
+          <div className="flex items-center mb-3">
+            <span className="hidden md:block"><AddRelationship /></span>
+            <Link href={"/add_edit"} className="md:hidden block">
+              <span><BackButton /></span>
+            </Link>
+            <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
+              Edit Relationship
+            </p>
           </div>
-          <EditRelationShipForm 
+          <EditRelationShipForm
             handleShowList={handleShowList}
-            handleRemovePartnerValue={handleRemovePartnerValue}
             handleDivorcePartner={handleDivorcePartner}
             handleRemoveChildrenValue={handleRemoveChildrenValue}
             handleSubmit={handleSubmit}
             formData={formData}
+            setFormData={setFormData}
+            setNoChanges={setNoChanges}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>
@@ -196,12 +186,16 @@ export default function EditMemberDetails () {
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       />
       <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
-        <MemberList 
-          forType={'editRelationship'} 
-          getSelectedValues={formData} 
-          setSelectedValue={handleSelectedValue} 
-          openList={setShowList} multiselect={false} 
-          descendant={null} />
+        <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
+          <MemberList
+            forType={'editRelationship'}
+            getSelectedValues={formData}
+            setSelectedValue={handleSelectedValue}
+            openList={setShowList}
+            multiselect={false}
+            descendant={null}
+          />
+        </div>
       </div>
     </div>
   );

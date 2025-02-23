@@ -4,7 +4,7 @@ import prisma from "@/db/db";
 export async function GET(request: Request) {
     const url = new URL(request.url);
     const id = parseInt(url.pathname.split('/').pop() || '');
-    
+
     if (!id) {
       return NextResponse.json({ error: "Member ID is required and should be a valid number." });
     }
@@ -22,13 +22,13 @@ export async function GET(request: Request) {
           father: {
             select: {
               id: true,
-              fatherOf: true
+              fatherOf: true,
             },
           },
           mother: {
             select: {
               id: true,
-              motherOf: true
+              motherOf: true,
             },
           },
           partner: {
@@ -36,34 +36,45 @@ export async function GET(request: Request) {
               id: true,
               name: true,
               fatherId: true,
-              motherId: true
+              motherId: true,
             },
-          }, 
+          },
           fatherOf: {
             select: {
               id: true,
               name: true,
               partnerId: true,
+              order: true,
             },
           },
           motherOf: {
             select: {
               id: true,
               name: true,
-              partnerId: true
+              partnerId: true,
+              order: true,
             },
           },
         },
       });
 
       const dbData = fetchedData[0];
+
       // Extract sibling and children data
-      const siblingData = [new Set([
-        ...(Array.isArray(dbData.father?.fatherOf) ? dbData.father.fatherOf : []),
-        ...(Array.isArray(dbData.mother?.motherOf) ? dbData.mother.motherOf : []),
-      ])];
+      const siblingData = [
+        ...new Set([
+          ...(Array.isArray(dbData.father?.fatherOf) ? dbData.father.fatherOf : []),
+          ...(Array.isArray(dbData.mother?.motherOf) ? dbData.mother.motherOf : []),
+        ]),
+      ];
+
+      // Get children data based on gender
       const childrenData = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
-      const inLaw = dbData.gender === 'Male' ? dbData.fatherOf : dbData.motherOf;
+
+      // Sort childrenData by order
+      if (childrenData && Array.isArray(childrenData)) {
+        childrenData.sort((a, b) => a.order - b.order);
+      }
 
       // Format the data
       const data = {
@@ -82,10 +93,10 @@ export async function GET(request: Request) {
           dbData.partner?.motherId ? dbData.partner?.motherId : null,
           ...(siblingData ? siblingData.map((sibling: any) => sibling.id) : []),
           ...(childrenData ? childrenData.map((child: any) => child.id) : []),
-          ...(inLaw ? childrenData.map((child: any) => child.partnerId) : []),
-        ].filter(Boolean), // Remove null values from the array // also need to include the logged in Sembahalingum's ID to exclude from the list
-
+          ...(childrenData ? childrenData.map((child: any) => child.partnerId) : []),
+        ].filter(Boolean), // Remove null values from the array
       };
+
       return NextResponse.json({ data });
     } catch (error) {
       console.error(error);
@@ -115,16 +126,32 @@ export async function PUT(request: Request) {
       data: updatedData,
     });
 
-    // Handle updating the partner's relationships
+    // Function to update the order of children
+    const updateChildrenOrder = async (childrenIds: { id: number }[]) => {
+      for (let i = 0; i < childrenIds.length; i++) {
+        const childId = childrenIds[i].id;
+        await prisma.member.update({
+          where: { id: childId },
+          data: {
+            order: i + 1, // Update the order based on the sequence
+          },
+        });
+      }
+    };
+
+    // Handle updating the partner's relationships and children's order
     if (updatedData.partnerId) {
       const partnerUpdateData: any = {};
       
       partnerUpdateData.partnerId = memberId;
       if (updatedData.fatherOf) {
         partnerUpdateData.motherOf = updatedData.fatherOf;
-      } 
+        await updateChildrenOrder(updatedData.fatherOf.connect);
+      }
+
       if (updatedData.motherOf) {
         partnerUpdateData.fatherOf = updatedData.motherOf;
+        await updateChildrenOrder(updatedData.motherOf.connect);
       }
 
       if (Object.keys(partnerUpdateData).length > 0) {

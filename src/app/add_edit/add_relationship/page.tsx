@@ -21,9 +21,6 @@ export default function EditMemberDetails () {
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
-  
-  // const [showList, setShowListqq] = useState<boolean>(true);
-  // const [showListqq, setShowList] = useState<boolean>(false);
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
     excludeId: [],
@@ -42,9 +39,8 @@ export default function EditMemberDetails () {
  
   const handleShowList = (field: 'selectMember' | 'selectChildren' | 'selectPartner') => {
     setShowList(true);
-    if (field === showListFor) return // this is stop fetching in MemberList
+    if (field === showListFor) return // This if to triger MemberList fetch only when 'showListFor' value changes
     setShowListFor(field);
-    // This if to triger MemberList fetch only when 'showListFor' value changes
     setMemberListConstrain((prevParams) => ({
       ...prevParams,
       gender: selectedMemberData?.gender,
@@ -192,6 +188,7 @@ export default function EditMemberDetails () {
             selectedMemberData={selectedMemberData}
             selectedPartnerData={selectedPartnerData}
             newChildrenData={newChildrenData}
+            setNewChildrenData={setNewChildrenData}
             setSelectedPartnerId={setSelectedPartnerId}
             setShowListFor={setShowListFor}
             handleShowList={handleShowList}
@@ -209,7 +206,7 @@ export default function EditMemberDetails () {
       <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
           <MemberList 
-            forType={showListFor} 
+            forType={showListFor}
             gender={memberListConstrain?.gender} 
             excludeId={memberListConstrain?.excludeId} 
             getSelectedValues={newChildrenData} 

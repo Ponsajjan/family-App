@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/Container";
-import { LinkButtonOutline } from "@/components/Button";
+import { ButtonOutline, ButtonSolid, LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
 import { BackButton, DeleteRecord, EditMember } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue, EditMemberDefaultFormValue, EditMemberFormErrorTypes, EditMemberFormValueTypes } from "@/types/add__edit/edit_member/types";
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
+import { Popup } from "@/components/Popup";
 
 export default function EditMemberDetails () {
   const toast = useToast();
@@ -20,6 +21,9 @@ export default function EditMemberDetails () {
   const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
+  const [deleteOption, setDeleteOption] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [refresh, setRefresh] = useState(false);
   
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -37,6 +41,7 @@ export default function EditMemberDetails () {
           setEditedMember(data.formData.name)
           setFormData(data.formData);
           setAllowedEdit(data.allowEdit)
+          setDeleteOption(data.allowEdit.deleteOption)
           setErrors(EditMemberDefaultFormErrorValue);
         } catch (error: any) {
           if (toast) {
@@ -122,6 +127,7 @@ export default function EditMemberDetails () {
       setEditedMember('')
       setFormData(EditMemberDefaultFormValue);
       setErrors(EditMemberDefaultFormErrorValue);
+      setDeleteOption(false);
     } catch (error: any) {
       if (toast) {
         toast.show(error.error || "Failed to update member", "error", 5000);
@@ -132,24 +138,59 @@ export default function EditMemberDetails () {
       setSubmitting(false);
     }
   };
+
+  const deleteRecord = async () => {
+    try {
+      const response = await fetch(`/api/editMember/${formData.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete member");
+      }
+      const result = await response.json();
+      if (toast) {
+        toast.show(result.message, "success", 5000);
+      }
+      setEditedMember('')
+      setFormData(EditMemberDefaultFormValue);
+      setErrors(EditMemberDefaultFormErrorValue);
+      setDeleteOption(false);
+      setRefresh(prev => !prev);
+    }
+    catch (error: any) {    
+      if (toast) {
+        toast.show(error.error || "Failed to delete member", "error", 5000);
+      } else {
+        alert(error.error || "Failed to delete member.");
+      }
+    } finally {
+      setShowPopup(false);
+    }
+  } 
   
   return (
-    <div className="md:flex text-text_color">
+    <div className="md:flex text-text_color relative">
       <Container className='relative'>
         {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
             <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl p-4 mx-auto">
           <div className="mb-3">
-            <div className="flex items-center">
-              <span className="hidden md:block"><EditMember /></span>
-              <Link href={"/add_edit"} className="md:hidden block">
-                <span><BackButton /></span>
-              </Link>
-              <p className="cursor-default text-2xl font-semibold text-text_color underline pl-3">
-                Edit {editedMember ? editedMember  :'Member'}
-              </p>
-              {formData.name && <div className="cursor-pointer ml-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">                
+                <span className="hidden md:block"><EditMember /></span>
+                <Link href={"/add_edit"} className="md:hidden block">
+                  <span><BackButton /></span>
+                </Link>
+                <p className="cursor-default text-2xl font-semibold text-text_color underline pl-3">
+                  Edit {editedMember ? editedMember  :'Member'}
+                </p>
+              </div>
+              {deleteOption && <div onClick={() => setShowPopup(true)} className="cursor-pointer ml-4">
                 <DeleteRecord />
               </div>}
             </div>
@@ -178,10 +219,18 @@ export default function EditMemberDetails () {
             getSelectedValues={formData} 
             setSelectedValue={handleSelectedValue} 
             openList={setShowList} 
-            multiselect={false} 
+            multiselect={false}
             descendant={null} />
         </div>
       </div>
+      {showPopup && 
+        <Popup>
+          <p>Are you sure you want to delete this record?</p>
+          <div className="flex justify-end mt-4 gap-4">
+            <ButtonSolid buttonText="Delete" className="button-primary" onClick={deleteRecord} />
+            <ButtonOutline buttonText="Cancel"  className="button-secondary" onClick={() => setShowPopup(false)} />
+          </div>
+        </Popup>}
     </div>
   );
 }

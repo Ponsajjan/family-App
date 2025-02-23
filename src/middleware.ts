@@ -18,9 +18,14 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
+  const access = request.cookies.get("access")?.value;
 
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (token && access === "Admin") {
+    return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   return NextResponse.next();
@@ -28,5 +33,5 @@ export function middleware(request: NextRequest) {
 
 // Define which paths this middleware should run on
 export const config = {
-  matcher: ["/", "/relatives", "/admin", "/tree", "/add_edit/:path*", "/terms"],
+  matcher: ["/", "/relatives", "/tree", "/add_edit/:path*", "/terms"],
 };

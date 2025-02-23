@@ -17,7 +17,7 @@ export default function Details({ data, openDetails }: any) {
                 <div className='w-full'>
                     <p className='text-lg font-semibold flex items-center'>
                         <span>{data?.name || 'Name Unavailable'}</span>
-                        {true && <span className='pl-2'><Verified /></span>}
+                        {data?.verified && <span className='pl-2'><Verified /></span>}
                     </p>
 
                     {data?.birthDate && data?.birthMonth && (

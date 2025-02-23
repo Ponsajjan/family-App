@@ -64,10 +64,10 @@ export default function MemberList({
   const [loadingList, setLoadingList] = useState(false);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [switchingList, setSwitchingList] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [params, setParams] = useState({
     page: 1,
-    limit: 16,
+    limit: 30,
     search: '',
   });
 
@@ -103,7 +103,7 @@ export default function MemberList({
       page: 1,
     }));
     setSearchInput('');
-    setHasMore(false);
+    setHasMore(true);
     setSwitchingList(true);
   }, [forType, showCousin]);
 
@@ -136,6 +136,10 @@ export default function MemberList({
         setLoadingList(true);
         isFetching = true;
         setError(null);
+
+        if (hasMore === false) {
+          return;
+        }
 
         const response = await fetch(
           `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${forType}&gender=${gender}&excludeId=${excludeId}&descendant=${descendant}&showCousin=${showCousin}`,
