@@ -35,7 +35,7 @@ enum ForType {
 }
 
 interface MemberListProps {
-  forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship'; // Restricted subset
+  forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship';
   gender?: 'Male' | 'Female' | null;
   excludeId?: number[] | null;
   setSelectedValue: (item: string, id: number, select: string) => void;
@@ -77,6 +77,7 @@ export default function MemberList({
       search: value,
       page: 1,
     }));
+    setHasMore(true);
     setSwitchingList(true);
     setMembers([]);
   }, 900);
@@ -343,7 +344,7 @@ export default function MemberList({
             )}
             <div className="h-10 px-4 py-2">
               {loadingList && <p className="text-text_color">Loading....</p>}
-              {!loadingList && !hasMore && <p>,,,</p>}
+              {!loadingList && !hasMore && <p>, , ,</p>}
             </div>
           </>
         ) : error ? (

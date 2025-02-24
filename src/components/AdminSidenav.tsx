@@ -1,11 +1,11 @@
 "use client";
-import { BurgerMenuIcon, CalenderIcon, CloseIcon, Community, DarkMode, FamilyProfessionals, LightMode, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
+import { BurgerMenuIcon, CloseIcon, DarkMode, LightMode, Login, LoginList } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 
-export default function Sidenav() {
+export default function AdminSidenav() {
     const [showNav, setShowNav] = useState(false);
     const { theme, toggleTheme } = useTheme();
     const router = useRouter();
@@ -27,13 +27,8 @@ export default function Sidenav() {
                 <div className="h-12 border-b border-border_color w-full bg-field_color"></div>
                 <div className={`flex-col justify-between ${showNav ? 'flex' : 'hidden xl:flex'} absolute xl:static top-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-fit md:w-40 min-h-[calc(100vh-4rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden`}>
                     <div>
-                        <NavLink linkName="Calender" link="" onClick={() => navigateTo("/")} />
-                        <NavLink linkName="Relatives" link="relatives" onClick={() => navigateTo("/relatives")} />
-                        <NavLink linkName="Relation" link="tree" onClick={() => navigateTo("/tree")} />
-                        <NavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/add_edit")} />
-                        {/* <NavLink linkName="Community" link="community" onClick={() => navigateTo("/community")} /> */}
-                        <span  className="border-t border-border_color pt-2 mt-6 block mx-4"></span>
-                        <NavLink linkName="Terms" link="terms" onClick={() => navigateTo("/terms")} />
+                        <AdminNavLink linkName="New Login" link="/admin" onClick={() => navigateTo("/admin")} />
+                        <AdminNavLink linkName="Login List" link="/admin/list" onClick={() => navigateTo("/admin/list")} />
                     </div>
                     <div className="flex justify-center items-center py-2">
                         <LightMode />
@@ -55,21 +50,18 @@ export default function Sidenav() {
     );
 }
 
-export function NavLink({ link, linkName, onClick }: { link: string, linkName: string, onClick: () => void }) {
+export function AdminNavLink({ link, linkName, onClick }: { link: string, linkName: string, onClick: () => void }) {
     const pathName = usePathname();
+    console.log(pathName, link);
 
     return (
         <button 
             onClick={onClick}
-            className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover hover:opacity-80 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName.split('/')[1] === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
+            className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover hover:opacity-80 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >
-            <p className={`group-hover:invert ${pathName.split('/')[1] === link ? "invert" : " "}`}>
-                {linkName === 'Calender' && <CalenderIcon />}
-                {linkName === 'Relatives' && <RelativesIcon />}
-                {linkName === 'Relation' && <TreeIcon />}
-                {linkName === 'Add/Edit' && <FamilyProfessionals />}
-                {/* {linkName === 'Community' && <Community />} */}
-                {linkName === 'Terms' && <Terms />}
+            <p className={`group-hover:invert ${pathName === link ? "invert" : " "}`}>
+                {linkName === 'New Login' && <Login />}
+                {linkName === 'Login List' && <LoginList />}
             </p>
             <p>{linkName}</p>
         </button>

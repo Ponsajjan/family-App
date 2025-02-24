@@ -32,6 +32,7 @@ export default function Relatives() {
       search: value,
       page: 1,
     }));
+    setHasMore(true);
     setMembers([]);
   }, 900);
 
@@ -44,6 +45,7 @@ export default function Relatives() {
     let isFetching = false;
     async function fetchMembers() {
       if (isFetching) return;
+      if (!hasMore) return;
       try {
         setLoadingList(true);
         isFetching = true;
@@ -199,7 +201,7 @@ export default function Relatives() {
               ))}
               <div className="h-10 px-4 py-2">
                 {loadingList && <p className="text-text_color">Loading....</p>}
-                {!loadingList && !hasMore && <p className="text-text_color">,,,</p> }
+                {!loadingList && !hasMore && <p className="text-text_color">, , ,</p> }
               </div>
             </div>
           </div>}

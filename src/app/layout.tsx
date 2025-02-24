@@ -1,7 +1,7 @@
 "use client"
 
 import { Inter } from "next/font/google";
-import { Sidenav } from "@/components/Sidenav";
+import Sidenav from "@/components/Sidenav";
 import "./globals.css";
 import ToastProvider from "@/components/Toast";
 import { ThemeProvider } from "@/contexts/ThemeContext";

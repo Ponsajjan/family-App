@@ -36,7 +36,7 @@ const TreeNode = ({ node }: { node: any }) => {
 // TreeView Component
 const TreeView = ({ data }: { data: any[] }) => {
   return (
-    <div className="ml-20 first:ml-4 first:md:ml-8">
+    <div className="ml-20 first:ml-0">
       <div className="border-l-2 md:border-l-2 border-text_color">
         {data.map((node: any, index: number) => (
           <TreeNode key={index} node={node} />
@@ -61,8 +61,8 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
       members = await prisma.member.findMany({
         where: { id: { in: memberIds } },
         include: {
-          fatherOf: { select: { id: true, name: true, gender: true, order: true } }, // Include order field
-          motherOf: { select: { id: true, name: true, gender: true, order: true } }, // Include order field
+          fatherOf: { select: { id: true, name: true, gender: true, order: true } },
+          motherOf: { select: { id: true, name: true, gender: true, order: true } },
           partner: { select: { id: true, name: true, gender: true } },
         },
       });
