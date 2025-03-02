@@ -93,65 +93,65 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
             )}
             </div>
             <div className="relative py-2">
-            <div className="pb-2">
-                <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
-                <input
-                type="checkbox"
-                className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
-                name="deceased"
-                checked={formData.deceased || false}
-                onChange={handleInputChange}
-                />
-            </div>
-
-            <div className={`${showDeathDetails} pt-2`}>
-                <p className="text-sm font-medium">
-                Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
-                </p>
-                <p className="text-xs font-extralight absolute top-[14px] left-[100px]">
-                (Remove checkmark if not Deceased)
-                </p>
-                <div className="w-full flex gap-2">
-                <Input
-                    type="number"
-                    placeholder="DD(Opt)"
-                    name="death_date"
-                    min="1"
-                    max="31"
-                    maxLength={2}
-                    label=""
-                    value={formData.death_date || ''}
+                <div className="pb-2">
+                    <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
+                    <input
+                    type="checkbox"
+                    className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
+                    name="deceased"
+                    checked={formData.deceased || false}
                     onChange={handleInputChange}
-                />
-                <Input
-                    type="number"
-                    placeholder="MM"
-                    name="death_month"
-                    min="1"
-                    max="12"
-                    maxLength={2}
-                    label=""
-                    value={formData.death_month || ''}
-                    onChange={handleInputChange}
-                />
-                <Input
-                    type="number"
-                    placeholder="YYYY"
-                    name="death_year"
-                    min="1975"
-                    max={new Date().getFullYear()}
-                    maxLength={4}
-                    label=""
-                    value={formData.death_year || ''}
-                    onChange={handleInputChange}
-                />
+                    />
                 </div>
-                {(errors.death_day) && (
-                <p className="text-red-500 text-sm mt-2">
-                    {errors.death_day}
-                </p>
-                )}
-            </div>
+
+                <div className={`${showDeathDetails} pt-2`}>
+                    <p className="text-sm font-medium">
+                    Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
+                    </p>
+                    <p className="text-xs font-extralight absolute top-[14px] left-[100px]">
+                    (Remove checkmark if not Deceased)
+                    </p>
+                    <div className="w-full flex gap-2">
+                    <Input
+                        type="number"
+                        placeholder="DD(Opt)"
+                        name="death_date"
+                        min="1"
+                        max="31"
+                        maxLength={2}
+                        label=""
+                        value={formData.death_date || ''}
+                        onChange={handleInputChange}
+                    />
+                    <Input
+                        type="number"
+                        placeholder="MM"
+                        name="death_month"
+                        min="1"
+                        max="12"
+                        maxLength={2}
+                        label=""
+                        value={formData.death_month || ''}
+                        onChange={handleInputChange}
+                    />
+                    <Input
+                        type="number"
+                        placeholder="YYYY"
+                        name="death_year"
+                        min="1975"
+                        max={new Date().getFullYear()}
+                        maxLength={4}
+                        label=""
+                        value={formData.death_year || ''}
+                        onChange={handleInputChange}
+                    />
+                    </div>
+                    {(errors.death_day) && (
+                    <p className="text-red-500 text-sm mt-2">
+                        {errors.death_day}
+                    </p>
+                    )}
+                </div>
             </div>
             <Input
             className="mb-2"

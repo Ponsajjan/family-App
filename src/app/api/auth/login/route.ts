@@ -11,8 +11,8 @@ interface LoginResponse {
   forDescendanceOf: string;
   mainMemberId: number;
   password: string;
-  moderatorName: string;
-  moderatorContact: string;
+  moderatorName?: string;
+  moderatorContact?: string;
   moderatorPassword: string;
 }
 

@@ -125,6 +125,8 @@ function AddRelationShipForm({
             <span className="pr-2">Add Children</span>
             <span className="w-4 h-4"><PlusIcon /></span>
         </div>}
+
+        <p>One of the members is already verified, and their data is locked. Any changes will require moderator approval.</p>
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />
     </form>
   )

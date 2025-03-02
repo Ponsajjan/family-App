@@ -1,11 +1,11 @@
 "use client";
-import { BurgerMenuIcon, CloseIcon, DarkMode, LightMode, Login, LoginList } from "@/utils/Icons";
+import { BurgerMenuIcon, CloseIcon, DarkMode, LightMode, Logout, NavIconNew, NavIconVerified } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 
-export default function AdminSidenav() {
+export default function ModeratorSidenav() {
     const [showNav, setShowNav] = useState(false);
     const { theme, toggleTheme } = useTheme();
     const router = useRouter();
@@ -27,8 +27,8 @@ export default function AdminSidenav() {
                 <div className="h-12 border-b border-border_color w-full bg-field_color"></div>
                 <div className={`flex-col justify-between ${showNav ? 'flex' : 'hidden xl:flex'} absolute xl:static top-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-fit md:w-40 min-h-[calc(100vh-4rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden`}>
                     <div>
-                        <AdminNavLink linkName="Login List" link="/admin" onClick={() => navigateTo("/admin")} />
-                        <AdminNavLink linkName="New Login" link="/admin/new_login" onClick={() => navigateTo("/admin/new_login")} />
+                        <ModeratorNavLink linkName="Verify Member" link="/moderator" onClick={() => navigateTo("/moderator")} />
+                        <ModeratorNavLink linkName="Verify Changes" link="/moderator/verify_changes" onClick={() => navigateTo("/moderator/verify_changes")} />
                     </div>
                     <div className="flex justify-center items-center py-2">
                         <LightMode />
@@ -50,19 +50,24 @@ export default function AdminSidenav() {
     );
 }
 
-export function AdminNavLink({ link, linkName, onClick }: { link: string, linkName: string, onClick: () => void }) {
+export function ModeratorNavLink({ link, linkName, onClick }: { link: string, linkName: string, onClick: () => void }) {
     const pathName = usePathname();
+    console.log(pathName, link);
 
     return (
         <button 
             onClick={onClick}
-            className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover hover:opacity-80 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
+            className={`group py-2 px-2 w-full flex gap-2 items-center justify-start text-start hover:bg-accent_color_hover hover:opacity-80 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >
             <p className={`group-hover:invert ${pathName === link ? "invert" : " "}`}>
-                {linkName === 'New Login' && <Login />}
-                {linkName === 'Login List' && <LoginList />}
+                {/* {linkName === 'New Member' && <NavIconNew />} */}
+                {linkName === 'Verify Member' && <NavIconVerified />}
+                {linkName === 'Verify Changes' && <NavIconVerified />}
             </p>
-            <p>{linkName}</p>
+            <div className="flex items-center justify-between w-full">
+                <p className="text-base">{linkName}</p>
+                <span>(999)</span>
+            </div>
         </button>
     );
 }

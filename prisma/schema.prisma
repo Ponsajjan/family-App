@@ -13,7 +13,7 @@ datasource db {
 model Auth {
   id                         Int                  @id @default(autoincrement())
   forDescendanceOf           String
-  mainMemberId               Int                  
+  mainMemberId               Int                  @unique                 
   moderatorList              ModeratorList[]             
   moderatorPassword          String               
   password                   String               @unique
@@ -39,7 +39,7 @@ model Member {
   address                    String?
   occupation                 String?
   education                  String?
-  additionalInfo             MemberEditRequest[]
+  pendingVerification        RequestDetails[]
   descendant                 Boolean               @default(false)
   order                      Int                   @default(1)  // Order of the member in the family tree
   // Family relationships
@@ -65,8 +65,9 @@ model Member {
   updatedAt                  DateTime              @updatedAt
 }
 
-model MemberEditRequest {
+model RequestDetails {
   id                         Int                   @id @default(autoincrement())
+  type                       String                // editMember, addRelationShip, EditRelationship,
   details                    String
   memberId                   Int
   member                     Member                @relation(fields: [memberId], references: [id], onDelete: Cascade)

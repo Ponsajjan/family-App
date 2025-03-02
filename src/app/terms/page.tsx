@@ -43,7 +43,7 @@ export default function Terms() {
               <li>Their partner (spouse or significant other)</li>
             </ul>
             <p className="mt-4 italic opacity-65">
-              Note: Extended family members (such as aunts, uncles, and cousins) are excluded to maintain simplicity and ensuring that each member remains relevant to each other.
+              Note: Extended family members (such as uncles, aunts and cousins) are excluded to maintain simplicity and ensuring that each member remains relevant to each other.
             </p>
           </div>
 
@@ -55,7 +55,7 @@ export default function Terms() {
                 <li>Add family relationships (Partner | Children) if any.</li>
               </ul>
               <p className="mt-4 italic opacity-65">
-                Note: Family member information can be locked to maintain data integrity. For locked member, please submit a note for changes to be made or contact 
+                Note: Family member information can be locked to maintain data integrity. For locked members, changes will require moderator approval or contact
                 the <span className='border-b border-border_color cursor-pointer' onClick={() => setShowModerator(prev => !prev)}>moderator</span> directly.
               </p>
             </div>

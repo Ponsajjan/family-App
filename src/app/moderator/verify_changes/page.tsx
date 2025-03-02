@@ -3,14 +3,15 @@
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
-import Details from './Details';
+
 import Link from 'next/link';
 import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
+import VerifyMemberDetails from "./Details";
 
-export default function Relatives() {
+export default function NewMembers() {
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
   const [members, setMembers] = useState<any[] | never[]>([]);
@@ -129,21 +130,6 @@ export default function Relatives() {
   return (
     <div className="w-full">
       <Topnav>
-        <div className="relative w-full md:w-64 ml-auto mr-0">
-          <input
-            value={searchInput}
-            onChange={(e)=> handleAssemblySearch(e.target.value)}
-            type="text"
-            placeholder="Search"
-            className="ml-auto peer mr-0 input-not-placeholder block p-1 pl-4 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
-          />
-          <span className="absolute right-[5px] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
-            <SearchIcon />
-          </span>
-          <button onClick={() => handleAssemblySearch('')} className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md">
-            <CloseIcon />
-          </button>
-        </div>
       </Topnav>
       <div className="w-full md:flex">
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
@@ -175,26 +161,8 @@ export default function Relatives() {
                           }}
                           />
                         </div>
-                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                            {(member.father || member.mother) ? (
-                            <>
-                              <span className="pr-1 font-semibold">Parents:</span>
-                              {member.father && <span className="pr-1">{member.father.name},</span>}
-                              {member.mother && <span className="pr-1">{member.mother.name}</span>}
-                            </>
-                            ) : member.partner ? (
-                            <div>
-                              <span className="pr-1 font-semibold">Partner:</span>
-                              <span className="pr-1">{member.partner.name}</span>
-                            </div>
-                            ) : 'No relationship assigned yet'}
-                        </div>
+                        <p>Edit Member</p>
                       </div>
-                      {member.phoneNumber && (
-                      <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${member.phoneNumber}`}>
-                        <Call />
-                      </Link>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -211,7 +179,7 @@ export default function Relatives() {
           className={`fixed md:hidden ${showDetails ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
         />
         <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
-          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>{loadingDetails ? <Loading /> : <Details data={memberDetails} openDetails={setShowDetails} />}</div>
+          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>{loadingDetails ? <Loading /> : <VerifyMemberDetails data={memberDetails} openDetails={setShowDetails} />}</div>
         </div>
       </div>
     </div>

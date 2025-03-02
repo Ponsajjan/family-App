@@ -1,196 +1,178 @@
-"use client"
+'use client'
 
-import { ButtonSolid } from '@/components/Button'
-import Input from '@/components/Input'
-import Topnav from '@/components/Topnav'
-import RadioButton from "@/components/RadioButton";
-import { useState } from 'react';
-import { Logout } from '@/utils/Icons';
-import Container from '@/components/Container';
+import Container from "@/components/Container";
+import Input from "@/components/Input";
+import React, { useState } from "react";
 
-export default function page() {
-  const [validToken, setValidToken] = useState(true)
+const data = [
+  {
+    descendantOf: "John Doe",
+    memberPassword: "JohnDoe",
+    moderatorPassword: "JohnDoe123",
+    moderators: [
+      { name: "Alice", contactNumber: "123-456-7890" },
+      { name: "Bob", contactNumber: "987-654-3210" },
+    ],
+  },
+  {
+    descendantOf: "Jane Smith",
+    memberPassword: "JaneSmith",
+    moderatorPassword: "JaneSmith123",
+    moderators: [
+      { name: "Charlie", contactNumber: "555-555-5555" },
+      { name: "Diana", contactNumber: "444-444-4444" },
+    ],
+  },
+  {
+    descendantOf: "Jaden Smith",
+    memberPassword: "JadenSmith",
+    moderatorPassword: "JadenSmith123",
+    moderators: [],
+  },
+];
 
-  const logout = async () => {
-    try {
-      const response = await fetch('/api/logout', { method: 'GET' });
-  
-      if (response.ok) {
-        window.location.href = '/login';
-      } else {
-        console.error("Logout failed");
-      }
-    } catch (error) {
-      console.error("Error logging out:", error);
+export default function ExpandableTable() {
+  const [expandedRows, setExpandedRows] = useState<number[]>([]);
+  const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null); // Track which moderator is being edited
+  const [editedData, setEditedData] = useState(data); // Store edited data
+
+  const toggleRow = (index: number) => {
+    if (expandedRows.includes(index)) {
+      setExpandedRows(expandedRows.filter((i) => i !== index));
+    } else {
+      setExpandedRows([...expandedRows, index]);
     }
   };
 
-  if (validToken) {
-    return (
-      <div className='w-full'>
-        <Topnav>
-            <button onClick={logout} className="px-2 ml-auto mr-0 flex items-center gap-2"><Logout /></button>
-        </Topnav>
-        <Container>
-          <div className='w-full max-w-3xl p-4 mx-auto'>
-            <form className="text-text_color">
-              <p className='text-lg'>For Descendents of</p>
-              <Input
-                name="name"
-              />
-              <div className="py-4">
-                <div className="flex gap-2">
-                  <p className="text-sm font-medium">Gender:</p>
-                  <RadioButton
-                    label="Male"
-                    name="gender"
-                    value="Male"
-                  />
-                  <RadioButton
-                    label="Female"
-                    name="gender"
-                    value="Female"
-                  />
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-medium">
-                    Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
-                </p>
-                <div className="w-full mb-2 flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="DD"
-                    name="birth_date"
-                    min="1"
-                    max="31"
-                    maxLength={2}
-                    label=""
-                  />
-                  <Input
-                    type="number"
-                    placeholder="MM"
-                    name="birth_month"
-                    min="1"
-                    max="12"
-                    maxLength={2}
-                    label=""
-                  />
-                  <Input
-                    type="number"
-                    placeholder="YYYY(Opt)"
-                    name="birth_year"
-                    min="1975"
-                    max={new Date().getFullYear()}
-                    maxLength={4}
-                    label=""
-                  />
-                </div>
-              </div>
-              <div className='mb-2'>
-                <p className="text-sm font-medium">
-                Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
-                </p>
-                <div className="w-full flex gap-2">
-                  <Input
-                    type="number"
-                    placeholder="DD(Opt)"
-                    name="death_date"
-                    min="1"
-                    max="31"
-                    maxLength={2}
-                    label=""
-                  />
-                  <Input
-                    type="number"
-                    placeholder="MM"
-                    name="death_month"
-                    min="1"
-                    max="12"
-                    maxLength={2}
-                    label=""
-                  />
-                  <Input
-                    type="number"
-                    placeholder="YYYY"
-                    name="death_year"
-                    min="1975"
-                    max={new Date().getFullYear()}
-                    maxLength={4}
-                    label=""
-                  />
-                </div>
-              </div>
-              <div className='flex gap-2'>
-                <Input
-                  className="mb-2"
-                  showOptional={true}
-                  name="father"
-                  label="Father"
-                />
-                <Input
-                  className="mb-2"
-                  showOptional={true}
-                  name="mother"
-                  label="Mother"
-                />
-              </div>
-              <Input
-                className="mb-2"
-                showOptional={true}
-                name="siblings"
-                label="Siblings"
-              />
-              <div className='flex gap-2'>
-                <Input
-                  className="mb-2"
-                  type="number"
-                  showOptional={true}
-                  name="phone_number"
-                  label="Contact"
-                />
-                <Input
-                  className="mb-2"
-                  showOptional={true}
-                  name="occupation"
-                  label="Occupation"
-                />
-              </div>
-              <Input
-                className="mb-2"
-                showOptional={true}
-                name="education"
-                label="Education"
-              />
-              <Input
-                className="mb-4"
-                showOptional={true}
-                name="address"
-                label="Location State/Country"
-              />
-              <div className='flex gap-2'>
-                <Input
-                  className="mb-2"
-                  required={true}
-                  name="member_password"
-                  label="Member Password"
-                />
-                <Input
-                  className="mb-2"
-                  required={true}
-                  name="moderator_password"
-                  label="Moderator Password"
-                />
-              </div>
-              <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={"Create Credential"} />
-            </form>
-          </div>
-        </Container>
+  const handleEditModerator = (rowIndex: number, modIndex: number) => {
+    setEditingModerator({ rowIndex, modIndex }); // Set the moderator to edit mode
+  };
+
+  const handleSaveModerator = () => {
+    setEditingModerator(null); // Exit edit mode
+    // You can add logic here to save the edited data to your backend or state
+  };
+
+  const handleChangeModerator = (field: string, value: string) => {
+    if (editingModerator) {
+      const { rowIndex, modIndex } = editingModerator;
+      const updatedData = [...editedData];
+      updatedData[rowIndex].moderators[modIndex] = {
+        ...updatedData[rowIndex].moderators[modIndex],
+        [field]: value,
+      };
+      setEditedData(updatedData); // Update the edited data in state
+    }
+  };
+
+  return (
+    <Container>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-text_color">
+          <thead>
+            <tr className="text-text_color bg-gray-800/20">
+              <th className="py-2 px-4">Descendant of</th>
+              <th className="py-2 px-4">Member Password</th>
+              <th className="py-2 px-4">Moderator Password</th>
+              <th className="py-2 px-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {editedData.map((row, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                <tr
+                  onClick={() => toggleRow(rowIndex)}
+                  className="cursor-pointer border-y border-border_color bg-gray-800/10"
+                >
+                  <td className="py-2 px-4">{row.descendantOf}</td>
+                  <td className="py-2 px-4">{row.memberPassword}</td>
+                  <td className="py-2 px-4">{row.moderatorPassword}</td>
+                  <td className="py-2 px-4">
+                    <span className="pr-1">Edit</span>
+                    <span className="pl-1">Delete</span>
+                  </td>
+                </tr>
+                {expandedRows.includes(rowIndex) && (
+                  <tr>
+                    <td colSpan={4} className="border-r border-b border-border_color">
+                      <table className="w-full bg-field_color text-text_color border-b last:border-none border-border_color">
+                        <thead>
+                          <tr>
+                            <th className="py-2 px-4">Moderator Name</th>
+                            <th className="py-2 px-4">Contact Number</th>
+                            <th className="py-2 px-4">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {row.moderators.map((moderator, modIndex) => (
+                            <tr key={modIndex}>
+                              <td className="py-2 px-4 border-t border-border_color">
+                                {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
+                                  <Input
+                                    value={moderator.name}
+                                    onChange={(e) => handleChangeModerator("name", e.target.value)}
+                                  />
+                                ) : (
+                                  moderator.name
+                                )}
+                              </td>
+                              <td className="py-2 px-4 border-t border-border_color">
+                                {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
+                                  <Input
+                                    value={moderator.contactNumber}
+                                    onChange={(e) => handleChangeModerator("contactNumber", e.target.value)}
+                                  />
+                                ) : (
+                                  moderator.contactNumber
+                                )}
+                              </td>
+                              <td className="py-2 px-4 border-t border-border_color">
+                                {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
+                                  <div className="flex gap-2">
+                                    <button onClick={handleSaveModerator}>Save</button>
+                                    <button>Close</button>
+                                  </div>
+                                ) : (
+                                  <>
+                                    <span
+                                      className="pr-1"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditModerator(rowIndex, modIndex);
+                                      }}
+                                    >
+                                      Edit
+                                    </span>
+                                    <span className="pl-1">Delete</span>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                          <tr>
+                            <td className="py-2 px-4 border-t border-border_color">
+                              <Input name="name" />
+                            </td>
+                            <td className="py-2 px-4 border-t border-border_color">
+                              <Input name="contactNumber" />
+                            </td>
+                            <td className="py-2 px-4 border-t border-border_color">
+                              <div className="flex gap-2">
+                                <button>Add</button>
+                                <div className="text-transparent">dumm</div>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
       </div>
-    )
-  } else {
-    return (
-      <p>Validating</p>
-    )
-  }
+    </Container>
+  );
 }

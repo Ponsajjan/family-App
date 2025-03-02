@@ -11,6 +11,7 @@ import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue,
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
 import { Popup } from "@/components/Popup";
+import { set } from "date-fns";
 
 export default function EditMemberDetails () {
   const toast = useToast();
@@ -23,7 +24,7 @@ export default function EditMemberDetails () {
   const [submitting, setSubmitting] = useState(false);
   const [deleteOption, setDeleteOption] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [refresh, setRefresh] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -140,6 +141,8 @@ export default function EditMemberDetails () {
   };
 
   const deleteRecord = async () => {
+    setDeleting(true);
+    setShowPopup(false);
     try {
       const response = await fetch(`/api/editMember/${formData.id}`, {
         method: "DELETE",
@@ -159,7 +162,7 @@ export default function EditMemberDetails () {
       setFormData(EditMemberDefaultFormValue);
       setErrors(EditMemberDefaultFormErrorValue);
       setDeleteOption(false);
-      setRefresh(prev => !prev);
+      setDeleting(false);
     }
     catch (error: any) {    
       if (toast) {
@@ -190,7 +193,7 @@ export default function EditMemberDetails () {
                   Edit {editedMember ? editedMember  :'Member'}
                 </p>
               </div>
-              {deleteOption && <div onClick={() => setShowPopup(true)} className="cursor-pointer ml-4">
+              {deleteOption && <div onClick={() => { setShowList(false); setShowPopup(true) }} className="cursor-pointer ml-4">
                 <DeleteRecord />
               </div>}
             </div>
@@ -225,6 +228,9 @@ export default function EditMemberDetails () {
       </div>
       {showPopup && 
         <Popup>
+          {deleting && <div className="absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10">
+            <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">Deleting...</p>
+          </div>}
           <p>Are you sure you want to delete this record?</p>
           <div className="flex justify-end mt-4 gap-4">
             <ButtonSolid buttonText="Delete" className="button-primary" onClick={deleteRecord} />

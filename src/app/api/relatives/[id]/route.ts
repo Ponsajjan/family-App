@@ -4,6 +4,7 @@ import prisma from "@/db/db"; // Adjust the import path as needed
 export async function GET(request: Request, context: any) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '', 10);
+  const verifiedOnly = url.searchParams.get('verified') === 'true';
 
   if (isNaN(id)) {
     return NextResponse.json({ error: "Member ID is required and should be a valid number." });
@@ -29,22 +30,26 @@ export async function GET(request: Request, context: any) {
         deathDate: true,
         deathMonth: true,
         deathYear: true,
-        additionalInfo: true,
         descendant: true,
         father: {
           select: { id: true, name: true },
+          where: verifiedOnly ? { verified: true } : undefined,
         },
         mother: {
           select: { id: true, name: true },
+          where: verifiedOnly ? { verified: true } : undefined,
         },
         partner: {
           select: { name: true },
+          where: verifiedOnly ? { verified: true } : undefined,
         },
         fatherOf: {
           select: { name: true },
+          where: verifiedOnly ? { verified: true } : undefined,
         },
         motherOf: {
           select: { name: true },
+          where: verifiedOnly ? { verified: true } : undefined,
         },
         nonDescendantRelation: {
           select: {
@@ -69,6 +74,7 @@ export async function GET(request: Request, context: any) {
         where: {
           fatherId: member.father.id,
           id: { not: id }, // Exclude the current member
+          ...(verifiedOnly && { verified: true }),
         },
         select: { name: true },
       });
@@ -80,6 +86,7 @@ export async function GET(request: Request, context: any) {
         where: {
           motherId: member.mother.id,
           id: { not: id }, // Exclude the current member
+          ...(verifiedOnly && { verified: true }),
         },
         select: { name: true },
       });
@@ -101,4 +108,3 @@ export async function GET(request: Request, context: any) {
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
   }
 }
-

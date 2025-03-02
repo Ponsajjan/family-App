@@ -169,6 +169,7 @@ export default function EditMemberDetails() {
               Edit Relationship
             </p>
           </div>
+          <p className="p-0.5 border-y border-border_color my-6">1 pending verification</p>
           <EditRelationShipForm
             handleShowList={handleShowList}
             handleDivorcePartner={handleDivorcePartner}

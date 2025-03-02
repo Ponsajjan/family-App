@@ -31,6 +31,7 @@ export default function Page() {
             const data = await res.json();
             if (data.token) {
                 document.cookie = `token=${data.token}; path=/`;
+                document.cookie = `access="hello"; path=/`;
                 router.push("/");
             } else {
                 setError(data.error);
@@ -40,7 +41,7 @@ export default function Page() {
         }
     };
 
-    if (hasToken) return null;
+    // if (hasToken) return null;
       
     return (
         <div className='flex flex-col md:flex-row justify-center items-center h-screen w-full max-w-4xl mx-auto overflow-auto px-4 py-6'>            

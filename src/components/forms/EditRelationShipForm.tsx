@@ -95,6 +95,7 @@ function EditRelationShipForm({
                 </div>)
             )}
         </>}
+        <p>One of the members is already verified, and their data is locked. Any changes will require moderator approval.</p>
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Update Details" />
     </form>
   )
