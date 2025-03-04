@@ -45,6 +45,8 @@ export async function POST(request: Request) {
       name: formData.name,
       descendantOf: unique_descendantOf_string(formData.name),
       gender: formData.gender,
+      verified: true,
+      descendant: true,
       birthDate: formData.birthDate ? formatTwoDigits(formData.birthDate) : null,
       birthMonth: formData.birthMonth ? formatTwoDigits(formData.birthMonth) : null,
       birthYear: formData.birthYear ? parseInt(formData.birthYear, 10) : null,
@@ -56,7 +58,6 @@ export async function POST(request: Request) {
       occupation: formData.occupation || null,
       education: formData.education || null,
       address: formData.address || null,
-      descendant: true,
     };
 
     // Use a transaction to ensure atomicity
