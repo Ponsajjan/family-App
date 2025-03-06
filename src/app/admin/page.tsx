@@ -2,10 +2,12 @@
 
 import Container from "@/components/Container";
 import Input from "@/components/Input";
+import Link from "next/link";
 import React, { useState } from "react";
 
 const data = [
   {
+    id: 30,
     descendantOf: "John Doe",
     memberPassword: "JohnDoe",
     moderatorPassword: "JohnDoe123",
@@ -15,6 +17,7 @@ const data = [
     ],
   },
   {
+    id: 31,
     descendantOf: "Jane Smith",
     memberPassword: "JaneSmith",
     moderatorPassword: "JaneSmith123",
@@ -24,6 +27,7 @@ const data = [
     ],
   },
   {
+    id: 32,
     descendantOf: "Jaden Smith",
     memberPassword: "JadenSmith",
     moderatorPassword: "JadenSmith123",
@@ -33,10 +37,14 @@ const data = [
 
 export default function ExpandableTable() {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
-  const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null); // Track which moderator is being edited
-  const [editedData, setEditedData] = useState(data); // Store edited data
+  const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null);
+  const [editedData, setEditedData] = useState(data);
+  const [newModerator, setNewModerator] = useState({ name: "", contactNumber: "" });
 
   const toggleRow = (index: number) => {
+    setEditingModerator(null);
+    setEditedData(data);
+    setNewModerator({ name: "", contactNumber: "" });
     if (expandedRows.includes(index)) {
       setExpandedRows(expandedRows.filter((i) => i !== index));
     } else {
@@ -45,11 +53,13 @@ export default function ExpandableTable() {
   };
 
   const handleEditModerator = (rowIndex: number, modIndex: number) => {
-    setEditingModerator({ rowIndex, modIndex }); // Set the moderator to edit mode
+    setExpandedRows([rowIndex]);
+    setEditingModerator({ rowIndex, modIndex });
+    setNewModerator({ name: "", contactNumber: "" });
   };
 
   const handleSaveModerator = () => {
-    setEditingModerator(null); // Exit edit mode
+    setEditingModerator(null);
     // You can add logic here to save the edited data to your backend or state
   };
 
@@ -61,8 +71,23 @@ export default function ExpandableTable() {
         ...updatedData[rowIndex].moderators[modIndex],
         [field]: value,
       };
-      setEditedData(updatedData); // Update the edited data in state
+      setEditedData(updatedData);
     }
+  };
+
+  const handleAddModerator = (rowIndex: number) => {
+    if (newModerator.name && newModerator.contactNumber) {
+      const updatedData = [...editedData];
+      updatedData[rowIndex].moderators.push({ ...newModerator });
+      setEditedData(updatedData);
+      setNewModerator({ name: "", contactNumber: "" }); // Reset the form
+    }
+  };
+
+  const handleNewModeratorChange = (field: string, value: string, rowIndex: number) => {
+    setExpandedRows([rowIndex]);
+    setEditingModerator(null);
+    setNewModerator((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -81,20 +106,19 @@ export default function ExpandableTable() {
             {editedData.map((row, rowIndex) => (
               <React.Fragment key={rowIndex}>
                 <tr
-                  onClick={() => toggleRow(rowIndex)}
                   className="cursor-pointer border-y border-border_color bg-gray-800/10"
                 >
-                  <td className="py-2 px-4">{row.descendantOf}</td>
-                  <td className="py-2 px-4">{row.memberPassword}</td>
-                  <td className="py-2 px-4">{row.moderatorPassword}</td>
+                  <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.descendantOf}</td>
+                  <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.memberPassword}</td>
+                  <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.moderatorPassword}</td>
                   <td className="py-2 px-4">
-                    <span className="pr-1">Edit</span>
-                    <span className="pl-1">Delete</span>
+                    <Link onClick={(e) => e.preventDefault } href={`/admin/edit_login/${row.id}`} className="pr-1">Edit</Link>
+                    <button className="pl-1">Delete</button>
                   </td>
                 </tr>
                 {expandedRows.includes(rowIndex) && (
                   <tr>
-                    <td colSpan={4} className="border-r border-b border-border_color">
+                    <td colSpan={4} className="border-b border-border_color">
                       <table className="w-full bg-field_color text-text_color border-b last:border-none border-border_color">
                         <thead>
                           <tr>
@@ -130,11 +154,11 @@ export default function ExpandableTable() {
                                 {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
                                   <div className="flex gap-2">
                                     <button onClick={handleSaveModerator}>Save</button>
-                                    <button>Close</button>
+                                    <button onClick={() => setEditingModerator(null)}>Close</button>
                                   </div>
                                 ) : (
                                   <>
-                                    <span
+                                    <button
                                       className="pr-1"
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -142,8 +166,8 @@ export default function ExpandableTable() {
                                       }}
                                     >
                                       Edit
-                                    </span>
-                                    <span className="pl-1">Delete</span>
+                                    </button>
+                                    <button className="pl-1">Delete</button>
                                   </>
                                 )}
                               </td>
@@ -151,14 +175,20 @@ export default function ExpandableTable() {
                           ))}
                           <tr>
                             <td className="py-2 px-4 border-t border-border_color">
-                              <Input name="name" />
+                              <Input
+                                value={newModerator.name}
+                                onChange={(e) => handleNewModeratorChange("name", e.target.value, rowIndex)}
+                              />
                             </td>
                             <td className="py-2 px-4 border-t border-border_color">
-                              <Input name="contactNumber" />
+                              <Input
+                                value={newModerator.contactNumber}
+                                onChange={(e) => handleNewModeratorChange("contactNumber", e.target.value, rowIndex)}
+                              />
                             </td>
                             <td className="py-2 px-4 border-t border-border_color">
                               <div className="flex gap-2">
-                                <button>Add</button>
+                                <button onClick={() => handleAddModerator(rowIndex)}>Add</button>
                                 <div className="text-transparent">dumm</div>
                               </div>
                             </td>

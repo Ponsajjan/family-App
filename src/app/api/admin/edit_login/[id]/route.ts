@@ -163,7 +163,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Member and Auth entry updated successfully",
+      message: "Member details updated successfully",
       data: result,
     });
   } catch (error) {

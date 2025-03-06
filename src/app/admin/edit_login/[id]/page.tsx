@@ -1,6 +1,6 @@
 "use client";
 
-import { ButtonOutline, ButtonSolid } from '@/components/Button';
+import { ButtonOutline, ButtonSolid, LinkButtonOutline } from '@/components/Button';
 import Input from '@/components/Input';
 import RadioButton from "@/components/RadioButton";
 import { useEffect, useState } from 'react';
@@ -8,12 +8,13 @@ import Container from '@/components/Container';
 import { validateNewLoginForm } from '@/utils/admin/new_login/validateNewLoginForm';
 import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorTypes, NewLoginFormValueTypes } from '@/types/admin/new_login/types';
 import { useToast } from '@/components/Toast';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 export default function Page() {
   const toast = useToast();
-  const params = useParams(); // Get the member ID from the URL
-  const memberId = params.id; // Assuming the route is `/edit/[id]`
+  const params = useParams();
+  const router = useRouter();
+  const memberId = params.id;
 
   const [validToken, setValidToken] = useState(true);
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
@@ -134,7 +135,7 @@ export default function Page() {
         if (toast) {
           toast.show(result.message, "success", 5000);
         }
-        // Optionally, redirect to another page after successful update
+        router.push("/admin")
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -354,7 +355,7 @@ export default function Page() {
               </p>
             )}
             <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={"Update Credential"} />
-            <ButtonOutline type="button" className="w-full" buttonText={"Cancel"} />
+            <LinkButtonOutline linkto='/admin' type="button" className="w-full" buttonText={"Cancel"} />
           </form>
         </div>
       </Container>
