@@ -131,10 +131,9 @@ export default function EditMemberDetails() {
       }
 
       const result = await response.json();
-      console.log("Member updated successfully:", result);
 
-      if (toast) {
-        toast.show("Member updated successfully", "success", 5000);
+      if (result) {
+        toast?.show("Member updated successfully", "success", 5000);
       }
 
       setFormData(editRelationshipDefaultFormValue);

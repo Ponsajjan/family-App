@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     // Prepare member data
     const member = {
       name: capitalizeWords(formData.name),
-      descendantOf: "test", // Hardcoded for now
+      descendantOf: "hey_1457", // Hardcoded for now
       gender: formData.gender,
       birthDate: formData.birthDate ? formatTwoDigits(formData.birthDate) : null,
       birthMonth: formData.birthMonth ? formatTwoDigits(formData.birthMonth) : null,

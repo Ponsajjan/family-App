@@ -61,8 +61,7 @@ export default function AddMemberDetails () {
         mother: descendant ? null : capitalizeWords(formData.mother),
         siblings: descendant ? null : capitalizeWords(formData.siblings)
       };
-      console.log('memberData', memberData)
-      // API Call
+
       const response = await fetch("/api/addMember", {
         method: "POST",
         headers: {
@@ -70,15 +69,14 @@ export default function AddMemberDetails () {
         },
         body: JSON.stringify(memberData),
       });
-    
-      // Handle API response
+
       const result = await response.json();
       if (!response.ok) {
         if (toast) {
           toast.show(result.error || "Something went wrong", "error", 5000);
         }
         throw new Error(result.error || "Something went wrong");
-        // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
+
       } else {
         if (toast) {
           toast.show(result.message, "success", 5000);

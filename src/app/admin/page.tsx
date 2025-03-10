@@ -1,49 +1,42 @@
 'use client'
 
+import { ButtonOutline, ButtonSolid } from "@/components/Button";
 import Container from "@/components/Container";
 import Input from "@/components/Input";
+import { Popup } from "@/components/Popup";
+import { useToast } from "@/components/Toast";
 import Link from "next/link";
-import React, { useState } from "react";
-
-const data = [
-  {
-    id: 30,
-    descendantOf: "John Doe",
-    memberPassword: "JohnDoe",
-    moderatorPassword: "JohnDoe123",
-    moderators: [
-      { name: "Alice", contactNumber: "123-456-7890" },
-      { name: "Bob", contactNumber: "987-654-3210" },
-    ],
-  },
-  {
-    id: 31,
-    descendantOf: "Jane Smith",
-    memberPassword: "JaneSmith",
-    moderatorPassword: "JaneSmith123",
-    moderators: [
-      { name: "Charlie", contactNumber: "555-555-5555" },
-      { name: "Diana", contactNumber: "444-444-4444" },
-    ],
-  },
-  {
-    id: 32,
-    descendantOf: "Jaden Smith",
-    memberPassword: "JadenSmith",
-    moderatorPassword: "JadenSmith123",
-    moderators: [],
-  },
-];
+import React, { useState, useEffect } from "react";
 
 export default function ExpandableTable() {
+  const toast = useToast();
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null);
-  const [editedData, setEditedData] = useState(data);
+  const [data, setData] = useState([]);
+  const [editModerator, setEditModerator] = useState({ name: "", contactNumber: "" });
   const [newModerator, setNewModerator] = useState({ name: "", contactNumber: "" });
+
+  const [showPopup, setShowPopup] = useState<{ id: number | null; descendantOf: string | null }>({ id: null, descendantOf: null });
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/admin');
+        const result = await response.json();
+        setData(result);
+      } catch (error: any) {
+        if (toast) {
+          toast.show(error.message || 'Error fetching data', "error", 5000);
+        }
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const toggleRow = (index: number) => {
     setEditingModerator(null);
-    setEditedData(data);
     setNewModerator({ name: "", contactNumber: "" });
     if (expandedRows.includes(index)) {
       setExpandedRows(expandedRows.filter((i) => i !== index));
@@ -52,42 +45,173 @@ export default function ExpandableTable() {
     }
   };
 
-  const handleEditModerator = (rowIndex: number, modIndex: number) => {
+  const handleEditModerator = (rowIndex: number, modIndex: number, name: string, contactNumber: string) => {
     setExpandedRows([rowIndex]);
     setEditingModerator({ rowIndex, modIndex });
+    setEditModerator({ name, contactNumber })
     setNewModerator({ name: "", contactNumber: "" });
   };
 
-  const handleSaveModerator = () => {
-    setEditingModerator(null);
-    // You can add logic here to save the edited data to your backend or state
+  const handleSaveEditModerator = async (moderatorId: number, authId: number) => {
+    if (!editModerator.name.trim() || !editModerator.contactNumber.trim()) {
+      toast?.show("Name and contact number are required.", "error", 5000);
+      return;
+    }
+    try {
+      const response = await fetch(`/api/admin/moderator/${moderatorId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          moderatorName: editModerator.name.trim(),
+          moderatorContact: editModerator.contactNumber.trim(),
+          authId: authId,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add moderator");
+      }
+  
+      const result = await response.json();
+      toast?.show("Moderator updated Successfully", "success", 5000);
+      // Update the UI state
+      const updatedData: any = data.map((auth: any) => {
+        if (auth.id === authId) {
+          return {
+            ...auth,
+            moderators: auth.moderators.map((mod: any) =>
+              mod.id === moderatorId
+                ? { ...mod, name: editModerator.name.trim(), contactNumber: editModerator.contactNumber.trim() }
+                : mod
+            ),
+          };
+        }
+        return auth;
+      });
+      setData(updatedData);
+      setEditingModerator(null);
+  
+    } catch (error: any) {
+      toast?.show(error.message || "Failed to add moderator", "error", 5000);
+    }
   };
 
-  const handleChangeModerator = (field: string, value: string) => {
+  const handleEditModeratorChange = (field: string, value: string, rowIndex: number) => {
     if (editingModerator) {
-      const { rowIndex, modIndex } = editingModerator;
-      const updatedData = [...editedData];
-      updatedData[rowIndex].moderators[modIndex] = {
-        ...updatedData[rowIndex].moderators[modIndex],
-        [field]: value,
-      };
-      setEditedData(updatedData);
+      setExpandedRows([rowIndex]);
+      setNewModerator({ name: "", contactNumber: "" });
+      if (editingModerator !== null) {
+        setEditModerator((prev) => ({ ...prev, [field]: value }));
+      }
     }
   };
 
-  const handleAddModerator = (rowIndex: number) => {
-    if (newModerator.name && newModerator.contactNumber) {
-      const updatedData = [...editedData];
-      updatedData[rowIndex].moderators.push({ ...newModerator });
-      setEditedData(updatedData);
-      setNewModerator({ name: "", contactNumber: "" }); // Reset the form
+  const handleAddModerator = async (authId: number, rowIndex: number) => {
+    if (!newModerator.name.trim() || !newModerator.contactNumber.trim()) {
+      toast?.show("Name and contact number are required.", "error", 5000);
+      return;
+    }
+  
+    try {
+      const response = await fetch(`/api/admin/moderator`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          moderatorName: newModerator.name.trim(),
+          moderatorContact: newModerator.contactNumber.trim(),
+          authId,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add moderator");
+      }
+  
+      const result = await response.json();
+      toast?.show(result.message, "success", 5000);
+      const updatedData:any = [...data];
+      console.log("updatedDataupdatedData", updatedData)
+      updatedData[rowIndex].moderators.push({ ...{ name: newModerator.name.trim(), contactNumber: newModerator.contactNumber.trim() } });
+      setData(updatedData);
+      setNewModerator({ name: "", contactNumber: "" });
+  
+    } catch (error: any) {
+      toast?.show(error.message || "Failed to add moderator", "error", 5000);
     }
   };
+  
+  const deleteLogin = async (id: number) => {
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/deleteMember/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete member");
+      }
+      const result = await response.json();
+      if (toast) {
+        toast.show(result.message, "success", 5000);
+      }
+    } catch (error: any) {
+      if (toast) {
+        toast.show(error.message || "Failed to delete member", "error", 5000);
+      } else {
+        alert(error.message || "Failed to delete member.");
+      }
+    } finally {
+      setDeleting(false);
+      setShowPopup({ id: null, descendantOf: null });
+    }
+  };
+
+  const deleteModerator = async (id: number) => {
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/deleteMember/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete member");
+      }
+      const result = await response.json();
+      if (toast) {
+        toast.show(result.message, "success", 5000);
+      }
+    } catch (error: any) {
+      if (toast) {
+        toast.show(error.message || "Failed to delete member", "error", 5000);
+      } else {
+        alert(error.message || "Failed to delete member.");
+      }
+    } finally {
+      setDeleting(false);
+      setShowPopup({ id: null, descendantOf: null });
+    }
+  }
 
   const handleNewModeratorChange = (field: string, value: string, rowIndex: number) => {
     setExpandedRows([rowIndex]);
     setEditingModerator(null);
     setNewModerator((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const deleteRecord = (id: number, descendantOf: string) => {
+    setShowPopup({ id, descendantOf });
   };
 
   return (
@@ -103,7 +227,7 @@ export default function ExpandableTable() {
             </tr>
           </thead>
           <tbody>
-            {editedData.map((row, rowIndex) => (
+            {data.map((row: any, rowIndex: number) => (
               <React.Fragment key={rowIndex}>
                 <tr
                   className="cursor-pointer border-y border-border_color bg-gray-800/10"
@@ -112,8 +236,8 @@ export default function ExpandableTable() {
                   <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.memberPassword}</td>
                   <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.moderatorPassword}</td>
                   <td className="py-2 px-4">
-                    <Link onClick={(e) => e.preventDefault } href={`/admin/edit_login/${row.id}`} className="pr-1">Edit</Link>
-                    <button className="pl-1">Delete</button>
+                    <Link href={`/admin/edit_login/${row.mainMemberId}`} className="pr-1">Edit</Link>
+                    <button onClick={() => deleteRecord(row.mainMemberId, row.descendantOf)} className="pl-1">Delete</button>
                   </td>
                 </tr>
                 {expandedRows.includes(rowIndex) && (
@@ -128,13 +252,13 @@ export default function ExpandableTable() {
                           </tr>
                         </thead>
                         <tbody>
-                          {row.moderators.map((moderator, modIndex) => (
+                          {row.moderators.map((moderator: any, modIndex: number) => (
                             <tr key={modIndex}>
                               <td className="py-2 px-4 border-t border-border_color">
                                 {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
                                   <Input
-                                    value={moderator.name}
-                                    onChange={(e) => handleChangeModerator("name", e.target.value)}
+                                    value={editModerator.name}
+                                    onChange={(e) => handleEditModeratorChange("name", e.target.value, rowIndex)}
                                   />
                                 ) : (
                                   moderator.name
@@ -143,8 +267,8 @@ export default function ExpandableTable() {
                               <td className="py-2 px-4 border-t border-border_color">
                                 {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
                                   <Input
-                                    value={moderator.contactNumber}
-                                    onChange={(e) => handleChangeModerator("contactNumber", e.target.value)}
+                                    value={editModerator.contactNumber}
+                                    onChange={(e) => handleEditModeratorChange("contactNumber", e.target.value, rowIndex)}
                                   />
                                 ) : (
                                   moderator.contactNumber
@@ -153,7 +277,7 @@ export default function ExpandableTable() {
                               <td className="py-2 px-4 border-t border-border_color">
                                 {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
                                   <div className="flex gap-2">
-                                    <button onClick={handleSaveModerator}>Save</button>
+                                    <button onClick={() => handleSaveEditModerator(moderator.id, row.id)}>Save</button>
                                     <button onClick={() => setEditingModerator(null)}>Close</button>
                                   </div>
                                 ) : (
@@ -162,12 +286,12 @@ export default function ExpandableTable() {
                                       className="pr-1"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        handleEditModerator(rowIndex, modIndex);
+                                        handleEditModerator(rowIndex, modIndex, moderator.name, moderator.contactNumber);
                                       }}
                                     >
                                       Edit
                                     </button>
-                                    <button className="pl-1">Delete</button>
+                                    <button onClick={() => deleteModerator(moderator.id)} className="pl-1">Delete</button>
                                   </>
                                 )}
                               </td>
@@ -188,7 +312,7 @@ export default function ExpandableTable() {
                             </td>
                             <td className="py-2 px-4 border-t border-border_color">
                               <div className="flex gap-2">
-                                <button onClick={() => handleAddModerator(rowIndex)}>Add</button>
+                                <button onClick={() => handleAddModerator(row.id, rowIndex)}>Add</button>
                                 <div className="text-transparent">dumm</div>
                               </div>
                             </td>
@@ -203,6 +327,26 @@ export default function ExpandableTable() {
           </tbody>
         </table>
       </div>
+
+      {/* Popup for Delete Confirmation */}
+      {showPopup.id !== null && (
+        <Popup>
+          <p>Are you sure you want to delete all records of {showPopup.descendantOf}?</p>
+          <div className="flex justify-end mt-4 gap-4">
+            <ButtonSolid
+              buttonText="Delete"
+              className="button-primary"
+              onClick={() => deleteLogin(showPopup.id!)}
+              disabled={deleting}
+            />
+            <ButtonOutline
+              buttonText="Cancel"
+              className="button-secondary"
+              onClick={() => setShowPopup({ id: null, descendantOf: null })}
+            />
+          </div>
+        </Popup>
+      )}
     </Container>
   );
 }

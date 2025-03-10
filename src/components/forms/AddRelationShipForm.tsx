@@ -126,7 +126,7 @@ function AddRelationShipForm({
             <span className="w-4 h-4"><PlusIcon /></span>
         </div>}
 
-        <p>One of the members is already verified, and their data is locked. Any changes will require moderator approval.</p>
+        <p>This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />
     </form>
   )

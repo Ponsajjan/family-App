@@ -88,6 +88,6 @@ model ModeratorList {
   id               Int    @id @default(autoincrement())
   moderatorName    String
   moderatorContact String
-  moderatorId      Int
-  moderator        Auth   @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+  authId           Int
+  moderator        Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 }

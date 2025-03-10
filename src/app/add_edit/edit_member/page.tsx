@@ -11,7 +11,6 @@ import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue,
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
 import { Popup } from "@/components/Popup";
-import { set } from "date-fns";
 
 export default function EditMemberDetails () {
   const toast = useToast();

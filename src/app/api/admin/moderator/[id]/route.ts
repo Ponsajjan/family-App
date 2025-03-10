@@ -1,50 +1,29 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 
-export async function POST(request: Request) {
-  try {
-    const { moderatorName, moderatorContact, moderatorId } = await request.json();
-
-    // Validate required fields
-    if (!moderatorName || !moderatorContact || !moderatorId) {
-      return NextResponse.json(
-        { error: "All fields (moderatorName, moderatorContact, moderatorId) are required." },
-        { status: 400 }
-      );
-    }
-
-    // Create a new ModeratorList entry
-    const newModerator = await prisma.moderatorList.create({
-      data: {
-        moderatorName,
-        moderatorContact,
-        moderatorId,
-      },
-    });
-
-    // Return the created entry
-    return NextResponse.json(newModerator, { status: 201 });
-  } catch (error) {
-    console.error("Error creating moderator:", error);
-    return NextResponse.json(
-      { error: "Failed to create moderator." },
-      { status: 500 }
-    );
-  }
-}
-
 export async function PUT(
     request: Request,
     { params }: { params: { id: string } }
   ) {
     try {
       const { id } = params;
-      const { moderatorName, moderatorContact, moderatorId } = await request.json();
+      const { moderatorName, moderatorContact, authId } = await request.json();
   
-      // Validate required fields
-      if (!moderatorName || !moderatorContact || !moderatorId) {
+      const existingAuth = await prisma.auth.findUnique({
+        where: { id: authId },
+      });
+      
+      if (!existingAuth) {
         return NextResponse.json(
-          { error: "All fields (moderatorName, moderatorContact, moderatorId) are required." },
+          { error: "Invalid authId. The referenced user/auth does not exist." },
+          { status: 400 }
+        );
+      }
+      
+      // Validate required fields
+      if (!moderatorName || !moderatorContact || !authId) {
+        return NextResponse.json(
+          { error: "All fields (moderatorName, moderatorContact, authId) are required." },
           { status: 400 }
         );
       }
@@ -55,7 +34,7 @@ export async function PUT(
         data: {
           moderatorName,
           moderatorContact,
-          moderatorId,
+          authId,
         },
       });
   
@@ -71,12 +50,21 @@ export async function PUT(
 }
 
 export async function DELETE(
-    request: Request,
     { params }: { params: { id: string } }
   ) {
     try {
       const { id } = params;
   
+      const moderator = await prisma.moderatorList.findUnique({
+        where: { id: parseInt(id) },
+      });
+      
+      if (!moderator) {
+        return NextResponse.json(
+          { error: "Invalid moderator. The referenced moderator does not exist." },
+          { status: 400 }
+        );
+      }
       // Delete the ModeratorList entry
       await prisma.moderatorList.delete({
         where: { id: parseInt(id) },
