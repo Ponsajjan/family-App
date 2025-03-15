@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { verifyToken } from "@/utils/auth";
 
 export async function GET(request: Request, context: any) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '');
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   if (!id || isNaN(id)) {
     return NextResponse.json(
@@ -13,6 +20,13 @@ export async function GET(request: Request, context: any) {
   }
 
   try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
     const member = await prisma.member.findUnique({
       where: { id: id },
       select: {
@@ -97,6 +111,12 @@ export async function GET(request: Request, context: any) {
 export async function PUT(request: Request, context: any) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   if (isNaN(memberId)) {
     return NextResponse.json(
@@ -106,6 +126,13 @@ export async function PUT(request: Request, context: any) {
   }
 
   try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
     const updatedData = await request.json();
 
     if (!updatedData || Object.keys(updatedData).length === 0) {
@@ -235,13 +262,25 @@ export async function PUT(request: Request, context: any) {
 export async function DELETE(request: Request, context: any) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  // Validate memberId
   if (isNaN(memberId)) {
     return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
   }
 
   try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
     // Fetch the member with their relationships
     const member = await prisma.member.findUnique({
       where: { id: memberId },
@@ -305,6 +344,11 @@ export async function DELETE(request: Request, context: any) {
     });
   } catch (error: any) {
     console.error("Error deleting member:", error);
+
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
 
     if (error.code === "P2025") {
       // Prisma-specific error for "Record not found"

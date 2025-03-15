@@ -9,6 +9,8 @@ import Loading from './Loading';
 import { useToast } from '@/components/Toast';
 import Link from 'next/link';
 import { useDebounce } from '@/utils/debounce';
+import { getCookie } from 'cookies-next';
+import { useRouter } from 'next/navigation';
 
 interface EachMember {
   id: number;
@@ -65,6 +67,8 @@ export default function MemberList({
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [switchingList, setSwitchingList] = useState(true);
   const [hasMore, setHasMore] = useState(true);
+  const token = getCookie('token');
+  const router = useRouter(); 
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
@@ -146,10 +150,19 @@ export default function MemberList({
           `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${forType}&gender=${gender}&excludeId=${excludeId}&descendant=${descendant}&showCousin=${showCousin}`,
           {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
             cache: 'no-store',
           }
         );
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
+          return;
+        }
 
         if (!response.ok) {
           throw new Error('Network response was not ok');

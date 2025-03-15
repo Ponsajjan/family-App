@@ -1,11 +1,23 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { verifyToken } from "@/utils/auth";
 
 export async function POST(request: Request) {
+  const formData = await request.json();
+  const deceased = formData.deceased === true;
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
-    const formData = await request.json();
-    const deceased = formData.deceased === true;
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
 
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     // Utility function to capitalize words
     const capitalizeWords = (name: string) => {
       return name
@@ -30,7 +42,7 @@ export async function POST(request: Request) {
     // Prepare member data
     const member = {
       name: capitalizeWords(formData.name),
-      descendantOf: "hey_1457", // Hardcoded for now
+      descendantOf: forDescendanceOf,
       gender: formData.gender,
       birthDate: formData.birthDate ? formatTwoDigits(formData.birthDate) : null,
       birthMonth: formData.birthMonth ? formatTwoDigits(formData.birthMonth) : null,
@@ -76,6 +88,11 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Error adding member:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+    // Handle other errors
     return NextResponse.json(
       { success: false, error: "Failed to add member" },
       { status: 500 }

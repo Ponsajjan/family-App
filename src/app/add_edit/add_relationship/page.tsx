@@ -11,6 +11,8 @@ import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
 import AddRelationShipForm from "@/components/forms/AddRelationShipForm";
 import { useToast } from "@/components/Toast";
+import { getCookie } from 'cookies-next';
+import { useRouter } from "next/navigation";
 
 export default function EditMemberDetails () {
   const toast = useToast();
@@ -21,6 +23,8 @@ export default function EditMemberDetails () {
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
+  const token = getCookie('token');
+  const router = useRouter(); 
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
     excludeId: [],
@@ -125,10 +129,16 @@ export default function EditMemberDetails () {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(memberData),
       });
-  
+      // Handle 401 Unauthorized
+      if (response.status === 401) {
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.push('/login');
+        return;
+      }
       if (!response.ok) {
         const errorData = await response.json();
         if (toast) {

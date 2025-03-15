@@ -2,6 +2,7 @@ import { useToast } from '@/components/Toast';
 import { AddRelationDefaultFormValue } from '@/types/add__edit/add_relationship/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
+import { getCookie } from 'cookies-next';
 
 interface AddMemberPropType {
     selectedMemberId: number | null | undefined;
@@ -11,15 +12,24 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
     const [descendant, setDescendant] = useState<any>(null);
     const [selectedMemberData, setSelectedMemberData] = useState(AddRelationDefaultFormValue);
     const [excludeMemberRelation, setExcludeMemberRelation] = useState<number[]>([]);
+    const token = getCookie('token');
+    const router = useRouter(); 
     const toast = useToast();
-    const router = useRouter();
 
     useEffect(() => {
         if (selectedMemberId) {
             const fetchMember = async () => {
                 try {
                     setMemberloading(true)
-                    const response = await fetch(`/api/addRelationship/${selectedMemberId}`);
+                    const response = await fetch(`/api/addRelationship/${selectedMemberId}`,
+                        {
+                            method: 'GET',
+                            headers: { 
+                              'Content-Type': 'application/json',
+                              'Authorization': `Bearer ${token}` 
+                            },
+                        }
+                    );
                     if (!response.ok) {
                         throw new Error('Failed to fetch member details');
                     }

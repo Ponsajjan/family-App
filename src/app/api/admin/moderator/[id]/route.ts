@@ -77,6 +77,10 @@ export async function DELETE(
       );
     } catch (error) {
       console.error("Error deleting moderator:", error);
+      // Handle token verification errors
+      if (error instanceof Error && error.name === 'JsonWebTokenError') {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      }
       return NextResponse.json(
         { error: "Failed to delete moderator." },
         { status: 500 }

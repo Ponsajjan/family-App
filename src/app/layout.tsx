@@ -6,6 +6,7 @@ import "./globals.css";
 import ToastProvider from "@/components/Toast";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { usePathname } from "next/navigation";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,6 +36,7 @@ export default function RootLayout({
           <main id="MainDiv">
             <noscript>hu hu hu..</noscript>
             <ThemeProvider>
+              <AuthProvider>
                 <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
                   <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
                     <Sidenav />
@@ -46,6 +48,7 @@ export default function RootLayout({
                     </div>
                   </div>
                 </div>
+              </AuthProvider>
             </ThemeProvider>
           </main>
         </body>
@@ -57,11 +60,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning={true}>
         <ThemeProvider>
-          <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
-            <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
-              {children}
+          <AuthProvider>
+            <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
+              <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+                {children}
+              </div>
             </div>
-          </div>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

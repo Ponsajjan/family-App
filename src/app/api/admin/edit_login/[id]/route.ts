@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/db/db"; // Adjust the import path as needed
+import prisma from "@/db/db";
 
 export async function GET(request: Request) {
   try {
@@ -168,6 +168,11 @@ export async function PUT(request: Request) {
     });
   } catch (error) {
     console.error("Error updating member and auth entry:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
     return NextResponse.json(
       { success: false, error: "Failed to update member and auth entry" },
       { status: 500 }

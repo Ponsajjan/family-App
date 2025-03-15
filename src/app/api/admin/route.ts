@@ -1,20 +1,55 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/db/db';
 
+interface AuthEntry {
+  id: number;
+  mainMemberId: number | null;
+  password: string;
+  moderatorPassword: string;
+  moderatorList: {
+    id: number;
+    moderatorName: string;
+    moderatorContact: string;
+  }[];
+}
+
+interface Member {
+  id: number;
+  name: string;
+}
+
+interface FormattedAuthEntry {
+  id: number;
+  mainMemberId: number | null;
+  descendantOf: string;
+  memberPassword: string;
+  moderatorPassword: string;
+  moderators: {
+    id: number;
+    name: string;
+    contactNumber: string;
+  }[];
+}
+
 export async function GET() {
   try {
-    const authEntries = await prisma.auth.findMany({
+    // Fetch all auth entries with their moderator lists
+    const authEntries: AuthEntry[] = await prisma.auth.findMany({
       include: {
         moderatorList: true,
       },
     });
 
-    // Fetch descendantOf member names in a single query
-    const mainMemberIds = authEntries.map((auth) => auth.mainMemberId);
-    const mainMembers = await prisma.member.findMany({
+    // Extract mainMemberIds, filtering out null values
+    const mainMemberIds = authEntries
+      .map((auth) => auth.mainMemberId)
+      .filter((id): id is number => id !== null); // Ensure only non-null IDs are included
+
+    // Fetch main member names in a single query
+    const mainMembers: Member[] = await prisma.member.findMany({
       where: {
         id: {
-          in: mainMemberIds,
+          in: mainMemberIds.length > 0 ? mainMemberIds : undefined, // Avoid querying if no IDs are present
         },
       },
       select: {
@@ -29,8 +64,11 @@ export async function GET() {
     );
 
     // Format the response
-    const formattedResponse = authEntries.map((auth) => {
-      const descendantOfName = mainMemberMap.get(auth.mainMemberId) || 'Unknown'; // Fallback if member not found
+    const formattedResponse: FormattedAuthEntry[] = authEntries.map((auth) => {
+      const descendantOfName =
+        auth.mainMemberId !== null
+          ? mainMemberMap.get(auth.mainMemberId) || 'Unknown' // Fallback if member not found
+          : 'Unknown'; // Handle null mainMemberId
 
       return {
         id: auth.id,
@@ -49,6 +87,10 @@ export async function GET() {
     return NextResponse.json(formattedResponse, { status: 200 });
   } catch (error) {
     console.error('Error fetching auth entries:', error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     return NextResponse.json(
       { error: 'Failed to fetch auth entries.' },
       { status: 500 }

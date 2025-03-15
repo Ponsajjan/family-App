@@ -1,16 +1,29 @@
 import { NextResponse } from "next/server";
-import prisma from "@/db/db"; // Adjust the import path as needed
+import prisma from "@/db/db";
+import { verifyToken } from "@/utils/auth";
 
 export async function GET(request: Request, context: any) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '', 10);
-  const verifiedOnly = url.searchParams.get('verified') === 'true';
-
+  const verifiedOnly = url.searchParams.get('verified');
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   if (isNaN(id)) {
     return NextResponse.json({ error: "Member ID is required and should be a valid number." });
   }
 
   try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
     // Step 1: Fetch the member and their direct relations
     const member = await prisma.member.findUnique({
       where: { id },
@@ -105,6 +118,10 @@ export async function GET(request: Request, context: any) {
     });
   } catch (error) {
     console.error("Error fetching member data:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
   }
 }

@@ -4,13 +4,14 @@ import Topnav from "@/components/Topnav";
 import { CloseIcon } from "@/utils/Icons";
 import React, { Suspense, useEffect, useState } from "react";
 import moment from "moment";
-import { Circle } from "@/utils/Icons";
 import CalendarMonthlyData from "./CalendarMonthlyData";
 import Container from "@/components/Container";
 import Loading from "@/components/Loading";
 import OnDate from "./OnDate";
 import { format } from 'date-fns';
 import { useToast } from '@/components/Toast';
+import { getCookie } from 'cookies-next';
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const toast = useToast();
@@ -30,9 +31,9 @@ export default function Home() {
 
   const [selectedDate, setSelectedDate] = useState('')
   const [eventForDate, setEventForDate] = useState([])
+  const token = getCookie('token');
+  const router = useRouter(); 
 
-  console.log('eventForDate', eventForDate)
-  console.log('eventData', eventDates)
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year:number, month:number) {
     const selectMonth = new Date(year, month, 1);
@@ -104,9 +105,15 @@ export default function Home() {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           }
         });
-
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
+          return;
+        }
         // Check if the response was successful
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);

@@ -10,7 +10,7 @@ datasource db {
 model Auth {
   id                Int             @id @default(autoincrement())
   forDescendanceOf  String          @unique
-  mainMemberId      Int             @unique
+  mainMemberId      Int?            @unique
   moderatorList     ModeratorList[]
   moderatorPassword String
   password          String          @unique

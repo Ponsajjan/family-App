@@ -8,12 +8,16 @@ import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue, AddMemberFormVal
 import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateAddMemberForm";
 import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
+import { getCookie } from 'cookies-next';
+import { useRouter } from "next/navigation";
 
 export default function AddMemberDetails () {
   const toast = useToast();
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<AddMemberFormValueTypes>(AddMemberDefaultFormValue);
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
+  const token = getCookie('token');
+  const router = useRouter(); 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -21,7 +25,7 @@ export default function AddMemberDetails () {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+    setErrors((prev) => ({ ...prev, [name]: "" })); 
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -66,11 +70,18 @@ export default function AddMemberDetails () {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(memberData),
       });
 
       const result = await response.json();
+      // Handle 401 Unauthorized
+      if (response.status === 401) {
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.push('/login');
+        return;
+      }
       if (!response.ok) {
         if (toast) {
           toast.show(result.error || "Something went wrong", "error", 5000);

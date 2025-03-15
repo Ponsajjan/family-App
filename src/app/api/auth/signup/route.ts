@@ -56,9 +56,7 @@ export async function POST(request: Request) {
       data: { 
         forDescendanceOf: descendantOf, 
         password: formData.password, 
-        mainMemberId: newMember.id,  
-        moderatorName: newMember.name,               
-        moderatorContact: newMember.phoneNumber || 'Not provided',               
+        mainMemberId: newMember.id,            
         moderatorPassword: formData.password                
       }
     });
@@ -68,6 +66,10 @@ export async function POST(request: Request) {
       member: newLoginSet });
   } catch (error) {
     console.error("Error creating Login set:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     return NextResponse.json(
       { success: false, error: "Failed to add member" },
       { status: 500 }

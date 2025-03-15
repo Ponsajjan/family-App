@@ -11,6 +11,8 @@ import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue,
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
 import { Popup } from "@/components/Popup";
+import { getCookie } from 'cookies-next';
+import { useRouter } from "next/navigation";
 
 export default function EditMemberDetails () {
   const toast = useToast();
@@ -24,7 +26,9 @@ export default function EditMemberDetails () {
   const [deleteOption, setDeleteOption] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  
+  const token = getCookie('token');
+  const router = useRouter(); 
+
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
     setShowList(false);
@@ -35,7 +39,21 @@ export default function EditMemberDetails () {
       const fetchMember = async () => {
         try {
           setLoading(true)
-          const response = await fetch(`/api/editMember/${formData.id}`);
+          const response = await fetch(`/api/editMember/${formData.id}`,
+            {
+              method: 'GET',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+              },
+            }
+          );
+          // Handle 401 Unauthorized
+          if (response.status === 401) {
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            router.push('/login');
+            return;
+          }
           if (!response.ok) throw new Error('Failed to fetch member details');
           const { data } = await response.json();
           setEditedMember(data.formData.name)
@@ -113,6 +131,7 @@ export default function EditMemberDetails () {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(memberData),
       });
@@ -147,6 +166,7 @@ export default function EditMemberDetails () {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}` 
         },
       });
       if (!response.ok) {

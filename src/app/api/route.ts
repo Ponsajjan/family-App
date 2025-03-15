@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import prisma from "@/db/db"; // Adjust the import path as needed
+import prisma from "@/db/db";
 import { NextRequest } from "next/server";
+import { verifyToken } from "@/utils/auth";
 
 let memberListCurrentLetter = "";
 
@@ -13,7 +14,12 @@ export async function GET(request: NextRequest) {
   const showCousin = searchParams.get("showCousin") === "true"; // Parse to boolean
   const page = parseInt(searchParams.get("page") || "1", 10); // Current page
   const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
+  const authHeader = request.headers.get("Authorization");
+  const token = authHeader?.split(" ")[1];
 
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   // Calculate skip for pagination
   const skip = (page - 1) * limit;
 
@@ -28,6 +34,11 @@ export async function GET(request: NextRequest) {
   // Exclude the member for selectPartner
   // Exclude the member and partner for selectChildren
   try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+    if (!forDescendanceOf) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     let memberList: any[] = [];
     const groupedData:any = [];
 
@@ -44,6 +55,7 @@ export async function GET(request: NextRequest) {
               contains: searchQuery,
               // mode: "insensitive", // PostgreSQL-specific support in Prisma
             },
+            descendantOf: forDescendanceOf
           },
           select: {
             id: true,
@@ -67,6 +79,7 @@ export async function GET(request: NextRequest) {
               contains: searchQuery,
               // mode: "insensitive", // PostgreSQL-specific support in Prisma
             },
+            descendantOf: forDescendanceOf,
             gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
             partnerId: null,
             id: { notIn: excludeId },
@@ -100,6 +113,7 @@ export async function GET(request: NextRequest) {
               contains: searchQuery,
               // mode: "insensitive", // PostgreSQL-specific support in Prisma
             },
+            descendantOf: forDescendanceOf,
             id: { notIn: excludeId },
             fatherId: null,
             motherId: null,
@@ -126,6 +140,7 @@ export async function GET(request: NextRequest) {
               contains: searchQuery,
               // mode: "insensitive", // PostgreSQL-specific support in Prisma
             },
+            descendantOf: forDescendanceOf,
             OR: [
               { fatherOf: { some: {} } },
               { motherOf: { some: {} } },
@@ -189,6 +204,10 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching memberList:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     return NextResponse.json({ error: "Error fetching memberList" }, { status: 500 });
   }
 }

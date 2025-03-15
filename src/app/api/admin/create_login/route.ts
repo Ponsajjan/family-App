@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/db/db"; // Adjust the import path as needed
+import prisma from "@/db/db";
 
 export async function POST(request: Request) {
   try {
@@ -62,12 +62,22 @@ export async function POST(request: Request) {
 
     // Use a transaction to ensure atomicity
     const result = await prisma.$transaction(async (prisma) => {
-      // Create the member
+      // Step 1: Create the Auth entry first (without mainMemberId)
+      const authEntry = await prisma.auth.create({
+        data: {
+          forDescendanceOf: member.descendantOf, // Use the descendantOf from the member object
+          moderatorPassword: formData.moderatorPassword,
+          password: formData.memberPassword,
+          mainMemberId: null, // Initially set to null
+        },
+      });
+
+      // Step 2: Create the member
       const newMember = await prisma.member.create({
         data: member,
       });
 
-      // If the member is not a descendant and has relatives, create nonDescendantRelation
+      // Step 3: If the member has relatives, create nonDescendantRelation
       let nonDescendantRelatives = null;
       if (formData.father || formData.mother || formData.siblings) {
         nonDescendantRelatives = await prisma.nonDescendantRelation.create({
@@ -80,17 +90,14 @@ export async function POST(request: Request) {
         });
       }
 
-      // Create an Auth entry
-      const authEntry = await prisma.auth.create({
+      // Step 4: Update the Auth entry with the mainMemberId
+      const updatedAuthEntry = await prisma.auth.update({
+        where: { id: authEntry.id },
         data: {
-          forDescendanceOf: newMember.descendantOf,
           mainMemberId: newMember.id,
-          moderatorPassword: formData.moderatorPassword,
-          password: formData.memberPassword,
         },
       });
-
-      return { member: newMember, nonDescendantRelatives, authEntry };
+      return { member: newMember, nonDescendantRelatives, authEntry: updatedAuthEntry };
     });
 
     return NextResponse.json({
@@ -100,6 +107,19 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Error adding member and auth entry:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       { success: false, error: "Failed to add member and auth entry" },
       { status: 500 }

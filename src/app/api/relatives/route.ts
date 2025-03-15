@@ -1,16 +1,30 @@
 import { NextResponse } from "next/server"
-import prisma from "@/db/db"; // Adjust the import path as needed
-import { NextRequest } from "next/server"; // Import NextRequest if needed for handling query params
+import prisma from "@/db/db";
+import { NextRequest } from "next/server";
+import { verifyToken } from "@/utils/auth";
 
 let currentLetter = "";
 
 export async function GET(request: NextRequest) {
-  try {
-    // Extract search parameters
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1", 10); // Current page
-    const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
-    const searchQuery = searchParams.get("search") || ""; // Search term
+  // Extract search parameters
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get("page") || "1", 10); // Current page
+  const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
+  const searchQuery = searchParams.get("search") || ""; // Search term
+
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  try{
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
 
     // Calculate skip for pagination
     const skip = (page - 1) * limit;
@@ -22,6 +36,7 @@ export async function GET(request: NextRequest) {
     // Fetch paginated data from Prisma
     const memberList = await prisma.member.findMany({
       where: {
+        descendantOf: forDescendanceOf,
         name: {
           contains: searchQuery,
           // mode: "insensitive", // PostgreSQL-specific support in Prisma
@@ -32,6 +47,7 @@ export async function GET(request: NextRequest) {
         name: true,
         gender: true,
         phoneNumber: true,
+        verified: true,
         father: { select: { name: true } },
         mother: { select: { name: true } },
         partner: { select: { name: true } },
@@ -79,6 +95,10 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching members:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     return NextResponse.json({ error: "Error fetching members" }, { status: 500 });
   }
 }

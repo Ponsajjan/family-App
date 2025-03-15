@@ -9,7 +9,7 @@ interface LoginRequestBody {
 interface LoginResponse {
   id: number;
   forDescendanceOf: string;
-  mainMemberId: number;
+  mainMemberId: number | null;
   password: string;
   moderatorName?: string;
   moderatorContact?: string;
@@ -35,9 +35,9 @@ export async function POST(request: Request) {
     // If no match is found in DB, check the environment variable
     if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
       login = {
-        id: 108, // Avoid hardcoding; consider generating a unique ID
+        id: -108, // Avoid hardcoding; consider generating a unique ID
         forDescendanceOf: "superAdmin",
-        mainMemberId: -1, // Avoid hardcoding; consider a better default
+        mainMemberId: null, // Avoid hardcoding; consider a better default
         password: process.env.SUPER_ADMIN_PASSWORD,
         moderatorName: "superAdmin",
         moderatorContact: "N/A",
@@ -56,10 +56,10 @@ export async function POST(request: Request) {
     const token = await generateToken({
       forDescendanceOf: login.forDescendanceOf,
       memberId: login.mainMemberId,
-      userType: login.forDescendanceOf === "superAdmin" ? "superAdmin" : "member",
     });
+    const userType = login.forDescendanceOf === "superAdmin" ? "Admin" : "member";
 
-    return NextResponse.json({ success: true, message: "Login successful", token });
+    return NextResponse.json({ success: true, message: "Login successful", token, userType});
   } catch (error) {
     console.error("Error logging in:", error);
     return NextResponse.json(

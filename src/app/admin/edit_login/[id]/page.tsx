@@ -27,7 +27,12 @@ export default function Page() {
         const response = await fetch(`/api/admin/edit_login/${memberId}`);
         const result = await response.json();
         const edit_member = result.data
-
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
+          return;
+        }
         if (!response.ok) {
           throw new Error(result.error || "Failed to fetch member data");
         }

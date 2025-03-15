@@ -1,3 +1,5 @@
+'use server'
+
 import prisma from "@/db/db";
 import { Female, Male, SvgArrow, SvgArrowStraight } from "@/utils/Icons";
 
@@ -47,9 +49,9 @@ const TreeView = ({ data }: { data: any[] }) => {
 };
 
 // Fetch the family tree data and return JSX
-async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
+async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
   try {
-    if (!memberIds || memberIds.length === 0) return [];
+    if (!memberId || memberId.length === 0) return [];
 
     let members = [];
     try {
@@ -59,7 +61,7 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
 
       // Fetch members with their relationships and order field
       members = await prisma.member.findMany({
-        where: { id: { in: memberIds } },
+        where: { id: { in: memberId } },
         include: {
           fatherOf: { select: { id: true, name: true, gender: true, order: true } },
           motherOf: { select: { id: true, name: true, gender: true, order: true } },
@@ -84,7 +86,7 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
           ];
 
           // Fetch the next generation recursively
-          const nextGen = await fetchFamilyTree(childIds);
+          const nextGen = await fetchFamilyTreeData(childIds);
 
           // Sort nextGen based on the order value of each child
           nextGen.sort((a, b) => a.order - b.order);
@@ -111,9 +113,9 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
   }
 }
 
-export default async function FetchFamilyTree({ memberIds }: { memberIds: number[] }) {
-  const data = await fetchFamilyTree(memberIds);
-  console.log(JSON.stringify(data, null, 2));
+export default async function FetchFamilyTree({ memberId }: { memberId: number[] }) {
+  const data = await fetchFamilyTreeData(memberId);
+  // console.log(JSON.stringify(data, null, 2));
   return (
     <>
       <div className="flex">

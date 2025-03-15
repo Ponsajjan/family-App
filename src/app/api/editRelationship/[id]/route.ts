@@ -1,15 +1,28 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { verifyToken } from "@/utils/auth";
 
 export async function GET(request: Request, context: any) {
     const url = new URL(request.url);
     const id = parseInt(url.pathname.split('/').pop() || '');
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
 
+    if (!token) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     if (!id) {
       return NextResponse.json({ error: "Member ID is required and should be a valid number." });
     }
 
     try {
+      const decoded = await verifyToken(token);
+      const forDescendanceOf = decoded.forDescendanceOf;
+
+      if (!forDescendanceOf) {
+          return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      }
+
       const dbData = await prisma.member.findMany({
         where: {
           id: id,
@@ -67,25 +80,28 @@ export async function GET(request: Request, context: any) {
     }
 }
 
-
-
-
-
-
-
-
-
-
 export async function PUT(request: Request, context: any) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  // Validate memberId
   if (isNaN(memberId)) {
     return NextResponse.json({ error: 'Invalid member ID' }, { status: 400 });
   }
 
   try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+    
     const { deleteData, hasPartner, childrenOrder } = await request.json();
 
     // Validate request body
@@ -177,6 +193,11 @@ export async function PUT(request: Request, context: any) {
     });
   } catch (error: any) {
     console.error('Error updating member:', error);
+
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
 
     // Handle specific Prisma error codes
     if (error.code === 'P2025') {

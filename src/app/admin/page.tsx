@@ -6,6 +6,7 @@ import Input from "@/components/Input";
 import { Popup } from "@/components/Popup";
 import { useToast } from "@/components/Toast";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
 export default function ExpandableTable() {
@@ -15,13 +16,15 @@ export default function ExpandableTable() {
   const [data, setData] = useState([]);
   const [editModerator, setEditModerator] = useState({ name: "", contactNumber: "" });
   const [newModerator, setNewModerator] = useState({ name: "", contactNumber: "" });
-
+  const router = useRouter();
   const [showPopup, setShowPopup] = useState<{ id: number | null; descendantOf: string | null }>({ id: null, descendantOf: null });
   const [deleting, setDeleting] = useState(false);
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         const response = await fetch('/api/admin');
         const result = await response.json();
         setData(result);
@@ -29,6 +32,8 @@ export default function ExpandableTable() {
         if (toast) {
           toast.show(error.message || 'Error fetching data', "error", 5000);
         }
+      } finally {
+        setLoading(false)
       }
     };
 
@@ -69,6 +74,12 @@ export default function ExpandableTable() {
           authId: authId,
         }),
       });
+      // Handle 401 Unauthorized
+      if (response.status === 401) {
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.push('/login');
+        return;
+      }
   
       if (!response.ok) {
         const errorData = await response.json();
@@ -216,117 +227,120 @@ export default function ExpandableTable() {
 
   return (
     <Container>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-text_color">
-          <thead>
-            <tr className="text-text_color bg-gray-800/20">
-              <th className="py-2 px-4">Descendant of</th>
-              <th className="py-2 px-4">Member Password</th>
-              <th className="py-2 px-4">Moderator Password</th>
-              <th className="py-2 px-4">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row: any, rowIndex: number) => (
-              <React.Fragment key={rowIndex}>
-                <tr
-                  className="cursor-pointer border-y border-border_color bg-gray-800/10"
-                >
-                  <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.descendantOf}</td>
-                  <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.memberPassword}</td>
-                  <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.moderatorPassword}</td>
-                  <td className="py-2 px-4">
-                    <Link href={`/admin/edit_login/${row.mainMemberId}`} className="pr-1">Edit</Link>
-                    <button onClick={() => deleteRecord(row.mainMemberId, row.descendantOf)} className="pl-1">Delete</button>
-                  </td>
-                </tr>
-                {expandedRows.includes(rowIndex) && (
-                  <tr>
-                    <td colSpan={4} className="border-b border-border_color">
-                      <table className="w-full bg-field_color text-text_color border-b last:border-none border-border_color">
-                        <thead>
-                          <tr>
-                            <th className="py-2 px-4">Moderator Name</th>
-                            <th className="py-2 px-4">Contact Number</th>
-                            <th className="py-2 px-4">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {row.moderators.map((moderator: any, modIndex: number) => (
-                            <tr key={modIndex}>
-                              <td className="py-2 px-4 border-t border-border_color">
-                                {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
-                                  <Input
-                                    value={editModerator.name}
-                                    onChange={(e) => handleEditModeratorChange("name", e.target.value, rowIndex)}
-                                  />
-                                ) : (
-                                  moderator.name
-                                )}
-                              </td>
-                              <td className="py-2 px-4 border-t border-border_color">
-                                {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
-                                  <Input
-                                    value={editModerator.contactNumber}
-                                    onChange={(e) => handleEditModeratorChange("contactNumber", e.target.value, rowIndex)}
-                                  />
-                                ) : (
-                                  moderator.contactNumber
-                                )}
-                              </td>
-                              <td className="py-2 px-4 border-t border-border_color">
-                                {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
-                                  <div className="flex gap-2">
-                                    <button onClick={() => handleSaveEditModerator(moderator.id, row.id)}>Save</button>
-                                    <button onClick={() => setEditingModerator(null)}>Close</button>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <button
-                                      className="pr-1"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleEditModerator(rowIndex, modIndex, moderator.name, moderator.contactNumber);
-                                      }}
-                                    >
-                                      Edit
-                                    </button>
-                                    <button onClick={() => deleteModerator(moderator.id)} className="pl-1">Delete</button>
-                                  </>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
-                          <tr>
-                            <td className="py-2 px-4 border-t border-border_color">
-                              <Input
-                                value={newModerator.name}
-                                onChange={(e) => handleNewModeratorChange("name", e.target.value, rowIndex)}
-                              />
-                            </td>
-                            <td className="py-2 px-4 border-t border-border_color">
-                              <Input
-                                value={newModerator.contactNumber}
-                                onChange={(e) => handleNewModeratorChange("contactNumber", e.target.value, rowIndex)}
-                              />
-                            </td>
-                            <td className="py-2 px-4 border-t border-border_color">
-                              <div className="flex gap-2">
-                                <button onClick={() => handleAddModerator(row.id, rowIndex)}>Add</button>
-                                <div className="text-transparent">dumm</div>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+      {loading
+        ? <p className="text-center text-text_color m-6">Loading...</p>
+        : <div className="overflow-x-auto">
+          <table className="min-w-full text-text_color">
+            <thead>
+              <tr className="text-text_color bg-gray-800/20">
+                <th className="py-2 px-4">Descendant of</th>
+                <th className="py-2 px-4">Member Password</th>
+                <th className="py-2 px-4">Moderator Password</th>
+                <th className="py-2 px-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((row: any, rowIndex: number) => (
+                <React.Fragment key={rowIndex}>
+                  <tr
+                    className="cursor-pointer border-y border-border_color bg-gray-800/10"
+                  >
+                    <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.descendantOf}</td>
+                    <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.memberPassword}</td>
+                    <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.moderatorPassword}</td>
+                    <td className="py-2 px-4">
+                      <Link href={`/admin/edit_login/${row.mainMemberId}`} className="pr-1">Edit</Link>
+                      <button onClick={() => deleteRecord(row.mainMemberId, row.descendantOf)} className="pl-1">Delete</button>
                     </td>
                   </tr>
-                )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  {expandedRows.includes(rowIndex) && (
+                    <tr>
+                      <td colSpan={4} className="border-b border-border_color">
+                        <table className="w-full bg-field_color text-text_color border-b last:border-none border-border_color">
+                          <thead>
+                            <tr>
+                              <th className="py-2 px-4">Moderator Name</th>
+                              <th className="py-2 px-4">Contact Number</th>
+                              <th className="py-2 px-4">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {row.moderators.map((moderator: any, modIndex: number) => (
+                              <tr key={modIndex}>
+                                <td className="py-2 px-4 border-t border-border_color">
+                                  {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
+                                    <Input
+                                      value={editModerator.name}
+                                      onChange={(e) => handleEditModeratorChange("name", e.target.value, rowIndex)}
+                                    />
+                                  ) : (
+                                    moderator.name
+                                  )}
+                                </td>
+                                <td className="py-2 px-4 border-t border-border_color">
+                                  {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
+                                    <Input
+                                      value={editModerator.contactNumber}
+                                      onChange={(e) => handleEditModeratorChange("contactNumber", e.target.value, rowIndex)}
+                                    />
+                                  ) : (
+                                    moderator.contactNumber
+                                  )}
+                                </td>
+                                <td className="py-2 px-4 border-t border-border_color">
+                                  {editingModerator?.rowIndex === rowIndex && editingModerator?.modIndex === modIndex ? (
+                                    <div className="flex gap-2">
+                                      <button onClick={() => handleSaveEditModerator(moderator.id, row.id)}>Save</button>
+                                      <button onClick={() => setEditingModerator(null)}>Close</button>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <button
+                                        className="pr-1"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleEditModerator(rowIndex, modIndex, moderator.name, moderator.contactNumber);
+                                        }}
+                                      >
+                                        Edit
+                                      </button>
+                                      <button onClick={() => deleteModerator(moderator.id)} className="pl-1">Delete</button>
+                                    </>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                            <tr>
+                              <td className="py-2 px-4 border-t border-border_color">
+                                <Input
+                                  value={newModerator.name}
+                                  onChange={(e) => handleNewModeratorChange("name", e.target.value, rowIndex)}
+                                />
+                              </td>
+                              <td className="py-2 px-4 border-t border-border_color">
+                                <Input
+                                  value={newModerator.contactNumber}
+                                  onChange={(e) => handleNewModeratorChange("contactNumber", e.target.value, rowIndex)}
+                                />
+                              </td>
+                              <td className="py-2 px-4 border-t border-border_color">
+                                <div className="flex gap-2">
+                                  <button onClick={() => handleAddModerator(row.id, rowIndex)}>Add</button>
+                                  <div className="text-transparent">dumm</div>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      }
 
       {/* Popup for Delete Confirmation */}
       {showPopup.id !== null && (

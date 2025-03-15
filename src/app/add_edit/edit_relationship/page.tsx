@@ -10,10 +10,10 @@ import { useToast } from "@/components/Toast";
 import { useRouter } from 'next/navigation';
 import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
 import EditRelationShipForm from "@/components/forms/EditRelationShipForm";
+import { getCookie } from 'cookies-next';
 
 export default function EditMemberDetails() {
   const toast = useToast();
-  const router = useRouter();
   const [noChanges, setNoChanges] = useState<boolean>(true);
   const [previousData, setPreviousData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
   const [formData, setFormData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
@@ -21,6 +21,8 @@ export default function EditMemberDetails() {
   const [hasPartner, setHasPatner] = useState<number | undefined | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showList, setShowList] = useState<boolean>(false);
+  const token = getCookie('token');
+  const router = useRouter(); 
 
   const handleShowList = () => {
     setShowList(true);
@@ -31,7 +33,21 @@ export default function EditMemberDetails() {
       const fetchMembers = async () => {
         try {
           setLoading(true);
-          const response = await fetch(`/api/editRelationship/${formData.id}`);
+          const response = await fetch(`/api/editRelationship/${formData.id}`,
+            {
+              method: 'GET',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+              },
+            }
+          );
+          // Handle 401 Unauthorized
+          if (response.status === 401) {
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            router.push('/login');
+            return;
+          }
           if (!response.ok) throw new Error('Failed to fetch member details');
           const { data } = await response.json();
 
@@ -116,6 +132,7 @@ export default function EditMemberDetails() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({ deleteData: deleteData, hasPartner: hasPartner, childrenOrder: formData.children }),
       });

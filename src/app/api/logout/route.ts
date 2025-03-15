@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 export async function GET() {
-  const response = NextResponse.json({ message: "Logged out successfully" });
+  const cookieStore = await cookies();
 
-  // Remove the authentication cookie
-  response.headers.set("Set-Cookie", "token=; HttpOnly; Path=/; Max-Age=0");
+  cookieStore.delete('token');
 
-  return response;
+  return NextResponse.json({ message: "Logged out successfully" });
 }

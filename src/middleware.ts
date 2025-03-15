@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (access === "Admin") {
+  if (access === "SuperAdmin") {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 

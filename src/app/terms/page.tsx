@@ -4,10 +4,55 @@ import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
 import { Logout } from '@/utils/Icons'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { getCookie } from 'cookies-next';
+import { useToast } from '@/components/Toast'
+import { useRouter } from 'next/navigation'
 
 export default function Terms() {
-  const[showModerator, setShowModerator] = useState(false);
+  const toast = useToast();
+  const[loading, setLoading] = useState(true)
+  const[head, setHead] = useState('')
+  const[moderatorList, setModeratorList] = useState([])
+  const token = getCookie('token');
+  const router = useRouter(); 
+
+    useEffect(() => {
+      async function fetchMembers() {
+        try {
+          setLoading(true)
+          const response = await fetch(`/api/terms`,
+            {
+              method: 'GET',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+              },
+            }
+          );
+          // Handle 401 Unauthorized
+          if (response.status === 401) {
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            router.push('/login');
+            return;
+          }
+  
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          setHead(data.member['name'])
+          setModeratorList(data.moderators)
+          
+        } catch (error: any) {
+          toast?.show(error.message || 'Failed to fetch page data', 'error', 5000);
+        } finally {
+          setLoading(false)
+        }
+      }
+  
+      fetchMembers();
+    }, []);
 
   const logout = async () => {
     try {
@@ -27,19 +72,20 @@ export default function Terms() {
     <div className='flex flex-col w-full text-text_color'>
       <Topnav> </Topnav>
       <Container>
+        {loading ? <p></p> :
         <div className="max-w-4xl mx-auto p-4">
           <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
-            Shanmuga Nadar Family, Birthdays & Remembrances
+            {head} Family, Birthdays & Remembrances
           </h1>
 
           <p className="text-lg text-center mb-3">
-            This app is created exclusively for the Shanmuga Nadar family to honor and remember significant dates, such as birthdays and remembrances.
+            This app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances.
           </p>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
             <h2 className="text-xl font-semibold mb-4">Access is limited to:</h2>
             <ul className="list-disc list-inside space-y-2">
-              <li>Direct descendants of Shanmuga Nadar</li>
+              <li>Direct descendants of {head}</li>
               <li>Their partner (spouse or significant other)</li>
             </ul>
             <p className="mt-4 italic opacity-65">
@@ -47,7 +93,7 @@ export default function Terms() {
             </p>
           </div>
 
-          <div className="bg-field_color shadow-md border border-border_color rounded-lg mb-4">
+          <div className="bg-field_color shadow-md border border-border_color rounded-lg mb-6">
             <div className='p-4'>
               <h2 className="text-xl font-semibold mb-4">Guidelines:</h2>
               <ul className="list-disc list-inside space-y-2">
@@ -56,19 +102,29 @@ export default function Terms() {
               </ul>
               <p className="mt-4 italic opacity-65">
                 Note: Family member information can be locked to maintain data integrity. For locked members, changes will require moderator approval or contact
-                the <span className='border-b border-border_color cursor-pointer' onClick={() => setShowModerator(prev => !prev)}>moderator</span> directly.
+                the moderator directly.
               </p>
             </div>
-            {showModerator && <div className='border-t border-border_color p-4 flex justify-between'>
-              <div>Moderator: Ponsajjan</div>
-              <div>Contact: 9487244794</div>
-            </div>}
           </div>
+
+          <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-4">
+            <h2 className="text-xl font-semibold mb-4">Moderator:</h2>
+            <ul>
+              {moderatorList.map((member:any, index:number) => (
+                <li key={index} className='flex items-baseline justify-between mb-1'>
+                  <span>{member.moderatorName}</span>
+                  <span className='border-b border-dashed border-border_color block w-full mx-2'/>
+                  <span>{member.moderatorContact}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className='flex justify-between'>
             <Link href="/terms/login">Login as Moderator</Link>
             <button onClick={logout} className="px-2 flex items-center gap-2"><Logout />Logout</button>
           </div>
-        </div>
+        </div>}
       </Container>
     </div>
   )

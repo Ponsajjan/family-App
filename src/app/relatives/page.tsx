@@ -9,6 +9,8 @@ import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
+import { getCookie } from 'cookies-next';
+import { useRouter } from "next/navigation";
 
 export default function Relatives() {
   const toast = useToast();
@@ -20,6 +22,8 @@ export default function Relatives() {
   const [loadingDetails, setLoadingDetails] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  const token = getCookie('token');
+  const router = useRouter(); 
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
@@ -53,10 +57,18 @@ export default function Relatives() {
         const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
           {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            cache: 'no-store',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
           }
         );
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
+          return;
+        }
 
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -99,10 +111,17 @@ export default function Relatives() {
     };
   }, [params, hasMore, toast]);
 
-  const handleShowDetails = async (member_id: string | number) => {
+  const handleShowDetails = async (member_id: string | number, verified: boolean) => {
     try {
         setLoadingDetails(true)
-        const response = await fetch(`/api/relatives/${member_id}`);
+        const response = await fetch(`/api/relatives/${member_id}?verified=${verified}`, {
+          method: 'GET',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          },
+          cache: 'no-store',
+        });
         if (!response.ok) throw new Error('Failed to fetch member details');
 
         const member = await response.json();
@@ -161,7 +180,7 @@ export default function Relatives() {
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
-                      onClick={() => handleShowDetails(member.id)} 
+                      onClick={() => handleShowDetails(member.id, member.verified)} 
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
                       <div>

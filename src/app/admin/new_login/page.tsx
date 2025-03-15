@@ -8,6 +8,7 @@ import Container from '@/components/Container';
 import { validateNewLoginForm } from '@/utils/admin/new_login/validateNewLoginForm';
 import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorTypes, NewLoginFormValueTypes } from '@/types/admin/new_login/types';
 import { useToast } from '@/components/Toast';
+import { useRouter } from 'next/navigation';
 
 export default function Page() {
   const toast = useToast();
@@ -31,7 +32,7 @@ export default function Page() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    const router = useRouter();
     const errorMessage = validateNewLoginForm(formData);  
     if (Object.keys(errorMessage).length) {
       setErrors(errorMessage);
@@ -70,9 +71,15 @@ export default function Page() {
         },
         body: JSON.stringify(newLoginDetails),
       });
-
-      // Handle API response
       const result = await response.json();
+
+      // Handle 401 Unauthorized
+      if (response.status === 401) {
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        router.push('/login');
+        return;
+      }
+      // Handle API response
       if (!response.ok) {
         if (toast) {
           toast.show(result.error || "Something went wrong", "error", 5000);
@@ -80,12 +87,11 @@ export default function Page() {
         }
         throw new Error(result.error || "Something went wrong");
         // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
-      } else {
-        if (toast) {
-          toast.show(result.message, "success", 5000);
-        }
-        setFormData(NewLoginDefaultFormValue);
       }
+      if (toast) {
+        toast.show(result.message, "success", 5000);
+      }
+      setFormData(NewLoginDefaultFormValue);
     } catch (error) {
       console.error("Error submitting form:", error);
       if (toast) {
@@ -253,7 +259,7 @@ export default function Page() {
                 className="mb-2"
                 type="number"
                 showOptional={true}
-                name="phoneNumber"
+                name="phone_number"
                 label="Contact"
                 value={formData.phone_number}
                 onChange={handleInputChange}

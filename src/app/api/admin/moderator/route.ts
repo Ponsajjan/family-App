@@ -46,7 +46,10 @@ export async function POST(request: Request) {
   
     } catch (error: any) {
       console.error("Error creating moderator:", error);
-  
+      // Handle token verification errors
+      if (error instanceof Error && error.name === 'JsonWebTokenError') {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      }
       if (error.code === "P2002") {
         return NextResponse.json(
           { error: "This contact number is already assigned to another moderator." },

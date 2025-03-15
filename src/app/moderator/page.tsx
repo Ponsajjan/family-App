@@ -10,6 +10,7 @@ import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import NewMemberDetails from "./Details";
+import { useRouter } from "next/navigation";
 
 export default function VerifyMember() {
   const toast = useToast();
@@ -23,6 +24,7 @@ export default function VerifyMember() {
   const [hasMore, setHasMore] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('Unverified');
+  const router = useRouter();
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
@@ -61,6 +63,12 @@ export default function VerifyMember() {
           }
         );
 
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
+          return;
+        }
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

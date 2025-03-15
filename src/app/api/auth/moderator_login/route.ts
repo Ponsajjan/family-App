@@ -17,10 +17,8 @@ export async function POST(request: Request) {
         id:108,
         forDescendanceOf: "superAdmin",
         mainMemberId: -1,
+        moderatorPassword: "hi",
         password: process.env.SUPER_ADMIN_PASSWORD || 'trust me, there is a password',
-        moderatorName: "hi",
-        moderatorContact: "hi",
-        moderatorPassword: "hi"
       };
     }
 
@@ -42,6 +40,10 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error("Error logging in:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     return NextResponse.json(
       { success: false, error: "Failed to log in" },
       { status: 500 }
