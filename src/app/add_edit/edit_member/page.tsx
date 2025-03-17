@@ -217,6 +217,7 @@ export default function EditMemberDetails () {
               </div>}
             </div>
           </div>
+          {(formData.pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color rounded-md bg-field_color">{formData.pendingVerification} pending verification</p>}
           <EditMemberForm 
             handleSubmit={handleSubmit}
             formData={formData}

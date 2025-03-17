@@ -33,6 +33,11 @@ export async function GET(request: Request, context: any) {
         name: true,
         gender: true,
         verified: true,
+        pendingVerification: {
+          where: {
+            type: "Edit Relationship"
+          }
+        },
         partner: {
           select: {
             id: true,
@@ -86,6 +91,7 @@ export async function GET(request: Request, context: any) {
       gender: member.gender,
       partner: member.partner,
       children: children,
+      pendingVerification: member.pendingVerification?.length,
       hasVerified, // Add hasVerified to the response
     };
 

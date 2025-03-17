@@ -35,6 +35,11 @@ export async function GET(request: Request) {
           gender: true,
           verified: true,
           descendant: true,
+          pendingVerification: {
+            where: {
+              type: "Add Relationship"
+            }
+          },
           father: {
             select: {
               id: true,
@@ -101,6 +106,7 @@ export async function GET(request: Request) {
         descendant: dbData.descendant,
         partner: dbData.partner,
         childrenData: childrenData,
+        pendingVerification: dbData.pendingVerification?.length,
         excludeIds: [
           dbData?.id ? dbData.id : null,
           dbData.father?.id ? dbData.father?.id : null,

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton, ResetData } from "@/utils/Icons";
+import { AddRelationship, BackButton } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { useRouter } from 'next/navigation';
 import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
@@ -185,6 +185,7 @@ export default function EditRelationshipDetails() {
               Edit Relationship
             </p>
           </div>
+          {(formData.pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color rounded-md bg-field_color">{formData.pendingVerification} pending verification</p>}
           <EditRelationShipForm
             handleShowList={handleShowList}
             handleDivorcePartner={handleDivorcePartner}

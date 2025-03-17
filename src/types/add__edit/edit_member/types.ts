@@ -3,6 +3,7 @@ export interface EditMemberFormValueTypes {
     name: string;
     gender: 'Male' | 'Female' | undefined;
     verified: boolean;
+    pendingVerification: number;
     birth_date: string | null;
     birth_month: string | null;
     birth_year: string | null;
@@ -31,6 +32,7 @@ export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
     name: '',
     gender: undefined,
     verified: false,
+    pendingVerification: 0,
     birth_date: null,
     birth_month: null,
     birth_year: null,

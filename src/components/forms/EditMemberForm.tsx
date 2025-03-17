@@ -1,5 +1,5 @@
 'use client'
-import { ChangeMember } from '@/utils/Icons'
+import { ChangeMember, Warning } from '@/utils/Icons'
 import React from 'react'
 import Input from '@/components/Input'
 import { ButtonSolid } from '@/components/Button'
@@ -45,7 +45,7 @@ function EditMemberForm({
                 </div>
                 {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
 
-                {formData.verified && <p>This member is already verified. Any changes will require moderator approval before they take effect.</p>}
+                {formData.verified && <p className='mt-2'><span className='inline-block align-bottom'><Warning /></span>This member is already verified. Any changes will require moderator approval before they take effect.</p>}
             </div>
             <div className="flex gap-2 py-4">
                 <p className="text-sm font-medium">Gender:</p>

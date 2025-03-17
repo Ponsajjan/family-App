@@ -12,6 +12,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
     const [descendant, setDescendant] = useState<any>(null);
     const [selectedMemberData, setSelectedMemberData] = useState(AddRelationDefaultFormValue);
     const [excludeMemberRelation, setExcludeMemberRelation] = useState<number[]>([]);
+    const [pendingVerification, setPendingVerification] = useState<number>(0)
     const token = getCookie('token');
     const router = useRouter(); 
     const toast = useToast();
@@ -47,6 +48,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                     setDescendant(data.descendant)
                     setSelectedMemberData(formatedDbData);
                     setExcludeMemberRelation(data.excludeIds);
+                    setPendingVerification(data.pendingVerification)
                 } catch (error: any) {
                     if (toast) {
                         toast.show(error.message || "Error fetching member details", "error", 5000)
@@ -64,6 +66,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
             setDescendant(null)
             setSelectedMemberData(AddRelationDefaultFormValue)
             setExcludeMemberRelation([])
+            setPendingVerification(0)
         }
     }, [selectedMemberId, router, toast])
     return {
@@ -71,6 +74,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
         descendant,
         selectedMemberData,
         excludeMemberRelation,
+        pendingVerification
     }
 }
 

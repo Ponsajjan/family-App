@@ -35,6 +35,11 @@ export async function GET(request: Request, context: any) {
         verified: true,
         gender: true,
         phoneNumber: true,
+        pendingVerification: {
+          where: {
+            type: "Edit Member"
+          }
+        },
         address: true,
         occupation: true,
         education: true,
@@ -75,6 +80,7 @@ export async function GET(request: Request, context: any) {
         name: member.name,
         gender: member.gender,
         verified: member.verified,
+        pendingVerification: member.pendingVerification?.length,
         birth_date: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
         birth_month: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
         birth_year: member.birthYear ? String(member.birthYear) : null,

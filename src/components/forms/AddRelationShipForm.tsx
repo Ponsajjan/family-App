@@ -1,4 +1,4 @@
-import { ChangeMember, MinusIcon, PlusIcon } from '@/utils/Icons'
+import { ChangeMember, MinusIcon, PlusIcon, Warning } from '@/utils/Icons'
 import { useRef } from 'react'
 import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
@@ -129,7 +129,7 @@ function AddRelationShipForm({
             (selectedMemberData.verified || 
             selectedPartnerData.verified || 
             newChildrenData.children.some((child:any) => child.verified)) && (
-                <p>This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
+                <p className='mt-2'><span className='inline-block align-bottom'><Warning /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
             )
         }
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />

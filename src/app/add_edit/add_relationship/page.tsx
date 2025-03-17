@@ -34,7 +34,8 @@ export default function AddRelationshipDetails () {
     memberloading,
     descendant,
     selectedMemberData,
-    excludeMemberRelation} = useAddMember({selectedMemberId});
+    excludeMemberRelation,
+    pendingVerification} = useAddMember({selectedMemberId});
 
   const {
     patnerLoading,
@@ -194,6 +195,7 @@ export default function AddRelationshipDetails () {
               </p>
             </div>
           </div>
+          {(pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color rounded-md bg-field_color">{pendingVerification} pending verification</p>}
           <AddRelationShipForm 
             selectedMemberData={selectedMemberData}
             selectedPartnerData={selectedPartnerData}
