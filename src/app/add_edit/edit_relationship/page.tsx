@@ -12,7 +12,7 @@ import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipD
 import EditRelationShipForm from "@/components/forms/EditRelationShipForm";
 import { getCookie } from 'cookies-next';
 
-export default function EditMemberDetails() {
+export default function EditRelationshipDetails() {
   const toast = useToast();
   const [noChanges, setNoChanges] = useState<boolean>(true);
   const [previousData, setPreviousData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
@@ -150,7 +150,7 @@ export default function EditMemberDetails() {
       const result = await response.json();
 
       if (result) {
-        toast?.show("Member updated successfully", "success", 5000);
+        toast?.show(result.message, "success", 5000);
       }
 
       setFormData(editRelationshipDefaultFormValue);
@@ -185,7 +185,6 @@ export default function EditMemberDetails() {
               Edit Relationship
             </p>
           </div>
-          <p className="p-0.5 border-y border-border_color my-6">1 pending verification</p>
           <EditRelationShipForm
             handleShowList={handleShowList}
             handleDivorcePartner={handleDivorcePartner}

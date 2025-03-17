@@ -33,6 +33,7 @@ export async function GET(request: Request) {
           id: true,
           name: true,
           gender: true,
+          verified: true,
           descendant: true,
           father: {
             select: {
@@ -96,6 +97,7 @@ export async function GET(request: Request) {
         id: dbData.id,
         name: dbData.name,
         gender: dbData.gender,
+        verified: dbData.verified,
         descendant: dbData.descendant,
         partner: dbData.partner,
         childrenData: childrenData,
@@ -122,17 +124,17 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
-  // Extract the token from the Authorization header
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1]; // Extract the token part after "Bearer"
 
   // If no token is found, return an unauthorized response
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   // Ensure valid memberId
   if (isNaN(memberId)) {
-    return NextResponse.json({ error: 'Invalid member ID' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
   }
 
   try {
@@ -140,14 +142,60 @@ export async function PUT(request: Request) {
     const forDescendanceOf = decoded.forDescendanceOf;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
-    
+
     const updatedData = await request.json(); // Parse the JSON body
 
-    if (!updatedData || Object.keys(updatedData).length === 0) { // Ensure data is provided
-      return NextResponse.json({ error: 'No data provided for update' }, { status: 400 });
+    if (!updatedData || Object.keys(updatedData).length === 0) {
+      return NextResponse.json({ error: "No data provided for update" }, { status: 400 });
     }
+
+    // Extract IDs from the payload
+    const idsToCheck: number[] = [];
+
+    if (updatedData.partnerId) {
+      idsToCheck.push(updatedData.partnerId);
+    }
+    if (updatedData.fatherOf?.connect) {
+      updatedData.fatherOf.connect.forEach((item: { id: number }) => idsToCheck.push(item.id));
+    }
+    if (updatedData.motherOf?.connect) {
+      updatedData.motherOf.connect.forEach((item: { id: number }) => idsToCheck.push(item.id));
+    }
+    idsToCheck.push(memberId)
+    
+    // Remove duplicate IDs using a Set
+    const uniqueIdsToCheck = Array.from(new Set(idsToCheck));
+
+    // Check if any of the IDs belong to verified members
+    const verifiedMembers = await prisma.member.findMany({
+      where: {
+        id: { in: uniqueIdsToCheck },
+        verified: true,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    // If any verified members are found, add the update request to pending verification
+    if (verifiedMembers.length > 0) {
+      await prisma.requestDetails.create({
+        data: {
+          type: "Add Relationship", // Type of request
+          details: JSON.stringify(updatedData), // Store the update data as a JSON string
+          memberId: memberId, // Associate the request with the member
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Update request has been added to for verification.",
+      });
+    }
+
+    // If no verified members are involved, proceed with the update logic
 
     // Update the member in the database
     const updatedMember = await prisma.member.update({
@@ -171,7 +219,7 @@ export async function PUT(request: Request) {
     // Handle updating the partner's relationships and children's order
     if (updatedData.partnerId) {
       const partnerUpdateData: any = {};
-      
+
       partnerUpdateData.partnerId = memberId;
       if (updatedData.fatherOf) {
         partnerUpdateData.motherOf = updatedData.fatherOf;
@@ -193,21 +241,22 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: 'Member updated successfully',
+      message: "Member updated successfully",
       data: updatedMember,
     });
   } catch (error: any) {
-    console.error('Error updating member:', error);
+    console.error("Error updating member:", error);
+
     // Handle token verification errors
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+    if (error instanceof Error && error.name === "JsonWebTokenError") {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    if (error.code === 'P2025') {
+    if (error.code === "P2025") {
       // Prisma-specific error for "Record not found"
-      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

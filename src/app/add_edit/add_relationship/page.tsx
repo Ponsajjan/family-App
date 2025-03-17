@@ -14,7 +14,7 @@ import { useToast } from "@/components/Toast";
 import { getCookie } from 'cookies-next';
 import { useRouter } from "next/navigation";
 
-export default function EditMemberDetails () {
+export default function AddRelationshipDetails () {
   const toast = useToast();
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>();
   const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>();
@@ -53,20 +53,20 @@ export default function EditMemberDetails () {
     }));
   };
 
-  const handleSelectedValue = (name: string, id: number, select: string) => {
+  const handleSelectedValue = (name: string, id: number, select: string, verified: boolean) => {
   
     const updateData = (prev: any) => {
       if (Array.isArray(prev['children'])) {
-        const exists = prev['children'].some((entry: { id: number; name: string }) => entry.id === id);
+        const exists = prev['children'].some((entry: { id: number; name: string; verified: boolean }) => entry.id === id);
           if (exists) {
           return {
             ...prev,
-            ['children']: prev['children'].filter((entry: { id: number; name: string }) => entry.id !== id),
+            ['children']: prev['children'].filter((entry: { id: number; name: string; verified: boolean }) => entry.id !== id),
           };
         } else {
           return {
             ...prev,
-            ['children']: [...prev['children'], { id, name }],
+            ['children']: [...prev['children'], { id, name, verified }],
           };
         }
       }

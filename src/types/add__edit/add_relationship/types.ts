@@ -2,12 +2,19 @@ interface Member {
     id: number;
     name: string;
 }
+
+interface Children {
+    id: number;
+    name: string;
+    verified: boolean
+}
 export interface AddRelationFormValuesType {
     id: number | undefined;
     name: string | undefined;
     gender?: 'Male' | 'Female' | null;
     partner: Member | null;
-    children: Member[];
+    verified: boolean;
+    children: Children[];
 }
 
 export interface memberListConstrainType {
@@ -21,5 +28,6 @@ export const AddRelationDefaultFormValue: AddRelationFormValuesType = {
     name: undefined,
     gender: undefined,
     partner: null,
+    verified: false,
     children: [],
 };

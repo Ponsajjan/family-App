@@ -3,95 +3,17 @@ import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
 export async function GET(request: Request, context: any) {
-    const url = new URL(request.url);
-    const id = parseInt(url.pathname.split('/').pop() || '');
-    const authHeader = request.headers.get('Authorization');
-    const token = authHeader?.split(' ')[1];
-
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    if (!id) {
-      return NextResponse.json({ error: "Member ID is required and should be a valid number." });
-    }
-
-    try {
-      const decoded = await verifyToken(token);
-      const forDescendanceOf = decoded.forDescendanceOf;
-
-      if (!forDescendanceOf) {
-          return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-      }
-
-      const dbData = await prisma.member.findMany({
-        where: {
-          id: id,
-        },
-        select: {
-          id: true,
-          name: true,
-          gender: true,
-          partner: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          fatherOf: {
-            select: {
-              id: true,
-              name: true,
-              order: true,
-            },
-          },
-          motherOf: {
-            select: {
-              id: true,
-              name: true,
-              order: true,
-            },
-          },
-        },
-      });
-
-      const member = dbData[0];
-
-      // Combine fatherOf and motherOf children
-      const children = member.fatherOf.length > 0 ? member.fatherOf : member.motherOf.length > 0 ? member.motherOf : [];
-
-      // Sort children by order
-      if (children && Array.isArray(children)) {
-        children.sort((a, b) => a.order - b.order);
-      }
-
-      // Format the data
-      const data = {
-        id: member.id,
-        name: member.name,
-        gender: member.gender,
-        partner: member.partner,
-        children: children,
-      };
-
-      return NextResponse.json({ data });
-    } catch (error) {
-      console.error(error);
-      return NextResponse.json({ error: "Failed to fetch data" });
-    }
-}
-
-export async function PUT(request: Request, context: any) {
   const url = new URL(request.url);
-  const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const id = parseInt(url.pathname.split('/').pop() || '');
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
-  
+
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (isNaN(memberId)) {
-    return NextResponse.json({ error: 'Invalid member ID' }, { status: 400 });
+  if (!id) {
+    return NextResponse.json({ error: "Member ID is required and should be a valid number." }, { status: 400 });
   }
 
   try {
@@ -99,15 +21,159 @@ export async function PUT(request: Request, context: any) {
     const forDescendanceOf = decoded.forDescendanceOf;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
-    
+
+    const dbData = await prisma.member.findMany({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        name: true,
+        gender: true,
+        verified: true,
+        partner: {
+          select: {
+            id: true,
+            name: true,
+            verified: true,
+          },
+        },
+        fatherOf: {
+          select: {
+            id: true,
+            name: true,
+            verified: true,
+            order: true,
+          },
+        },
+        motherOf: {
+          select: {
+            id: true,
+            name: true,
+            verified: true,
+            order: true,
+          },
+        },
+      },
+    });
+
+    const member = dbData[0];
+
+    if (!member) {
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    }
+
+    // Combine fatherOf and motherOf children
+    const children = member.fatherOf.length > 0 ? member.fatherOf : member.motherOf.length > 0 ? member.motherOf : [];
+
+    // Sort children by order
+    if (children && Array.isArray(children)) {
+      children.sort((a, b) => a.order - b.order);
+    }
+
+    // Check if any member (main member, partner, or children) is verified
+    const hasVerified =
+      member.verified || // Check if the main member is verified
+      (member.partner && member.partner.verified) || // Check if the partner is verified
+      children.some((child) => child.verified); // Check if any child is verified
+
+    // Format the data
+    const data = {
+      id: member.id,
+      name: member.name,
+      gender: member.gender,
+      partner: member.partner,
+      children: children,
+      hasVerified, // Add hasVerified to the response
+    };
+
+    return NextResponse.json({ data });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request, context: any) {
+  const url = new URL(request.url);
+  const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (isNaN(memberId)) {
+    return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
+  }
+
+  try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
     const { deleteData, hasPartner, childrenOrder } = await request.json();
 
     // Validate request body
     if (!deleteData || Object.keys(deleteData).length === 0) {
-      return NextResponse.json({ error: 'No data provided for update' }, { status: 400 });
+      return NextResponse.json({ error: "No data provided for update" }, { status: 400 });
     }
+
+    // Check if any of the members are verified
+    const verifiedMembers = await prisma.member.findUnique({
+      where: {
+        id: memberId,
+      },
+      select: {
+        verified: true,
+        partner: {
+          select: {
+            verified: true,
+          },
+        },
+        fatherOf: {
+          select: {
+            verified: true,
+          },
+        },
+        motherOf: {
+          select: {
+            verified: true,
+          },
+        },
+      },
+    });
+    
+    // Check if any member (main member, partner, or children) is verified
+    const hasVerified =
+      verifiedMembers?.verified || // Check if the main member is verified
+      verifiedMembers?.partner?.verified || // Check if the partner is verified
+      verifiedMembers?.fatherOf.some((child) => child.verified) || // Check if any child in fatherOf is verified
+      verifiedMembers?.motherOf.some((child) => child.verified); // Check if any child in motherOf is verified
+
+    // If any verified members are found, add the update request to pending verification
+    if (hasVerified) {
+      await prisma.requestDetails.create({
+        data: {
+          type: "Edit Relationship", // Type of request
+          details: JSON.stringify({ deleteData, hasPartner, childrenOrder }), // Store the update data as a JSON string
+          memberId: memberId, // Associate the request with the main member
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Update request has been added for verification.",
+      });
+    }
+
+    // If no verified members are involved, proceed with the update logic
 
     // Start processing updates
     const updatePromises: Promise<any>[] = [];
@@ -189,21 +255,21 @@ export async function PUT(request: Request, context: any) {
 
     return NextResponse.json({
       success: true,
-      message: 'Member updated successfully',
+      message: "Member updated successfully",
     });
   } catch (error: any) {
-    console.error('Error updating member:', error);
+    console.error("Error updating member:", error);
 
     // Handle token verification errors
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+    if (error instanceof Error && error.name === "JsonWebTokenError") {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     // Handle specific Prisma error codes
-    if (error.code === 'P2025') {
-      return NextResponse.json({ error: 'Record not found' }, { status: 404 });
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Record not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

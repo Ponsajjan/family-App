@@ -74,6 +74,7 @@ export async function GET(request: Request, context: any) {
         id: member.id,
         name: member.name,
         gender: member.gender,
+        verified: member.verified,
         birth_date: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
         birth_month: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
         birth_year: member.birthYear ? String(member.birthYear) : null,
@@ -115,7 +116,7 @@ export async function PUT(request: Request, context: any) {
   const token = authHeader?.split(' ')[1];
   
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (isNaN(memberId)) {
@@ -130,7 +131,7 @@ export async function PUT(request: Request, context: any) {
     const forDescendanceOf = decoded.forDescendanceOf;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const updatedData = await request.json();
@@ -144,12 +145,15 @@ export async function PUT(request: Request, context: any) {
 
     const existingMember = await prisma.member.findUnique({
       where: { id: memberId },
-      include: {
+      select: {
+        gender: true,
+        descendant: true,
         father: true,
         mother: true,
         partner: true,
         fatherOf: true,
         motherOf: true,
+        verified: true
       },
     });
 
@@ -196,6 +200,24 @@ export async function PUT(request: Request, context: any) {
       }
     }
 
+    // Check if the member is verified
+    if (existingMember.verified) {
+      // If verified, create a pending verification request instead of updating the member
+      await prisma.requestDetails.create({
+        data: {
+          type: "Edit Member",
+          details: JSON.stringify(updatedData),
+          memberId: memberId,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "Update request has been added for verification.",
+      });
+    }
+
+    // If the member is not verified, proceed with the update logic
     const deceased = updatedData.deceased === true;
 
     const memberUpdateData = {

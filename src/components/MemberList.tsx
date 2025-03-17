@@ -20,6 +20,7 @@ interface Member {
   id: number;
   name: string;
   gender: 'Male' | 'Female' | 'Letter';
+  verified: boolean;
   father: EachMember | null;
   mother: EachMember | null;
   children: EachMember[];
@@ -40,7 +41,7 @@ interface MemberListProps {
   forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship';
   gender?: 'Male' | 'Female' | null;
   excludeId?: number[] | null;
-  setSelectedValue: (item: string, id: number, select: string) => void;
+  setSelectedValue: (item: string, id: number, select: string, verified: boolean) => void;
   openList: any;
   getSelectedValues: any;
   multiselect: boolean;
@@ -148,7 +149,7 @@ export default function MemberList({
 
         const response = await fetch(
           `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${forType}&gender=${gender}&excludeId=${excludeId}&descendant=${descendant}&showCousin=${showCousin}`,
-          {
+          { 
             method: 'GET',
             headers: { 
               'Content-Type': 'application/json',
@@ -208,8 +209,8 @@ export default function MemberList({
     };
   }, [forType, showCousin, params, hasMore, toast, descendant, excludeId, gender]);
 
-  const handleSelectedValue = (item: string, id: number, select: string) => {
-    setSelectedValue(item, id, select);
+  const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
+    setSelectedValue(item, id, select, verified);
   };
 
   const highlightSearchText = (text: string, searchText: string): string => {
@@ -309,7 +310,7 @@ export default function MemberList({
                   <span className="border-t border-border_color block w-full"></span>
                 </div>
               ) : (
-                <div key={member.id} onClick={() => handleSelectedValue(member.name, member.id, forType)} className="pl-4">
+                <div key={member.id} onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified)} className="pl-4">
                   <div className="border-l border-border_color py-1 pl-4 pr-3">
                     <div className="cursor-pointer px-3 py-2 flex items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
                       {multiselect && (
@@ -345,11 +346,6 @@ export default function MemberList({
                           )}
                         </div>
                       </div>
-                      {member.phoneNumber && (
-                        <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${member.phoneNumber}`}>
-                          <Call />
-                        </Link>
-                      )}
                     </div>
                   </div>
                 </div>

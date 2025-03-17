@@ -39,6 +39,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                         id: data.id || undefined,
                         name:  data.name || undefined,
                         gender: data.gender || undefined,
+                        verified: data.verified,
                         partner: data.partner ? {id: data.partner.id, name: data.partner.name} : null,
                         children: data.childrenData ? data.childrenData : [],
                     }

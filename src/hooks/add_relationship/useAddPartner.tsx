@@ -48,6 +48,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                         id: data.id || undefined,
                         name: data.name || undefined,
                         gender: undefined,
+                        verified: data.verified,
                         partner: null,
                         children: uniqueChildren ? uniqueChildren : [],
                     }

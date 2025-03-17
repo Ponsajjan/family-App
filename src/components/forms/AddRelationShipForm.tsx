@@ -2,7 +2,6 @@ import { ChangeMember, MinusIcon, PlusIcon } from '@/utils/Icons'
 import { useRef } from 'react'
 import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
-import DropArea from '../DropArea';
 
 interface AddRelationShipFormPropType {
     selectedMemberData: AddRelationFormValuesType;
@@ -12,7 +11,7 @@ interface AddRelationShipFormPropType {
     setSelectedPartnerId: (value: number | null | undefined) => void;
     setShowListFor: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
     handleShowList: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
-    handleSelectedValue: (name: string, id: number, select: string) => void;
+    handleSelectedValue: (name: string, id: number, select: string, verified: boolean) => void;
     handleSubmit: any;
     error: string | null;
 }
@@ -102,7 +101,7 @@ function AddRelationShipForm({
                 )}
             </>
             <>
-                {newChildrenData?.children.map((item: {id:any, name:string}, index) => (
+                {newChildrenData?.children.map((item: {id:any, name:string, verified:boolean}, index) => (
                 <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 cursor-grab`} 
                     draggable={true}
                     onDragStart={() => handleDragStart(index)}
@@ -112,7 +111,7 @@ function AddRelationShipForm({
                 >
                     <span className="py-2 w-full">{item?.name}</span>
                     <span
-                        onClick={() => {handleSelectedValue(item?.name, item?.id, 'selectChildren')}}
+                        onClick={() => {handleSelectedValue(item?.name, item?.id, 'selectChildren', item?.verified)}}
                         className="border border-border_color rounded-md h-fit cursor-pointer">
                         <MinusIcon />
                     </span>
@@ -126,7 +125,13 @@ function AddRelationShipForm({
             <span className="w-4 h-4"><PlusIcon /></span>
         </div>}
 
-        <p>This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
+        {
+            (selectedMemberData.verified || 
+            selectedPartnerData.verified || 
+            newChildrenData.children.some((child:any) => child.verified)) && (
+                <p>This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
+            )
+        }
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />
     </form>
   )

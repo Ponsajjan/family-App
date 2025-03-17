@@ -9,6 +9,7 @@ export interface EditRelationshipValueTypes {
     gender: string | undefined;
     partner: Member | null;
     children: Member[];
+    hasVerified: boolean
   }
 
 export interface DeleteValueTypes {
@@ -22,6 +23,7 @@ export const editRelationshipDefaultFormValue: EditRelationshipValueTypes = {
     gender: undefined,
     partner: null,
     children: [],
+    hasVerified: false
 };
 
 export const editRelationshipDefaultDeleteValue: DeleteValueTypes = {

@@ -123,6 +123,7 @@ export async function GET(request: NextRequest) {
             id: true,
             name: true,
             gender: true,
+            verified: true,
             birthYear: true,
             partner: { select: { name: true } },
           },
