@@ -1,6 +1,7 @@
 'use client'
-import { ButtonOutline, ButtonSolid } from '@/components/Button';
+import { ButtonOutline, ButtonSolid, LinkButtonOutline } from '@/components/Button';
 import Container from '@/components/Container';
+import HoldButton from '@/components/HoldButton';
 import { CloseIcon, Condolences, Female2, Male2, Verified } from '@/utils/Icons';
 import { format } from 'date-fns';
 import React from 'react';
@@ -165,9 +166,9 @@ export default function NewMemberDetails({ data, openDetails }: any) {
             </>
             }
             <div className='flex flex-col mt-4 gap-2'>
-                <ButtonSolid buttonText='Change Verification'/>
-                <ButtonOutline buttonText='Edit Member'/>
-                <ButtonOutline buttonText='Edit Relation'/>
+                <HoldButton buttonText={data?.verified ? 'Switch To Unverify' : 'Switch To Verified'} onClick={() => console.log("hi")} />
+                <HoldButton type='outline' buttonText='Delete Member' onClick={() => console.log("hi")} />
+                {/* <LinkButtonOutline buttonText='Edit Member' linkto='/moderator/edit_member/1'/> */}
             </div>
 
         </Container>

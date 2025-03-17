@@ -9,7 +9,9 @@ import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
-import VerifyMemberDetails from "./Details";
+import VerifyMemberDetails from "./_components/VerifyMemberDetails";
+import { getCookie } from "cookies-next";
+import { useRouter } from "next/navigation";
 
 export default function NewMembers() {
   const toast = useToast();
@@ -21,6 +23,8 @@ export default function NewMembers() {
   const [loadingDetails, setLoadingDetails] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  const token = getCookie('token');
+  const router = useRouter(); 
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
@@ -51,14 +55,22 @@ export default function NewMembers() {
         setLoadingList(true);
         isFetching = true;
 
-        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
+        const response = await fetch(`/api/moderator/verifyChange?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
           {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
             cache: 'no-store',
           }
         );
-
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
+          return;
+        }
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -103,7 +115,22 @@ export default function NewMembers() {
   const handleShowDetails = async (member_id: string | number) => {
     try {
         setLoadingDetails(true)
-        const response = await fetch(`/api/relatives/${member_id}`);
+        const response = await fetch(`/api/moderator/verifyChange/details/${member_id}`,
+          {
+            method: 'GET',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
+          } 
+        );
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
+          return;
+        }
+
         if (!response.ok) throw new Error('Failed to fetch member details');
 
         const member = await response.json();

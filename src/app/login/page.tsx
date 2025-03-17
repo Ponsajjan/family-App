@@ -2,19 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
 
 export default function Page() {
   const router = useRouter();
   const [form, setForm] = useState({ password: "" });
   const [error, setError] = useState("");
-  const { token, login } = useAuth();
 
   useEffect(() => {
-    if (token) {
+    const cookies = document.cookie.split("; ").find(row => row.startsWith("token="));
+    if (cookies) {
       router.push("/");
     }
-  }, [token, router]);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +28,6 @@ export default function Page() {
       if (data.token) {
         document.cookie = `token=${data.token}; path=/`;
         document.cookie = `access=${data.userType}; path=/`;
-        login(data.token);
         router.push("/");
       } else {
         setError(data.error);
@@ -39,9 +37,6 @@ export default function Page() {
       setError("An error occurred. Please try again.");
     }
   };
-
-  // If the user is already authenticated, don't render the login form
-   if (token) return null;
 
   return (
     <div className="flex flex-col md:flex-row justify-center items-center h-screen w-full max-w-4xl mx-auto overflow-auto px-4 py-6">

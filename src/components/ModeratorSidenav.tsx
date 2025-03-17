@@ -1,5 +1,5 @@
 "use client";
-import { BurgerMenuIcon, CloseIcon, DarkMode, LightMode, Logout, NavIconNew, NavIconVerified } from "@/utils/Icons";
+import { BurgerMenuIcon, CloseIcon, DarkMode, FamilyProfessionals, LightMode, Logout, NavIconNew, NavIconVerified } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -29,6 +29,7 @@ export default function ModeratorSidenav() {
                     <div>
                         <ModeratorNavLink linkName="Verify Member" link="/moderator" onClick={() => navigateTo("/moderator")} />
                         <ModeratorNavLink linkName="Verify Changes" link="/moderator/verify_changes" onClick={() => navigateTo("/moderator/verify_changes")} />
+                        <ModeratorNavLink linkName="Add/Edit" link="/moderator/add_edit" onClick={() => navigateTo("/moderator/add_edit")} />
                     </div>
                     <div className="flex justify-center items-center py-2">
                         <LightMode />
@@ -63,10 +64,11 @@ export function ModeratorNavLink({ link, linkName, onClick }: { link: string, li
                 {/* {linkName === 'New Member' && <NavIconNew />} */}
                 {linkName === 'Verify Member' && <NavIconVerified />}
                 {linkName === 'Verify Changes' && <NavIconVerified />}
+                {linkName === 'Add/Edit' && <FamilyProfessionals />}
             </p>
             <div className="flex items-center justify-between w-full">
                 <p className="text-base">{linkName}</p>
-                <span>(999)</span>
+                {/* <span>(999)</span> */}
             </div>
         </button>
     );

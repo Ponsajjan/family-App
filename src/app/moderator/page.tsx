@@ -1,6 +1,6 @@
 'use client'
 
-import { CloseIcon, SearchIcon } from "@/utils/Icons";
+import { CloseIcon, Filter, SearchIcon, Verified } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
 
@@ -10,6 +10,7 @@ import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import NewMemberDetails from "./Details";
+import { getCookie } from 'cookies-next';
 import { useRouter } from "next/navigation";
 
 export default function VerifyMember() {
@@ -24,19 +25,23 @@ export default function VerifyMember() {
   const [hasMore, setHasMore] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('Unverified');
+  const token = getCookie('token');
   const router = useRouter();
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
     search: "",
+    filter: "Unverified"
   });
 
   const handleSetSearchFilter = useDebounce((value) => {
     setParams((prevParams) => ({
       ...prevParams,
       search: value,
+      filter: "All",
       page: 1,
     }));
+    setSelectedFilter("All")
     setHasMore(true);
     setMembers([]);
   }, 900);
@@ -55,10 +60,13 @@ export default function VerifyMember() {
         setLoadingList(true);
         isFetching = true;
 
-        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
+        const response = await fetch(`/api/moderator/verifyMember?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&filter=${params.filter}`,
           {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
             cache: 'no-store',
           }
         );
@@ -113,7 +121,21 @@ export default function VerifyMember() {
   const handleShowDetails = async (member_id: string | number) => {
     try {
         setLoadingDetails(true)
-        const response = await fetch(`/api/relatives/${member_id}`);
+        const response = await fetch(`/api/moderator/verifyMember/details/${member_id}`,
+          {
+            method: 'GET',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
+          }
+        );
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
+          return;
+        }
         if (!response.ok) throw new Error('Failed to fetch member details');
 
         const member = await response.json();
@@ -138,56 +160,62 @@ export default function VerifyMember() {
   }
 
   const handleFilterChange = (value: string) => {
+    setMembers([]);
     setSelectedFilter(value);
+    setParams((prevParams) => ({
+      ...prevParams,
+      filter: value,
+      page: 1,
+    }));
+    setHasMore(true);
     setDropdownOpen(false);
   };
 
   return (
     <div className="w-full">
-<Topnav>
-  <div className="relative mr-0 ml-auto">
-    <span className="absolute top-1/2 transform -translate-y-1/2 pointer-events-none px-2">
-      <SearchIcon />
-    </span>
-    <input
-      value={searchInput}
-      onChange={(e) => handleAssemblySearch(e.target.value)}
-      type="text"
-      placeholder="All Member Search"
-      className="p-1 block w-[calc(100%-1px)] pl-10 border border-border_color focus:outline-none font-normal rounded-md bg-main_background"
-    />
-  </div>
-  
-  {/* Dropdown for Filtering Members */}
-  <span>Filter:</span>
-  <div className="relative">
-    <button 
-      onClick={() => setDropdownOpen(!dropdownOpen)} 
-      className="py-1 px-4 border border-border_color rounded-md bg-main_background">
-      {selectedFilter}
-    </button>
-    {dropdownOpen && (
-      <div className="absolute right-0 mt-2 w-32 bg-field_color border border-border_color shadow-md rounded-md">
-        <div 
-          className="p-2 hover:bg-field_hover cursor-pointer" 
-          onClick={() => handleFilterChange("All")}>
-          All
+      <Topnav>
+        <div className="relative mr-0 ml-auto">
+          <span className="absolute top-1/2 transform -translate-y-1/2 pointer-events-none px-2">
+            <SearchIcon />
+          </span>
+          <input
+            value={searchInput}
+            onChange={(e) => handleAssemblySearch(e.target.value)}
+            type="text"
+            placeholder="All Member Search"
+            className="p-1 block w-[calc(100%-1px)] pl-10 border border-border_color focus:outline-none font-normal rounded-md bg-main_background"
+          />
         </div>
-        <div 
-          className="p-2 hover:bg-field_hover cursor-pointer" 
-          onClick={() => handleFilterChange("Verified")}>
-          Verified
+        
+        {/* Dropdown for Filtering Members */}
+        <div className="relative">
+          <button 
+            onClick={() => setDropdownOpen(!dropdownOpen)} 
+            className="py-1 px-2 border border-border_color rounded-md bg-main_background flex justify-between w-32">
+            <span>{selectedFilter}</span>
+            <span><Filter/></span>
+          </button>
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 w-32 bg-field_color border border-border_color shadow-md rounded-md">
+              <div 
+                className="p-2 hover:bg-field_hover cursor-pointer" 
+                onClick={() => handleFilterChange("All")}>
+                All
+              </div>
+              <div 
+                className="p-2 hover:bg-field_hover cursor-pointer" 
+                onClick={() => handleFilterChange("Verified")}>
+                Verified
+              </div>
+              <div 
+                className="p-2 hover:bg-field_hover cursor-pointer" 
+                onClick={() => handleFilterChange("Unverified")}>
+                Unverified
+              </div>
+            </div>
+          )}
         </div>
-        <div 
-          className="p-2 hover:bg-field_hover cursor-pointer" 
-          onClick={() => handleFilterChange("Unverified")}>
-          Unverified
-        </div>
-      </div>
-    )}
-  </div>
-</Topnav>
-
+      </Topnav>
       <div className="w-full md:flex">
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
           {!loadingList && !members ? (
@@ -233,11 +261,7 @@ export default function VerifyMember() {
                             ) : 'No relationship assigned yet'}
                         </div>
                       </div>
-                      {member.phoneNumber && (
-                      <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${member.phoneNumber}`}>
-                        <Call />
-                      </Link>
-                      )}
+                      {member.verified && <Verified/>}
                     </div>
                   </div>
                 </div>
