@@ -1,3 +1,5 @@
+// List all the members with pendingVerification
+
 import { NextResponse } from "next/server"
 import prisma from "@/db/db";
 import { NextRequest } from "next/server";
@@ -10,7 +12,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1", 10); // Current page
   const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
-  const searchQuery = searchParams.get("search") || "";
 
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
@@ -37,20 +38,19 @@ export async function GET(request: NextRequest) {
     const memberList = await prisma.member.findMany({
       where: {
         descendantOf: forDescendanceOf,
-        name: {
-          contains: searchQuery,
-          // mode: "insensitive", // PostgreSQL-specific support in Prisma
+        pendingVerification: {
+          some: {}, // Check if there are any pending verification requests
         },
       },
       select: {
         id: true,
         name: true,
         gender: true,
-        phoneNumber: true,
-        verified: true,
-        father: { select: { name: true } },
-        mother: { select: { name: true } },
-        partner: { select: { name: true } },
+        pendingVerification: {
+          select: {
+            type: true,
+          }
+        }
       },
       orderBy: { name: "asc" },
       skip,
@@ -60,7 +60,10 @@ export async function GET(request: NextRequest) {
     // Total count for pagination
     const totalCount = await prisma.member.count({
       where: {
-        name: { contains: searchQuery },
+        descendantOf: forDescendanceOf,
+        pendingVerification: {
+          some: {},
+        },
       },
     });
 
@@ -77,10 +80,7 @@ export async function GET(request: NextRequest) {
           id: firstLetter,
           name: firstLetter,
           gender: "Letter",
-          phoneNumber: null,
-          father: null,
-          mother: null,
-          partner: null,
+          pendingVerificaton: ""
         });
       }
 

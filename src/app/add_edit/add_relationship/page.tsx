@@ -5,7 +5,7 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton } from "@/utils/Icons";
+import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
 import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
@@ -195,8 +195,9 @@ export default function AddRelationshipDetails () {
               </p>
             </div>
           </div>
-          {(pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color rounded-md bg-field_color">{pendingVerification} pending verification</p>}
-          <AddRelationShipForm 
+          {(pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color border-dashed rounded-md bg-field_color"><span className='inline-block align-bottom pr-2'><Warning /></span>{pendingVerification} pending verification</p>}
+          <AddRelationShipForm
+            moderatorForm={true}
             selectedMemberData={selectedMemberData}
             selectedPartnerData={selectedPartnerData}
             newChildrenData={newChildrenData}

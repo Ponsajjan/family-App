@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { ButtonSolid } from '../Button'
-import { ChangeMember, CloseIcon, Divorced, Warning } from '@/utils/Icons'
+import { ChangeMember, CloseIcon, Divorced, Info } from '@/utils/Icons'
 
 function EditRelationShipForm({
     handleShowList,
@@ -95,7 +95,7 @@ function EditRelationShipForm({
                 </div>)
             )}
         </>}
-        {formData.hasVerified && <p><span className='inline-block align-bottom'><Warning /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>}
+        {formData.hasVerified && <p><span className='inline-block align-bottom'><Info /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>}
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Update Details" />
     </form>
   )

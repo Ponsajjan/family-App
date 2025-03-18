@@ -33,11 +33,6 @@ export async function GET(request: Request, context: any) {
         name: true,
         gender: true,
         verified: true,
-        pendingVerification: {
-          where: {
-            type: "Edit Relationship"
-          }
-        },
         partner: {
           select: {
             id: true,
@@ -78,12 +73,6 @@ export async function GET(request: Request, context: any) {
       children.sort((a, b) => a.order - b.order);
     }
 
-    // Check if any member (main member, partner, or children) is verified
-    const hasVerified =
-      member.verified || // Check if the main member is verified
-      (member.partner && member.partner.verified) || // Check if the partner is verified
-      children.some((child) => child.verified); // Check if any child is verified
-
     // Format the data
     const data = {
       id: member.id,
@@ -91,8 +80,8 @@ export async function GET(request: Request, context: any) {
       gender: member.gender,
       partner: member.partner,
       children: children,
-      pendingVerification: member.pendingVerification?.length,
-      hasVerified, // Add hasVerified to the response
+      pendingVerification: 0,
+      hasVerified: false,
     };
 
     return NextResponse.json({ data });
@@ -130,56 +119,6 @@ export async function PUT(request: Request, context: any) {
     if (!deleteData || Object.keys(deleteData).length === 0) {
       return NextResponse.json({ error: "No data provided for update" }, { status: 400 });
     }
-
-    // Check if any of the members are verified
-    const isMemberVerified = await prisma.member.findUnique({
-      where: {
-        id: memberId,
-      },
-      select: {
-        verified: true,
-        partner: {
-          select: {
-            verified: true,
-          },
-        },
-        fatherOf: {
-          select: {
-            verified: true,
-          },
-        },
-        motherOf: {
-          select: {
-            verified: true,
-          },
-        },
-      },
-    });
-    
-    // Check if any member (main member, partner, or children) is verified
-    const hasVerified =
-      isMemberVerified?.verified || // Check if the main member is verified
-      isMemberVerified?.partner?.verified || // Check if the partner is verified
-      isMemberVerified?.fatherOf.some((child) => child.verified) || // Check if any child in fatherOf is verified
-      isMemberVerified?.motherOf.some((child) => child.verified); // Check if any child in motherOf is verified
-
-    // If any verified members are found, add the update request to pending verification
-    if (hasVerified) {
-      await prisma.requestDetails.create({
-        data: {
-          type: "Edit Relationship", // Type of request
-          details: JSON.stringify({ deleteData, hasPartner, childrenOrder }), // Store the update data as a JSON string
-          memberId: memberId, // Associate the request with the main member
-        },
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: "Update request has been added for verification.",
-      });
-    }
-
-    // If no verified members are involved, proceed with the update logic
 
     // Start processing updates
     const updatePromises: Promise<any>[] = [];

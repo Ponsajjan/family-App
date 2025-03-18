@@ -1,21 +1,16 @@
 'use client'
 
-import { CloseIcon, SearchIcon } from "@/utils/Icons";
-import { Call, Female, Male } from '@/utils/Icons';
+import { Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
-
-import Link from 'next/link';
 import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
-import { useDebounce } from "@/utils/debounce";
 import VerifyMemberDetails from "./_components/VerifyMemberDetails";
 import { getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 
 export default function NewMembers() {
   const toast = useToast();
-  const [searchInput, setSearchInput] = useState("");
   const [members, setMembers] = useState<any[] | never[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [memberDetails, setMemberDetails] = useState(null);
@@ -28,23 +23,8 @@ export default function NewMembers() {
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
-    search: "",
   });
 
-  const handleSetSearchFilter = useDebounce((value) => {
-    setParams((prevParams) => ({
-      ...prevParams,
-      search: value,
-      page: 1,
-    }));
-    setHasMore(true);
-    setMembers([]);
-  }, 900);
-
-  const handleAssemblySearch = (input: string) => {
-    setSearchInput(input);
-    handleSetSearchFilter(input);
-  };
 
   useEffect(() => {
     let isFetching = false;
@@ -55,7 +35,7 @@ export default function NewMembers() {
         setLoadingList(true);
         isFetching = true;
 
-        const response = await fetch(`/api/moderator/verifyChange?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
+        const response = await fetch(`/api/moderator/verifyChange?page=${params.page}&limit=${params.limit}`,
           {
             method: 'GET',
             headers: { 
@@ -147,13 +127,7 @@ export default function NewMembers() {
       setLoadingDetails(false)
     }
   };
-
-  function highlightText(text: string, searchText: string): string {
-    if (!searchText) return text;
-    const regex = new RegExp(`(${searchText})`, 'gi');
-    return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>');
-  }
-
+  console.log('hi hello', members)
   return (
     <div className="w-full">
       <Topnav>
@@ -181,14 +155,9 @@ export default function NewMembers() {
                         <div className="flex flex-wrap gap-2">
                           {member.gender === "Male" && <Male /> }
                           {member.gender === "Female" && <Female />}
-                          <div
-                            className="font-semibold"
-                            dangerouslySetInnerHTML={{
-                            __html: highlightText(member.name, params.search),
-                          }}
-                          />
+                          <div>{member.name}</div>
                         </div>
-                        <p>Edit Member</p>
+                        <p>{member.pendingVerification[0].type}</p>
                       </div>
                     </div>
                   </div>

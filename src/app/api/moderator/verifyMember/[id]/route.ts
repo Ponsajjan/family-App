@@ -30,3 +30,5 @@ export async function PATCH(
     );
   }
 }
+
+// Delete member

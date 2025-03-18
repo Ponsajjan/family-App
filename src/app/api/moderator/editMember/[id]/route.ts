@@ -35,11 +35,6 @@ export async function GET(request: Request, context: any) {
         verified: true,
         gender: true,
         phoneNumber: true,
-        pendingVerification: {
-          where: {
-            type: "Edit Member"
-          }
-        },
         address: true,
         occupation: true,
         education: true,
@@ -79,8 +74,8 @@ export async function GET(request: Request, context: any) {
         id: member.id,
         name: member.name,
         gender: member.gender,
-        verified: member.verified,
-        pendingVerification: member.pendingVerification?.length,
+        verified: false,
+        pendingVerification: 0,
         birth_date: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
         birth_month: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
         birth_year: member.birthYear ? String(member.birthYear) : null,
@@ -98,8 +93,8 @@ export async function GET(request: Request, context: any) {
         siblings: member.nonDescendantRelation?.[0]?.siblingNames,
       },
       allowEdit: {
-        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
-        editDescendant: member.fatherId || member.motherId,
+        editGender: true,
+        editDescendant: true,
       },
     };
 
@@ -150,14 +145,7 @@ export async function PUT(request: Request, context: any) {
     const existingMember = await prisma.member.findUnique({
       where: { id: memberId },
       select: {
-        gender: true,
-        descendant: true,
-        father: true,
-        mother: true,
-        partner: true,
-        fatherOf: true,
-        motherOf: true,
-        verified: true
+        id: true
       },
     });
 
@@ -168,60 +156,6 @@ export async function PUT(request: Request, context: any) {
       );
     }
 
-    if (existingMember.partner) {
-      const currentGender = existingMember.gender;
-      const updatedGender = updatedData.gender;
-
-      if (updatedGender && (currentGender !== updatedGender)) {
-        return NextResponse.json(
-          { error: "Gender mismatch: Cannot update gender." },
-          { status: 400 }
-        );
-      }
-    }
-
-    if (existingMember.fatherOf.length > 0 || existingMember.motherOf.length > 0) {
-      const currentGender = existingMember.gender;
-      const updatedGender = updatedData.gender;
-
-      if (updatedGender && (currentGender !== updatedGender)) {
-        return NextResponse.json(
-          { error: "Update not allowed." },
-          { status: 400 }
-        );
-      }
-    }
-
-    if (existingMember.father || existingMember.mother) {
-      const currentDescendant = existingMember.descendant;
-      const updatedDescendant = updatedData.descendant;
-
-      if (currentDescendant !== updatedDescendant) {
-        return NextResponse.json(
-          { error: "Update not allowed: The member is already assigned as a descendant." },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Check if the member is verified
-    if (existingMember.verified) {
-      // If verified, create a pending verification request instead of updating the member
-      await prisma.requestDetails.create({
-        data: {
-          type: "Edit Member",
-          details: JSON.stringify(updatedData),
-          memberId: memberId,
-        },
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: "Update request has been added for verification.",
-      });
-    }
-
-    // If the member is not verified, proceed with the update logic
     const deceased = updatedData.deceased === true;
 
     const memberUpdateData = {
@@ -311,12 +245,7 @@ export async function DELETE(request: Request, context: any) {
     const member = await prisma.member.findUnique({
       where: { id: memberId },
       select: {
-        partner: true,
-        fatherOf: true,
-        motherOf: true,
-        father: true,
-        mother: true,
-        verified: true
+        id: true,
       },
     });
 
@@ -325,38 +254,6 @@ export async function DELETE(request: Request, context: any) {
       return NextResponse.json(
         { error: "Member not found" },
         { status: 404 }
-      );
-    }
-
-    // Check if the member is a descendant
-    if (member.father || member.mother) {
-      return NextResponse.json(
-        { error: "Cannot delete member: Member is a descendant." },
-        { status: 400 }
-      );
-    }
-
-    // Check if the member has a partner
-    if (member.partner) {
-      return NextResponse.json(
-        { error: "Cannot delete member: Member has a partner." },
-        { status: 400 }
-      );
-    }
-
-    // Check if the member is listed as a father or mother
-    if (member.fatherOf.length > 0 || member.motherOf.length > 0) {
-      return NextResponse.json(
-        { error: "Cannot delete member: Member is listed as a parent of one or more children." },
-        { status: 400 }
-      );
-    }
-
-    // Check if the member is listed as a father or mother
-    if (member.verified) {
-      return NextResponse.json(
-        { error: "Cannot delete member: Member is verified." },
-        { status: 400 }
       );
     }
 

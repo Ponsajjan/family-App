@@ -125,7 +125,7 @@ export default function ModeratorAddRelationship () {
         }),
       };
   
-      const response = await fetch(`/api/addRelationship/${selectedMemberData?.id}`, {
+      const response = await fetch(`/api/moderator/addRelationship/${selectedMemberData?.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -195,6 +195,7 @@ export default function ModeratorAddRelationship () {
             </div>
           </div>
           <AddRelationShipForm 
+            moderatorForm={true}
             selectedMemberData={selectedMemberData}
             selectedPartnerData={selectedPartnerData}
             newChildrenData={newChildrenData}

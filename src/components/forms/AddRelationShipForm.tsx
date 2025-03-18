@@ -1,9 +1,10 @@
-import { ChangeMember, MinusIcon, PlusIcon, Warning } from '@/utils/Icons'
+import { ChangeMember, Info, MinusIcon, PlusIcon } from '@/utils/Icons'
 import { useRef } from 'react'
 import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
 
 interface AddRelationShipFormPropType {
+    moderatorForm: boolean;
     selectedMemberData: AddRelationFormValuesType;
     selectedPartnerData: AddRelationFormValuesType;
     newChildrenData: AddRelationFormValuesType;
@@ -17,6 +18,7 @@ interface AddRelationShipFormPropType {
 }
 
 function AddRelationShipForm({
+    moderatorForm,
     selectedMemberData,
     selectedPartnerData,
     newChildrenData,
@@ -126,11 +128,10 @@ function AddRelationShipForm({
         </div>}
 
         {
-            (selectedMemberData.verified || 
+            ((selectedMemberData.verified || 
             selectedPartnerData.verified || 
-            newChildrenData.children.some((child:any) => child.verified)) && (
-                <p className='mt-2'><span className='inline-block align-bottom'><Warning /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
-            )
+            newChildrenData.children.some((child:any) => child.verified)) && !moderatorForm) &&
+            <p className='mt-2'><span className='inline-block align-bottom'><Info /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
         }
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />
     </form>

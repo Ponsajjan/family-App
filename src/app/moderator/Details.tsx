@@ -1,12 +1,12 @@
 'use client'
-import { ButtonOutline, ButtonSolid, LinkButtonOutline } from '@/components/Button';
+
 import Container from '@/components/Container';
 import HoldButton from '@/components/HoldButton';
 import { CloseIcon, Condolences, Female2, Male2, Verified } from '@/utils/Icons';
 import { format } from 'date-fns';
 import React from 'react';
 
-export default function NewMemberDetails({ data, openDetails }: any) {
+export default function NewMemberDetails({ data, openDetails, handleMemberSearch }: any) {
 
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
@@ -17,8 +17,8 @@ export default function NewMemberDetails({ data, openDetails }: any) {
                     {data?.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
                 </div>
                 <div className='w-full'>
-                    <p className='text-lg font-semibold flex items-center'>
-                        <span>{data?.name || 'Name Unavailable'}</span>
+                    <p onClick={() => handleMemberSearch(data?.name)} className='text-lg font-semibold flex items-center'>
+                        <span className='hover:underline cursor-context-menu'>{data?.name || 'Name Unavailable'}</span>
                         {data?.verified && <span className='pl-2'><Verified /></span>}
                     </p>
 
@@ -60,19 +60,27 @@ export default function NewMemberDetails({ data, openDetails }: any) {
                         {data?.father && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                <div className='w-3/5 md:leading-7'>{data?.father.name}</div>
+                                <div onClick={() => handleMemberSearch(data?.father.name)} className='w-3/5 md:leading-7 hover:underline cursor-context-menu'>{data?.father.name}</div>
                             </>
                         )}
                         {data?.mother && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                <div className='w-3/5 md:leading-7'>{data?.mother.name}</div>
+                                <div onClick={() => handleMemberSearch(data?.mother.name)} className='w-3/5 md:leading-7 hover:underline cursor-context-menu'>{data?.mother.name}</div>
                             </>
                         )}
                         {data?.siblings?.length > 0 && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                <div className='w-3/5 md:leading-7'>{data?.siblings?.join(", ")}</div>
+                                <div className='w-3/5 md:leading-7'>
+                                    {data?.siblings?.map((sibling: string, index: number) => (
+                                        <span onClick={() => handleMemberSearch(sibling)} key={index} className='hover:underline cursor-context-menu' >
+                                        {sibling}
+                                        {/* Add a comma if it's not the last sibling, otherwise add a period */}
+                                        {index < data.siblings.length - 1 && ', ' }
+                                        </span>
+                                    ))}
+                                </div>
                             </>
                         )}
                         {data?.nonDescendantRelation[0]?.fatherName && (
@@ -96,7 +104,7 @@ export default function NewMemberDetails({ data, openDetails }: any) {
                         {data?.partner && (
                             <>
                                 <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                <div className='w-3/5 md:leading-7'>{data?.partner.name}</div>
+                                <div onClick={() => handleMemberSearch(data?.partner.name)} className='w-3/5 md:leading-7 hover:underline cursor-context-menu'>{data?.partner.name}</div>
                             </>
                         )}
 
@@ -104,12 +112,24 @@ export default function NewMemberDetails({ data, openDetails }: any) {
                         <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>}
                         {data?.fatherOf.length > 0 && (  
                             <div className='w-3/5 md:leading-7'>
-                                {data.fatherOf.map((child: { name: string }) => child.name).join(", ")}
+                                {data?.fatherOf?.map((child: { name: string }, index: number) => (
+                                    <span onClick={() => handleMemberSearch(child.name)} key={index} className='hover:underline cursor-context-menu' >
+                                    {child.name}
+                                    {/* Add a comma if it's not the last child, otherwise add a period */}
+                                    {index < data.fatherOf.length - 1 && ', ' }
+                                    </span>
+                                ))}
                             </div>
                         )}
                         {data?.motherOf.length > 0 && (
                             <div className='w-3/5 md:leading-7'>
-                                {data.motherOf.map((child: { name: string }) => child.name).join(", ")}.
+                                {data?.motherOf?.map((child: { name: string }, index: number) => (
+                                    <span onClick={() => handleMemberSearch(child.name)} key={index} className='hover:underline cursor-context-menu' >
+                                    {child.name}
+                                    {/* Add a comma if it's not the last child, otherwise add a period */}
+                                    {index < data.motherOf.length - 1 && ', ' }
+                                    </span>
+                                ))}
                             </div>
                         )}
                     </div>

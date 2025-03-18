@@ -40,7 +40,7 @@ export default function Relatives() {
     setMembers([]);
   }, 900);
 
-  const handleAssemblySearch = (input: string) => {
+  const handleMemberSearch = (input: string) => {
     setSearchInput(input);
     handleSetSearchFilter(input);
   };
@@ -151,7 +151,7 @@ export default function Relatives() {
         <div className="relative w-full md:w-64 ml-auto mr-0">
           <input
             value={searchInput}
-            onChange={(e)=> handleAssemblySearch(e.target.value)}
+            onChange={(e)=> handleMemberSearch(e.target.value)}
             type="text"
             placeholder="Search"
             className="ml-auto peer mr-0 input-not-placeholder block p-1 pl-4 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
@@ -159,7 +159,7 @@ export default function Relatives() {
           <span className="absolute right-[5px] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
             <SearchIcon />
           </span>
-          <button onClick={() => handleAssemblySearch('')} className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md">
+          <button onClick={() => handleMemberSearch('')} className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md">
             <CloseIcon />
           </button>
         </div>

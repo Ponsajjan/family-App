@@ -33,7 +33,7 @@ export default function ModeratorEditRelationship() {
       const fetchMembers = async () => {
         try {
           setLoading(true);
-          const response = await fetch(`/api/editRelationship/${formData.id}`,
+          const response = await fetch(`/api/moderator/editRelationship/${formData.id}`,
             {
               method: 'GET',
               headers: { 
@@ -128,7 +128,7 @@ export default function ModeratorEditRelationship() {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/editRelationship/${formData.id}`, {
+      const response = await fetch(`/api/moderator/editRelationship/${formData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
