@@ -9,12 +9,14 @@ import { validateNewLoginForm } from '@/utils/admin/new_login/validateNewLoginFo
 import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorTypes, NewLoginFormValueTypes } from '@/types/admin/new_login/types';
 import { useToast } from '@/components/Toast';
 import { useRouter } from 'next/navigation';
+import { getCookie } from 'cookies-next';
 
 export default function Page() {
   const toast = useToast();
-  const [validToken, setValidToken] = useState(true);
+  const router = useRouter();
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
+  const token = getCookie('token');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,7 +34,6 @@ export default function Page() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const router = useRouter();
     const errorMessage = validateNewLoginForm(formData);  
     if (Object.keys(errorMessage).length) {
       setErrors(errorMessage);
@@ -68,6 +69,7 @@ export default function Page() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(newLoginDetails),
       });
@@ -102,219 +104,215 @@ export default function Page() {
     }
   };
 
-  if (validToken) {
-    return (
-      <Container>
-        <div className='w-full max-w-3xl p-4 mx-auto'>
-          <form className="text-text_color" onSubmit={handleSubmit}>
-            <p className='text-lg'>For Descendents of</p>
-            <Input
-              name="name"
-              value={formData.name || ''}
-              onChange={handleInputChange}
-              error={errors.name}
-            />
-            <div className="py-4">
-              <div className="flex gap-2">
-                <p className="text-sm font-medium">Gender:</p>
-                <RadioButton
-                  label="Male"
-                  name="gender"
-                  value="Male"
-                  checked={formData.gender === 'Male'}
-                  onChange={handleInputChange}
-                />
-                <RadioButton
-                  label="Female"
-                  name="gender"
-                  value="Female"
-                  checked={formData.gender === 'Female'}
-                  onChange={handleInputChange}
-                />
-                {(errors.gender) && (
-                  <p className="text-red-500 text-sm">
-                  {errors.gender}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium">
-                Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
-              </p>
-              <div className="w-full mb-2 flex gap-2">
-                <Input
-                  type="number"
-                  placeholder="DD"
-                  name="birth_date"
-                  value={formData.birth_date || ""}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="31"
-                  maxLength={2}
-                  label=""
-                />
-                <Input
-                  type="number"
-                  placeholder="MM"
-                  name="birth_month"
-                  value={formData.birth_month || ""}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="12"
-                  maxLength={2}
-                  label=""
-                />
-                <Input
-                  type="number"
-                  placeholder="YYYY(Opt)"
-                  name="birth_year"
-                  value={formData.birth_year || ""}
-                  onChange={handleInputChange}
-                  min="1975"
-                  max={new Date().getFullYear()}
-                  maxLength={4}
-                  label=""
-                />
-              </div>
-              {(errors.birth_day) && (
-                  <p className="text-red-500 text-sm">
-                  {errors.birth_day}
-                  </p>
-              )}
-            </div>
-            <div className='mb-2'>
-              <p className="text-sm font-medium">
-                Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
-              </p>
-              <div className="w-full flex gap-2">
-                <Input
-                  type="number"
-                  placeholder="DD(Opt)"
-                  name="death_date"
-                  value={formData.death_date || ""}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="31"
-                  maxLength={2}
-                  label=""
-                />
-                <Input
-                  type="number"
-                  placeholder="MM"
-                  name="death_month"
-                  value={formData.death_month || ""}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="12"
-                  maxLength={2}
-                  label=""
-                />
-                <Input
-                  type="number"
-                  placeholder="YYYY"
-                  name="death_year"
-                  value={formData.death_year || ""}
-                  onChange={handleInputChange}
-                  min="1975"
-                  max={new Date().getFullYear()}
-                  maxLength={4}
-                  label=""
-                />
-              </div>
-              {(errors.death_day) && (
-                <p className="text-red-500 text-sm mt-2">
-                    {errors.death_day}
+  return (
+    <Container>
+      <div className='w-full max-w-3xl p-4 mx-auto'>
+        <form className="text-text_color" onSubmit={handleSubmit}>
+          <p className='text-lg'>For Descendents of</p>
+          <Input
+            name="name"
+            value={formData.name || ''}
+            onChange={handleInputChange}
+            error={errors.name}
+          />
+          <div className="py-4">
+            <div className="flex gap-2">
+              <p className="text-sm font-medium">Gender:</p>
+              <RadioButton
+                label="Male"
+                name="gender"
+                value="Male"
+                checked={formData.gender === 'Male'}
+                onChange={handleInputChange}
+              />
+              <RadioButton
+                label="Female"
+                name="gender"
+                value="Female"
+                checked={formData.gender === 'Female'}
+                onChange={handleInputChange}
+              />
+              {(errors.gender) && (
+                <p className="text-red-500 text-sm">
+                {errors.gender}
                 </p>
               )}
             </div>
-            <div className='flex gap-2'>
+          </div>
+          <div>
+            <p className="text-sm font-medium">
+              Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
+            </p>
+            <div className="w-full mb-2 flex gap-2">
               <Input
-                className="mb-2"
-                showOptional={true}
-                name="father"
-                label="Father"
-                value={formData.father}
-                onChange={handleInputChange}
-              />
-              <Input
-                className="mb-2"
-                showOptional={true}
-                name="mother"
-                label="Mother"
-                value={formData.mother}
-                onChange={handleInputChange}
-              />
-            </div>
-            <Input
-              className="mb-2"
-              showOptional={true}
-              name="siblings"
-              label="Siblings"
-              value={formData.siblings}
-              onChange={handleInputChange}
-            />
-            <div className='flex gap-2'>
-              <Input
-                className="mb-2"
                 type="number"
-                showOptional={true}
-                name="phone_number"
-                label="Contact"
-                value={formData.phone_number}
+                placeholder="DD"
+                name="birth_date"
+                value={formData.birth_date || ""}
                 onChange={handleInputChange}
+                min="1"
+                max="31"
+                maxLength={2}
+                label=""
               />
               <Input
-                className="mb-2"
-                showOptional={true}
-                name="occupation"
-                label="Occupation"
-                value={formData.occupation}
+                type="number"
+                placeholder="MM"
+                name="birth_month"
+                value={formData.birth_month || ""}
                 onChange={handleInputChange}
+                min="1"
+                max="12"
+                maxLength={2}
+                label=""
+              />
+              <Input
+                type="number"
+                placeholder="YYYY(Opt)"
+                name="birth_year"
+                value={formData.birth_year || ""}
+                onChange={handleInputChange}
+                min="1975"
+                max={new Date().getFullYear()}
+                maxLength={4}
+                label=""
               />
             </div>
-            <Input
-              className="mb-2"
-              showOptional={true}
-              name="education"
-              label="Education"
-              value={formData.education}
-              onChange={handleInputChange}
-            />
-            <Input
-              className="mb-2"
-              showOptional={true}
-              name="address"
-              label="Location State/Country"
-              value={formData.address}
-              onChange={handleInputChange}
-            />
-            <div className='flex gap-2'>
+            {(errors.birth_day) && (
+                <p className="text-red-500 text-sm">
+                {errors.birth_day}
+                </p>
+            )}
+          </div>
+          <div className='mb-2'>
+            <p className="text-sm font-medium">
+              Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
+            </p>
+            <div className="w-full flex gap-2">
               <Input
-                className="mb-2"
-                name="member_password"
-                label="Member Password"
-                value={formData.member_password}
+                type="number"
+                placeholder="DD(Opt)"
+                name="death_date"
+                value={formData.death_date || ""}
                 onChange={handleInputChange}
+                min="1"
+                max="31"
+                maxLength={2}
+                label=""
               />
               <Input
-                name="moderator_password"
-                label="Moderator Password"
-                value={formData.moderator_password}
+                type="number"
+                placeholder="MM"
+                name="death_month"
+                value={formData.death_month || ""}
                 onChange={handleInputChange}
+                min="1"
+                max="12"
+                maxLength={2}
+                label=""
+              />
+              <Input
+                type="number"
+                placeholder="YYYY"
+                name="death_year"
+                value={formData.death_year || ""}
+                onChange={handleInputChange}
+                min="1975"
+                max={new Date().getFullYear()}
+                maxLength={4}
+                label=""
               />
             </div>
-            {(errors.password) && (
-              <p className="text-red-500 text-sm">
-                {errors.password}
+            {(errors.death_day) && (
+              <p className="text-red-500 text-sm mt-2">
+                  {errors.death_day}
               </p>
             )}
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={"Create Credential"} />
-          </form>
-        </div>
-      </Container>
-    );
-  } else {
-    return <p>Validating</p>;
-  }
+          </div>
+          <div className='flex gap-2'>
+            <Input
+              className="mb-2"
+              showOptional={true}
+              name="father"
+              label="Father"
+              value={formData.father}
+              onChange={handleInputChange}
+            />
+            <Input
+              className="mb-2"
+              showOptional={true}
+              name="mother"
+              label="Mother"
+              value={formData.mother}
+              onChange={handleInputChange}
+            />
+          </div>
+          <Input
+            className="mb-2"
+            showOptional={true}
+            name="siblings"
+            label="Siblings"
+            value={formData.siblings}
+            onChange={handleInputChange}
+          />
+          <div className='flex gap-2'>
+            <Input
+              className="mb-2"
+              type="number"
+              showOptional={true}
+              name="phone_number"
+              label="Contact"
+              value={formData.phone_number}
+              onChange={handleInputChange}
+            />
+            <Input
+              className="mb-2"
+              showOptional={true}
+              name="occupation"
+              label="Occupation"
+              value={formData.occupation}
+              onChange={handleInputChange}
+            />
+          </div>
+          <Input
+            className="mb-2"
+            showOptional={true}
+            name="education"
+            label="Education"
+            value={formData.education}
+            onChange={handleInputChange}
+          />
+          <Input
+            className="mb-2"
+            showOptional={true}
+            name="address"
+            label="Location State/Country"
+            value={formData.address}
+            onChange={handleInputChange}
+          />
+          <div className='flex gap-2'>
+            <Input
+              className="mb-2"
+              name="member_password"
+              label="Member Password"
+              value={formData.member_password}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="moderator_password"
+              label="Moderator Password"
+              value={formData.moderator_password}
+              onChange={handleInputChange}
+            />
+          </div>
+          {(errors.password) && (
+            <p className="text-red-500 text-sm">
+              {errors.password}
+            </p>
+          )}
+          <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={"Create Credential"} />
+        </form>
+      </div>
+    </Container>
+  );
 }

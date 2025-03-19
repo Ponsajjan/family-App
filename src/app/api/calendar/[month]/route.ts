@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
-export async function GET(request: Request, context: any) {
+export async function GET(request: Request) {
     const authHeader = request.headers.get('Authorization');
     const token = authHeader?.split(' ')[1];
 

@@ -33,7 +33,7 @@ model Member {
   deathMonth Int?
   deathYear  Int?
 
-  gender              String?
+  gender              String
   phoneNumber         String?
   address             String?
   occupation          String?
@@ -65,11 +65,14 @@ model Member {
 }
 
 model RequestDetails {
-  id       Int    @id @default(autoincrement())
-  type     String // editMember, addRelationShip, EditRelationship,
-  details  String
-  memberId Int
-  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  id           Int    @id @default(autoincrement())
+  name         String
+  gender       String
+  descendantOf String // for filtering out data
+  type         String // editMember, addRelationShip, EditRelationship,
+  details      String
+  memberId     Int
+  member       Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 }
 
 model nonDescendantRelation {

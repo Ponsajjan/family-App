@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
-import VerifyMemberDetails from "./_components/VerifyMemberDetails";
+import VerifyMemberChange from "./_components/VerifyMemberChange";
 import { getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 
@@ -92,10 +92,10 @@ export default function NewMembers() {
     };
   }, [params, hasMore, toast]);
 
-  const handleShowDetails = async (member_id: string | number) => {
+  const handleShowDetails = async (memberId: string | number, editDataId: number) => {
     try {
         setLoadingDetails(true)
-        const response = await fetch(`/api/moderator/verifyChange/details/${member_id}`,
+        const response = await fetch(`/api/moderator/verifyChange/${memberId}`,
           {
             method: 'GET',
             headers: { 
@@ -113,9 +113,9 @@ export default function NewMembers() {
 
         if (!response.ok) throw new Error('Failed to fetch member details');
 
-        const member = await response.json();
+        const details = await response.json();
 
-        setMemberDetails(member.data);
+        setMemberDetails(details.data);
         setShowDetails(true);
     } catch (error:any) {
         if (toast) {
@@ -148,7 +148,7 @@ export default function NewMembers() {
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
-                      onClick={() => handleShowDetails(member.id)} 
+                      onClick={() => handleShowDetails(member.memberId, member.id)} 
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
                       <div>
@@ -157,7 +157,7 @@ export default function NewMembers() {
                           {member.gender === "Female" && <Female />}
                           <div>{member.name}</div>
                         </div>
-                        <p>{member.pendingVerification[0].type}</p>
+                        <p>{member.type}</p>
                       </div>
                     </div>
                   </div>
@@ -175,7 +175,7 @@ export default function NewMembers() {
           className={`fixed md:hidden ${showDetails ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
         />
         <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
-          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>{loadingDetails ? <Loading /> : <VerifyMemberDetails data={memberDetails} openDetails={setShowDetails} />}</div>
+          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>{loadingDetails ? <Loading /> : <VerifyMemberChange data={memberDetails} openDetails={setShowDetails} />}</div>
         </div>
       </div>
     </div>

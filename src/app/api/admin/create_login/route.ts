@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { verifyToken } from "@/utils/auth";
 
 export async function POST(request: Request) {
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     const formData = await request.json();
     const deceased = !!(formData.deathDate || formData.deathMonth || formData.deathYear);
 

@@ -135,7 +135,7 @@ export default function VerifyMember() {
   const handleShowDetails = async (member_id: string | number) => {
     try {
         setLoadingDetails(true)
-        const response = await fetch(`/api/moderator/verifyMember/details/${member_id}`,
+        const response = await fetch(`/api/moderator/verifyMember/${member_id}`,
           {
             method: 'GET',
             headers: { 

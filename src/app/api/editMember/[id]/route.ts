@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
-export async function GET(request: Request, context: any) {
+export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '');
   const authHeader = request.headers.get('Authorization');
@@ -114,6 +114,7 @@ export async function GET(request: Request, context: any) {
 }
 
 export async function PUT(request: Request, context: any) {
+  // const { params } = context
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const authHeader = request.headers.get('Authorization');
@@ -147,9 +148,13 @@ export async function PUT(request: Request, context: any) {
       );
     }
 
-    const existingMember = await prisma.member.findUnique({
-      where: { id: memberId },
+    const member = await prisma.member.findUnique({
+      where: { 
+        id: memberId,
+        descendantOf: forDescendanceOf 
+      },
       select: {
+        name: true,
         gender: true,
         descendant: true,
         father: true,
@@ -161,15 +166,15 @@ export async function PUT(request: Request, context: any) {
       },
     });
 
-    if (!existingMember) {
+    if (!member) {
       return NextResponse.json(
         { error: "Member not found" },
         { status: 404 }
       );
     }
 
-    if (existingMember.partner) {
-      const currentGender = existingMember.gender;
+    if (member.partner) {
+      const currentGender = member.gender;
       const updatedGender = updatedData.gender;
 
       if (updatedGender && (currentGender !== updatedGender)) {
@@ -180,8 +185,8 @@ export async function PUT(request: Request, context: any) {
       }
     }
 
-    if (existingMember.fatherOf.length > 0 || existingMember.motherOf.length > 0) {
-      const currentGender = existingMember.gender;
+    if (member.fatherOf.length > 0 || member.motherOf.length > 0) {
+      const currentGender = member.gender;
       const updatedGender = updatedData.gender;
 
       if (updatedGender && (currentGender !== updatedGender)) {
@@ -192,8 +197,8 @@ export async function PUT(request: Request, context: any) {
       }
     }
 
-    if (existingMember.father || existingMember.mother) {
-      const currentDescendant = existingMember.descendant;
+    if (member.father || member.mother) {
+      const currentDescendant = member.descendant;
       const updatedDescendant = updatedData.descendant;
 
       if (currentDescendant !== updatedDescendant) {
@@ -205,10 +210,13 @@ export async function PUT(request: Request, context: any) {
     }
 
     // Check if the member is verified
-    if (existingMember.verified) {
+    if (member.verified) {
       // If verified, create a pending verification request instead of updating the member
       await prisma.requestDetails.create({
         data: {
+          name: member.name,
+          gender: member.gender,
+          descendantOf: forDescendanceOf,
           type: "Edit Member",
           details: JSON.stringify(updatedData),
           memberId: memberId,
@@ -284,118 +292,3 @@ export async function PUT(request: Request, context: any) {
     );
   }
 }
-
-export async function DELETE(request: Request, context: any) {
-  const url = new URL(request.url);
-  const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
-  
-  if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (isNaN(memberId)) {
-    return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
-  }
-
-  try {
-    const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
-
-    if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    // Fetch the member with their relationships
-    const member = await prisma.member.findUnique({
-      where: { id: memberId },
-      select: {
-        partner: true,
-        fatherOf: true,
-        motherOf: true,
-        father: true,
-        mother: true,
-        verified: true
-      },
-    });
-
-    // If the member doesn't exist, return an error
-    if (!member) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if the member is a descendant
-    if (member.father || member.mother) {
-      return NextResponse.json(
-        { error: "Cannot delete member: Member is a descendant." },
-        { status: 400 }
-      );
-    }
-
-    // Check if the member has a partner
-    if (member.partner) {
-      return NextResponse.json(
-        { error: "Cannot delete member: Member has a partner." },
-        { status: 400 }
-      );
-    }
-
-    // Check if the member is listed as a father or mother
-    if (member.fatherOf.length > 0 || member.motherOf.length > 0) {
-      return NextResponse.json(
-        { error: "Cannot delete member: Member is listed as a parent of one or more children." },
-        { status: 400 }
-      );
-    }
-
-    // Check if the member is listed as a father or mother
-    if (member.verified) {
-      return NextResponse.json(
-        { error: "Cannot delete member: Member is verified." },
-        { status: 400 }
-      );
-    }
-
-    // Use a transaction to ensure atomicity
-    await prisma.$transaction(async (prisma) => {
-      // Delete associated nonDescendantRelation (if it exists)
-      await prisma.nonDescendantRelation.deleteMany({
-        where: { memberId: memberId },
-      });
-
-      // Delete the member
-      await prisma.member.delete({
-        where: { id: memberId },
-      });
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: "Member deleted successfully",
-    });
-  } catch (error: any) {
-    console.error("Error deleting member:", error);
-
-    // Handle token verification errors
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    if (error.code === "P2025") {
-      // Prisma-specific error for "Record not found"
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}  

@@ -185,11 +185,30 @@ export async function PUT(request: Request) {
       },
     });
 
+    const member = await prisma.member.findUnique({
+      where: {
+        id: memberId,
+        descendantOf: forDescendanceOf
+      },
+      select: {
+        name: true,
+        gender: true,
+        descendantOf: true,
+      },
+    });
+
+    if (!member) {
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    }
+
     // If any verified members are found, add the update request to pending verification
     if (verifiedMembers.length > 0) {
       await prisma.requestDetails.create({
         data: {
-          type: "Add Relationship", // Type of request
+          name: member.name,
+          gender: member.gender,
+          descendantOf: member.descendantOf,
+          type: "Add Relationship",
           details: JSON.stringify(updatedData), // Store the update data as a JSON string
           memberId: memberId, // Associate the request with the member
         },
@@ -197,7 +216,7 @@ export async function PUT(request: Request) {
 
       return NextResponse.json({
         success: true,
-        message: "Update request has been added to for verification.",
+        message: "Update request has been added for verification.",
       });
     }
 

@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { verifyToken } from "@/utils/auth";
 
-export async function PUT(
-    request: Request,
-    { params }: { params: { id: string } }
-  ) {
+export async function PUT(request: Request) {
     try {
-      const { id } = params;
+      const url = new URL(request.url);
+      const id = parseInt(url.pathname.split("/").pop() || "", 10);
       const { moderatorName, moderatorContact, authId } = await request.json();
   
       const existingAuth = await prisma.auth.findUnique({
@@ -30,7 +29,7 @@ export async function PUT(
   
       // Update the ModeratorList entry
       const updatedModerator = await prisma.moderatorList.update({
-        where: { id: parseInt(id) },
+        where: { id: id },
         data: {
           moderatorName,
           moderatorContact,
@@ -49,41 +48,57 @@ export async function PUT(
     }
 }
 
-export async function DELETE(
-    { params }: { params: { id: string } }
-  ) {
-    try {
-      const { id } = params;
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const moderatorId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
   
-      const moderator = await prisma.moderatorList.findUnique({
-        where: { id: parseInt(id) },
-      });
-      
-      if (!moderator) {
-        return NextResponse.json(
-          { error: "Invalid moderator. The referenced moderator does not exist." },
-          { status: 400 }
-        );
-      }
-      // Delete the ModeratorList entry
-      await prisma.moderatorList.delete({
-        where: { id: parseInt(id) },
-      });
-  
-      // Return a success message
-      return NextResponse.json(
-        { message: "Moderator deleted successfully." },
-        { status: 200 }
-      );
-    } catch (error) {
-      console.error("Error deleting moderator:", error);
-      // Handle token verification errors
-      if (error instanceof Error && error.name === 'JsonWebTokenError') {
+  if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (isNaN(moderatorId)) {
+    return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
+  }
+
+  try {
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-      }
+    }
+
+    const moderator = await prisma.moderatorList.findUnique({
+      where: { id: moderatorId },
+    });
+    
+    if (!moderator) {
       return NextResponse.json(
-        { error: "Failed to delete moderator." },
-        { status: 500 }
+        { error: "Invalid moderator. The referenced moderator does not exist." },
+        { status: 400 }
       );
     }
+    // Delete the ModeratorList entry
+    await prisma.moderatorList.delete({
+      where: { id: moderatorId },
+    });
+
+    // Return a success message
+    return NextResponse.json(
+      { message: "Moderator deleted successfully." },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting moderator:", error);
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+    return NextResponse.json(
+      { error: "Failed to delete moderator." },
+      { status: 500 }
+    );
   }
+}

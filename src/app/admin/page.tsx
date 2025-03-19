@@ -2,22 +2,25 @@
 
 import { ButtonOutline, ButtonSolid } from "@/components/Button";
 import Container from "@/components/Container";
+import { HoldTextButton } from "@/components/HoldButton";
 import Input from "@/components/Input";
 import { Popup } from "@/components/Popup";
 import { useToast } from "@/components/Toast";
+import { Warning } from "@/utils/Icons";
+import { getCookie } from "cookies-next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
 export default function ExpandableTable() {
   const toast = useToast();
+  const token = getCookie('token');
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null);
   const [data, setData] = useState([]);
   const [editModerator, setEditModerator] = useState({ name: "", contactNumber: "" });
   const [newModerator, setNewModerator] = useState({ name: "", contactNumber: "" });
   const router = useRouter();
-  const [showPopup, setShowPopup] = useState<{ id: number | null; descendantOf: string | null }>({ id: null, descendantOf: null });
   const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true)
 
@@ -147,7 +150,7 @@ export default function ExpandableTable() {
       const result = await response.json();
       toast?.show(result.message, "success", 5000);
       const updatedData:any = [...data];
-      console.log("updatedDataupdatedData", updatedData)
+
       updatedData[rowIndex].moderators.push({ ...{ name: newModerator.name.trim(), contactNumber: newModerator.contactNumber.trim() } });
       setData(updatedData);
       setNewModerator({ name: "", contactNumber: "" });
@@ -157,23 +160,36 @@ export default function ExpandableTable() {
     }
   };
   
-  const deleteLogin = async (id: number) => {
+  const deleteModerator = async (id: number, rowIndex: number) => {
     setDeleting(true);
     try {
-      const response = await fetch(`/api/deleteMember/${id}`, {
+      const response = await fetch(`/api/admin/moderator/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
       });
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to delete member");
       }
+  
       const result = await response.json();
+  
       if (toast) {
         toast.show(result.message, "success", 5000);
       }
+  
+      // Update the state to remove the deleted moderator
+      const updatedData:any = [...data];
+      updatedData[rowIndex].moderators = updatedData[rowIndex].moderators.filter(
+        (moderator: any) => moderator.id !== id
+      );
+  
+      // Update the state with the new data
+      setData(updatedData);
     } catch (error: any) {
       if (toast) {
         toast.show(error.message || "Failed to delete member", "error", 5000);
@@ -182,38 +198,8 @@ export default function ExpandableTable() {
       }
     } finally {
       setDeleting(false);
-      setShowPopup({ id: null, descendantOf: null });
     }
   };
-
-  const deleteModerator = async (id: number) => {
-    setDeleting(true);
-    try {
-      const response = await fetch(`/api/deleteMember/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete member");
-      }
-      const result = await response.json();
-      if (toast) {
-        toast.show(result.message, "success", 5000);
-      }
-    } catch (error: any) {
-      if (toast) {
-        toast.show(error.message || "Failed to delete member", "error", 5000);
-      } else {
-        alert(error.message || "Failed to delete member.");
-      }
-    } finally {
-      setDeleting(false);
-      setShowPopup({ id: null, descendantOf: null });
-    }
-  }
 
   const handleNewModeratorChange = (field: string, value: string, rowIndex: number) => {
     setExpandedRows([rowIndex]);
@@ -221,12 +207,55 @@ export default function ExpandableTable() {
     setNewModerator((prev) => ({ ...prev, [field]: value }));
   };
 
-  const deleteRecord = (id: number, descendantOf: string) => {
-    setShowPopup({ id, descendantOf });
+  const deleteRecord = async (id: number, rowIndex: number) => {
+    try {
+      setDeleting(true);
+      const response = await fetch(`/api/admin/edit_login/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete member");
+      }
+  
+      const result = await response.json();
+  
+      if (toast) {
+        toast.show(result.message, "success", 5000);
+      }
+  
+      // Update the state to remove the deleted moderator
+      const updatedData = data.filter(
+        (auth: any) => auth.id !== id
+      );
+  
+      // Update the state with the new data
+      setData(updatedData);
+    } catch (error: any) {
+      if (toast) {
+        toast.show(error.message || "Failed to delete member", "error", 5000);
+      } else {
+        alert(error.message || "Failed to delete member.");
+      }
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
     <Container>
+      {deleting && <div className={`absolute inset-0 flex loading-text justify-center items-start bg-gray-50/30 z-10`}>
+        <p className="mt-20 loading-text px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">deleting...</p>
+      </div>}
+      <h2 className="text-xl font-medium m-2">Login Credentials</h2>
+      <p className="m-2">
+        <span className='inline-block align-bottom pr-2'><Warning /></span>
+        Deleting login credentials will result in the irreversible and permanent removal of all associated members. This action cannot be undone.</p>
       {loading
         ? <p className="text-center text-text_color m-6">Loading...</p>
         : <div className="overflow-x-auto">
@@ -248,9 +277,9 @@ export default function ExpandableTable() {
                     <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.descendantOf}</td>
                     <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.memberPassword}</td>
                     <td onClick={() => toggleRow(rowIndex)} className="py-2 px-4">{row.moderatorPassword}</td>
-                    <td className="py-2 px-4">
+                    <td className="py-2 px-4 flex">
                       <Link href={`/admin/edit_login/${row.mainMemberId}`} className="pr-1">Edit</Link>
-                      <button onClick={() => deleteRecord(row.mainMemberId, row.descendantOf)} className="pl-1">Delete</button>
+                      <HoldTextButton buttonText="Delete" onClick={() => deleteRecord(row.id, rowIndex)} holdDuration={10000} className="pl-1" />
                     </td>
                   </tr>
                   {expandedRows.includes(rowIndex) && (
@@ -304,7 +333,7 @@ export default function ExpandableTable() {
                                       >
                                         Edit
                                       </button>
-                                      <button onClick={() => deleteModerator(moderator.id)} className="pl-1">Delete</button>
+                                      <button onClick={() => deleteModerator(moderator.id, rowIndex)} className="pl-1">Delete</button>
                                     </>
                                   )}
                                 </td>
@@ -341,26 +370,6 @@ export default function ExpandableTable() {
           </table>
         </div>
       }
-
-      {/* Popup for Delete Confirmation */}
-      {showPopup.id !== null && (
-        <Popup>
-          <p>Are you sure you want to delete all records of {showPopup.descendantOf}?</p>
-          <div className="flex justify-end mt-4 gap-4">
-            <ButtonSolid
-              buttonText="Delete"
-              className="button-primary"
-              onClick={() => deleteLogin(showPopup.id!)}
-              disabled={deleting}
-            />
-            <ButtonOutline
-              buttonText="Cancel"
-              className="button-secondary"
-              onClick={() => setShowPopup({ id: null, descendantOf: null })}
-            />
-          </div>
-        </Popup>
-      )}
     </Container>
   );
 }

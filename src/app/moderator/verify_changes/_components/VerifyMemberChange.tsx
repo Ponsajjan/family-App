@@ -1,13 +1,54 @@
-// Try to make this server side component
 
-import { ButtonOutline, ButtonSolid } from '@/components/Button';
 import Container from '@/components/Container';
-import HoldButton from '@/components/HoldButton';
+import { HoldButton } from '@/components/HoldButton';
+import { useToast } from '@/components/Toast';
 import { CloseIcon, Condolences, Female2, Male2, Verified } from '@/utils/Icons';
-import { format } from 'date-fns';
-import React from 'react';
+import { getCookie } from 'cookies-next';
+import { useRouter } from 'next/navigation';
 
-export default function VerifyMemberDetails({ data, openDetails }: any) {
+export default function VerifyMemberChange({ data, openDetails }: any) {
+    const toast = useToast();
+    const router = useRouter();
+    const token = getCookie('token');
+
+    const handleDeleteRequest = async (memberId: number) => {
+        try {
+            const response = await fetch(`/api/moderator/verifyMember/${memberId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+            });
+            const result = await response.json();
+
+            // Handle 401 Unauthorized
+            if (response.status === 401) {
+                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                router.push('/login');
+                return;
+            }
+            // Handle API response
+            if (!response.ok) {
+                if (toast) {
+                toast.show(result.error || "Something went wrong", "error", 5000);
+                return;
+                }
+                throw new Error(result.error || "Something went wrong");
+                // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
+            }
+            if (toast) {
+                toast.show(result.message, "success", 5000);
+            }
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            if (toast) {
+                toast.show("An error occurred. Please try again.", "error", 5000);
+            } else {
+                alert("An error occurred. Please try again.");
+            }
+        };
+    }
 
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
@@ -128,7 +169,7 @@ export default function VerifyMemberDetails({ data, openDetails }: any) {
             </div>
             <div className='flex flex-col mt-4 gap-2'>
             <HoldButton buttonText='Approve changes' onClick={() => console.log("hi")}/>
-            <HoldButton type='outline' buttonText='Reject changes' onClick={() => console.log("hi")} />
+            <HoldButton type='outline' buttonText='Reject changes' onClick={() => handleDeleteRequest(3)} />
             </div>
         </Container>
     );

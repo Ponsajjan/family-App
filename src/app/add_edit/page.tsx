@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react"
-import { LinkButtonOutline, LinkButtonSolid } from "../../components/Button"
+import { LinkButtonOutline } from "../../components/Button"
 
 export default function AdminDashboard() {
     const [add, setAdd] = useState(true)

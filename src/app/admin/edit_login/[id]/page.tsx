@@ -9,11 +9,13 @@ import { validateNewLoginForm } from '@/utils/admin/new_login/validateNewLoginFo
 import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorTypes, NewLoginFormValueTypes } from '@/types/admin/new_login/types';
 import { useToast } from '@/components/Toast';
 import { useParams, useRouter } from 'next/navigation';
+import { getCookie } from 'cookies-next';
 
 export default function Page() {
   const toast = useToast();
   const params = useParams();
   const router = useRouter();
+  const token = getCookie('token');
   const memberId = params.id;
 
   const [validToken, setValidToken] = useState(true);
@@ -24,7 +26,13 @@ export default function Page() {
   useEffect(() => {
     const fetchMemberData = async () => {
       try {
-        const response = await fetch(`/api/admin/edit_login/${memberId}`);
+        const response = await fetch(`/api/admin/edit_login/${memberId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          }}
+        );
         const result = await response.json();
         const edit_member = result.data
         // Handle 401 Unauthorized
@@ -122,9 +130,10 @@ export default function Page() {
       };
 
       const response = await fetch(`/api/admin/edit_login/${memberId}`, {
-        method: 'PUT', // Use PUT for updates
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(updatedMemberDetails),
       });

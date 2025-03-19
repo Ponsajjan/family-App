@@ -35,22 +35,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch paginated data from Prisma
-    const memberList = await prisma.member.findMany({
+    const pendingChanges = await prisma.requestDetails.findMany({
       where: {
         descendantOf: forDescendanceOf,
-        pendingVerification: {
-          some: {}, // Check if there are any pending verification requests
-        },
       },
       select: {
         id: true,
         name: true,
         gender: true,
-        pendingVerification: {
-          select: {
-            type: true,
-          }
-        }
+        type: true,
+        memberId: true,
       },
       orderBy: { name: "asc" },
       skip,
@@ -58,19 +52,16 @@ export async function GET(request: NextRequest) {
     });
 
     // Total count for pagination
-    const totalCount = await prisma.member.count({
+    const totalCount = await prisma.requestDetails.count({
       where: {
         descendantOf: forDescendanceOf,
-        pendingVerification: {
-          some: {},
-        },
       },
     });
 
     // Add starting letter headers to the paginated data
     const groupedData:any = [];
 
-    memberList.forEach((member) => {
+    pendingChanges.forEach((member) => {
       const firstLetter = member.name.charAt(0).toUpperCase();
 
       // If this is a new starting letter, add a header entry
@@ -80,7 +71,8 @@ export async function GET(request: NextRequest) {
           id: firstLetter,
           name: firstLetter,
           gender: "Letter",
-          pendingVerificaton: ""
+          type: "",
+          memberId: ""
         });
       }
 

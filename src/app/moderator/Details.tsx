@@ -1,12 +1,96 @@
 'use client'
 
 import Container from '@/components/Container';
-import HoldButton from '@/components/HoldButton';
+import { HoldButton } from '@/components/HoldButton';
+import { useToast } from '@/components/Toast';
 import { CloseIcon, Condolences, Female2, Male2, Verified } from '@/utils/Icons';
+import { getCookie } from 'cookies-next';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 export default function NewMemberDetails({ data, openDetails, handleMemberSearch }: any) {
+    const toast = useToast();
+    const router = useRouter();
+    const token = getCookie('token');
+
+    const handleVerification = async (memberId: number) => {
+        try {
+            const response = await fetch(`/api/moderator/verifyMember/${memberId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+            });
+            const result = await response.json();
+
+            // Handle 401 Unauthorized
+            if (response.status === 401) {
+                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                router.push('/login');
+                return;
+            }
+            // Handle API response
+            if (!response.ok) {
+                if (toast) {
+                toast.show(result.error || "Something went wrong", "error", 5000);
+                return;
+                }
+                throw new Error(result.error || "Something went wrong");
+                // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
+            }
+            if (toast) {
+                toast.show(result.message, "success", 5000);
+            }
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            if (toast) {
+                toast.show("An error occurred. Please try again.", "error", 5000);
+            } else {
+                alert("An error occurred. Please try again.");
+            }
+        };
+    }
+
+    const handleDelete = async (memberId: number) => {
+        try {
+            const response = await fetch(`/api/moderator/verifyMember/${memberId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+            });
+            const result = await response.json();
+
+            // Handle 401 Unauthorized
+            if (response.status === 401) {
+                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                router.push('/login');
+                return;
+            }
+            // Handle API response
+            if (!response.ok) {
+                if (toast) {
+                toast.show(result.error || "Something went wrong", "error", 5000);
+                return;
+                }
+                throw new Error(result.error || "Something went wrong");
+                // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
+            }
+            if (toast) {
+                toast.show(result.message, "success", 5000);
+            }
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            if (toast) {
+                toast.show("An error occurred. Please try again.", "error", 5000);
+            } else {
+                alert("An error occurred. Please try again.");
+            }
+        };
+    }
 
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
@@ -186,8 +270,8 @@ export default function NewMemberDetails({ data, openDetails, handleMemberSearch
             </>
             }
             <div className='flex flex-col mt-4 gap-2'>
-                <HoldButton buttonText={data?.verified ? 'Switch To Unverify' : 'Switch To Verified'} onClick={() => console.log("hi")} />
-                <HoldButton type='outline' buttonText='Delete Member' onClick={() => console.log("hi")} />
+                <HoldButton buttonText={data?.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data.id)} />
+                <HoldButton type='outline' buttonText='Delete Member' onClick={() => handleDelete(data.id)} />
                 {/* <LinkButtonOutline buttonText='Edit Member' linkto='/moderator/edit_member/1'/> */}
             </div>
 

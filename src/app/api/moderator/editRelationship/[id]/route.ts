@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
-export async function GET(request: Request, context: any) {
+export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '');
   const authHeader = request.headers.get('Authorization');
@@ -91,7 +91,7 @@ export async function GET(request: Request, context: any) {
   }
 }
 
-export async function PUT(request: Request, context: any) {
+export async function PUT(request: Request) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const authHeader = request.headers.get('Authorization');

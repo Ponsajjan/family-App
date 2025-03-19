@@ -48,7 +48,7 @@ export default function ModeratorSidenav() {
                         <ModeratorNavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/moderator/add_edit")} />
                     </div>
                     <div>
-                        <div className="py-2 px-2 w-full flex gap-1 items-center justify-center cursor-pointer" >
+                        <div onClick={logout} className="py-2 px-2 w-full flex gap-1 items-center justify-center cursor-pointer text-text_color" >
                             Logout
                         </div>
                         <div className="flex justify-center items-center py-2">

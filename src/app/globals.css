@@ -209,6 +209,7 @@ input[type="radio"]:checked::after {
   inset: 0;
   cursor: pointer;
 }
+
 .tooltip-text{
   visibility: hidden;
   position: absolute;
@@ -226,6 +227,7 @@ input[type="radio"]:checked::after {
   opacity: 0;
   transition: opacity 1s;
 }
+
 .tooltip-text::after{
   content: "";
   position: absolute;
@@ -235,6 +237,7 @@ input[type="radio"]:checked::after {
   border: 10px solid;
   border-color:  rgba(var(--accent_color)) transparent transparent transparent;
 }
+
 .tooltip:hover .tooltip-text{
   visibility: visible;
   opacity: 1;
