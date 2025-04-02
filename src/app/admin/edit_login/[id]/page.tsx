@@ -1,6 +1,6 @@
 "use client";
 
-import { ButtonOutline, ButtonSolid, LinkButtonOutline } from '@/components/Button';
+import { ButtonSolid, LinkButtonOutline } from '@/components/Button';
 import Input from '@/components/Input';
 import RadioButton from "@/components/RadioButton";
 import { useEffect, useState } from 'react';
@@ -145,19 +145,17 @@ export default function Page() {
           toast.show(result.error || "Something went wrong", "error", 5000);
         }
         throw new Error(result.error || "Something went wrong");
-      } else {
-        if (toast) {
-          toast.show(result.message, "success", 5000);
-        }
-        router.push("/admin")
       }
+      if (toast) {
+        toast.show(result.message, "success", 5000);
+      }     
     } catch (error) {
       console.error("Error submitting form:", error);
       if (toast) {
         toast.show("An error occurred. Please try again.", "error", 5000);
-      } else {
-        alert("An error occurred. Please try again.");
-      }
+      } 
+    } finally {
+      router.push("/admin")
     }
   };
 

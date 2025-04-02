@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { getCookie } from 'cookies-next';
 import { useToast } from '@/components/Toast'
 import { useRouter } from 'next/navigation'
+import Loading from '@/components/Loading'
 
 export default function Terms() {
   const toast = useToast();
@@ -72,7 +73,7 @@ export default function Terms() {
     <div className='flex flex-col w-full text-text_color'>
       <Topnav> </Topnav>
       <Container>
-        {loading ? <p></p> :
+        {loading ? <Loading /> :
         <div className="max-w-4xl mx-auto p-4">
           <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
             {head} Family, Birthdays & Remembrances
@@ -89,7 +90,7 @@ export default function Terms() {
               <li>Their partner (spouse or significant other)</li>
             </ul>
             <p className="mt-4 italic opacity-65">
-              Note: Extended family members (such as uncles, aunts and cousins) are excluded to maintain simplicity and ensuring that each member remains relevant to each other.
+             Note: Extended family members (such as in-laws and cousins-in-law) are excluded to maintain simplicity and ensure that each member remains relevant to one another.
             </p>
           </div>
 
@@ -101,7 +102,7 @@ export default function Terms() {
                 <li>Add family relationships (Partner | Children) if any.</li>
               </ul>
               <p className="mt-4 italic opacity-65">
-                Note: Family member information can be locked to maintain data integrity. For locked members, changes will require moderator approval or contact
+                Note: Member information can be locked to maintain data integrity. For locked members, changes will require moderator approval or contact
                 the moderator directly.
               </p>
             </div>

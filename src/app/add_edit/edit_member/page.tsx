@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/Container";
-import { ButtonOutline, ButtonSolid, LinkButtonOutline } from "@/components/Button";
+import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { BackButton, DeleteRecord, EditMember, Warning } from "@/utils/Icons";
+import { BackButton, EditMember, Warning } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue, EditMemberDefaultFormValue, EditMemberFormErrorTypes, EditMemberFormValueTypes } from "@/types/add__edit/edit_member/types";
 import EditMemberForm from "@/components/forms/EditMemberForm";

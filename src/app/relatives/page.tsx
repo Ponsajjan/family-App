@@ -17,6 +17,7 @@ export default function Relatives() {
   const [searchInput, setSearchInput] = useState("");
   const [members, setMembers] = useState<any[] | never[]>([]);
   const [showDetails, setShowDetails] = useState(false);
+  const [showMember, setShowMember] = useState<number | null>(null);
   const [memberDetails, setMemberDetails] = useState(null);
   const [loadingList, setLoadingList] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(true);
@@ -111,10 +112,13 @@ export default function Relatives() {
     };
   }, [params, hasMore, toast]);
 
-  const handleShowDetails = async (member_id: string | number, verified: boolean) => {
-    try {
-        setLoadingDetails(true)
-        const response = await fetch(`/api/relatives/${member_id}?verified=${verified}`, {
+  useEffect(() => {
+    const fetchMemberDetails = async () => {
+      if (!showMember) return;
+      
+      try {
+        setLoadingDetails(true);
+        const response = await fetch(`/api/relatives/${showMember}`, {
           method: 'GET',
           headers: { 
             'Content-Type': 'application/json',
@@ -122,22 +126,25 @@ export default function Relatives() {
           },
           cache: 'no-store',
         });
-        if (!response.ok) throw new Error('Failed to fetch member details');
-
-        const member = await response.json();
-
-        setMemberDetails(member.data);
-        setShowDetails(true);
-    } catch (error:any) {
-        if (toast) {
-            toast.show(error.message || "Error fetching member details", "error", 5000);
-        } else {
-            alert(error.message || "Error fetching member details")
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-    } finally {
-      setLoadingDetails(false)
-    }
-  };
+  
+        const { data } = await response.json();
+        setMemberDetails(data);
+        setShowDetails(true);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        toast?.show(message, "error", 5000) || alert(message);
+      } finally {
+        setLoadingDetails(false);
+      }
+    };
+  
+    fetchMemberDetails();
+  }, [showMember, token]); 
+
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;
@@ -180,7 +187,7 @@ export default function Relatives() {
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
-                      onClick={() => handleShowDetails(member.id, member.verified)} 
+                      onClick={() => setShowMember(member.id)}
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
                       <div>

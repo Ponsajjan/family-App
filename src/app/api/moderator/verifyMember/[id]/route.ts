@@ -146,9 +146,14 @@ export async function PATCH(request: Request) {
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
+    const mainMemberId = decoded.memberId
 
     if (!forDescendanceOf) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    if (memberId == mainMemberId) {
+      return NextResponse.json({ error: "Main member cannot be unverified" }, { status: 400 });
     }
 
     const member = await prisma.member.findUnique({
@@ -206,9 +211,14 @@ export async function DELETE(request: Request) {
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
+    const mainMemberId = decoded.memberId
 
     if (!forDescendanceOf) {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    if (memberId == mainMemberId) {
+      return NextResponse.json({ error: "Main member cannot be deleted" }, { status: 400 });
     }
 
     // Fetch the member with their relationships

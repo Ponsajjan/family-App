@@ -5,7 +5,6 @@ import { verifyToken } from "@/utils/auth";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '', 10);
-  const verifiedOnly = url.searchParams.get('verified');
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
   
@@ -46,23 +45,18 @@ export async function GET(request: Request) {
         descendant: true,
         father: {
           select: { id: true, name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
         },
         mother: {
           select: { id: true, name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
         },
         partner: {
           select: { name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
         },
         fatherOf: {
           select: { name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
         },
         motherOf: {
           select: { name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
         },
         nonDescendantRelation: {
           select: {
@@ -87,7 +81,6 @@ export async function GET(request: Request) {
         where: {
           fatherId: member.father.id,
           id: { not: id }, // Exclude the current member
-          ...(verifiedOnly && { verified: true }),
         },
         select: { name: true },
       });
@@ -99,7 +92,6 @@ export async function GET(request: Request) {
         where: {
           motherId: member.mother.id,
           id: { not: id }, // Exclude the current member
-          ...(verifiedOnly && { verified: true }),
         },
         select: { name: true },
       });

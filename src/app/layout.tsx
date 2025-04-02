@@ -34,7 +34,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className} suppressHydrationWarning={true}>
           <main id="MainDiv">
-            <noscript>hu hu hu..</noscript>
+            <noscript>hi hello!..</noscript>
             <ThemeProvider>
               <AuthProvider>
                 <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">

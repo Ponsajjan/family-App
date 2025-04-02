@@ -56,7 +56,7 @@ export function AdminNavLink({ link, linkName, onClick }: { link: string, linkNa
     return (
         <button 
             onClick={onClick}
-            className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover hover:opacity-80 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
+            className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover/75 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >
             <p className={`group-hover:invert ${pathName === link ? "invert" : " "}`}>
                 {linkName === 'New Login' && <Login />}

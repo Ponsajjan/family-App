@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { updateToken } from "./utils/auth";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const access = request.cookies.get("access")?.value;
 
@@ -9,6 +10,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  // Check if the token is close to expiring and refresh it if necessary
+  await updateToken(request);
+  
   if (access === "SuperAdmin") {
     return NextResponse.redirect(new URL("/admin", request.url));
   }

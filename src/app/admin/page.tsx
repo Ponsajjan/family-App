@@ -4,9 +4,7 @@ import { ButtonOutline, ButtonSolid } from "@/components/Button";
 import Container from "@/components/Container";
 import { HoldTextButton } from "@/components/HoldButton";
 import Input from "@/components/Input";
-import { Popup } from "@/components/Popup";
 import { useToast } from "@/components/Toast";
-import { Warning } from "@/utils/Icons";
 import { getCookie } from "cookies-next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -252,10 +250,7 @@ export default function ExpandableTable() {
       {deleting && <div className={`absolute inset-0 flex loading-text justify-center items-start bg-gray-50/30 z-10`}>
         <p className="mt-20 loading-text px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">deleting...</p>
       </div>}
-      <h2 className="text-xl font-medium m-2">Login Credentials</h2>
-      <p className="m-2">
-        <span className='inline-block align-bottom pr-2'><Warning /></span>
-        Deleting login credentials will result in the irreversible and permanent removal of all associated members. This action cannot be undone.</p>
+
       {loading
         ? <p className="text-center text-text_color m-6">Loading...</p>
         : <div className="overflow-x-auto">

@@ -138,13 +138,8 @@ export default function NewMembers() {
           <p className='p-4'>No members found.</p>
           ) : 
           <div className='max-w-3xl'>
-            <div className='max-w-xl mx-auto'>
+            <div className='max-w-xl mx-auto mt-4'>
               {members.map((member: any) => (
-                member.gender === "Letter" ?
-                <div key={member.id} className="flex text-text_color items-center px-[10px] md:pt-1 bg-main_background sticky top-0 z-10">
-                  <span className="font-semibold pr-1">{member.name}</span>
-                  <span className="border-t border-border_color block w-full"></span>
-                </div> :
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
@@ -155,7 +150,7 @@ export default function NewMembers() {
                         <div className="flex flex-wrap gap-2">
                           {member.gender === "Male" && <Male /> }
                           {member.gender === "Female" && <Female />}
-                          <div>{member.name}</div>
+                          <div className='font-semibold'>{member.name}</div>
                         </div>
                         <p>{member.type}</p>
                       </div>

@@ -5,7 +5,8 @@ interface HoldButtonProps {
   buttonText: string; // Button text
   holdDuration?: number; // Duration in milliseconds (default: 5000ms)
   className?: string; // Custom CSS class for styling
-  type?: 'solid' | 'outline'
+  type?: 'solid' | 'outline';
+  disabled?: boolean;
 }
 
 export const HoldButton: React.FC<HoldButtonProps> = ({
@@ -13,7 +14,8 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
   buttonText,
   holdDuration = 5000,
   className = '',
-  type = 'solid'
+  type = 'solid',
+  disabled = false
 }) => {
   const [isHolding, setIsHolding] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
@@ -46,13 +48,14 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
 
   return (
     <button
-      className={`relative min-w-[150px] ${type == 'solid' ? 'bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast' : 'bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color'} h-10 md:h-12 px-2 md:px-4 py-2 md:py-3 text-base md:text-lg shadow-md rounded-md font-medium whitespace-nowrap overflow-hidden flex items-center justify-center ${className}`}
+      className={`relative min-w-[150px] disabled:cursor-not-allowed disabled:opacity-45 ${type == 'solid' ? 'bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast' : 'bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color'} h-10 md:h-12 px-2 md:px-4 py-2 md:py-3 text-base md:text-lg shadow-md rounded-md font-medium whitespace-nowrap overflow-hidden flex items-center justify-center ${className}`}
       onMouseDown={startHold}
       onMouseUp={resetHold}
       onMouseLeave={resetHold}
       onTouchStart={startHold}
       onTouchEnd={resetHold}
       onTouchCancel={resetHold}
+      disabled={disabled}
     >
       {isHolding && (
         <div
@@ -74,7 +77,6 @@ export const HoldTextButton: React.FC<HoldButtonProps> = ({
   buttonText,
   holdDuration = 5000,
   className = '',
-  type = 'solid'
 }) => {
   const [isHolding, setIsHolding] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);

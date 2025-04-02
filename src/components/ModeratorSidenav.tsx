@@ -78,7 +78,7 @@ export function ModeratorNavLink({ link, linkName, onClick }: { link: string | u
     return (
         <button 
             onClick={onClick}
-            className={`group py-2 px-2 w-full flex gap-2 items-center justify-start text-start hover:bg-accent_color_hover hover:opacity-80 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName?.split('/')[2] === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
+            className={`group py-2 px-2 w-full flex gap-2 items-center justify-start text-start hover:bg-accent_color_hover/75 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName?.split('/')[2] === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >
             <p className={`group-hover:invert ${(pathName?.split('/')[2] === link) ? "invert" : " "}`}>
                 {/* {linkName === 'New Member' && <NavIconNew />} */}

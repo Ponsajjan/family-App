@@ -31,7 +31,12 @@ export default async function FamilyTreePage() {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch data');
+      return (
+        <div>
+          <Topnav />
+          <p className="text-center text-text_color m-6">Failed to load family tree data.</p>
+        </div>
+      )
     }
 
     id = await response.json();
