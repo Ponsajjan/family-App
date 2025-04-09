@@ -56,7 +56,6 @@ export default function VerifyMemberChange({ data, openDetails }: any) {
             <div className='flex gap-2 items-center w-full pb-6'>
                 <div className='border border-border_color p-2 rounded-md relative'>
                     <Male2 />
-                    <span className='absolute -bottom-2 -right-2'><Condolences /></span>
                 </div>
                 <p className='text-lg font-semibold flex items-center'>
                     <span>Name Unavailable</span>

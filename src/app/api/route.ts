@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
-    if (!forDescendanceOf) {
+    const mainMemberId = decoded.memberId
+    if (!forDescendanceOf || !mainMemberId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     let memberList: any[] = [];
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
               // mode: "insensitive", // PostgreSQL-specific support in Prisma
             },
             descendantOf: forDescendanceOf,
-            id: { notIn: excludeId },
+            id: { notIn: [...excludeId, mainMemberId] },
             fatherId: null,
             motherId: null,
             descendant: true,

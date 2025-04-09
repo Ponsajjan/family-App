@@ -5,7 +5,6 @@ import { Call, Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
 import Details from './Details';
 import Link from 'next/link';
-import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
@@ -18,9 +17,7 @@ export default function Relatives() {
   const [members, setMembers] = useState<any[] | never[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [showMember, setShowMember] = useState<number | null>(null);
-  const [memberDetails, setMemberDetails] = useState(null);
   const [loadingList, setLoadingList] = useState(false);
-  const [loadingDetails, setLoadingDetails] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const token = getCookie('token');
@@ -112,40 +109,6 @@ export default function Relatives() {
     };
   }, [params, hasMore, toast]);
 
-  useEffect(() => {
-    const fetchMemberDetails = async () => {
-      if (!showMember) return;
-      
-      try {
-        setLoadingDetails(true);
-        const response = await fetch(`/api/relatives/${showMember}`, {
-          method: 'GET',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-          },
-          cache: 'no-store',
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        const { data } = await response.json();
-        setMemberDetails(data);
-        setShowDetails(true);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        toast?.show(message, "error", 5000) || alert(message);
-      } finally {
-        setLoadingDetails(false);
-      }
-    };
-  
-    fetchMemberDetails();
-  }, [showMember, token]); 
-
-
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;
     const regex = new RegExp(`(${searchText})`, 'gi');
@@ -187,7 +150,7 @@ export default function Relatives() {
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
-                      onClick={() => setShowMember(member.id)}
+                      onClick={() => {setShowDetails(true); setShowMember(member.id)}}
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
                       <div>
@@ -213,7 +176,7 @@ export default function Relatives() {
                               <span className="pr-1 font-semibold">Partner:</span>
                               <span className="pr-1">{member.partner.name}</span>
                             </div>
-                            ) : 'No relationship assigned yet'}
+                            ) : 'No family relationship assigned yet'}
                         </div>
                       </div>
                       {member.phoneNumber && (
@@ -237,7 +200,7 @@ export default function Relatives() {
           className={`fixed md:hidden ${showDetails ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
         />
         <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
-          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>{loadingDetails ? <Loading /> : <Details data={memberDetails} openDetails={setShowDetails} />}</div>
+          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}><Details showMember={showMember} openDetails={setShowDetails} /></div>
         </div>
       </div>
     </div>

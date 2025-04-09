@@ -342,7 +342,7 @@ export default function MemberList({
                               <span className="pr-1">{member.partner.name}</span>
                             </div>
                           ) : (
-                            'No relationship assigned yet'
+                            'No family relationship assigned yet'
                           )}
                         </div>
                       </div>

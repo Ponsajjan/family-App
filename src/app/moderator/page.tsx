@@ -208,7 +208,7 @@ export default function VerifyMember() {
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
-                      onClick={() => {setShowDetailsFor(member.id); setShowDetails(true)}} 
+                      onClick={() => {setShowDetailsFor(member); setShowDetails(true)}} 
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
                       <div>
@@ -234,7 +234,7 @@ export default function VerifyMember() {
                               <span className="pr-1 font-semibold">Partner:</span>
                               <span className="pr-1">{member.partner.name}</span>
                             </div>
-                            ) : 'No relationship assigned yet'}
+                            ) : 'No family relationship assigned yet'}
                         </div>
                       </div>
                       {member.verified && <Verified/>}
@@ -243,7 +243,7 @@ export default function VerifyMember() {
                 </div>
               ))}
               <div className="h-10 px-4 py-2">
-                {loadingList && <p className="text-text_color">Loading....</p>}
+                {loadingList && <Loading />}
                 {!loadingList && !hasMore && <p className="text-text_color">, , ,</p> }
               </div>
             </div>

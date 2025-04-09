@@ -34,7 +34,7 @@ export default async function FamilyTreePage() {
       return (
         <div>
           <Topnav />
-          <p className="text-center text-text_color m-6">Failed to load family tree data.</p>
+          <p className="text-center text-text_color m-6">Failed to load family tree data. Responce not ok</p>
         </div>
       )
     }
@@ -45,7 +45,7 @@ export default async function FamilyTreePage() {
     return (
       <div>
         <Topnav />
-        <p className="text-center text-text_color m-6">Failed to load family tree data.</p>
+        <p className="text-center text-text_color m-6">{`Failed to load family tree data. ${error}`}</p>
       </div>
     );
   }

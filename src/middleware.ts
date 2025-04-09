@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check if the token is close to expiring and refresh it if necessary
-  await updateToken(request);
+  // await updateToken(request);
   
   if (access === "SuperAdmin") {
     return NextResponse.redirect(new URL("/admin", request.url));

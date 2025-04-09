@@ -17,13 +17,12 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     const [data, setData] = useState<any>(null);
     const [loadingDetails, setLoadingDetails] = useState(true);
     const [deleted, setDeleted] = useState(false);
-    const [disableButton, setDisableButton] = useState(false)
 
     useEffect(() => {
         async function fetchMembers() {
             try {
                 setLoadingDetails(true)
-                const response = await fetch(`/api/moderator/verifyMember/${showDetailsFor}`,
+                const response = await fetch(`/api/moderator/verifyMember/${showDetailsFor.id}`,
                     {
                     method: 'GET',
                     headers: { 
@@ -43,7 +42,6 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                 const member = await response.json();
         
                 setData(member.data);
-                setDisableButton(false)
             } catch (error:any) {
                 if (toast) {
                     toast.show(error.message || "Error fetching member details", "error", 5000);
@@ -89,19 +87,46 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             if (toast) {
                 toast.show(result.message, "success", 5000);
             }
+            const prevVerified = data?.verified
+
             setData((prev: any) => ({
                 ...prev, verified: !data?.verified
             }));
 
-            if (selectedFilter !== 'All') {
+
+            if (selectedFilter == 'Verified' && prevVerified == true) {
                 const updatedData = members.filter(
                     (item: any) => item.id !== memberId
                 );
                 setMembers((updatedData));
-                setDisableButton(true)
-            } else {
+            }
+
+            if (selectedFilter == 'Verified' && prevVerified == false) {
+                setMembers((prev: any) => [...new Set([...prev, showDetailsFor])]);
+            }
+
+            if (selectedFilter == 'Unverified' && prevVerified == false) {
+                const updatedData = members.filter(
+                    (item: any) => item.id !== memberId
+                );
+                setMembers((updatedData));
+            }
+
+            if (selectedFilter == 'Unverified' && prevVerified == true) {
+                setMembers((prev: any) => [...new Set([...prev, showDetailsFor])]);
+            }
+
+            if (selectedFilter == 'All') {
                 const updatedData = members.map((item: any) => 
-                    item.id === memberId ? { ...item, verified: !data?.verified } : item
+                    item.id === memberId 
+                    ? { 
+                        ...item, 
+                        generalInformation: {
+                        ...item.generalInformation, // Preserve all existing properties
+                        verified: !item.generalInformation?.verified // Toggle the verified status
+                        }
+                    } 
+                    : item
                 );
                 setMembers(updatedData);
             }
@@ -161,49 +186,41 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
 
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
-            {loadingDetails ? <Loading /> :
-            <>
-                {deleted && <div className='bg-field_color text-text_color p-2 rounded-md m-4'><span className='inline-block align-bottom pr-1'><Info /></span>Member deleted</div>}
-                <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
+            <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
+            {loadingDetails ? <Loading />
+            : <>
+                {deleted && <div className='bg-field_color text-text_color p-2 border border-border_color border-dashed rounded-md my-4'><span className='inline-block align-bottom pr-1'><Info /></span>Member deleted</div>}
                 <div className='flex gap-2 items-center w-full pb-3'>
                     <div className='border border-border_color p-2 rounded-md relative'>
-                        {data?.gender === 'Male' ? <Male2 /> : <Female2 />}
-                        {data?.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
+                        {data?.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
+                        {data?.generalInformation.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
                     </div>
                     <div className='w-full'>
-                        <p onClick={() => handleMemberSearch(data?.name)} className='text-lg font-semibold flex items-center'>
-                            <span className='hover:underline cursor-context-menu'>{data?.name || 'Name Unavailable'}</span>
-                            {data?.verified && <span className='pl-2'><Verified /></span>}
+                        <p onClick={() => handleMemberSearch(data?.generalInformation.name)} className='text-lg font-semibold flex items-center'>
+                            <span className='hover:underline cursor-context-menu'>{data?.generalInformation.name || 'Name Unavailable'}</span>
+                            {data?.generalInformation.verified && <span className='pl-2'><Verified /></span>}
                         </p>
 
-                        {data?.birthDate && data?.birthMonth && (
+                        {data?.generalInformation.birthDate && data?.generalInformation.birthMonth && (
                             <div className='flex items-baseline gap-1 text-sm'>
                                 <p>Born At :</p>
-                                <p>{`${data?.birthDate} ${format(`${data?.birthMonth}`, 'MMM')} ${data?.birthYear ? data.birthYear : ''}`}</p>
+                                <p>{`${data?.generalInformation.birthDate} ${format(`${data?.generalInformation.birthMonth}`, 'MMM')} ${data?.generalInformation.birthYear ? data.generalInformation.birthYear : ''}`}</p>
                             </div>
                         )}
 
-                        {data?.deceased ?
-                            data?.deathMonth && data?.deathYear 
+                        {data?.generalInformation.deceased ?
+                            data?.generalInformation.deathMonth && data?.generalInformation.deathYear 
                             ?  <div className='flex items-baseline gap-1 text-sm'>
                                     <p>Died At :</p>
-                                    <p>{`${data?.deathDate ? data?.deathDate : ''} ${format(`${data?.deathMonth}`, 'MMM')} ${data?.deathYear}`}</p>
+                                    <p>{`${data?.generalInformation.deathDate ? data?.generalInformation.deathDate : ''} ${format(`${data?.generalInformation.deathMonth}`, 'MMM')} ${data?.generalInformation.deathYear}`}</p>
                                 </div>
                             : <p className='text-sm'>Deceased</p>
                             : ''
                         }
                     </div>
                 </div>
-
-
-                {(data?.father ||
-                    data?.mother ||
-                    data?.partner ||
-                    data?.fatherOf?.length > 0 ||
-                    data?.motherOf?.length > 0 ||
-                    data?.nonDescendantRelation[0]?.fatherName ||
-                    data?.nonDescendantRelation[0]?.motherName ||
-                    data?.nonDescendantRelation[0]?.siblingNames) &&
+                <div className='ml-auto mr-0 w-fit'>{data?.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
+                {(data?.relationInformation) &&
                 <>
                     <div className='flex pt-3 items-center'>
                         <p className='font-semibold whitespace-nowrap pr-4'>Relation Information</p>
@@ -211,86 +228,83 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     </div>
                     <div className='pl-1'>
                         <div className='flex flex-wrap border-l border-border_color pl-2'>
-                            {data?.father && (
+                            {data?.relationInformation.father && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div onClick={() => handleMemberSearch(data?.father.name)} className='w-3/5 md:leading-7 hover:underline cursor-context-menu'>{data?.father.name}</div>
+                                    <div onClick={() => handleMemberSearch(data?.relationInformation.father)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_father ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.father}</div>
                                 </>
                             )}
-                            {data?.mother && (
+                            {data?.relationInformation.mother && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div onClick={() => handleMemberSearch(data?.mother.name)} className='w-3/5 md:leading-7 hover:underline cursor-context-menu'>{data?.mother.name}</div>
+                                    <div onClick={() => handleMemberSearch(data?.relationInformation.mother)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_mother ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.mother}</div>
                                 </>
                             )}
-                            {data?.siblings?.length > 0 && (
+                            {data?.relationInformation.siblings?.length > 0 && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
                                     <div className='w-3/5 md:leading-7'>
-                                        {data?.siblings?.map((sibling: string, index: number) => (
-                                            <span onClick={() => handleMemberSearch(sibling)} key={index} className='hover:underline cursor-context-menu' >
-                                            {sibling}
+                                        {data?.relationInformation.siblings?.map((sibling: { name: string, verified: boolean }, index: number) => (
+                                            <span onClick={() => handleMemberSearch(sibling.name)} key={index} className={`${sibling.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'} hover:underline cursor-context-menu`} >
+                                            {sibling.name}
                                             {/* Add a comma if it's not the last sibling, otherwise add a period */}
-                                            {index < data.siblings.length - 1 && ', ' }
+                                            {index < data.relationInformation.siblings.length - 1 && ', ' }
                                             </span>
                                         ))}
                                     </div>
                                 </>
                             )}
-                            {data?.nonDescendantRelation[0]?.fatherName && (
+                            {data?.relationInformation.nonDescendantRelations?.fatherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.fatherName}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
                                 </>
                             )}
-                            {data?.nonDescendantRelation[0]?.motherName && (
+                            {data?.relationInformation.nonDescendantRelations?.motherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.motherName}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
                                 </>
                             )}
-                            {data?.nonDescendantRelation[0]?.siblingNames && (
-                            <>
-                                <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                <div className='w-3/5 md:leading-7'>{data?.nonDescendantRelation[0]?.siblingNames}</div>
-                            </>
-                            )}
-                            {data?.partner && (
+                            {data?.relationInformation.nonDescendantRelations?.siblingNames && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                    <div onClick={() => handleMemberSearch(data?.partner.name)} className='w-3/5 md:leading-7 hover:underline cursor-context-menu'>{data?.partner.name}</div>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
                                 </>
                             )}
+                            {data?.descendant ? data?.relationInformation.partner &&
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
+                                        <div onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.partner}</div>
+                                    </> 
+                                    :<>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
+                                        <div className={`w-3/5 md:leading-7 `}>
+                                            {data?.relationInformation.partner 
+                                            ? <span onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'} hover:underline cursor-context-menu`}>{data?.relationInformation.partner}</span>
+                                            : <span className='italic'>-- Partner Unassigned --</span>}
+                                        </div>
+                                    </> 
+                            }
 
-                            {(data?.fatherOf.length > 0 || data?.motherOf.length > 0) &&
-                            <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>}
-                            {data?.fatherOf.length > 0 && (  
-                                <div className='w-3/5 md:leading-7'>
-                                    {data?.fatherOf?.map((child: { name: string }, index: number) => (
-                                        <span onClick={() => handleMemberSearch(child.name)} key={index} className='hover:underline cursor-context-menu' >
-                                        {child.name}
-                                        {/* Add a comma if it's not the last child, otherwise add a period */}
-                                        {index < data.fatherOf.length - 1 && ', ' }
+                            {data?.relationInformation.children && (
+                                <>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
+                                    <div className='w-3/5 md:leading-7'>
+                                    {data.relationInformation.children.map((child: { name: string, verified: boolean }, index: number) => (
+                                        <span key={index} onClick={() => handleMemberSearch(child.name)} className={`hover:underline cursor-context-menu ${child.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
+                                            {child.name}
+                                            {index < data.relationInformation.children.length - 1 && ", "}
                                         </span>
                                     ))}
-                                </div>
-                            )}
-                            {data?.motherOf.length > 0 && (
-                                <div className='w-3/5 md:leading-7'>
-                                    {data?.motherOf?.map((child: { name: string }, index: number) => (
-                                        <span onClick={() => handleMemberSearch(child.name)} key={index} className='hover:underline cursor-context-menu' >
-                                        {child.name}
-                                        {/* Add a comma if it's not the last child, otherwise add a period */}
-                                        {index < data.motherOf.length - 1 && ', ' }
-                                        </span>
-                                    ))}
-                                </div>
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>
                 </>}
 
-                {(data?.phoneNumber || data?.address) &&
+                {(data?.contactInformation) &&
                 <>
                     <div className='flex pt-3 items-center'>
                         <p className='font-semibold whitespace-nowrap pr-4'>Contact Information</p>
@@ -298,16 +312,16 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     </div>
                     <div className='pl-1'>
                         <div className='flex flex-wrap mb-1 border-l border-border_color pl-2'>
-                            {data?.phoneNumber && (
+                            {data?.contactInformation.phoneNumber && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Phone no.</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.phoneNumber}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.contactInformation.phoneNumber}</div>
                                 </>
                             )}
-                            {data?.address && (
+                            {data?.contactInformation.address && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Location</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.address}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.contactInformation.address}</div>
                                 </>
                             )}
                         </div>
@@ -315,7 +329,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                 </>
                 }
 
-                {(data?.occupation || data?.education) &&
+                {(data?.personalInformation) &&
                 <>
                     <div className='flex pt-3 items-center'>
                         <p className='font-semibold whitespace-nowrap pr-4'>Personal Information</p>
@@ -323,26 +337,24 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     </div>
                     <div className='pl-1'>
                         <div className='flex flex-wrap pb-1 border-l border-border_color pl-2'>
-                            {data?.occupation && (
+                            {data?.personalInformation.occupation && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Occupation</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.occupation}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.personalInformation.occupation}</div>
                                 </>
                             )}
-                            {data?.education && (
+                            {data?.personalInformation.education && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Education</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.education}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.personalInformation.education}</div>
                                 </>
                             )}
                         </div>
                     </div>
-                </>
-                }
+                </>}
                 <div className='flex flex-col mt-4 gap-2'>
-                    <HoldButton holdDuration={3000} disabled={disableButton} buttonText={data?.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data.id)} />
-                    <HoldButton type='outline' disabled={disableButton} buttonText='Delete Member' onClick={() => handleDelete(data.id)} />
-                    {/* <LinkButtonOutline buttonText='Edit Member' linkto='/moderator/edit_member/1'/> */}
+                    <HoldButton holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />
+                    <HoldButton type='outline' buttonText='Delete Member' onClick={() => handleDelete(data?.generalInformation.id)} />
                 </div>
             </>}
         </Container>

@@ -54,7 +54,7 @@ function OnDate({ events, selectedDate }: { events: Event[], selectedDate: any }
                             </div>
                         </div>
                         {item.age !== 'n/a' && item.date.getFullYear() !== parseInt(format(selectedDate, 'yyyy')) && (
-                            <p className="font-light border-l border-border_color w-10 text-center text-sm">
+                            <p className="font-light border-l border-border_color min-w-10 text-center text-sm px-0.5">
                                 {item.age}
                             </p>
                         )}

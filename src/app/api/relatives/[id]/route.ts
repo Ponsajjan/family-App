@@ -102,11 +102,56 @@ export async function GET(request: Request) {
     const siblings = Array.from(siblingSet);
 
     // Step 3: Respond with enriched data
-    return NextResponse.json({
-      data: {
-        ...member,
-        siblings,
+    const responseData = {
+      ...{generalInformation: {
+          ...(member.name ? { name: member.name } : {}),
+          ...(member.gender ? { gender: member.gender } : {}),
+          ...(member.verified !== undefined ? { verified: member.verified } : {}),
+          ...(member.deceased !== undefined ? { deceased: member.deceased } : {}),
+          ...(member.birthDate ? { birthDate: member.birthDate } : {}),
+          ...(member.birthMonth ? { birthMonth: member.birthMonth } : {}),
+          ...(member.birthYear ? { birthYear: member.birthYear } : {}),
+          ...(member.deathDate ? { deathDate: member.deathDate } : {}),
+          ...(member.deathMonth ? { deathMonth: member.deathMonth } : {}),
+          ...(member.deathYear ? { deathYear: member.deathYear } : {}),
+        }
       },
+      ...(member.father || member.mother || member.partner || 
+          member.fatherOf.length > 0 || member.motherOf.length > 0 || 
+          siblings.length > 0 || member.nonDescendantRelation[0]) ? {
+        relationInformation: {
+          ...(member.father ? { father: member.father.name } : {}),
+          ...(member.mother ? { mother: member.mother.name } : {}),
+          ...(member.partner ? { partner: member.partner.name } : {}),
+          ...(member.fatherOf.length > 0 || member.motherOf.length > 0 ? { 
+            children: [...member.fatherOf, ...member.motherOf] 
+          } : {}),
+          ...(siblings.length > 0 ? { siblings: siblings } : {}),
+          ...(member.nonDescendantRelation[0] ? { 
+            nonDescendantRelations: member.nonDescendantRelation[0] 
+          } : {}),
+        }
+      } : {},
+    
+      ...(member.phoneNumber || member.address) ? {
+        contactInformation: {
+          ...(member.phoneNumber ? { phoneNumber: member.phoneNumber } : {}),
+          ...(member.address ? { address: member.address } : {}),
+        }
+      } : {},
+    
+      ...(member.occupation || member.education) ? {
+        personalInformation: {
+          ...(member.occupation ? { occupation: member.occupation } : {}),
+          ...(member.education ? { education: member.education } : {}),
+        }
+      } : {},
+    
+      ...(member.descendant !== undefined ? { descendant: member.descendant } : {})
+    };
+
+    return NextResponse.json({
+      data: responseData,
     });
   } catch (error) {
     console.error("Error fetching member data:", error);

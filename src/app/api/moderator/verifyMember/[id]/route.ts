@@ -5,7 +5,6 @@ import { verifyToken } from "@/utils/auth";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '', 10);
-  const verifiedOnly = url.searchParams.get('verified');
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
   
@@ -45,24 +44,36 @@ export async function GET(request: Request) {
         deathYear: true,
         descendant: true,
         father: {
-          select: { id: true, name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
+          select: { 
+            id: true, 
+            name: true,
+            verified: true,
+          },
         },
         mother: {
-          select: { id: true, name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
+          select: { 
+            id: true, 
+            name: true,
+            verified: true,
+          },
         },
         partner: {
-          select: { name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
+          select: { 
+            name: true,
+            verified: true,
+          },
         },
         fatherOf: {
-          select: { name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
+          select: { 
+            name: true,
+            verified: true,
+          },
         },
         motherOf: {
-          select: { name: true },
-          where: verifiedOnly ? { verified: true } : undefined,
+          select: { 
+            name: true,
+            verified: true, 
+          },
         },
         nonDescendantRelation: {
           select: {
@@ -87,9 +98,11 @@ export async function GET(request: Request) {
         where: {
           fatherId: member.father.id,
           id: { not: id }, // Exclude the current member
-          ...(verifiedOnly && { verified: true }),
         },
-        select: { name: true },
+        select: { 
+          name: true,
+          verified: true,
+        },
       });
       fatherChildren.forEach((child) => siblingSet.add(child.name));
     }
@@ -99,9 +112,11 @@ export async function GET(request: Request) {
         where: {
           motherId: member.mother.id,
           id: { not: id }, // Exclude the current member
-          ...(verifiedOnly && { verified: true }),
         },
-        select: { name: true },
+        select: { 
+          name: true,
+          verified: true,
+        },
       });
       motherChildren.forEach((child) => siblingSet.add(child.name));
     }
@@ -110,11 +125,57 @@ export async function GET(request: Request) {
     const siblings = Array.from(siblingSet);
 
     // Step 3: Respond with enriched data
-    return NextResponse.json({
-      data: {
-        ...member,
-        siblings,
+    const responseData = {
+      ...{generalInformation: {
+          ...(member.id ? { id: member.id } : {}),
+          ...(member.name ? { name: member.name } : {}),
+          ...(member.gender ? { gender: member.gender } : {}),
+          ...(member.verified !== undefined ? { verified: member.verified } : {}),
+          ...(member.deceased !== undefined ? { deceased: member.deceased } : {}),
+          ...(member.birthDate ? { birthDate: member.birthDate } : {}),
+          ...(member.birthMonth ? { birthMonth: member.birthMonth } : {}),
+          ...(member.birthYear ? { birthYear: member.birthYear } : {}),
+          ...(member.deathDate ? { deathDate: member.deathDate } : {}),
+          ...(member.deathMonth ? { deathMonth: member.deathMonth } : {}),
+          ...(member.deathYear ? { deathYear: member.deathYear } : {}),
+        }
       },
+      ...(member.father || member.mother || member.partner || 
+          member.fatherOf.length > 0 || member.motherOf.length > 0 || 
+          siblings.length > 0 || member.nonDescendantRelation[0]) ? {
+        relationInformation: {
+          ...(member.father ? { father: member.father.name, v_father: member.father.verified } : {}),
+          ...(member.mother ? { mother: member.mother.name, v_mother: member.mother.verified } : {}),
+          ...(member.partner ? { partner: member.partner.name, v_partner: member.partner.verified } : {}),
+          ...(member.fatherOf.length > 0 || member.motherOf.length > 0 ? { 
+            children: [...member.fatherOf, ...member.motherOf] 
+          } : {}),
+          ...(siblings.length > 0 ? { siblings: siblings } : {}),
+          ...(member.nonDescendantRelation[0] ? { 
+            nonDescendantRelations: member.nonDescendantRelation[0] 
+          } : {}),
+        }
+      } : {},
+    
+      ...(member.phoneNumber || member.address) ? {
+        contactInformation: {
+          ...(member.phoneNumber ? { phoneNumber: member.phoneNumber } : {}),
+          ...(member.address ? { address: member.address } : {}),
+        }
+      } : {},
+    
+      ...(member.occupation || member.education) ? {
+        personalInformation: {
+          ...(member.occupation ? { occupation: member.occupation } : {}),
+          ...(member.education ? { education: member.education } : {}),
+        }
+      } : {},
+    
+      ...(member.descendant !== undefined ? { descendant: member.descendant } : {})
+    };
+
+    return NextResponse.json({
+      data: responseData,
     });
   } catch (error) {
     console.error("Error fetching member data:", error);

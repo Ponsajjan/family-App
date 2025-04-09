@@ -90,7 +90,7 @@ export default function Terms() {
               <li>Their partner (spouse or significant other)</li>
             </ul>
             <p className="mt-4 italic opacity-65">
-             Note: Extended family members (such as in-laws and cousins-in-law) are excluded to maintain simplicity and ensure that each member remains relevant to one another.
+             Note: Extended family members (such as in-laws) are excluded to maintain simplicity and ensure that each member remains relevant to one another.
             </p>
           </div>
 
