@@ -77,68 +77,56 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             }
             // Handle API response
             if (!response.ok) {
-                if (toast) {
-                toast.show(result.error || "Something went wrong", "error", 5000);
+                toast?.show(result.error || "Something went wrong", "error", 5000);
                 return;
-                }
-                throw new Error(result.error || "Something went wrong");
-                // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
             }
-            if (toast) {
-                toast.show(result.message, "success", 5000);
-            }
-            const prevVerified = data?.verified
+    
+            toast?.show(result.message, "success", 5000);
+    
+            const wasVerified = data?.generalInformation.verified;
+            const isNowVerified = !wasVerified;
 
             setData((prev: any) => ({
-                ...prev, verified: !data?.verified
+                ...prev, generalInformation: {
+                    ...prev.generalInformation, // Preserve all existing properties
+                    verified: isNowVerified // Toggle the verified status
+                }
             }));
-
-
-            if (selectedFilter == 'Verified' && prevVerified == true) {
-                const updatedData = members.filter(
-                    (item: any) => item.id !== memberId
-                );
-                setMembers((updatedData));
-            }
-
-            if (selectedFilter == 'Verified' && prevVerified == false) {
-                setMembers((prev: any) => [...new Set([...prev, showDetailsFor])]);
-            }
-
-            if (selectedFilter == 'Unverified' && prevVerified == false) {
-                const updatedData = members.filter(
-                    (item: any) => item.id !== memberId
-                );
-                setMembers((updatedData));
-            }
-
-            if (selectedFilter == 'Unverified' && prevVerified == true) {
-                setMembers((prev: any) => [...new Set([...prev, showDetailsFor])]);
-            }
-
-            if (selectedFilter == 'All') {
-                const updatedData = members.map((item: any) => 
-                    item.id === memberId 
-                    ? { 
-                        ...item, 
-                        generalInformation: {
-                        ...item.generalInformation, // Preserve all existing properties
-                        verified: !item.generalInformation?.verified // Toggle the verified status
+   
+            // Handle member update logic based on selectedFilter
+            const shouldRemove =
+                (selectedFilter === 'Verified' && !isNowVerified) ||
+                (selectedFilter === 'Unverified' && isNowVerified);
+    
+            const shouldAdd =
+                (selectedFilter === 'Verified' && isNowVerified) ||
+                (selectedFilter === 'Unverified' && !isNowVerified);
+    
+            if (shouldRemove) {
+                setMembers((prev: any) => prev.filter((item: any) => item.id !== memberId));
+            } else if (shouldAdd) {
+                setMembers((prev: any) => {
+                    const exists = prev.some((item: any) => item.id === memberId);
+                    return exists ? prev : [...prev, showDetailsFor];
+                });
+            } else if (selectedFilter === 'All') {
+                const updatedData = members.map((item: any) =>
+                    item.id === memberId
+                        ? {
+                            ...item,
+                            verified: !item.verified,
                         }
-                    } 
-                    : item
+                        : item
                 );
                 setMembers(updatedData);
             }
+    
         } catch (error) {
-            console.error("Error submitting form:", error);
-            if (toast) {
-                toast.show("An error occurred. Please try again.", "error", 5000);
-            } else {
-                alert("An error occurred. Please try again.");
-            }
-        };
-    }
+            console.error("Error verifying member:", error);
+            toast?.show("An error occurred. Please try again.", "error", 5000);
+        }
+    };
+    
 
     const handleDelete = async (memberId: number) => {
         try {

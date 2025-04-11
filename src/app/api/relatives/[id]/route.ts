@@ -53,10 +53,10 @@ export async function GET(request: Request) {
           select: { name: true },
         },
         fatherOf: {
-          select: { name: true },
+          select: { name: true, order: true },
         },
         motherOf: {
-          select: { name: true },
+          select: { name: true, order: true },
         },
         nonDescendantRelation: {
           select: {
@@ -74,32 +74,52 @@ export async function GET(request: Request) {
     }
 
     // Step 2: Fetch siblings using father's and mother's IDs
-    const siblingSet = new Set<string>(); // To avoid duplicate names
-
+    type SiblingInfo = {
+      name: string | null;
+      order: number | null;
+    };
+    
+    // Then modify your implementation like this:
+    const siblingMap = new Map<string, SiblingInfo>(); // Use name as unique key
+    
     if (member.father?.id) {
       const fatherChildren = await prisma.member.findMany({
         where: {
           fatherId: member.father.id,
-          id: { not: id }, // Exclude the current member
+          id: { not: member.id }, // Exclude the current member
         },
-        select: { name: true },
+        select: { 
+          name: true,
+          order: true,
+        },
       });
-      fatherChildren.forEach((child) => siblingSet.add(child.name));
+      fatherChildren.forEach((child) => {
+        if (child.name) {
+          siblingMap.set(child.name, child);
+        }
+      });
     }
-
+    
     if (member.mother?.id) {
       const motherChildren = await prisma.member.findMany({
         where: {
           motherId: member.mother.id,
-          id: { not: id }, // Exclude the current member
+          id: { not: member.id }, // Exclude the current member
         },
-        select: { name: true },
+        select: { 
+          name: true,
+          order: true,
+        },
       });
-      motherChildren.forEach((child) => siblingSet.add(child.name));
+      motherChildren.forEach((child) => {
+        if (child.name) {
+          siblingMap.set(child.name, child);
+        }
+      });
     }
-
-    // Convert the sibling set to an array
-    const siblings = Array.from(siblingSet);
+    
+    // Convert the sibling map values to an array
+    const siblings = Array.from(siblingMap.values());
 
     // Step 3: Respond with enriched data
     const responseData = {

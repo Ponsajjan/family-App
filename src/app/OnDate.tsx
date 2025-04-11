@@ -23,7 +23,7 @@ function OnDate({ events, selectedDate }: { events: Event[], selectedDate: any }
                 ...member,
                 type,
                 date,
-                age: year === 1900 ? 'n/a' : differenceInYears(selectedDate, date),
+                age: year === 1600 ? 'n/a' : differenceInYears(selectedDate, date),
             });
         };
         if (member.birthday) addEvent(new Date(member.birthday), 'birthday');
@@ -47,7 +47,7 @@ function OnDate({ events, selectedDate }: { events: Event[], selectedDate: any }
                             <div className="text-xs font-light capitalize flex items-baseline gap-2">
                                 <span>
                                     {item.type === 'birthday' ? 'Born At:' : 'Died At:'}{' '}
-                                    {item.date.getFullYear() === 1900
+                                    {item.date.getFullYear() === 1600
                                         ? format(item.date, 'd MMM')
                                         : format(item.date, 'd MMM yyyy')}
                                 </span>

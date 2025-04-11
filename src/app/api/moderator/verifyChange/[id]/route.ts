@@ -4,29 +4,24 @@ import { verifyToken } from "@/utils/auth";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const memberId = parseInt(url.pathname.split('/').pop() || '');
+  const requestId = parseInt(url.pathname.split('/').pop() || '');
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
-  // const editDataId = await request.json();
-
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   try {
-    const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
-
-    if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
+    const changeData = await prisma.requestDetails.findUnique({
+      where: { id: requestId },
+      select: {
+        details: true,
+        memberId: true,
+      },
+    });
 
     const member = await prisma.member.findUnique({
-      where: { id: memberId },
+      where: { id: changeData?.memberId },
       select: {
         id: true,
         name: true,
-        verified: true,
         gender: true,
         phoneNumber: true,
         address: true,
@@ -53,14 +48,6 @@ export async function GET(request: Request) {
             siblingNames: true,
           },
         },
-        pendingVerification: {
-            where: {
-              id: 1
-            },
-            select: {
-              details: true
-            }
-          },
       },
     });
 
@@ -71,35 +58,99 @@ export async function GET(request: Request) {
       );
     }
 
-    const data = {
-      formData: {
-        id: member.id,
-        name: member.name,
-        gender: member.gender,
-        verified: member.verified,
-        pendingVerification: member.pendingVerification?.length,
-        birth_date: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
-        birth_month: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
-        birth_year: member.birthYear ? String(member.birthYear) : null,
-        deceased: member.deceased,
-        death_date: member.deathDate ? String(member.deathDate).padStart(2, '0') : null,
-        death_month: member.deathMonth ? String(member.deathMonth).padStart(2, '0') : null,
-        death_year: member.deathYear ? String(member.deathYear) : null,
-        phone_number: member.phoneNumber,
-        occupation: member.occupation,
-        education: member.education,
-        address: member.address,
-        descendant: member.descendant ? 'Yes' : 'No',
-        father: member.nonDescendantRelation?.[0]?.fatherName,
-        mother: member.nonDescendantRelation?.[0]?.motherName,
-        siblings: member.nonDescendantRelation?.[0]?.siblingNames,
-      },
-      changeData: {
-        editData: member.pendingVerification
-      },
+    const formData = {
+      name: member.name,
+      gender: member.gender,
+      birthDate: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
+      birthMonth: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
+      birthYear: member.birthYear ? String(member.birthYear) : null,
+      deceased: member.deceased,
+      deathDate: member.deathDate ? String(member.deathDate).padStart(2, '0') : null,
+      deathMonth: member.deathMonth ? String(member.deathMonth).padStart(2, '0') : null,
+      deathYear: member.deathYear ? String(member.deathYear) : null,
+      phoneNumber: member.phoneNumber,
+      occupation: member.occupation,
+      education: member.education,
+      address: member.address,
+      descendant: member.descendant ? 'Yes' : 'No',
+      father: member.nonDescendantRelation?.[0]?.fatherName,
+      mother: member.nonDescendantRelation?.[0]?.motherName,
+      siblings: member.nonDescendantRelation?.[0]?.siblingNames,
     };
 
-    return NextResponse.json({ data });
+    let changeDetails: any = {};
+    try {
+      changeDetails = JSON.parse(changeData?.details || '{}');
+    } catch (e) {
+      console.error('Error parsing change details:', e);
+    }
+
+    // Helper function to normalize values for comparison
+    const normalizeValue = (value: any, key: string): string => {
+      if (value === null || value === undefined) return 'null';
+      
+      // Handle special cases
+      if (key === 'descendant') {
+        return (value === true || value === 'Yes') ? 'true' : 'false';
+      }
+      if (key === 'deceased') {
+        return (value === true || value === 'Yes') ? 'true' : 'false';
+      }
+      
+      // Convert numbers to strings
+      if (typeof value === 'number') return String(value);
+      
+      return String(value).trim();
+    };
+
+    // Format field names for display
+    const formatFieldName = (key: string): string => {
+      return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase());
+    };
+
+    // Generate the comparison HTML
+    const changesJsx = Object.entries(formData).map(([key, value]) => {
+      const newValue = changeDetails[key] !== undefined ? changeDetails[key] : value;
+      
+      // Normalize both values for accurate comparison
+      const normOriginal = normalizeValue(value, key);
+      const normNew = normalizeValue(newValue, key);
+      
+      const hasChanged = normOriginal !== normNew;
+      
+      const displayValue = (val: any) => {
+        if (val === null || val === undefined) return '-';
+        if (key === 'descendant') return val === true || val === 'Yes' ? 'Yes' : 'No';
+        if (key === 'deceased') return val === true || val === 'Yes' ? 'Yes' : 'No';
+        return String(val);
+      };
+
+      return `
+        <div class="flex gap-2 items-baseline" key="${key}">
+          <p class="whitespace-nowrap font-semibold min-w-[120px]">${formatFieldName(key)}:</p>
+          <div class="flex flex-wrap items-center gap-1">
+            ${hasChanged ? `<p class="line-through">${displayValue(value)}</p>` : ''}
+            <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue)}</p>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const htmlContent = `
+      <div class="space-y-2 bg-main_background text-text_color">
+        ${changesJsx}
+      </div>
+    `;
+
+    return NextResponse.json({ 
+      data: {
+        formData,
+        changeData: changeDetails,
+        htmlContent
+      } 
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

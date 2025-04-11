@@ -200,10 +200,11 @@ export default function VerifyMember() {
       <div className="w-full md:flex">
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
           {!loadingList && !members ? (
-          <p className='p-4'>No members found.</p>
+            <p className='p-4'>No members found.</p>
           ) : 
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto mt-4'>
+              <span className="border border-border_color rounded-md px-2 py-0.5">{selectedFilter} Members</span>
               {members.map((member: any) => (
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
@@ -237,13 +238,13 @@ export default function VerifyMember() {
                             ) : 'No family relationship assigned yet'}
                         </div>
                       </div>
-                      {member.verified && <Verified/>}
+                      {params.filter == 'All' ? member.verified && <Verified/> : ''}
                     </div>
                   </div>
                 </div>
               ))}
               <div className="h-10 px-4 py-2">
-                {loadingList && <Loading />}
+                {loadingList && <p className="text-text_color">Loading...</p>}
                 {!loadingList && !hasMore && <p className="text-text_color">, , ,</p> }
               </div>
             </div>

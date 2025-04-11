@@ -43,7 +43,7 @@ export default function Details({ showMember, openDetails }: any) {
         };
       
         fetchMemberDetails();
-      }, [showMember, token]); 
+      }, [showMember, token]);
 
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
@@ -100,10 +100,15 @@ export default function Details({ showMember, openDetails }: any) {
                                     <div className='w-3/5 md:leading-7'>{data?.relationInformation.mother}</div>
                                 </>
                             )}
-                            {data?.relationInformation.siblings?.length > 0 && (
+                            {data?.relationInformation.siblings && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.siblings?.join(", ")}</div>
+                                    <div className='w-3/5 md:leading-7'>
+                                        {data.relationInformation.siblings
+                                                .sort((a: any, b: any) => a.order - b.order)
+                                                .map((sibling: { name: string, order: number }) => sibling.name)
+                                                .join(", ")}
+                                    </div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.fatherName && (
@@ -131,11 +136,14 @@ export default function Details({ showMember, openDetails }: any) {
                                 </>
                             )}
 
-                            {data?.relationInformation.children0 && (
+                            {data?.relationInformation.children && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
                                     <div className='w-3/5 md:leading-7'>
-                                        {data.relationInformation.children.map((child: { name: string }) => child.name).join(", ")}
+                                        {data.relationInformation.children
+                                            .sort((a: any, b: any) => a.order - b.order)
+                                            .map((child: { name: string, order: number }) => child.name)
+                                            .join(", ")}
                                     </div>
                                 </>
                             )}

@@ -44,15 +44,15 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
           const weekEndDate = weekStartDate + 6; // Sunday of the same week
       
           if (eventDay < todayDate) {
-            pastEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            pastEvents.push({ ...member, type, date, age: date.getFullYear() == 1600 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay === todayDate) {
-            todayEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            todayEvents.push({ ...member, type, date, age: date.getFullYear() == 1600 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay === todayDate + 1) {
-            tomorrowEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            tomorrowEvents.push({ ...member, type, date, age: date.getFullYear() == 1600 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else if (eventDay > todayDate && eventDay <= weekEndDate) {
-            thisWeekEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            thisWeekEvents.push({ ...member, type, date, age: date.getFullYear() == 1600 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           } else {
-            upcomingEvents.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
+            upcomingEvents.push({ ...member, type, date, age: date.getFullYear() == 1600 ? 'n/a' : (today.getFullYear() - date.getFullYear()) });
           }
         }
       };
@@ -63,7 +63,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
   } else { //for other months
     data?.forEach((member:any) => {
       const selectedMonth = (date:any, type:any) => {
-        selectedMonthData.push({ ...member, type, date, age: date.getFullYear() == 1900 ? 'n/a' : (new Date(year, month).getFullYear() - date.getFullYear()) });
+        selectedMonthData.push({ ...member, type, date, age: date.getFullYear() == 1600 ? 'n/a' : (new Date(year, month).getFullYear() - date.getFullYear()) });
       };
 
       if (member.birthday) selectedMonth(new Date(member.birthday), 'birthday');
@@ -112,7 +112,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
                     <div className='text-xs font-light capitalize flex items-baseline gap-2'>
                       <span className="leading-3">
                       {item.type === 'birthday' ? 'Born At: ' : 'Died At: '} 
-                      {item.date.getFullYear() == 1900 
+                      {item.date.getFullYear() == 1600 
                       ? format(item.date, 'd MMM') 
                       : !item.hasDate 
                         ? format(item.date, 'MMM yyyy') 
