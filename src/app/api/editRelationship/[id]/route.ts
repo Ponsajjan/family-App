@@ -177,8 +177,6 @@ export async function PUT(request: Request) {
     if (hasVerified) {
       await prisma.requestDetails.create({
         data: {
-          name: member.name,
-          gender: member.gender,
           descendantOf: forDescendanceOf,
           type: "Edit Relationship", // Type of request
           details: JSON.stringify({ deleteData, hasPartner, childrenOrder }), // Store the update data as a JSON string

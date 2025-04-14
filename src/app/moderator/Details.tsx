@@ -341,8 +341,8 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     </div>
                 </>}
                 <div className='flex flex-col mt-4 gap-2'>
-                    <HoldButton holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />
-                    <HoldButton type='outline' buttonText='Delete Member' onClick={() => handleDelete(data?.generalInformation.id)} />
+                    <HoldButton disabled={deleted} holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />
+                    <HoldButton disabled={deleted} type='outline' buttonText='Delete Member' onClick={() => handleDelete(data?.generalInformation.id)} />
                 </div>
             </>}
         </Container>

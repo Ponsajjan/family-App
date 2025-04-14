@@ -114,7 +114,6 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request, context: any) {
-  // const { params } = context
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const authHeader = request.headers.get('Authorization');
@@ -154,15 +153,38 @@ export async function PUT(request: Request, context: any) {
         descendantOf: forDescendanceOf 
       },
       select: {
+        id: true,
         name: true,
         gender: true,
+        phoneNumber: true,
+        address: true,
+        occupation: true,
+        education: true,
+        birthDate: true,
+        birthMonth: true,
+        birthYear: true,
+        deceased: true,
+        deathDate: true,
+        deathMonth: true,
+        deathYear: true,
         descendant: true,
         father: true,
         mother: true,
         partner: true,
         fatherOf: true,
         motherOf: true,
-        verified: true
+        verified: true,
+        partnerId: true,
+        fatherId: true,
+        motherId: true,
+        nonDescendantRelation: {
+          select: {
+            id: true,
+            fatherName: true,
+            motherName: true,
+            siblingNames: true,
+          },
+        },
       },
     });
 
@@ -209,29 +231,9 @@ export async function PUT(request: Request, context: any) {
       }
     }
 
-    // Check if the member is verified
-    if (member.verified) {
-      // If verified, create a pending verification request instead of updating the member
-      await prisma.requestDetails.create({
-        data: {
-          name: member.name,
-          gender: member.gender,
-          descendantOf: forDescendanceOf,
-          type: "Edit Member",
-          details: JSON.stringify(updatedData),
-          memberId: memberId,
-        },
-      });
-
-      return NextResponse.json({
-        success: true,
-        message: "Update request has been added for verification.",
-      });
-    }
-
-    // If the member is not verified, proceed with the update logic
     const deceased = updatedData.deceased === true;
 
+    // Prepare the update data
     const memberUpdateData = {
       name: updatedData.name,
       gender: updatedData.gender,
@@ -249,33 +251,105 @@ export async function PUT(request: Request, context: any) {
       descendant: updatedData.descendant,
     };
 
-    const updatedMember = await prisma.member.update({
-      where: { id: memberId },
-      data: memberUpdateData,
+    // Filter out unchanged fields by comparing with existing member data
+    const filteredUpdateData: Record<string, any> = {};
+    
+    Object.entries(memberUpdateData).forEach(([key, value]) => {
+      if (JSON.stringify(value) !== JSON.stringify(member[key as keyof typeof member])) {
+        filteredUpdateData[key] = value;
+      }
     });
 
-    if (updatedData.descendant === false && (updatedData.father || updatedData.mother || updatedData.siblings)) {
-      await prisma.nonDescendantRelation.upsert({
-        where: { memberId: memberId },
-        update: {
-          fatherName: updatedData.father || null,
-          motherName: updatedData.mother || null,
-          siblingNames: updatedData.siblings || null,
-        },
-        create: {
-          memberId: memberId,
-          fatherName: updatedData.father || null,
-          motherName: updatedData.mother || null,
-          siblingNames: updatedData.siblings || null,
-        },
+    // If no fields are changed, return early
+    if (Object.keys(filteredUpdateData).length === 0) {
+      return NextResponse.json(
+        { error: "No changes detected." },
+        { status: 400 }
+      );
+    }
+    // Check if the member is verified
+    if (member.verified) {
+
+      // Check for non-descendant relation changes
+      let nonDescendantChanges: Record<string, any> = {};
+      if (updatedData.descendant === false) {
+        const currentNonDescendant = member.nonDescendantRelation?.[0]; // Access first element of array
+        
+        if (updatedData.father !== undefined && updatedData.father !== currentNonDescendant?.fatherName) {
+          nonDescendantChanges.father = updatedData.father || null;
+        }
+        if (updatedData.mother !== undefined && updatedData.mother !== currentNonDescendant?.motherName) {
+          nonDescendantChanges.mother = updatedData.mother || null;
+        }
+        if (updatedData.siblings !== undefined && JSON.stringify(updatedData.siblings) !== JSON.stringify(currentNonDescendant?.siblingNames)) {
+          nonDescendantChanges.siblings = updatedData.siblings || null;
+        }
+      }
+
+      // If there are any changes (either member data or non-descendant relations)
+      if (Object.keys(filteredUpdateData).length > 0 || Object.keys(nonDescendantChanges).length > 0) {
+        const requestDetails = {
+          ...(Object.keys(filteredUpdateData).length > 0 && { ...filteredUpdateData }),
+          ...(Object.keys(nonDescendantChanges).length > 0 && { ...nonDescendantChanges })
+        };
+
+        await prisma.requestDetails.create({
+          data: {
+            descendantOf: forDescendanceOf,
+            type: "Edit Member",
+            details: JSON.stringify(requestDetails),
+            memberId: memberId,
+          },
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: "Update request has been added for verification.",
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "No changes detected",
       });
+    } else {
+      // If the member is not verified, proceed with the update logic
+      try {
+        await prisma.member.update({
+          where: { id: memberId },
+          data: memberUpdateData,
+        });
+    
+        if (updatedData.descendant === false && (updatedData.father || updatedData.mother || updatedData.siblings)) {
+          await prisma.nonDescendantRelation.upsert({
+            where: { memberId: memberId },
+            update: {
+              fatherName: updatedData.father || null,
+              motherName: updatedData.mother || null,
+              siblingNames: updatedData.siblings || null,
+            },
+            create: {
+              memberId: memberId,
+              fatherName: updatedData.father || null,
+              motherName: updatedData.mother || null,
+              siblingNames: updatedData.siblings || null,
+            },
+          });
+        }
+    
+        return NextResponse.json({
+          success: true,
+          message: "Member updated successfully",
+        });
+      } catch (error) {
+        console.error("Error updating member:", error);
+        return NextResponse.json(
+          { error: "Failed to update member" },
+          { status: 500 }
+        );
+      }
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Member updated successfully",
-      data: updatedMember,
-    });
   } catch (error: any) {
     console.error("Error updating member:", error);
 

@@ -47,7 +47,7 @@ export default function AddMemberDetails () {
       const deceased = formData.deceased;
       const descendant = formData.descendant === "Yes";
       const memberData = {
-        name: capitalizeWords(formData.name),
+        name: capitalizeWords(formData.name).trimEnd(),
         gender: formData.gender,
         birthDate: formData.birth_date ? parseInt(formData.birth_date, 10) : null,
         birthMonth: formData.birth_month ? parseInt(formData.birth_month, 10) : null,
@@ -57,13 +57,13 @@ export default function AddMemberDetails () {
         deathMonth: deceased && formData.death_month ? parseInt(formData.death_month, 10) : null,
         deathYear: deceased && formData.death_year ? parseInt(formData.death_year, 10) : null,
         phoneNumber: formData.phone_number,
-        occupation: formData.occupation,
-        education: formData.education,
-        address: formData.address,
+        occupation: formData.occupation.trimEnd(),
+        education: formData.education.trimEnd(),
+        address: formData.address.trimEnd(),
         descendant: descendant,
-        father: descendant ? null : capitalizeWords(formData.father),
-        mother: descendant ? null : capitalizeWords(formData.mother),
-        siblings: descendant ? null : capitalizeWords(formData.siblings)
+        father: descendant ? null : capitalizeWords(formData.father).trimEnd(),
+        mother: descendant ? null : capitalizeWords(formData.mother).trimEnd(),
+        siblings: descendant ? null : capitalizeWords(formData.siblings).trimEnd()
       };
 
       const response = await fetch("/api/addMember", {

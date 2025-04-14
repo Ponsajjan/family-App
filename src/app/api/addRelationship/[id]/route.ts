@@ -205,8 +205,6 @@ export async function PUT(request: Request) {
     if (verifiedMembers.length > 0) {
       await prisma.requestDetails.create({
         data: {
-          name: member.name,
-          gender: member.gender,
           descendantOf: member.descendantOf,
           type: "Add Relationship",
           details: JSON.stringify(updatedData), // Store the update data as a JSON string

@@ -87,7 +87,7 @@ export default function Terms() {
             <h2 className="text-xl font-semibold mb-4">Access is limited to:</h2>
             <ul className="list-disc list-inside space-y-2">
               <li>Direct descendants of {head}</li>
-              <li>Their partner (spouse or significant other)</li>
+              <li>Their partner ( Husband or Wife )</li>
             </ul>
             <p className="mt-4 italic opacity-65">
              Note: Extended family members (such as in-laws) are excluded to maintain simplicity and ensure that each member remains relevant to one another.
@@ -99,7 +99,7 @@ export default function Terms() {
               <h2 className="text-xl font-semibold mb-4">Guidelines:</h2>
               <ul className="list-disc list-inside space-y-2">
                 <li>Ensure family descendants are accurately recorded</li>
-                <li>Add family relationships (Partner | Children) if any.</li>
+                <li>Add family relationships ( Partner | Children ) if any.</li>
               </ul>
               <p className="mt-4 italic opacity-65">
                 Note: Member information can be locked to maintain data integrity. For locked members, changes will require moderator approval or contact

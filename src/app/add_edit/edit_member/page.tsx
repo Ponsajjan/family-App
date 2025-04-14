@@ -57,11 +57,7 @@ export default function EditMemberDetails () {
           setAllowedEdit(data.allowEdit)
           setErrors(EditMemberDefaultFormErrorValue);
         } catch (error: any) {
-          if (toast) {
-            toast.show(error.message || "Failed to update member", "error", 5000);
-          } else {
-            alert(error.message || "Failed to update member.");
-          }
+          toast?.show(error.message || "Failed to fetch member", "error", 5000);
         } finally {
           setLoading(false)
         }
@@ -74,7 +70,6 @@ export default function EditMemberDetails () {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowList(false)
     const { name, value, type, checked } = e.target;
-    const id = formData.id;
 
     setFormData((prev) => ({
       ...prev,
@@ -104,7 +99,7 @@ export default function EditMemberDetails () {
       const descendant = formData.descendant === "Yes";
       const memberData = {
         id: formData.id,
-        name: formData.name,
+        name: formData.name.trimEnd(),
         gender: formData.gender,
         birthDate: formData.birth_date || null,
         birthMonth: formData.birth_month || null,
@@ -114,13 +109,13 @@ export default function EditMemberDetails () {
         deathMonth: deceased ? formData.death_month || null : null,
         deathYear: deceased ? formData.death_year || null : null,
         phoneNumber: formData.phone_number,
-        occupation: formData.occupation,
-        education: formData.education,
-        address: formData.address,
+        occupation: formData.occupation.trimEnd(),
+        education: formData.education.trimEnd(),
+        address: formData.address.trimEnd(),
         descendant: descendant,
-        father: descendant ? null : formData.father, 
-        mother: descendant ? null : formData.mother,
-        siblings: descendant ? null : formData.siblings
+        father: descendant ? null : formData.father.trimEnd(), 
+        mother: descendant ? null : formData.mother.trimEnd(),
+        siblings: descendant ? null : formData.siblings.trimEnd()
       };
       const response = await fetch(`/api/editMember/${formData.id}`, {
         method: "PUT",
@@ -142,11 +137,7 @@ export default function EditMemberDetails () {
       setFormData(EditMemberDefaultFormValue);
       setErrors(EditMemberDefaultFormErrorValue);
     } catch (error: any) {
-      if (toast) {
-        toast.show(error.error || "Failed to update member", "error", 5000);
-      } else {
-        alert(error.error || "Failed to update member.");
-      }
+      toast?.show(error.message || "Failed to update member", "error", 5000);
     } finally {
       setSubmitting(false);
     }

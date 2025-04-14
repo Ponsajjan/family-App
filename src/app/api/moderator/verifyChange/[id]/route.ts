@@ -8,6 +8,19 @@ export async function GET(request: Request) {
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
 
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (isNaN(requestId)) {
+    return NextResponse.json({ error: "Invalid request ID" }, { status: 400 });
+  }
+  const decoded = await verifyToken(token);
+  const forDescendanceOf = decoded.forDescendanceOf;
+
+  if (!forDescendanceOf) {
+    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+  }
+
   try {
     const changeData = await prisma.requestDetails.findUnique({
       where: { id: requestId },
@@ -128,8 +141,8 @@ export async function GET(request: Request) {
       };
 
       return `
-        <div class="flex gap-2 items-baseline" key="${key}">
-          <p class="whitespace-nowrap font-semibold min-w-[120px]">${formatFieldName(key)}:</p>
+        <div class="flex gap-2" key="${key}">
+          <p class="whitespace-nowrap font-semibold min-w-[120px]">${formatFieldName(key)}</p>
           <div class="flex flex-wrap items-center gap-1">
             ${hasChanged ? `<p class="line-through">${displayValue(value)}</p>` : ''}
             <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue)}</p>
@@ -146,10 +159,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ 
       data: {
-        formData,
-        changeData: changeDetails,
+        formData:{
+          ...formData,
+          ...changeDetails
+        },
         htmlContent
-      } 
+      },
     });
   } catch (error) {
     console.error(error);

@@ -228,7 +228,7 @@ export default function Page() {
                   name="birth_year"
                   value={formData.birth_year || ""}
                   onChange={handleInputChange}
-                  min="1975"
+                  min="1600"
                   max={new Date().getFullYear()}
                   maxLength={4}
                   label=""
@@ -273,7 +273,7 @@ export default function Page() {
                   name="death_year"
                   value={formData.death_year || ""}
                   onChange={handleInputChange}
-                  min="1975"
+                  min="1600"
                   max={new Date().getFullYear()}
                   maxLength={4}
                   label=""

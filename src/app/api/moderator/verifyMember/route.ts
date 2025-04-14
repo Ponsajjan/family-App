@@ -46,13 +46,14 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         gender: true,
-        phoneNumber: true,
         verified: true,
         father: { select: { name: true } },
         mother: { select: { name: true } },
         partner: { select: { name: true } },
       },
-      orderBy: { name: "asc" },
+      orderBy: {
+        createdAt: 'asc',
+      },
       skip,
       take: limit,
     });

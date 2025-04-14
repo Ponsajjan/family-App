@@ -78,7 +78,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 type="number"
                 placeholder="YYYY(Opt)"
                 name="birth_year"
-                min="1975"
+                min="1600"
                 max={new Date().getFullYear()}
                 maxLength={4}
                 label=""
@@ -138,7 +138,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                         type="number"
                         placeholder="YYYY"
                         name="death_year"
-                        min="1975"
+                        min="1600"
                         max={new Date().getFullYear()}
                         maxLength={4}
                         label=""

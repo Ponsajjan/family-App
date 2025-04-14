@@ -2,10 +2,8 @@
 
 import { Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
-import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
-import VerifyMemberChange from "./_components/VerifyMemberChange";
 import { getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import Details from './Details';
@@ -18,6 +16,7 @@ export default function NewMembers() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [showDetailsFor, setShowDetailsFor] = useState(null);
+  const [currentDetailIndex, setCurrentDetailIndex] = useState<number>(0);
   const token = getCookie('token');
   const router = useRouter(); 
   const [params, setParams] = useState({
@@ -92,6 +91,12 @@ export default function NewMembers() {
     };
   }, [params, hasMore, toast]);
 
+  const handleShowDetails = (value: any) => {
+    setShowDetails(true);
+    setShowDetailsFor(value)
+    setCurrentDetailIndex(0)
+  }
+
   return (
     <div className="w-full">
       <Topnav>
@@ -103,20 +108,36 @@ export default function NewMembers() {
           ) : 
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto mt-4'>
-              {changeList.map((change: any) => (
-                <div key={change.id} className="pl-4">
+              {changeList.map((member: any) => (
+                <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
-                      onClick={() => {setShowDetails(true); setShowDetailsFor(change.id)}} 
+                      onClick={() => handleShowDetails(member.pendingVerification)} 
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
                       <div>
                         <div className="flex flex-wrap gap-2">
-                          {change.gender === "Male" && <Male /> }
-                          {change.gender === "Female" && <Female />}
-                          <div className='font-semibold'>{change.name}</div>
+                          {member.gender === "Male" && <Male /> }
+                          {member.gender === "Female" && <Female />}
+                          <div className='font-semibold'>{member.name}</div>
                         </div>
-                        <p>{change.type}</p>
+                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                            {(member.father || member.mother) ? (
+                            <>
+                              <span className="pr-1 font-semibold">Parents:</span>
+                              {member.father && <span className="pr-1">{member.father.name},</span>}
+                              {member.mother && <span className="pr-1">{member.mother.name}</span>}
+                            </>
+                            ) : member.partner ? (
+                            <div>
+                              <span className="pr-1 font-semibold">Partner:</span>
+                              <span className="pr-1">{member.partner.name}</span>
+                            </div>
+                            ) : 'No family relationship assigned yet'}
+                        </div>
+                      </div>
+                      <div className='pl-3 border-l border-dashed border-border_color min-w-10 text-center'>
+                        {member.pendingVerification.length}
                       </div>
                     </div>
                   </div>
@@ -133,8 +154,15 @@ export default function NewMembers() {
           onClick={() => setShowDetails(false)}
           className={`fixed md:hidden ${showDetails ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
         />
-        <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
-          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}><Details showDetailsFor={showDetailsFor} /></div>
+        <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full h-[70vh] overflow-y-auto lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
+          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
+            <Details 
+              showDetailsFor={showDetailsFor} 
+              setShowDetails={setShowDetails} 
+              currentDetailIndex={currentDetailIndex}
+              setCurrentDetailIndex={setCurrentDetailIndex}
+            />
+          </div>
         </div>
       </div>
     </div>

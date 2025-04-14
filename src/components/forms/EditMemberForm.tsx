@@ -93,7 +93,7 @@ function EditMemberForm({
                         type="number"
                         placeholder="YYYY(Opt)"
                         name="birth_year"
-                        min="1975"
+                        min="1600"
                         max={new Date().getFullYear()}
                         value={formData.birth_year || ''}
                         onChange={handleInputChange}
@@ -142,7 +142,7 @@ function EditMemberForm({
                             type="number"
                             placeholder="YYYY"
                             name="death_year"
-                            min="1975"
+                            min="1600"
                             max={new Date().getFullYear()}
                             value={formData.death_year || ''}
                             onChange={handleInputChange}

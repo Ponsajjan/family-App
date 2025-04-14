@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
-import HoldButton from "./HoldButton";
 
 export default function ModeratorSidenav() {
     const [showNav, setShowNav] = useState(false);
@@ -49,7 +48,7 @@ export default function ModeratorSidenav() {
                     </div>
                     <div>
                         <div onClick={logout} className="py-2 px-2 w-full flex gap-1 items-center justify-center cursor-pointer text-text_color" >
-                            Logout
+                            -- Logout --
                         </div>
                         <div className="flex justify-center items-center py-2">
                             <LightMode />

@@ -1,68 +1,108 @@
-// List all the members with pendingVerification
-
 import { NextResponse } from "next/server"
 import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
 
 export async function GET(request: NextRequest) {
-  // Extract search parameters
+  // Extract and validate pagination parameters
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") || "1", 10); // Current page
-  const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50", 10)));
 
+  // Authentication
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
   
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
   }
-  try{
+
+  try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Invalid token" },
+        { status: 401 }
+      );
     }
 
-    // Calculate skip for pagination
     const skip = (page - 1) * limit;
 
-    // Fetch paginated data from Prisma
-    const pendingChangeList = await prisma.requestDetails.findMany({
-      where: {
-        descendantOf: forDescendanceOf,
-      },
-      select: {
-        id: true,
-        name: true,
-        gender: true,
-        type: true,
-        memberId: true,
-      },
-      orderBy: { name: "asc" },
-      skip,
-      take: limit,
-    });
+    // Fetch data with proper relation inclusion
+    const [members, totalCount] = await Promise.all([
+      prisma.member.findMany({
+        where: {
+          descendantOf: forDescendanceOf,
+          pendingVerification: { some: {} } // Check for at least one pending verification
+        },
+        select: {
+          id: true,
+          name: true,
+          gender: true,
+          verified: true,
+          father: { select: { name: true } },
+          mother: { select: { name: true } },
+          partner: { select: { name: true } },
+          pendingVerification: {
+            select: {
+              id: true,
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc' // Show most recent first
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.member.count({
+        where: {
+          descendantOf: forDescendanceOf,
+          pendingVerification: { some: {} }
+        }
+      })
+    ]);
 
-    // Total count for pagination
-    const totalCount = await prisma.requestDetails.count({
-      where: {
-        descendantOf: forDescendanceOf,
-      },
-    });
-
-    // Return paginated data with headers
     return NextResponse.json({
-      data: pendingChangeList,
-      totalCount,
+      data: members,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNextPage: (page * limit) < totalCount
+      }
     });
+
   } catch (error) {
-    console.error("Error fetching members:", error);
-    // Handle token verification errors
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    console.error("Pending verification fetch error:", error);
+    
+    if (error instanceof Error) {
+      // Specific token errors
+      if (['JsonWebTokenError', 'TokenExpiredError', 'NotBeforeError'].includes(error.name)) {
+        return NextResponse.json(
+          { error: `Token error: ${error.message}` },
+          { status: 401 }
+        );
+      }
+      
+      // Prisma errors
+      if (error.name.startsWith('Prisma')) {
+        return NextResponse.json(
+          { error: "Database error occurred" },
+          { status: 500 }
+        );
+      }
     }
-    return NextResponse.json({ error: "Error fetching members" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
