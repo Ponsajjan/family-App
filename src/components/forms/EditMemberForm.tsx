@@ -155,15 +155,17 @@ function EditMemberForm({
                     )}
                 </div>
             </div>
-            <Input
-                className="mb-2"
-                type="number"
+            <div className='mb-2'>
+                <Input
+                type="text"
                 name="phone_number"
                 label="Phone Number"
-                maxLength={14}
+                maxLength={25}
                 value={formData.phone_number || ''}
+                error={errors.phone_number}
                 onChange={handleInputChange}
-            />
+                />
+            </div>
             <Input
                 className="mb-2"
                 label="Occupation"

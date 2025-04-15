@@ -99,7 +99,7 @@ export default function EditMemberDetails () {
       const descendant = formData.descendant === "Yes";
       const memberData = {
         id: formData.id,
-        name: formData.name.trimEnd(),
+        name: formData.name?.trimEnd(),
         gender: formData.gender,
         birthDate: formData.birth_date || null,
         birthMonth: formData.birth_month || null,
@@ -108,14 +108,14 @@ export default function EditMemberDetails () {
         deathDate: deceased ? formData.death_date || null : null,
         deathMonth: deceased ? formData.death_month || null : null,
         deathYear: deceased ? formData.death_year || null : null,
-        phoneNumber: formData.phone_number,
-        occupation: formData.occupation.trimEnd(),
-        education: formData.education.trimEnd(),
-        address: formData.address.trimEnd(),
+        phoneNumber: formData.phone_number?.trimEnd(),
+        occupation: formData.occupation?.trimEnd(),
+        education: formData.education?.trimEnd(),
+        address: formData.address?.trimEnd(),
         descendant: descendant,
-        father: descendant ? null : formData.father.trimEnd(), 
-        mother: descendant ? null : formData.mother.trimEnd(),
-        siblings: descendant ? null : formData.siblings.trimEnd()
+        father: descendant ? null : formData.father?.trimEnd(), 
+        mother: descendant ? null : formData.mother?.trimEnd(),
+        siblings: descendant ? null : formData.siblings?.trimEnd()
       };
       const response = await fetch(`/api/editMember/${formData.id}`, {
         method: "PUT",

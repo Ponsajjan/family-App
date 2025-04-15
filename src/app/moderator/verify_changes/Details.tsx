@@ -41,8 +41,6 @@ const ChangeRequestView = ({ showDetailsFor, setShowDetails, currentDetailIndex,
   const [error, setError] = useState<string | null>(null);
   const token = getCookie('token');
 
-  console.log("showDetailsFor", showDetailsFor);
-
   useEffect(() => {
     const fetchData = async () => {
       // Return early if showDetailsFor is empty or not an array

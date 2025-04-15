@@ -25,6 +25,7 @@ export async function GET(request: Request) {
     const changeData = await prisma.requestDetails.findUnique({
       where: { id: requestId },
       select: {
+        type: true,
         details: true,
         memberId: true,
       },

@@ -153,15 +153,18 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                     )}
                 </div>
             </div>
-            <Input
-            className="mb-2"
-            type="number"
-            showOptional={true}
-            name="phone_number"
-            label="Phone Number"
-            value={formData.phone_number || ''}
-            onChange={handleInputChange}
-            />
+            <div className='mb-2'>
+                <Input
+                type="text"
+                showOptional={true}
+                name="phone_number"
+                label="Phone Number"
+                maxLength={25}
+                value={formData.phone_number || ''}
+                error={errors.phone_number}
+                onChange={handleInputChange}
+                />
+            </div>
             <Input
             className="mb-2"
             showOptional={true}

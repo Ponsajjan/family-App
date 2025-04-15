@@ -24,7 +24,8 @@ export interface EditMemberFormValueTypes {
 export interface EditMemberFormErrorTypes {
     name?: string
     birth_day?: string,
-    death_day?: string,  
+    death_day?: string, 
+    phone_number?: string 
 }
 
 export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {

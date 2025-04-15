@@ -24,6 +24,7 @@ export interface AddMemberFormErrorTypes {
     birth_day?: string,
     death_day?: string,
     descendant?: string,
+    phone_number?: string
 }
 
 export const AddMemberDefaultFormValue: AddMemberFormValueTypes = {
