@@ -153,48 +153,91 @@ interface RelationshipDetails {
 }
 
 async function handleAddRelationshipCase(member: any, changeData: any) {
+  // First get current relationships
+  const currentRelationships = await prisma.member.findUnique({
+    where: { id: member.id },
+    select: {
+      partnerId: true,
+      fatherOf: { select: { id: true, name: true } },  // Include names
+      motherOf: { select: { id: true, name: true } },  // Include names
+    },
+  });
+
   const changeDetails: {
     member: string | null;
-    partner?: string | null;
-    children?: string;
+    partner?: { name: string | null; isNew: boolean };
+    children?: { 
+      all: {id: number, name: string}[];  // All children (existing + new)
+      newIds: number[];                   // IDs of new children only
+    };
   } = { member: member.name };
 
   try {
     const details: RelationshipDetails = JSON.parse(changeData?.details || '{}');
     
-    // Handle partner
+    // Handle partner comparison
     if (details.partnerId) {
       const partner = await prisma.member.findUnique({
         where: { id: details.partnerId },
         select: { name: true }
       });
-      changeDetails.partner = partner?.name ?? null;
+      
+      changeDetails.partner = {
+        name: partner?.name ?? null,
+        isNew: details.partnerId !== currentRelationships?.partnerId
+      };
     }
-    
-    // Extract children IDs safely
-    const childrenIds: number[] = [];
-    
-    if (details.motherOf?.connect) {
-      childrenIds.push(...details.motherOf.connect.map(c => c.id));
+
+    // Collect all current children (from both fatherOf and motherOf)
+    const currentChildren = [
+      ...(currentRelationships?.fatherOf || []),
+      ...(currentRelationships?.motherOf || [])
+    ];
+
+    // Process updated relationships
+    const updatedChildrenIds: number[] = [];
+    const newChildrenIds: number[] = [];
+    const allChildren: {id: number, name: string}[] = [...currentChildren];
+
+    // Helper function to process relationship updates
+    const processUpdates = async (connectData: {id: number}[] | undefined) => {
+      if (!connectData) return;
+      
+      for (const {id} of connectData) {
+        updatedChildrenIds.push(id);
+        
+        // Check if this is a new relationship
+        if (!currentChildren.some(c => c.id === id)) {
+          newChildrenIds.push(id);
+          // Fetch name for new children
+          const child = await prisma.member.findUnique({
+            where: { id },
+            select: { name: true }
+          });
+          if (child) {
+            allChildren.push({id, name: child.name || `Unknown (${id})`});
+          }
+        }
+      }
+    };
+
+    // Process motherOf and fatherOf updates
+    await processUpdates(details.motherOf?.connect);
+    await processUpdates(details.fatherOf?.connect);
+
+    // Set children data
+    if (allChildren.length > 0) {
+      changeDetails.children = {
+        all: allChildren,
+        newIds: newChildrenIds
+      };
     }
-    
-    if (details.fatherOf?.connect) {
-      childrenIds.push(...details.fatherOf.connect.map(c => c.id));
-    }
-    
-    // Fetch children if any exist
-    if (childrenIds.length > 0) {
-      const children = await prisma.member.findMany({
-        where: { id: { in: childrenIds } },
-        select: { name: true }
-      });
-      changeDetails.children = children.map(c => c.name).filter(Boolean).join(', ');
-    }
+
   } catch (e) {
     console.error('Error parsing change details:', e);
-    // Consider returning error response if parsing fails
   }
 
+  // Generate HTML showing all children with new ones highlighted
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
       <div class="flex gap-2">
@@ -204,13 +247,24 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
       ${changeDetails.partner ? `
         <div class="flex gap-2">
           <p class="whitespace-nowrap font-semibold min-w-[120px]">Partner</p>
-          <p>${changeDetails.partner}</p>
+          <p class="${changeDetails.partner.isNew ? 'text-blue-600 font-medium' : ''}">
+            ${changeDetails.partner.name || '-'}
+          </p>
         </div>
       ` : ''}
       ${changeDetails.children ? `
         <div class="flex gap-2">
           <p class="whitespace-nowrap font-semibold min-w-[120px]">Children</p>
-          <p>${changeDetails.children}</p>
+          <div class="flex flex-wrap gap-1">
+            ${changeDetails.children.all.map(child => {
+              const isNew = changeDetails.children?.newIds.includes(child.id);
+              return `
+                <span class="${isNew ? 'text-blue-600 font-medium' : ''}">
+                  ${child.name}
+                </span>
+              `;
+            }).join(', ')}
+          </div>
         </div>
       ` : ''}
     </div>
@@ -218,7 +272,15 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
 
   return NextResponse.json({ 
     data: {
-      formData: changeDetails,
+      formData: {
+        member: changeDetails.member,
+        partner: changeDetails.partner?.name,
+        children: changeDetails.children?.all.map(c => c.name).join(', '),
+        newRelationships: {
+          partner: changeDetails.partner?.isNew || false,
+          children: changeDetails.children?.newIds || []
+        }
+      },
       htmlContent
     },
   });
