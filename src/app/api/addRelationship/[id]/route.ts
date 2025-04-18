@@ -216,57 +216,58 @@ export async function PUT(request: Request) {
         success: true,
         message: "Update request has been added for verification.",
       });
+    } else {
+      // If no verified members are involved, proceed with the update logic
+  
+      // Update the member in the database
+      const updatedMember = await prisma.member.update({
+        where: { id: memberId },
+        data: updatedData,
+      });
+  
+      // Function to update the order of children
+      const updateChildrenOrder = async (childrenIds: { id: number }[]) => {
+        for (let i = 0; i < childrenIds.length; i++) {
+          const childId = childrenIds[i].id;
+          await prisma.member.update({
+            where: { id: childId },
+            data: {
+              order: i + 1, // Update the order based on the sequence
+            },
+          });
+        }
+      };
+  
+      // Handle updating the partner's relationships and children's order
+      if (updatedData.partnerId) {
+        const partnerUpdateData: any = {};
+  
+        partnerUpdateData.partnerId = memberId;
+        if (updatedData.fatherOf) {
+          partnerUpdateData.motherOf = updatedData.fatherOf;
+          await updateChildrenOrder(updatedData.fatherOf.connect);
+        }
+  
+        if (updatedData.motherOf) {
+          partnerUpdateData.fatherOf = updatedData.motherOf;
+          await updateChildrenOrder(updatedData.motherOf.connect);
+        }
+  
+        if (Object.keys(partnerUpdateData).length > 0) {
+          await prisma.member.update({
+            where: { id: updatedData.partnerId },
+            data: partnerUpdateData,
+          });
+        }
+      }
+  
+      return NextResponse.json({
+        success: true,
+        message: "Member updated successfully",
+        data: updatedMember,
+      });
     }
 
-    // If no verified members are involved, proceed with the update logic
-
-    // Update the member in the database
-    const updatedMember = await prisma.member.update({
-      where: { id: memberId },
-      data: updatedData,
-    });
-
-    // Function to update the order of children
-    const updateChildrenOrder = async (childrenIds: { id: number }[]) => {
-      for (let i = 0; i < childrenIds.length; i++) {
-        const childId = childrenIds[i].id;
-        await prisma.member.update({
-          where: { id: childId },
-          data: {
-            order: i + 1, // Update the order based on the sequence
-          },
-        });
-      }
-    };
-
-    // Handle updating the partner's relationships and children's order
-    if (updatedData.partnerId) {
-      const partnerUpdateData: any = {};
-
-      partnerUpdateData.partnerId = memberId;
-      if (updatedData.fatherOf) {
-        partnerUpdateData.motherOf = updatedData.fatherOf;
-        await updateChildrenOrder(updatedData.fatherOf.connect);
-      }
-
-      if (updatedData.motherOf) {
-        partnerUpdateData.fatherOf = updatedData.motherOf;
-        await updateChildrenOrder(updatedData.motherOf.connect);
-      }
-
-      if (Object.keys(partnerUpdateData).length > 0) {
-        await prisma.member.update({
-          where: { id: updatedData.partnerId },
-          data: partnerUpdateData,
-        });
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Member updated successfully",
-      data: updatedMember,
-    });
   } catch (error: any) {
     console.error("Error updating member:", error);
 

@@ -3,25 +3,26 @@ import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const requestId = parseInt(url.pathname.split('/').pop() || '');
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
-
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  if (isNaN(requestId)) {
-    return NextResponse.json({ error: "Invalid request ID" }, { status: 400 });
-  }
-  const decoded = await verifyToken(token);
-  const forDescendanceOf = decoded.forDescendanceOf;
-
-  if (!forDescendanceOf) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-  }
-
   try {
+    const url = new URL(request.url);
+    const requestId = parseInt(url.pathname.split('/').pop() || '');
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
+
+    // Validation checks
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (isNaN(requestId)) {
+      return NextResponse.json({ error: "Invalid request ID" }, { status: 400 });
+    }
+
+    const decoded = await verifyToken(token);
+    if (!decoded?.forDescendanceOf) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    // First fetch changeData separately
     const changeData = await prisma.requestDetails.findUnique({
       where: { id: requestId },
       select: {
@@ -31,6 +32,11 @@ export async function GET(request: Request) {
       },
     });
 
+    if (!changeData) {
+      return NextResponse.json({ error: "Request not found" }, { status: 404 });
+    }
+
+    // Then fetch member data
     const member = await prisma.member.findUnique({
       where: { id: changeData?.memberId },
       select: {
@@ -63,182 +69,182 @@ export async function GET(request: Request) {
           },
         },
       },
-    });
+    })
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    if (changeData?.type == "Edit Member") {
-    
-      const formData = {
-        name: member.name,
-        gender: member.gender,
-        birthDate: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
-        birthMonth: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
-        birthYear: member.birthYear ? String(member.birthYear) : null,
-        deceased: member.deceased,
-        deathDate: member.deathDate ? String(member.deathDate).padStart(2, '0') : null,
-        deathMonth: member.deathMonth ? String(member.deathMonth).padStart(2, '0') : null,
-        deathYear: member.deathYear ? String(member.deathYear) : null,
-        phoneNumber: member.phoneNumber,
-        occupation: member.occupation,
-        education: member.education,
-        address: member.address,
-        descendant: member.descendant ? 'Yes' : 'No',
-        father: member.nonDescendantRelation?.[0]?.fatherName,
-        mother: member.nonDescendantRelation?.[0]?.motherName,
-        siblings: member.nonDescendantRelation?.[0]?.siblingNames,
-      };
-  
-      let changeDetails: any = {};
-      try {
-        changeDetails = JSON.parse(changeData?.details || '{}');
-      } catch (e) {
-        console.error('Error parsing change details:', e);
-      }
-  
-      // Helper function to normalize values for comparison
-      const normalizeValue = (value: any, key: string): string => {
-        if (value === null || value === undefined) return 'null';
-        
-        // Handle special cases
-        if (key === 'descendant') {
-          return (value === true || value === 'Yes') ? 'true' : 'false';
-        }
-        if (key === 'deceased') {
-          return (value === true || value === 'Yes') ? 'true' : 'false';
-        }
-        
-        // Convert numbers to strings
-        if (typeof value === 'number') return String(value);
-        
-        return String(value).trim();
-      };
-  
-      // Format field names for display
-      const formatFieldName = (key: string): string => {
-        return key
-          .replace(/([A-Z])/g, ' $1')
-          .replace(/^./, str => str.toUpperCase());
-      };
-  
-      // Generate the comparison HTML
-      const changesJsx = Object.entries(formData).map(([key, value]) => {
-        const newValue = changeDetails[key] !== undefined ? changeDetails[key] : value;
-        
-        // Normalize both values for accurate comparison
-        const normOriginal = normalizeValue(value, key);
-        const normNew = normalizeValue(newValue, key);
-        
-        const hasChanged = normOriginal !== normNew;
-        
-        const displayValue = (val: any) => {
-          if (val === null || val === undefined) return '-';
-          if (key === 'descendant') return val === true || val === 'Yes' ? 'Yes' : 'No';
-          if (key === 'deceased') return val === true || val === 'Yes' ? 'Yes' : 'No';
-          return String(val);
-        };
-  
-        return `
-          <div class="flex gap-2" key="${key}">
-            <p class="whitespace-nowrap font-semibold min-w-[120px]">${formatFieldName(key)}</p>
-            <div class="flex flex-wrap items-center gap-1">
-              ${hasChanged ? `<p class="line-through">${displayValue(value)}</p>` : ''}
-              <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue)}</p>
-            </div>
-          </div>
-        `;
-      }).join('');
-  
-      const htmlContent = `
-        <div class="space-y-2 bg-main_background text-text_color">
-          ${changesJsx}
-        </div>
-      `;
-  
-      return NextResponse.json({ 
-        data: {
-          formData:{
-            ...formData,
-            ...changeDetails
-          },
-          htmlContent
-        },
-      });
+    if (changeData?.type === "Edit Member") {
+      return handleEditMemberCase(member, changeData);
     }
 
-    if (changeData?.type == "Add Relationship") {
-      const formData = changeData.details;
-
-      let changeDetails: any = {};
-      try {
-        changeDetails.member = member.name
-
-        if (JSON.parse(changeData?.details).partnerId) {
-          const partnerName = await prisma.member.findUnique({
-            where: {id: JSON.parse(changeData?.details).partnerId},
-            select: {
-              name: true
-            }
-          })
-          changeDetails.partner = partnerName
-        };
-        
-        if (JSON.parse(changeData?.details).motherOf) {
-          const childrenList = await prisma.member.findUnique({
-            where: {
-              id: { in: JSON.parse(changeData?.details).motherOf}
-            },
-            select: {
-              name: true
-            }
-          })
-          changeDetails.children = childrenList
-        };
-        if (JSON.parse(changeData?.details).fatherOf) {
-          const childrenList = await prisma.member.findUnique({
-            where: {
-              id: { in: JSON.parse(changeData?.details).fatherOf}
-            },
-            select: {
-              name: true
-            }
-          })
-          changeDetails.children = childrenList
-        };
-      } catch (e) {
-        console.error('Error parsing change details:', e);
-      }
-
-      const htmlContent = `
-        <div class="space-y-2 bg-main_background text-text_color">
-          here add changeDetails like -member name, partner name and children names 
-        </div>
-      `;
-
-      return NextResponse.json({ 
-        data: {
-          formData:{
-            ...{formData},
-            ...changeDetails
-          },
-          htmlContent
-        },
-      });
+    if (changeData?.type === "Add Relationship") {
+      return handleAddRelationshipCase(member, changeData);
     }
 
+    return NextResponse.json({ error: "Invalid request type" }, { status: 400 });
 
   } catch (error) {
-    console.error(error);
+    console.error("Error in GET request:", error);
     return NextResponse.json(
       { error: "Failed to fetch data" },
       { status: 500 }
     );
   }
+}
+
+// Helper functions for different request types
+async function handleEditMemberCase(member: any, changeData: any) {
+  const formData = {
+    name: member.name,
+    gender: member.gender,
+    birthDate: member.birthDate?.toString().padStart(2, '0') ?? null,
+    birthMonth: member.birthMonth?.toString().padStart(2, '0') ?? null,
+    birthYear: member.birthYear?.toString() ?? null,
+    deceased: member.deceased,
+    deathDate: member.deathDate?.toString().padStart(2, '0') ?? null,
+    deathMonth: member.deathMonth?.toString().padStart(2, '0') ?? null,
+    deathYear: member.deathYear?.toString() ?? null,
+    phoneNumber: member.phoneNumber,
+    occupation: member.occupation,
+    education: member.education,
+    address: member.address,
+    descendant: member.descendant ? 'Yes' : 'No',
+    father: member.nonDescendantRelation?.[0]?.fatherName,
+    mother: member.nonDescendantRelation?.[0]?.motherName,
+    siblings: member.nonDescendantRelation?.[0]?.siblingNames,
+  };
+
+  let changeDetails:any = {};
+  try {
+    changeDetails = JSON.parse(changeData?.details || '{}');
+  } catch (e) {
+    console.error('Error parsing change details:', e);
+  }
+
+  const changesJsx = Object.entries(formData).map(([key, value]) => {
+    const newValue = changeDetails[key] ?? value;
+    const hasChanged = normalizeValue(value, key) !== normalizeValue(newValue, key);
+
+    return `
+      <div class="flex gap-2" key="${key}">
+        <p class="whitespace-nowrap font-semibold min-w-[120px]">${formatFieldName(key)}</p>
+        <div class="flex flex-wrap items-center gap-1">
+          ${hasChanged ? `<p class="line-through">${displayValue(value, key)}</p>` : ''}
+          <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue, key)}</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return NextResponse.json({ 
+    data: {
+      formData: { ...formData, ...changeDetails },
+      htmlContent: `<div class="space-y-2 bg-main_background text-text_color">${changesJsx}</div>`
+    },
+  });
+}
+
+interface RelationshipDetails {
+  partnerId?: number;
+  motherOf?: { connect: { id: number }[] };
+  fatherOf?: { connect: { id: number }[] };
+}
+
+async function handleAddRelationshipCase(member: any, changeData: any) {
+  const changeDetails: {
+    member: string | null;
+    partner?: string | null;
+    children?: string;
+  } = { member: member.name };
+
+  try {
+    const details: RelationshipDetails = JSON.parse(changeData?.details || '{}');
+    
+    // Handle partner
+    if (details.partnerId) {
+      const partner = await prisma.member.findUnique({
+        where: { id: details.partnerId },
+        select: { name: true }
+      });
+      changeDetails.partner = partner?.name ?? null;
+    }
+    
+    // Extract children IDs safely
+    const childrenIds: number[] = [];
+    
+    if (details.motherOf?.connect) {
+      childrenIds.push(...details.motherOf.connect.map(c => c.id));
+    }
+    
+    if (details.fatherOf?.connect) {
+      childrenIds.push(...details.fatherOf.connect.map(c => c.id));
+    }
+    
+    // Fetch children if any exist
+    if (childrenIds.length > 0) {
+      const children = await prisma.member.findMany({
+        where: { id: { in: childrenIds } },
+        select: { name: true }
+      });
+      changeDetails.children = children.map(c => c.name).filter(Boolean).join(', ');
+    }
+  } catch (e) {
+    console.error('Error parsing change details:', e);
+    // Consider returning error response if parsing fails
+  }
+
+  const htmlContent = `
+    <div class="space-y-2 bg-main_background text-text_color">
+      <div class="flex gap-2">
+        <p class="whitespace-nowrap font-semibold min-w-[120px]">Member</p>
+        <p>${changeDetails.member || '-'}</p>
+      </div>
+      ${changeDetails.partner ? `
+        <div class="flex gap-2">
+          <p class="whitespace-nowrap font-semibold min-w-[120px]">Partner</p>
+          <p>${changeDetails.partner}</p>
+        </div>
+      ` : ''}
+      ${changeDetails.children ? `
+        <div class="flex gap-2">
+          <p class="whitespace-nowrap font-semibold min-w-[120px]">Children</p>
+          <p>${changeDetails.children}</p>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  return NextResponse.json({ 
+    data: {
+      formData: changeDetails,
+      htmlContent
+    },
+  });
+}
+
+// Utility functions
+function normalizeValue(value: any, key: string): string {
+  if (value == null) return 'null';
+  if (key === 'descendant' || key === 'deceased') {
+    return (value === true || value === 'Yes') ? 'true' : 'false';
+  }
+  return String(value).trim();
+}
+
+function formatFieldName(key: string): string {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, str => str.toUpperCase());
+}
+
+function displayValue(val: any, key: string): string {
+  if (val == null) return '-';
+  if (key === 'descendant' || key === 'deceased') {
+    return val === true || val === 'Yes' ? 'Yes' : 'No';
+  }
+  return String(val);
 }
 
 export async function PUT(request: Request) {
