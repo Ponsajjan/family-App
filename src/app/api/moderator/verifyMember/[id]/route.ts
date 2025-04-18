@@ -67,12 +67,14 @@ export async function GET(request: Request) {
           select: { 
             name: true,
             verified: true,
+            order: true
           },
         },
         motherOf: {
           select: { 
             name: true,
-            verified: true, 
+            verified: true,
+            order: true
           },
         },
         nonDescendantRelation: {
@@ -91,8 +93,14 @@ export async function GET(request: Request) {
     }
 
     // Step 2: Fetch siblings using father's and mother's IDs
-    const siblingSet = new Set<string>(); // To avoid duplicate names
-
+    type SiblingInfo = {
+      name: string | null;
+      verified: boolean | null;
+      order: number | null;
+    };
+    
+    const siblingMap = new Map<string | null, SiblingInfo>(); // Track by name
+    
     if (member.father?.id) {
       const fatherChildren = await prisma.member.findMany({
         where: {
@@ -102,11 +110,16 @@ export async function GET(request: Request) {
         select: { 
           name: true,
           verified: true,
+          order: true
         },
       });
-      fatherChildren.forEach((child) => siblingSet.add(child.name));
+      fatherChildren.forEach((child) => {
+        if (child.name && !siblingMap.has(child.name)) {
+          siblingMap.set(child.name, { name: child.name, verified: child.verified, order: child.order });
+        }
+      });
     }
-
+    
     if (member.mother?.id) {
       const motherChildren = await prisma.member.findMany({
         where: {
@@ -116,13 +129,18 @@ export async function GET(request: Request) {
         select: { 
           name: true,
           verified: true,
+          order: true
         },
       });
-      motherChildren.forEach((child) => siblingSet.add(child.name));
+      motherChildren.forEach((child) => {
+        if (child.name && !siblingMap.has(child.name)) {
+          siblingMap.set(child.name, { name: child.name, verified: child.verified, order: child.order });
+        }
+      });
     }
-
-    // Convert the sibling set to an array
-    const siblings = Array.from(siblingSet);
+    
+    // Convert the Map values to an array (automatically unique by name)
+    const siblings = Array.from(siblingMap.values());
 
     // Step 3: Respond with enriched data
     const responseData = {

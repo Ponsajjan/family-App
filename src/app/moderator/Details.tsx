@@ -228,16 +228,17 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                     <div onClick={() => handleMemberSearch(data?.relationInformation.mother)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_mother ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.mother}</div>
                                 </>
                             )}
-                            {data?.relationInformation.siblings?.length > 0 && (
+                            {data?.relationInformation.siblings && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
                                     <div className='w-3/5 md:leading-7'>
-                                        {data?.relationInformation.siblings?.map((sibling: { name: string, verified: boolean }, index: number) => (
-                                            <span onClick={() => handleMemberSearch(sibling.name)} key={index} className={`${sibling.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'} hover:underline cursor-context-menu`} >
-                                            {sibling.name}
-                                            {/* Add a comma if it's not the last sibling, otherwise add a period */}
-                                            {index < data.relationInformation.siblings.length - 1 && ', ' }
-                                            </span>
+                                        {data?.relationInformation.siblings?.sort((a: any, b: any) => a.order - b.order)?.map((sibling: { name: string, verified: boolean }, index: number) => (
+                                            <>
+                                                <span onClick={() => handleMemberSearch(sibling.name)} key={index} className={`${sibling.verified ? 'text-text_color': 'text-text_color/80 underline decoration-wavy'} hover:underline cursor-context-menu`} >
+                                                {sibling.name}
+                                                </span>
+                                                {index < data.relationInformation.siblings.length - 1 && ', ' }
+                                            </>
                                         ))}
                                     </div>
                                 </>
@@ -279,7 +280,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
                                     <div className='w-3/5 md:leading-7'>
-                                    {data.relationInformation.children.map((child: { name: string, verified: boolean }, index: number) => (
+                                    {data.relationInformation.children?.sort((a: any, b: any) => a.order - b.order)?.map((child: { name: string, verified: boolean }, index: number) => (
                                         <span key={index} onClick={() => handleMemberSearch(child.name)} className={`hover:underline cursor-context-menu ${child.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
                                             {child.name}
                                             {index < data.relationInformation.children.length - 1 && ", "}

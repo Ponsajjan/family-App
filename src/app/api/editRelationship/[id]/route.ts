@@ -217,7 +217,7 @@ export async function PUT(request: Request) {
     if (deleteData.childrenId && Array.isArray(deleteData.childrenId)) {
       const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
 
-      // Update the member's fatherOf and motherOf relationships
+      // Update the member's fatherOf and motherOf relationships (remove child from member)
       updatePromises.push(
         prisma.member.update({
           where: { id: memberId },
@@ -234,7 +234,7 @@ export async function PUT(request: Request) {
         })
       );
 
-      // Update the partner's fatherOf and motherOf relationships (if partner exists)
+      // Update the partner's fatherOf and motherOf relationships (remove child from partner)
       if (hasPartner !== null && hasPartner !== undefined && !deleteData.partnerId) {
         updatePromises.push(
           prisma.member.update({

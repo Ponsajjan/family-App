@@ -204,7 +204,7 @@ export default function VerifyMember() {
           ) : 
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto mt-4'>
-              <span className="border border-border_color rounded-md px-2 py-0.5 ml-2">{selectedFilter} Members</span>
+              <span className="border border-border_color rounded-md px-2 py-0.5 ml-2 text-text_color">{selectedFilter} Members</span>
               {members.map((member: any) => (
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
