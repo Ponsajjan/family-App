@@ -29,8 +29,9 @@ export default function Details({ showMember, openDetails }: any) {
             });
       
             if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to update member");
+              }
       
             const { data } = await response.json();
             setData(data);

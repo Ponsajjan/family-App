@@ -133,7 +133,7 @@ async function handleEditMemberCase(member: any, changeData: any) {
 
     return `
       <div class="flex gap-2" key="${key}">
-        <p class="whitespace-nowrap font-semibold min-w-[120px]">${formatFieldName(key)}</p>
+        <p class="whitespace-nowrap font-semibold min-w-[130px]">${formatFieldName(key)}</p>
         <div class="flex flex-wrap items-center gap-1">
           ${hasChanged ? `<p class="line-through">${displayValue(value, key)}</p>` : ''}
           <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue, key)}</p>
@@ -144,8 +144,15 @@ async function handleEditMemberCase(member: any, changeData: any) {
 
   return NextResponse.json({ 
     data: {
-      formData: { ...formData, ...changeDetails },
-      htmlContent: `<div class="space-y-2 bg-main_background text-text_color">${changesJsx}</div>`
+      submitData: {
+        memberId: changeData.memberId,
+        type: changeData.type,
+        formData: { ...formData, ...changeDetails },
+      },
+      htmlContent: `<div class="space-y-2 bg-main_background text-text_color">
+      <div class="italic mb-4">---- ${changeData.type} ----</div>
+      ${changesJsx}
+      </div>`
     },
   });
 }
@@ -244,13 +251,14 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
   // Generate HTML showing all children with new ones highlighted
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
+      <div class="italic mb-4">---- ${changeData.type} ----</div>
       <div class="flex gap-2">
-        <p class="whitespace-nowrap font-semibold min-w-[120px]">Member</p>
+        <p class="whitespace-nowrap font-semibold min-w-[90px]">Member</p>
         <p>${changeDetails.member || '-'}</p>
       </div>
       ${changeDetails.partner ? `
         <div class="flex gap-2">
-          <p class="whitespace-nowrap font-semibold min-w-[120px]">Partner</p>
+          <p class="whitespace-nowrap font-semibold min-w-[90px]">Partner</p>
           <p class="${changeDetails.partner.isNew ? 'text-blue-600 font-medium' : ''}">
             ${changeDetails.partner.name || '-'}
           </p>
@@ -258,7 +266,7 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
       ` : ''}
       ${changeDetails.children ? `
         <div class="flex gap-2">
-          <p class="whitespace-nowrap font-semibold min-w-[120px]">Children</p>
+          <p class="whitespace-nowrap font-semibold min-w-[90px]">Children</p>
           <div class="flex flex-wrap gap-1">
             ${changeDetails.children.all.map(child => {
               const isNew = changeDetails.children?.newIds.includes(child.id);
@@ -276,14 +284,18 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
 
   return NextResponse.json({ 
     data: {
-      formData: {
-        member: changeDetails.member,
-        partner: changeDetails.partner?.name,
-        children: changeDetails.children?.all.map(c => c.name).join(', '),
-        newRelationships: {
-          partner: changeDetails.partner?.isNew || false,
-          children: changeDetails.children?.newIds || []
-        }
+      submitData: {
+        memberId: changeData.memberId,
+        type: changeData.type,        
+        formData: {
+          member: changeDetails.member,
+          partner: changeDetails.partner?.name,
+          children: changeDetails.children?.all.map(c => c.name).join(', '),
+          newRelationships: {
+            partner: changeDetails.partner?.isNew || false,
+            children: changeDetails.children?.newIds || []
+          }
+        },
       },
       htmlContent
     },
@@ -334,7 +346,7 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
     // Handle partner changes
     const currentPartnerId = currentRelationships?.partnerId;
     const newPartnerId = details.hasPartner;
-    const isRemovingPartner = details.deleteData?.partnerId !== undefined;
+    const isRemovingPartner = details.deleteData?.partnerId;
 
     if (isRemovingPartner && currentPartnerId) {
       // Partner is being removed (deleteData.partnerId exists)
@@ -347,8 +359,8 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
         name: currentPartner?.name ?? null,
         isRemoved: true
       };
-    } else if (newPartnerId !== undefined) {
-      // Partner is being changed (hasPartner exists)
+    } else if (newPartnerId) {
+      // Partner is not being changed (hasPartner exists)
       const partner = await prisma.member.findUnique({
         where: { id: newPartnerId },
         select: { name: true }
@@ -412,76 +424,94 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
   // Determine what changes exist
   const hasOrderChanges = changeDetails.children?.reorderedIds && changeDetails.children?.reorderedIds.length > 0;
   const hasRemovedChildren = changeDetails.children?.removedIds && changeDetails.children?.removedIds.length > 0;
-  const hasPartnerChanges = changeDetails.partner !== undefined;
+  const hasPartnerChanges = changeDetails.partner;
   const hasAnyChanges = hasPartnerChanges || hasOrderChanges || hasRemovedChildren;
 
   // Generate HTML
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
+      <div class="italic mb-4">---- ${changeData.type} ----</div>
       <div class="flex gap-2">
-        <p class="whitespace-nowrap font-semibold min-w-[120px]">Member</p>
+        <p class="whitespace-nowrap font-semibold min-w-[90px]">Member</p>
         <p>${changeDetails.member || '-'}</p>
       </div>
       
       ${hasPartnerChanges ? `
         <div class="flex gap-2">
-          <p class="whitespace-nowrap font-semibold min-w-[120px]">Partner</p>
-          <p class="${changeDetails.partner?.isRemoved ? 'line-through text-red-500' : ''}">
-            ${changeDetails.partner?.name || '-'}
-            ${changeDetails.partner?.isRemoved ? ' (Removed)' : ''}
+          <p class="whitespace-nowrap font-semibold min-w-[90px]">Partner</p>
+          <p> <span class="${changeDetails.partner?.isRemoved ? 'line-through' : ''} whitespace-nowrap">
+            ${changeDetails.partner?.name || '-'}</span>
+            <span class="text-blue-600 font-medium">${changeDetails.partner?.isRemoved ? ' (Removed)' : ''}</span>
           </p>
         </div>
       ` : ''}
       
       ${changeDetails.children ? `
-        <div class="flex flex-col gap-2">
-          <p class="whitespace-nowrap font-semibold min-w-[120px]">Children</p>
+        <div class="flex gap-2">
+          <p class="whitespace-nowrap font-semibold min-w-[90px]">Children</p>
           
           ${hasAnyChanges ? `
-            ${hasOrderChanges ? `
-              <div>
-                <p class="font-semibold pl-2">New Order:</p>
-                <div class="flex flex-col gap-1 pl-4 mt-1">
+            <div class="flex flex-col gap-4">
+              ${hasOrderChanges ? `
+                <div>
+                  <p class="font-semibold">New Order:</p>
+                  <div class="flex flex-col gap-1 pl-4 mt-1">
+                    ${changeDetails.children.all
+                      .filter(child => changeDetails.children?.reorderedIds.includes(child.id))
+                      .sort((a, b) => (a.newOrder || 0) - (b.newOrder || 0))
+                      .map(child => `
+                        <div class="flex gap-1 items-center">
+                          <span class="whitespace-nowrap">${child.newOrder}. ${child.name}</span>
+                          <span class="text-blue-600 font-medium">
+                             (Moved from ${child.currentOrder})
+                          </span>
+                        </div>
+                      `).join('')}
+                    ${changeDetails.children.all
+                      .filter(child => !changeDetails.children?.reorderedIds.includes(child.id) && 
+                                      !changeDetails.children?.removedIds.includes(child.id))
+                      .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
+                      .map(child => `
+                        <div class="flex gap-1 items-center">
+                          <span>${child.currentOrder}. ${child.name}</span>
+                        </div>
+                      `).join('')}
+                  </div>
+                </div>
+              ` : `
+                <div class="flex flex-col gap-1">
                   ${changeDetails.children.all
-                    .filter(child => changeDetails.children?.reorderedIds.includes(child.id))
-                    .sort((a, b) => (a.newOrder || 0) - (b.newOrder || 0))
+                    .filter(child => !changeDetails.children?.removedIds.includes(child.id))
+                    .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
                     .map(child => `
                       <div class="flex gap-1 items-center">
-                        <span>${child.newOrder}. ${child.name}</span>
+                        <span>${child.currentOrder}. ${child.name}</span>
                       </div>
                     `).join('')}
                 </div>
-              </div>
-            ` : `
-              <div class="flex flex-col gap-1 pl-4">
-                ${changeDetails.children.all
-                  .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
-                  .map(child => `
-                    <div class="flex gap-1 items-center">
-                      <span>${child.currentOrder}. ${child.name}</span>
-                    </div>
-                  `).join('')}
-              </div>
-            `}
-            
-            ${hasRemovedChildren ? `
-              <div>
-                <p class="font-semibold pl-2">Removed Children:</p>
-                <div class="flex flex-col gap-1 pl-4 mt-1">
-                  ${changeDetails.children.all
-                    .filter(child => changeDetails.children?.removedIds.includes(child.id))
-                    .map(child => `
-                      <div class="flex gap-1 items-center">
-                        <span class="line-through text-red-500">
-                          ${child.currentOrder}. ${child.name} (Removed)
-                        </span>
-                      </div>
-                    `).join('')}
+              `}
+              
+              ${hasRemovedChildren ? `
+                <div>
+                  <p class="font-semibold">Removed Children:</p>
+                  <div class="flex flex-col gap-1 pl-4 mt-1">
+                    ${changeDetails.children.all
+                      .filter(child => changeDetails.children?.removedIds.includes(child.id))
+                      .map((child, index) => `
+                        <div class="flex gap-1 items-center">
+                          <span>${index + 1}.</span>
+                          <span class="line-through whitespace-nowrap">
+                             ${child.name}
+                          </span>
+                          <span class="text-blue-600 font-medium">(Previous order ${child.currentOrder}) (Removed)</span>
+                        </div>
+                      `).join('')}
+                  </div>
                 </div>
-              </div>
-            ` : ''}
+              ` : ''}
+            </div>
           ` : `
-            <div class="flex flex-col gap-1 pl-4">
+            <div class="flex flex-col gap-1">
               ${changeDetails.children.all
                 .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
                 .map(child => `
@@ -500,22 +530,26 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
 
   return NextResponse.json({ 
     data: {
-      formData: {
-        member: changeDetails.member,
-        partner: changeDetails.partner || null,
-        children: changeDetails.children 
-          ? {
-              all: changeDetails.children.all.map(c => ({
-                id: c.id,
-                name: c.name,
-                currentOrder: c.currentOrder,
-                newOrder: c.newOrder
-              })),
-              removedIds: changeDetails.children.removedIds,
-              reorderedIds: changeDetails.children.reorderedIds
-            }
-          : null,
-        hasChanges: hasAnyChanges
+      submitData: {
+        memberId: changeData.memberId,
+        type: changeData.type,
+        formData: {
+          member: changeDetails.member,
+          partner: changeDetails.partner || null,
+          children: changeDetails.children 
+            ? {
+                all: changeDetails.children.all.map(c => ({
+                  id: c.id,
+                  name: c.name,
+                  currentOrder: c.currentOrder,
+                  newOrder: c.newOrder
+                })),
+                removedIds: changeDetails.children.removedIds,
+                reorderedIds: changeDetails.children.reorderedIds
+              }
+            : null,
+          hasChanges: hasAnyChanges
+        },
       },
       htmlContent
     },
@@ -671,11 +705,17 @@ export async function DELETE(request: Request) {
     const token = authHeader?.split(' ')[1];
     
     if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
   
     if (isNaN(editDataId)) {
-      return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request ID" },
+        { status: 400 }
+      );
     }
   
     try {
@@ -683,10 +723,13 @@ export async function DELETE(request: Request) {
       const forDescendanceOf = decoded.forDescendanceOf;
   
       if (!forDescendanceOf) {
-          return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        return NextResponse.json(
+          { error: "Invalid token" },
+          { status: 401 }
+        );
       }
   
-      // Fetch the member with their relationships
+      // Fetch the request with their relationships
       const requestData = await prisma.requestDetails.findUnique({
         where: { 
           id: editDataId,
@@ -697,10 +740,10 @@ export async function DELETE(request: Request) {
         },
       });
   
-      // If the member doesn't exist, return an error
+      // If the request doesn't exist, return an error
       if (!requestData) {
         return NextResponse.json(
-          { error: "Member not found" },
+          { error: "Request not found" },
           { status: 404 }
         );
       }
@@ -712,20 +755,23 @@ export async function DELETE(request: Request) {
   
       return NextResponse.json({
         success: true,
-        message: "Rejected Edit changes",
+        message: `Rejected ${requestData.type}`,
       });
     } catch (error: any) {
-      console.error("Error deleting member:", error);
+      console.error("Error deleting request:", error);
   
       // Handle token verification errors
       if (error instanceof Error && error.name === 'JsonWebTokenError') {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        return NextResponse.json(
+          { error: "Invalid token" },
+          { status: 401 }
+        );
       }
   
       if (error.code === "P2025") {
         // Prisma-specific error for "Record not found"
         return NextResponse.json(
-          { error: "Member not found" },
+          { error: "Request not found" },
           { status: 404 }
         );
       }

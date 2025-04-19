@@ -121,7 +121,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
                       {item.hasDate ? item.type === 'birthday' ? <Birthday2 /> : <Deathday2 /> : ''}
                     </div>
                   </div>
-                  {(item.age === 'n/a' ||  item.date.getFullYear() === currentYear) ? "" : <p className="font-light border-l border-border_color min-w-10 text-center text-sm px-0.5">{item.age}</p>}
+                  {(item.age === 'n/a' ||  item.date.getFullYear() === currentYear) ? "" : <p className="font-light border-l border-dashed border-border_color min-w-10 text-center text-sm px-0.5">{item.age}</p>}
                 </div>
               </div>
             </div>

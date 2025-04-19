@@ -21,6 +21,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     useEffect(() => {
         async function fetchMembers() {
             try {
+                setDeleted(false)
                 setLoadingDetails(true)
                 const response = await fetch(`/api/moderator/verifyMember/${showDetailsFor.id}`,
                     {
@@ -43,11 +44,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
         
                 setData(member.data);
             } catch (error:any) {
-                if (toast) {
-                    toast.show(error.message || "Error fetching member details", "error", 5000);
-                } else {
-                    alert(error.message || "Error fetching member details")
-                }
+                toast?.show(error.message || "Error fetching member details", "error", 5000);
             } finally {
                 setLoadingDetails(false)
             }
@@ -173,7 +170,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     }
 
     return (
-        <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
+        <Container className='text-text_color py-6 px-4 relative bg-main_background'>
             <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
             {loadingDetails ? <Loading />
             : <>
