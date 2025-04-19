@@ -158,7 +158,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Extract IDs from the payload
+    // Extract IDs from payload
     const idsToCheck: number[] = [];
 
     if (updatedData.partnerId) {
@@ -211,10 +211,7 @@ export async function PUT(request: Request) {
       // Filter only new relationships that don't exist currently
       const newRelationships: any = {};
       
-      // Check for new partner
-      if (updatedData.partnerId && updatedData.partnerId !== currentMember.partnerId) {
-        newRelationships.partnerId = updatedData.partnerId;
-      }
+      newRelationships.partnerId = updatedData.partnerId;
 
       // Check for new fatherOf relationships
       if (updatedData.fatherOf?.connect) {
