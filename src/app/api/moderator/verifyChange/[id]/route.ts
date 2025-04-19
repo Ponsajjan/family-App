@@ -183,9 +183,16 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
     };
   } = { member: member.name };
 
-  try {
-    const details: RelationshipDetails = JSON.parse(changeData?.details || '{}');
-    
+  const details: RelationshipDetails = JSON.parse(changeData?.details || '{}');
+  
+  if (!details.partnerId && !details.motherOf && !details.fatherOf) {
+    return NextResponse.json(
+      { error: "No valid relationship changes found in request" },
+      { status: 400 }
+    );
+  }
+
+  try { 
     // Handle partner comparison
     if (details.partnerId) {
       const partner = await prisma.member.findUnique({
@@ -287,15 +294,7 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
       submitData: {
         memberId: changeData.memberId,
         type: changeData.type,        
-        formData: {
-          member: changeDetails.member,
-          partner: changeDetails.partner?.name,
-          children: changeDetails.children?.all.map(c => c.name).join(', '),
-          newRelationships: {
-            partner: changeDetails.partner?.isNew || false,
-            children: changeDetails.children?.newIds || []
-          }
-        },
+        formData: details,
       },
       htmlContent
     },
@@ -340,9 +339,16 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
     children?: ChildrenData;
   } = { member: member.name };
 
-  try {
-    const details: EditRelationshipDetails = JSON.parse(changeData?.details || '{}');
-    
+  const details: EditRelationshipDetails = JSON.parse(changeData?.details || '{}');
+
+  if (!details.deleteData && !details.hasPartner && !details.childrenOrder) {
+    return NextResponse.json(
+      { error: "No valid relationship changes found in request" },
+      { status: 400 }
+    );
+  }
+
+  try {  
     // Handle partner changes
     const currentPartnerId = currentRelationships?.partnerId;
     const newPartnerId = details.hasPartner;
@@ -533,23 +539,7 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
       submitData: {
         memberId: changeData.memberId,
         type: changeData.type,
-        formData: {
-          member: changeDetails.member,
-          partner: changeDetails.partner || null,
-          children: changeDetails.children 
-            ? {
-                all: changeDetails.children.all.map(c => ({
-                  id: c.id,
-                  name: c.name,
-                  currentOrder: c.currentOrder,
-                  newOrder: c.newOrder
-                })),
-                removedIds: changeDetails.children.removedIds,
-                reorderedIds: changeDetails.children.reorderedIds
-              }
-            : null,
-          hasChanges: hasAnyChanges
-        },
+        formData: details
       },
       htmlContent
     },
@@ -581,7 +571,7 @@ function displayValue(val: any, key: string): string {
 
 export async function PUT(request: Request) {
     const url = new URL(request.url);
-    const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
+    const requestId = parseInt(url.pathname.split('/').pop() || '', 10);
     const authHeader = request.headers.get('Authorization');
     const token = authHeader?.split(' ')[1];
     
@@ -589,9 +579,9 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
   
-    if (isNaN(memberId)) {
+    if (isNaN(requestId)) {
       return NextResponse.json(
-        { error: "Invalid member ID" },
+        { error: "Invalid request ID" },
         { status: 400 }
       );
     }
@@ -604,9 +594,9 @@ export async function PUT(request: Request) {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
       }
   
-      const {updatedData, editDataId} = await request.json();
+      const updatedData = await request.json();
   
-      if (!updatedData || Object.keys(updatedData).length === 0) {
+      if (!updatedData.formData || Object.keys(updatedData.formData).length === 0) {
         return NextResponse.json(
           { error: "No data provided for update" },
           { status: 400 }
@@ -615,7 +605,7 @@ export async function PUT(request: Request) {
   
       const member = await prisma.member.findUnique({
         where: { 
-          id: memberId,
+          id: updatedData.memberId,
           descendantOf: forDescendanceOf 
         },
         select: {
@@ -629,58 +619,203 @@ export async function PUT(request: Request) {
           { status: 404 }
         );
       }
+
+      if (updatedData.type == "Edit Member") {
+        const deceased = updatedData.formData.deceased === true;
+    
+        const memberUpdateData = {
+          name: updatedData.formData.name,
+          gender: updatedData.formData.gender,
+          birthDate: updatedData.formData.birthDate ? parseInt(updatedData.formData.birthDate, 10) : null,
+          birthMonth: updatedData.formData.birthMonth ? parseInt(updatedData.formData.birthMonth, 10) : null,
+          birthYear: updatedData.formData.birthYear ? parseInt(updatedData.formData.birthYear, 10) : null,
+          deceased: deceased,
+          deathDate: deceased && updatedData.formData.deathDate ? parseInt(updatedData.formData.deathDate, 10) : null,
+          deathMonth: deceased && updatedData.formData.deathMonth ? parseInt(updatedData.formData.deathMonth, 10) : null,
+          deathYear: deceased && updatedData.formData.deathYear ? parseInt(updatedData.formData.deathYear, 10) : null,
+          phoneNumber: updatedData.formData.phoneNumber,
+          occupation: updatedData.formData.occupation || null,
+          education: updatedData.formData.education || null,
+          address: updatedData.formData.address || null,
+          descendant: updatedData.formData.descendant,
+        };
+    
+        const updatedMember = await prisma.member.update({
+          where: { id: updatedData.memberId },
+          data: memberUpdateData,
+        });
+    
+        if (updatedData.formData.descendant === false && (updatedData.formData.father || updatedData.formData.mother || updatedData.formData.siblings)) {
+          await prisma.nonDescendantRelation.upsert({
+            where: { memberId: updatedData.memberId },
+            update: {
+              fatherName: updatedData.formData.father || null,
+              motherName: updatedData.formData.mother || null,
+              siblingNames: updatedData.formData.siblings || null,
+            },
+            create: {
+              memberId: updatedData.memberId,
+              fatherName: updatedData.formData.father || null,
+              motherName: updatedData.formData.mother || null,
+              siblingNames: updatedData.formData.siblings || null,
+            },
+          });
+        }
   
-      // If the member is not verified, proceed with the update logic
-      const deceased = updatedData.deceased === true;
-  
-      const memberUpdateData = {
-        name: updatedData.name,
-        gender: updatedData.gender,
-        birthDate: updatedData.birthDate ? parseInt(updatedData.birthDate, 10) : null,
-        birthMonth: updatedData.birthMonth ? parseInt(updatedData.birthMonth, 10) : null,
-        birthYear: updatedData.birthYear ? parseInt(updatedData.birthYear, 10) : null,
-        deceased: deceased,
-        deathDate: deceased && updatedData.deathDate ? parseInt(updatedData.deathDate, 10) : null,
-        deathMonth: deceased && updatedData.deathMonth ? parseInt(updatedData.deathMonth, 10) : null,
-        deathYear: deceased && updatedData.deathYear ? parseInt(updatedData.deathYear, 10) : null,
-        phoneNumber: updatedData.phoneNumber,
-        occupation: updatedData.occupation || null,
-        education: updatedData.education || null,
-        address: updatedData.address || null,
-        descendant: updatedData.descendant,
-      };
-  
-      const updatedMember = await prisma.member.update({
-        where: { id: memberId },
-        data: memberUpdateData,
-      });
-  
-      if (updatedData.descendant === false && (updatedData.father || updatedData.mother || updatedData.siblings)) {
-        await prisma.nonDescendantRelation.upsert({
-          where: { memberId: memberId },
-          update: {
-            fatherName: updatedData.father || null,
-            motherName: updatedData.mother || null,
-            siblingNames: updatedData.siblings || null,
-          },
-          create: {
-            memberId: memberId,
-            fatherName: updatedData.father || null,
-            motherName: updatedData.mother || null,
-            siblingNames: updatedData.siblings || null,
-          },
+        await prisma.requestDetails.delete({
+          where: { id: requestId },
+        });
+    
+        return NextResponse.json({
+          success: true,
+          message: "Successfully Updated Member Edit",
+          data: updatedMember,
         });
       }
 
-      await prisma.requestDetails.delete({
-        where: { id: editDataId },
-      });
-  
-      return NextResponse.json({
-        success: true,
-        message: "Member updated successfully",
-        data: updatedMember,
-      });
+      if (updatedData.type == "Add Relationship") {
+
+        const updatedMember = await prisma.member.update({
+          where: { id: updatedData.memberId },
+          data: updatedData.formData,
+        });
+
+        // Function to update the order of children
+        const updateChildrenOrder = async (childrenIds: { id: number }[]) => {
+          for (let i = 0; i < childrenIds.length; i++) {
+            const childId = childrenIds[i].id;
+            await prisma.member.update({
+              where: { id: childId },
+              data: {
+                order: i + 1, // Update the order based on the sequence
+              },
+            });
+          }
+        };
+
+        // Handle updating the partner's relationships and children's order
+        if (updatedData.formData.partnerId) {
+          const partnerUpdateData: any = {};
+
+          partnerUpdateData.partnerId = updatedData.memberId;
+          if (updatedData.formData.fatherOf) {
+            partnerUpdateData.motherOf = updatedData.formData.fatherOf;
+            await updateChildrenOrder(updatedData.formData.fatherOf.connect);
+          }
+
+          if (updatedData.formData.motherOf) {
+            partnerUpdateData.fatherOf = updatedData.formData.motherOf;
+            await updateChildrenOrder(updatedData.formData.motherOf.connect);
+          }
+
+          if (Object.keys(partnerUpdateData).length > 0) {
+            await prisma.member.update({
+              where: { id: updatedData.formData.partnerId },
+              data: partnerUpdateData,
+            });
+          }
+        }
+
+        await prisma.requestDetails.delete({
+          where: { id: requestId },
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: "Successfully Added Relationship",
+          data: updatedMember,
+        });
+
+      }
+
+      if (updatedData.type == "Edit Relationship") {
+        // Start processing updates
+        const updatePromises: Promise<any>[] = [];
+
+        // Handle partner removal
+        if (updatedData.formData.deleteData.partnerId) {
+          const partnerIdToRemove = updatedData.formData.deleteData.partnerId;
+
+          updatePromises.push(
+            prisma.$transaction([
+              prisma.member.update({
+                where: { id: partnerIdToRemove },
+                data: { partnerId: null },
+              }),
+              prisma.member.update({
+                where: { id: updatedData.memberId },
+                data: { partnerId: null },
+              }),
+            ])
+          );
+        }
+
+        // Handle children relations removal
+        if (updatedData.formData.deleteData.childrenId && Array.isArray(updatedData.formData.deleteData.childrenId)) {
+          const removeChildRelation: number[] = Array.from(new Set(updatedData.formData.deleteData.childrenId)); // Deduplicate
+
+          // Update the member's fatherOf and motherOf relationships (remove child from member)
+          updatePromises.push(
+            prisma.member.update({
+              where: { id: updatedData.memberId },
+              data: {
+                // Remove children from fatherOf if it exists
+                fatherOf: {
+                  disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+                },
+                // Remove children from motherOf if it exists
+                motherOf: {
+                  disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+                },
+              },
+            })
+          );
+
+          // Update the partner's fatherOf and motherOf relationships (remove child from partner)
+          if (updatedData.formData.hasPartner !== null && updatedData.formData.hasPartner !== undefined && !updatedData.formData.deleteData.partnerId) {
+            updatePromises.push(
+              prisma.member.update({
+                where: { id: updatedData.formData.hasPartner },
+                data: {
+                  // Remove children from fatherOf if it exists
+                  fatherOf: {
+                    disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+                  },
+                  // Remove children from motherOf if it exists
+                  motherOf: {
+                    disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+                  },
+                },
+              })
+            );
+          }
+        }
+
+        // Handle children order update
+        if (updatedData.formData.childrenOrder && Array.isArray(updatedData.formData.childrenOrder)) {
+          for (let i = 0; i < updatedData.formData.childrenOrder.length; i++) {
+            const child = updatedData.formData.childrenOrder[i];
+            updatePromises.push(
+              prisma.member.update({
+                where: { id: child.id },
+                data: { order: i + 1 }, // Update the order based on the position in the array
+              })
+            );
+          }
+        }
+
+        // Wait for all updates to complete
+        await Promise.all([
+          ...updatePromises,
+          prisma.requestDetails.delete({ where: { id: requestId } })
+        ]);
+
+        return NextResponse.json({
+          success: true,
+          message: "Successfully Edited Relationship",
+        });
+      }
+
     } catch (error: any) {
       console.error("Error updating member:", error);
   

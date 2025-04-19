@@ -62,8 +62,13 @@ const ChangeRequestView = ({ showDetailsFor, setShowDetails, currentDetailIndex,
   const handleApproveChanges = async () => {
     try {
       setLoading(true);
+
+      if (!data?.submitData || !showDetailsFor[currentDetailIndex]?.id) {
+        throw new Error("Invalid request data");
+      }
+      
       const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
-        method: 'DELETE',
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}` 

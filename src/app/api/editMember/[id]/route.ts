@@ -312,42 +312,41 @@ export async function PUT(request: Request, context: any) {
         success: true,
         message: "No changes detected",
       });
-    } else {
-      // If the member is not verified, proceed with the update logic
-      try {
-        await prisma.member.update({
-          where: { id: memberId },
-          data: memberUpdateData,
+    } 
+    // If the member is not verified, proceed with the update logic
+    try {
+      await prisma.member.update({
+        where: { id: memberId },
+        data: memberUpdateData,
+      });
+  
+      if (updatedData.descendant === false && (updatedData.father || updatedData.mother || updatedData.siblings)) {
+        await prisma.nonDescendantRelation.upsert({
+          where: { memberId: memberId },
+          update: {
+            fatherName: updatedData.father || null,
+            motherName: updatedData.mother || null,
+            siblingNames: updatedData.siblings || null,
+          },
+          create: {
+            memberId: memberId,
+            fatherName: updatedData.father || null,
+            motherName: updatedData.mother || null,
+            siblingNames: updatedData.siblings || null,
+          },
         });
-    
-        if (updatedData.descendant === false && (updatedData.father || updatedData.mother || updatedData.siblings)) {
-          await prisma.nonDescendantRelation.upsert({
-            where: { memberId: memberId },
-            update: {
-              fatherName: updatedData.father || null,
-              motherName: updatedData.mother || null,
-              siblingNames: updatedData.siblings || null,
-            },
-            create: {
-              memberId: memberId,
-              fatherName: updatedData.father || null,
-              motherName: updatedData.mother || null,
-              siblingNames: updatedData.siblings || null,
-            },
-          });
-        }
-    
-        return NextResponse.json({
-          success: true,
-          message: "Member updated successfully",
-        });
-      } catch (error) {
-        console.error("Error updating member:", error);
-        return NextResponse.json(
-          { error: "Failed to update member" },
-          { status: 500 }
-        );
       }
+  
+      return NextResponse.json({
+        success: true,
+        message: "Member updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating member:", error);
+      return NextResponse.json(
+        { error: "Failed to update member" },
+        { status: 500 }
+      );
     }
 
   } catch (error: any) {
