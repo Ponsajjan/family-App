@@ -457,7 +457,7 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
           <p class="whitespace-nowrap font-semibold min-w-[90px]">Children</p>
           
           ${hasAnyChanges ? `
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-2">
               ${hasOrderChanges ? `
                 <div>
                   <p class="font-semibold">New Order:</p>
@@ -468,9 +468,9 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
                       .map(child => `
                         <div class="flex gap-1 items-center">
                           <span class="whitespace-nowrap">${child.newOrder}. ${child.name}</span>
-                          <span class="text-blue-600 font-medium">
-                             (Moved from ${child.currentOrder})
-                          </span>
+                            <span class="text-blue-600 font-medium">
+                              ${child.newOrder !== child.currentOrder ? `(Moved from ${child.currentOrder})` : ''}
+                            </span>
                         </div>
                       `).join('')}
                     ${changeDetails.children.all
@@ -509,7 +509,7 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
                           <span class="line-through whitespace-nowrap">
                              ${child.name}
                           </span>
-                          <span class="text-blue-600 font-medium">(Previous order ${child.currentOrder}) (Removed)</span>
+                          <span class="text-blue-600 font-medium">(Removed order ${child.currentOrder})</span>
                         </div>
                       `).join('')}
                   </div>

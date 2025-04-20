@@ -5,19 +5,19 @@ import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import Loading from '@/components/Loading';
 import { getCookie } from 'cookies-next';
-import { useToast } from '@/components/Toast';
 
 export default function Details({ showMember, openDetails }: any) {
-      const toast = useToast();
       const token = getCookie('token');
       const [data, setData] = useState<any>(null);
       const [loadingDetails, setLoadingDetails] = useState(true);
-      
+      const [error, setError] = useState<string | null>(null);
+
       useEffect(() => {
         const fetchMemberDetails = async () => {
           if (!showMember) return;
           
           try {
+            setError(null)
             setLoadingDetails(true);
             const response = await fetch(`/api/relatives/${showMember}`, {
               method: 'GET',
@@ -35,9 +35,9 @@ export default function Details({ showMember, openDetails }: any) {
       
             const { data } = await response.json();
             setData(data);
-          } catch (error) {
-            const message = error instanceof Error ? error.message : 'Unknown error';
-            toast?.show(message, "error", 5000) || alert(message);
+          } catch (err) {
+            console.error('Error fetching data:', err);
+            setError(err instanceof Error ? err.message : 'Unknown error occurred');
           } finally {
             setLoadingDetails(false);
           }
@@ -45,6 +45,9 @@ export default function Details({ showMember, openDetails }: any) {
       
         fetchMemberDetails();
       }, [showMember, token]);
+
+      if (error) return <div className='p-4'>Error: {error}</div>;
+      if (!data) return <div className='p-4 loading-text'>No data found</div>;
 
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>

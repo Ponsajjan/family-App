@@ -6,7 +6,8 @@ interface Member {
 interface Children {
     id: number;
     name: string;
-    verified: boolean
+    verified: boolean;
+    // order: number;
 }
 export interface AddRelationFormValuesType {
     id: number | undefined;

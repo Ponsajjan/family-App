@@ -17,10 +17,12 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     const [data, setData] = useState<any>(null);
     const [loadingDetails, setLoadingDetails] = useState(true);
     const [deleted, setDeleted] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchMembers() {
             try {
+                setError(null)
                 setDeleted(false)
                 setLoadingDetails(true)
                 const response = await fetch(`/api/moderator/verifyMember/${showDetailsFor.id}`,
@@ -38,13 +40,17 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     router.push('/login');
                     return;
                 }
-                if (!response.ok) throw new Error('Failed to fetch member details');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Failed to fetch member details");
+                  }
         
                 const member = await response.json();
         
                 setData(member.data);
-            } catch (error:any) {
-                toast?.show(error.message || "Error fetching member details", "error", 5000);
+            } catch (err:any) {
+                console.error('Error fetching data:', err);
+                setError(err instanceof Error ? err.message : 'Unknown error occurred');
             } finally {
                 setLoadingDetails(false)
             }
@@ -169,6 +175,9 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
         };
     }
 
+    if (error) return <div className='p-4'>Error: {error}</div>;
+    if (!data) return <div className='p-4 loading-text'>No data found</div>;
+    
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background'>
             <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>

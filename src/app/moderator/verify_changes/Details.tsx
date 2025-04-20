@@ -22,6 +22,7 @@ const ChangeRequestView = ({ showDetailsFor, setShowDetails, currentDetailIndex,
       }
 
       try {
+        setError(null)
         setLoading(true);
         const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
           method: 'GET',
