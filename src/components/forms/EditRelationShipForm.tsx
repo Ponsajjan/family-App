@@ -88,7 +88,7 @@ function EditRelationShipForm({
                 >
                 <span className="py-2 w-full">{item?.name}</span>
                 {formData.children.length > 0 && <span
-                    onClick={() => handleRemoveChildrenValue(item?.id, item?.order)}
+                    onClick={() => handleRemoveChildrenValue(item?.id)}
                     className="border border-border_color rounded-md h-fit  cursor-pointer">
                     <CloseIcon />
                 </span>}

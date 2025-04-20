@@ -318,8 +318,6 @@ interface EditRelationshipDetails {
   hasPartner?: number;
   childrenOrder?: Array<{
     id: number;
-    name: string;
-    verified: boolean;
     order: number;
   }>;
 }
@@ -606,19 +604,7 @@ interface RelationshipData {
 }
 
 interface RequestData {
-  formData: {
-    deleteData?: {
-      partnerId?: number | null;
-      childrenId?: number[];
-    };
-    hasPartner?: number | null;
-    childrenOrder?: Array<{
-      id: number;
-      name: string;
-      verified: boolean;
-      order: number;
-    }>;
-  };
+  formData: any;
   memberId: number;
   type: "Edit Member" | "Add Relationship" | "Edit Relationship";
 }
@@ -770,7 +756,7 @@ const handleEditRelationship = async (data: RequestData, tx: any) => {
   // Handle children order updates
   if (data.formData.childrenOrder?.length) {
     updatePromises.push(
-      ...data.formData.childrenOrder.map((child, index) =>
+      ...data.formData.childrenOrder.map((child:any, index:number) =>
         tx.member.update({ 
           where: { id: child.id }, 
           data: { order: index + 1 } 

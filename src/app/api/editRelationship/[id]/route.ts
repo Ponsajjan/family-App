@@ -102,43 +102,36 @@ export async function GET(request: Request) {
   }
 }
 
-interface ChildRelation {
-  id: number;
-  order: number;
-}
-
-interface DeleteData {
-  partnerId?: number;
-  childrenId?: ChildRelation[];
-}
-
-interface UpdateRequest {
-  deleteData: DeleteData;
-  hasPartner?: number | null;
-  childrenPrevOrder?: ChildRelation[];
-}
-
 export async function PUT(request: Request) {
-  // Authentication & Validation
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
-  const token = request.headers.get('Authorization')?.split(' ')[1];
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
 
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (isNaN(memberId)) return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (isNaN(memberId)) {
+    return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
+  }
 
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
-    if (!forDescendanceOf) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-    const { deleteData, hasPartner, childrenPrevOrder } = await request.json() as UpdateRequest;
+    if (!forDescendanceOf) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
 
+    const { deleteData, hasPartner, childrenOrder } = await request.json();
+
+    // Validate request body
     if (!deleteData || Object.keys(deleteData).length === 0) {
       return NextResponse.json({ error: "No data provided for update" }, { status: 400 });
     }
 
-    // Verify member and relationships
+    // Check if any of the members are verified
     const member = await prisma.member.findUnique({
       where: {
         id: memberId,
@@ -166,98 +159,134 @@ export async function PUT(request: Request) {
       },
     });
 
-    if (!member) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    if (!member) {
+      return NextResponse.json(
+        { error: "Member not found" },
+        { status: 404 }
+      );
+    }
+    
+    // Check if any member (main member, partner, or children) is verified
+    const hasVerified =
+      member?.verified || // Check if the main member is verified
+      member?.partner?.verified || // Check if the partner is verified
+      member?.fatherOf.some((child) => child.verified) || // Check if any child in fatherOf is verified
+      member?.motherOf.some((child) => child.verified); // Check if any child in motherOf is verified
 
-    // Check verification status
-    const hasVerified = [
-      member.verified,
-      member.partner?.verified,
-      ...member.fatherOf.map(c => c.verified),
-      ...member.motherOf.map(c => c.verified)
-    ].some(Boolean);
-
+    // If any verified members are found, add the update request to pending verification
     if (hasVerified) {
       await prisma.requestDetails.create({
         data: {
           descendantOf: forDescendanceOf,
-          type: "Edit Relationship",
-          details: JSON.stringify({ deleteData, hasPartner, childrenPrevOrder }),
-          memberId
-        }
+          type: "Edit Relationship", // Type of request
+          details: JSON.stringify({ deleteData, hasPartner, childrenOrder }), // Store the update data as a JSON string
+          memberId: memberId, // Associate the request with the main member
+        },
       });
-      return NextResponse.json({ 
+
+      return NextResponse.json({
         success: true,
         message: "Update request has been added for verification.",
       });
     }
 
-    // Execute updates
-    await prisma.$transaction(async (prisma) => {
-      // Partner removal
-      if (deleteData.partnerId) {
-        await prisma.member.updateMany({
-          where: { id: { in: [memberId, deleteData.partnerId] } },
-          data: { partnerId: null }
-        });
-      }
+    // If no verified members are involved, proceed with the update logic
 
-      // Children removal
-      if (deleteData.childrenId?.length) {
-        const childIds = deleteData.childrenId.map(c => c.id);
-        const uniqueIds = [...new Set(childIds)];
+    // Start processing updates
+    const updatePromises: Promise<any>[] = [];
 
-        const updates = [
+    // Handle partner removal
+    if (deleteData.partnerId) {
+      const partnerIdToRemove = deleteData.partnerId;
+
+      updatePromises.push(
+        prisma.$transaction([
+          prisma.member.update({
+            where: { id: partnerIdToRemove },
+            data: { partnerId: null },
+          }),
           prisma.member.update({
             where: { id: memberId },
+            data: { partnerId: null },
+          }),
+        ])
+      );
+    }
+
+    // Handle children relations removal
+    if (deleteData.childrenId && Array.isArray(deleteData.childrenId)) {
+      const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
+
+      // Update the member's fatherOf and motherOf relationships (remove child from member)
+      updatePromises.push(
+        prisma.member.update({
+          where: { id: memberId },
+          data: {
+            // Remove children from fatherOf if it exists
+            fatherOf: {
+              disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+            },
+            // Remove children from motherOf if it exists
+            motherOf: {
+              disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+            },
+          },
+        })
+      );
+
+      // Update the partner's fatherOf and motherOf relationships (remove child from partner)
+      if (hasPartner !== null && hasPartner !== undefined && !deleteData.partnerId) {
+        updatePromises.push(
+          prisma.member.update({
+            where: { id: hasPartner },
             data: {
-              fatherOf: { disconnect: uniqueIds.map(id => ({ id })) },
-              motherOf: { disconnect: uniqueIds.map(id => ({ id })) }
-            }
+              // Remove children from fatherOf if it exists
+              fatherOf: {
+                disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+              },
+              // Remove children from motherOf if it exists
+              motherOf: {
+                disconnect: removeChildRelation.map((childId) => ({ id: childId })),
+              },
+            },
           })
-        ];
-
-        if (hasPartner && !deleteData.partnerId) {
-          updates.push(
-            prisma.member.update({
-              where: { id: hasPartner },
-              data: {
-                fatherOf: { disconnect: uniqueIds.map(id => ({ id })) },
-                motherOf: { disconnect: uniqueIds.map(id => ({ id })) }
-              }
-            })
-          );
-        }
-
-        await Promise.all(updates);
-      }
-
-      // Children order updates
-      if (childrenPrevOrder?.length) {
-        await Promise.all(
-          childrenPrevOrder.map((child, index) => 
-            prisma.member.update({
-              where: { id: child.id },
-              data: { order: index + 1 }
-            })
-          )
         );
       }
-    });
+    }
+
+    // Handle children order update
+    if (childrenOrder && Array.isArray(childrenOrder)) {
+      for (let i = 0; i < childrenOrder.length; i++) {
+        const child = childrenOrder[i];
+        updatePromises.push(
+          prisma.member.update({
+            where: { id: child.id },
+            data: { order: i + 1 }, // Update the order based on the position in the array
+          })
+        );
+      }
+    }
+
+    // Wait for all updates to complete
+    await Promise.all(updatePromises);
 
     return NextResponse.json({
       success: true,
-      message: "Member updated successfully"
+      message: "Member updated successfully",
     });
-
   } catch (error: any) {
-    console.error("Update error:", error);
-    
-    if (error.name === 'JsonWebTokenError') {
+    console.error("Error updating member:", error);
+
+    // Handle token verification errors
+    if (error instanceof Error && error.name === "JsonWebTokenError") {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
+
+    // Handle specific Prisma error codes
     if (error.code === "P2025") {
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
     }
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
