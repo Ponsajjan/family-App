@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
             gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
             partnerId: null,
             id: { notIn: excludeId },
-            descendant: descendant ? showCousin : false,
+            descendant: descendant == 'true' ? showCousin : true,
             AND: {
               OR: [
                 { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
