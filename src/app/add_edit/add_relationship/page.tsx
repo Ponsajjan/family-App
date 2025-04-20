@@ -59,11 +59,11 @@ export default function AddRelationshipDetails () {
   
     const updateData = (prev: any) => {
       if (Array.isArray(prev['children'])) {
-        const exists = prev['children'].some((entry: { id: number; name: string; verified: boolean }) => entry.id === id);
+        const exists = prev['children'].some((entry) => entry.id === id);
           if (exists) {
           return {
             ...prev,
-            ['children']: prev['children'].filter((entry: { id: number; name: string; verified: boolean }) => entry.id !== id),
+            ['children']: prev['children'].filter((entry) => entry.id !== id),
           };
         } else {
           return {
@@ -109,22 +109,23 @@ export default function AddRelationshipDetails () {
       const isMale = selectedMemberData.gender === "Male";
       const isFemale = selectedMemberData.gender === "Female";
 
+      const getOrderedChildren = () => {
+        const allChildren = [
+          ...(selectedMemberData.children?.map((child:any) => ({ ...child, source: 'member' })) || []),
+          ...(selectedPartnerData?.children?.map((child:any) => ({ ...child, source: 'partner' })) || []),
+          ...(newChildrenData.children?.map((child:any) => ({ ...child, source: 'new' })) || [])
+        ];
+      
+        return allChildren.map((child, index) => ({
+          id: child.id,
+          order: index + 1
+        }));
+      };
+      
       const memberData = {
-        partnerId: selectedMemberData.partner?.id ? selectedMemberData.partner?.id : selectedPartnerData.id,
-        ...(isMale && {
-          fatherOf: {connect: [
-            ...selectedMemberData.children.map((child: {name: string, id: number}) => ({ id: child.id })),
-            ...newChildrenData.children.map((child: {name: string, id: number}) => ({ id: child.id })),
-            ...selectedPartnerData.children.map((child: {name: string, id: number}) => ({ id: child.id }))
-          ]},
-        }),
-        ...(isFemale && {
-          motherOf: {connect: [
-            ...selectedMemberData.children.map((child: {name: string, id: number}) => ({ id: child.id })),
-            ...newChildrenData.children.map((child: {name: string, id: number}) => ({ id: child.id })),
-            ...selectedPartnerData.children.map((child: {name: string, id: number}) => ({ id: child.id }))
-          ]},
-        }),
+        partnerId: selectedMemberData.partner?.id ?? selectedPartnerData?.id,
+        ...(isMale && { fatherOf: getOrderedChildren() }),
+        ...(isFemale && { motherOf: getOrderedChildren() }),
       };
   
       const response = await fetch(`/api/addRelationship/${selectedMemberData?.id}`, {

@@ -119,7 +119,7 @@ const ChangeRequestView = ({ showDetailsFor, setShowDetails, currentDetailIndex,
   }
   
   if (error) return <div className='p-4'>Error: {error}</div>;
-  if (!data) return <div className='p-4 loading-text'>No data found</div>;
+  if (!data && !loading) return <div className='p-4 loading-text'>No data found</div>;
 
   return (
     <Container className='text-text_color p-4 relative bg-main_background'>
@@ -129,7 +129,7 @@ const ChangeRequestView = ({ showDetailsFor, setShowDetails, currentDetailIndex,
             <span><NavIconVerified /></span>
             <span>Verify Changes</span>
           </div>
-          {showDetailsFor.length > 1 && (
+          {showDetailsFor?.length > 1 && (
             <div className='flex mr-10'>
               <span 
                 className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${

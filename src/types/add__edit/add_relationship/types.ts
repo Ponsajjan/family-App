@@ -7,7 +7,7 @@ interface Children {
     id: number;
     name: string;
     verified: boolean;
-    // order: number;
+    order: number;
 }
 export interface AddRelationFormValuesType {
     id: number | undefined;

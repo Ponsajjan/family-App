@@ -1,6 +1,12 @@
 interface Member {
     id: number | null;
     name: string;
+    order: number;
+}
+
+interface Children {
+    id: number | null;
+    order: number;
 }
 
 export interface EditRelationshipValueTypes {
@@ -15,7 +21,7 @@ export interface EditRelationshipValueTypes {
 
 export interface DeleteValueTypes {
     partnerId: number[] | null;
-    childrenId: number[] | null;
+    childrenId: Children[] | null;
 }
 
 export const editRelationshipDefaultFormValue: EditRelationshipValueTypes = {

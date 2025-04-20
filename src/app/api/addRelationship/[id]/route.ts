@@ -127,116 +127,77 @@ export async function GET(request: Request) {
     }
 }
 
+interface ChildRelation {
+  id: number;
+  order?: number;
+}
+
+interface UpdateData {
+  partnerId?: number;
+  fatherOf?: ChildRelation[];
+  motherOf?: ChildRelation[];
+}
+
 export async function PUT(request: Request) {
-  const url = new URL(request.url);
-  const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
-
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (isNaN(memberId)) {
-    return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
-  }
-
   try {
+    // Authentication & Validation
+    const url = new URL(request.url);
+    const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
+    const token = request.headers.get('Authorization')?.split(' ')[1];
+
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (isNaN(memberId)) return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
+
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
+    if (!forDescendanceOf) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-    if (!forDescendanceOf) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    const updatedData = await request.json();
-
+    const updatedData: UpdateData = await request.json();
     if (!updatedData || Object.keys(updatedData).length === 0) {
-      return NextResponse.json(
-        { error: "No data provided for update" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No data provided" }, { status: 400 });
     }
 
-    // Extract IDs from payload
-    const idsToCheck: number[] = [];
+    // Relationship Validation
+    const allIds = [
+      memberId,
+      ...(updatedData.partnerId ? [updatedData.partnerId] : []),
+      ...(updatedData.fatherOf?.map(c => c.id) || []),
+      ...(updatedData.motherOf?.map(c => c.id) || [])
+    ];
 
-    if (updatedData.partnerId) {
-      idsToCheck.push(updatedData.partnerId);
-    }
-    if (updatedData.fatherOf?.connect) {
-      updatedData.fatherOf.connect.forEach((item: { id: number }) => idsToCheck.push(item.id));
-    }
-    if (updatedData.motherOf?.connect) {
-      updatedData.motherOf.connect.forEach((item: { id: number }) => idsToCheck.push(item.id));
-    }
-    idsToCheck.push(memberId)
-    
-    // Remove duplicate IDs using a Set
-    const uniqueIdsToCheck = Array.from(new Set(idsToCheck));
-
-    // Check if any of the IDs belong to verified members
-    const hasVerifiedMembers = await prisma.member.findMany({
-      where: {
-        id: { in: uniqueIdsToCheck },
-        verified: true,
-      },
-      select: {
-        id: true,
-      },
+    const verifiedMembers = await prisma.member.findMany({
+      where: { id: { in: allIds }, verified: true },
+      select: { id: true }
     });
 
-    // Get current member data including relationships
     const currentMember = await prisma.member.findUnique({
-      where: {
-        id: memberId,
-        descendantOf: forDescendanceOf
-      },
-      select: {
-        fatherOf: true,
-        motherOf: true,
-        partnerId: true,
-      },
+      where: { id: memberId, descendantOf: forDescendanceOf },
+      select: { fatherOf: { select: { id: true } }, motherOf: { select: { id: true } }, partnerId: true }
     });
 
-    if (!currentMember) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
-    }
+    if (!currentMember) return NextResponse.json({ error: "Member not found" }, { status: 404 });
 
-    // Check if member is verified
-    if (hasVerifiedMembers.length > 0) {
-      // Filter only new relationships that don't exist currently
-      const newRelationships: any = {};
-      
+    // Handle Verified Relationships
+    if (verifiedMembers.length > 0) {
+      const newRelationships: Partial<UpdateData> = {};
+
       newRelationships.partnerId = updatedData.partnerId;
 
-      // Check for new fatherOf relationships
-      if (updatedData.fatherOf?.connect) {
-        const currentFatherOfIds = currentMember.fatherOf.map(f => f.id);
-        const newFatherOf = updatedData.fatherOf.connect.filter(
-          (child: { id: number }) => !currentFatherOfIds.includes(child.id)
-        );
-        if (newFatherOf.length > 0) {
-          newRelationships.fatherOf = { connect: newFatherOf };
-        }
-      }
 
-      // Check for new motherOf relationships
-      if (updatedData.motherOf?.connect) {
-        const currentMotherOfIds = currentMember.motherOf.map(m => m.id);
-        const newMotherOf = updatedData.motherOf.connect.filter(
-          (child: { id: number }) => !currentMotherOfIds.includes(child.id)
-        );
-        if (newMotherOf.length > 0) {
-          newRelationships.motherOf = { connect: newMotherOf };
-        }
-      }
+      const getNewRelationships = (currentIds: number[], updated?: ChildRelation[]) => 
+        updated?.filter(child => !currentIds.includes(child.id)) || [];
 
-      // If there are new relationships, create verification request
-      if (Object.keys(newRelationships).length > 0) {
+      newRelationships.fatherOf = getNewRelationships(
+        currentMember.fatherOf.map(f => f.id),
+        updatedData.fatherOf
+      );
+
+      newRelationships.motherOf = getNewRelationships(
+        currentMember.motherOf.map(m => m.id),
+        updatedData.motherOf
+      );
+
+      if (Object.values(newRelationships).some(Boolean)) {
         await prisma.requestDetails.create({
           data: {
             descendantOf: forDescendanceOf,
@@ -245,84 +206,63 @@ export async function PUT(request: Request) {
             memberId: memberId,
           },
         });
-
-        return NextResponse.json({
+        return NextResponse.json({ 
           success: true,
           message: "New relationships added for verification",
         });
       }
-
-      return NextResponse.json({
+      return NextResponse.json({ 
         success: true,
         message: "No new relationships to update",
       });
     }
 
-    // If member is not verified, proceed with direct update
-    const updatedMember = await prisma.member.update({
-      where: { id: memberId },
-      data: updatedData,
-    });
-
-    // Function to update the order of children
-    const updateChildrenOrder = async (childrenIds: { id: number }[]) => {
-      for (let i = 0; i < childrenIds.length; i++) {
-        const childId = childrenIds[i].id;
-        await prisma.member.update({
-          where: { id: childId },
-          data: {
-            order: i + 1, // Update the order based on the sequence
-          },
-        });
-      }
+    // Update Member
+    const sanitizedUpdateData = {
+      ...(updatedData.partnerId !== undefined && { partnerId: updatedData.partnerId }),
+      ...(updatedData.fatherOf && { 
+        fatherOf: { connect: updatedData.fatherOf.map(({ id }) => ({ id })) }
+      }),
+      ...(updatedData.motherOf && { 
+        motherOf: { connect: updatedData.motherOf.map(({ id }) => ({ id })) }
+      })
     };
 
-    // Handle updating the partner's relationships and children's order
-    if (updatedData.partnerId) {
-      const partnerUpdateData: any = {};
-
-      partnerUpdateData.partnerId = memberId;
-      if (updatedData.fatherOf) {
-        partnerUpdateData.motherOf = updatedData.fatherOf;
-        await updateChildrenOrder(updatedData.fatherOf.connect);
-      }
-
-      if (updatedData.motherOf) {
-        partnerUpdateData.fatherOf = updatedData.motherOf;
-        await updateChildrenOrder(updatedData.motherOf.connect);
-      }
-
-      if (Object.keys(partnerUpdateData).length > 0) {
-        await prisma.member.update({
-          where: { id: updatedData.partnerId },
-          data: partnerUpdateData,
-        });
-      }
-    }
+    await prisma.$transaction([
+      prisma.member.update({
+        where: { id: memberId },
+        data: sanitizedUpdateData,
+      }),
+      ...(updatedData.fatherOf || []).map(({ id, order }) => 
+        prisma.member.update({ where: { id }, data: { order } })
+      ),
+      ...(updatedData.motherOf || []).map(({ id, order }) => 
+        prisma.member.update({ where: { id }, data: { order } })
+      ),
+      ...(updatedData.partnerId ? [prisma.member.update({
+        where: { id: updatedData.partnerId },
+        data: { 
+          partnerId: memberId,
+          ...(updatedData.fatherOf && { motherOf: { connect: updatedData.fatherOf.map(({ id }) => ({ id })) } }),
+          ...(updatedData.motherOf && { fatherOf: { connect: updatedData.motherOf.map(({ id }) => ({ id })) } })
+        }
+      })] : [])
+    ]);
 
     return NextResponse.json({
       success: true,
       message: "Member updated successfully",
-      data: updatedMember,
     });
 
   } catch (error: any) {
-    console.error("Error updating member:", error);
-
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
+    console.error("Update error:", error);
+    
+    if (error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
-
     if (error.code === "P2025") {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
-
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

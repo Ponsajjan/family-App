@@ -78,7 +78,7 @@ function EditRelationShipForm({
         {formData.children.length > 0 && 
         <>
             <p className="text-sm">Children</p>
-            {formData.children?.map((item: {id:any, name:string}, index:number) => (
+            {formData.children?.map((item: {id:any, name:string, order:number}, index:number) => (
                 <div key={item.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-grab" 
                     draggable={true}
                     onDragStart={() => handleDragStart(index)}
@@ -88,7 +88,7 @@ function EditRelationShipForm({
                 >
                 <span className="py-2 w-full">{item?.name}</span>
                 {formData.children.length > 0 && <span
-                    onClick={() => handleRemoveChildrenValue(item?.name, item?.id)}
+                    onClick={() => handleRemoveChildrenValue(item?.id, item?.order)}
                     className="border border-border_color rounded-md h-fit  cursor-pointer">
                     <CloseIcon />
                 </span>}

@@ -75,32 +75,26 @@ export default function ModeratorEditRelationship() {
     }
   }, [formData.id, toast, router]);
 
-  const handleRemoveChildrenValue = (name: string, id: number) => {
+  const handleRemoveChildrenValue = (id: number, order: number) => {
     setNoChanges(false);
-    setFormData((prev: any) => {
-      if (Array.isArray(prev['children'])) {
-        // Check if the name already exists
-        const exists = prev['children'].some((entry: any) => entry.id === id);
-        if (exists) {
-          // If the entry exists, remove it and add it to setDeleteData
-          setDeleteData((prevDeleted: any) => ({
-            ...prevDeleted,
-            ['childrenId']: [...prevDeleted['childrenId'], id],
-          }));
-          // Remove the existing entry
-          return {
-            ...prev,
-            ['children']: prev['children'].filter((entry: any) => entry.id !== id),
-          };
-        }
-      }
-
-      // If not an array, initialize with the first object
+    
+    // Update form data (remove the child)
+    setFormData((prev) => {
+      const currentChildren = prev.children || [];
       return {
         ...prev,
-        ['children']: { id, name },
+        children: currentChildren.filter(entry => entry.id !== id)
       };
     });
+  
+    // Update delete data (add to childrenId array)
+    setDeleteData((prev) => ({
+      ...prev,
+      childrenId: [
+        ...(prev.childrenId || []),
+        { id, order }
+      ]
+    }));
   };
 
   const handleDivorcePartner = () => {

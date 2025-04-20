@@ -157,20 +157,25 @@ async function handleEditMemberCase(member: any, changeData: any) {
   });
 }
 
+interface ChildRelation {
+  id: number;
+  order: number;
+}
+
 interface RelationshipDetails {
   partnerId?: number;
-  motherOf?: { connect: { id: number }[] };
-  fatherOf?: { connect: { id: number }[] };
+  motherOf?: ChildRelation[];
+  fatherOf?: ChildRelation[];
 }
 
 async function handleAddRelationshipCase(member: any, changeData: any) {
-  // First get current relationships
+  // Get current relationships with proper typing
   const currentRelationships = await prisma.member.findUnique({
     where: { id: member.id },
     select: {
       partnerId: true,
-      fatherOf: { select: { id: true, name: true } },  // Include names
-      motherOf: { select: { id: true, name: true } },  // Include names
+      fatherOf: { select: { id: true, name: true, order: true } },
+      motherOf: { select: { id: true, name: true, order: true } },
     },
   });
 
@@ -178,22 +183,22 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
     member: string | null;
     partner?: { name: string | null; isNew: boolean };
     children?: { 
-      all: {id: number, name: string}[];  // All children (existing + new)
+      all: {id: number, name: string, order: number}[];  // All children (existing + new)
       newIds: number[];                   // IDs of new children only
     };
   } = { member: member.name };
 
   const details: RelationshipDetails = JSON.parse(changeData?.details || '{}');
   
-  if (!details.partnerId && !details.motherOf && !details.fatherOf) {
+  if (!details.partnerId && !details.motherOf?.length && !details.fatherOf?.length) {
     return NextResponse.json(
       { error: "No valid relationship changes found in request" },
       { status: 400 }
     );
   }
 
-  try { 
-    // Handle partner comparison
+  try {
+    // Process partner changes
     if (details.partnerId) {
       const partner = await prisma.member.findUnique({
         where: { id: details.partnerId },
@@ -206,83 +211,87 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
       };
     }
 
-    // Collect all current children (from both fatherOf and motherOf)
+    // Process children changes
     const currentChildren = [
       ...(currentRelationships?.fatherOf || []),
       ...(currentRelationships?.motherOf || [])
-    ];
+    ].map(c => ({ id: c.id, name: c.name, order: c.order }));
 
-    // Process updated relationships
-    const updatedChildrenIds: number[] = [];
     const newChildrenIds: number[] = [];
-    const allChildren: {id: number, name: string}[] = [...currentChildren];
+    const allChildren = [...currentChildren];
 
-    // Helper function to process relationship updates
-    const processUpdates = async (connectData: {id: number}[] | undefined) => {
-      if (!connectData) return;
-      
-      for (const {id} of connectData) {
-        updatedChildrenIds.push(id);
+    // Process relationship updates with order preservation
+    const processUpdates = async (relations: ChildRelation[] | undefined) => {
+      if (!relations) return;
+
+      for (const {id, order} of relations) {
+        const existingIndex = allChildren.findIndex(c => c.id === id);
         
-        // Check if this is a new relationship
-        if (!currentChildren.some(c => c.id === id)) {
+        if (existingIndex >= 0) {
+          // Update order for existing child
+          allChildren[existingIndex].order = order;
+        } else {
+          // Add new child
           newChildrenIds.push(id);
-          // Fetch name for new children
           const child = await prisma.member.findUnique({
             where: { id },
             select: { name: true }
           });
-          if (child) {
-            allChildren.push({id, name: child.name || `Unknown (${id})`});
-          }
+          allChildren.push({ 
+            id, 
+            name: child?.name || `Unknown (${id})`,
+            order 
+          });
         }
       }
     };
 
-    // Process motherOf and fatherOf updates
-    await processUpdates(details.motherOf?.connect);
-    await processUpdates(details.fatherOf?.connect);
+    await processUpdates(details.motherOf);
+    await processUpdates(details.fatherOf);
 
-    // Set children data
     if (allChildren.length > 0) {
       changeDetails.children = {
-        all: allChildren,
+        all: allChildren.sort((a, b) => a.order - b.order), // Sort by order
         newIds: newChildrenIds
       };
     }
 
-  } catch (e) {
-    console.error('Error parsing change details:', e);
+  } catch (error) {
+    console.error('Error processing relationships:', error);
+    return NextResponse.json(
+      { error: "Failed to process relationship changes" },
+      { status: 500 }
+    );
   }
 
-  // Generate HTML showing all children with new ones highlighted
+  // Generate HTML response
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
       <div class="italic mb-4">---- ${changeData.type} ----</div>
+      
       <div class="flex gap-2">
-        <p class="whitespace-nowrap font-semibold min-w-[90px]">Member</p>
-        <p>${changeDetails.member || '-'}</p>
+        <p class="font-semibold min-w-[90px]">Member</p>
+        <p>${changeDetails.member}</p>
       </div>
+      
       ${changeDetails.partner ? `
         <div class="flex gap-2">
-          <p class="whitespace-nowrap font-semibold min-w-[90px]">Partner</p>
+          <p class="font-semibold min-w-[90px]">Partner</p>
           <p class="${changeDetails.partner.isNew ? 'text-blue-600 font-medium' : ''}">
             ${changeDetails.partner.name || '-'}
           </p>
         </div>
       ` : ''}
+      
       ${changeDetails.children ? `
         <div class="flex gap-2">
-          <p class="whitespace-nowrap font-semibold min-w-[90px]">Children</p>
-          <div class="flex flex-wrap gap-1">
-            ${changeDetails.children.all.map(child => {
-              const isNew = changeDetails.children?.newIds.includes(child.id);
-              return `
-                <span class="${isNew ? 'text-blue-600 font-medium' : ''}">
-                  ${child.name}
-                </span>
-              `;
-            }).join(', ')}
+          <p class="font-semibold min-w-[90px]">Children</p>
+          <div class="flex flex-col gap-1">
+            ${changeDetails.children.all.map((child, index) => `
+              <span class="${changeDetails.children!.newIds.includes(child.id) ? 'text-blue-600 font-medium' : ''}">
+                ${index + 1}. ${child.name}
+              </span>
+            `).join('')}
           </div>
         </div>
       ` : ''}
@@ -293,11 +302,11 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
     data: {
       submitData: {
         memberId: changeData.memberId,
-        type: changeData.type,        
+        type: changeData.type,
         formData: details,
       },
       htmlContent
-    },
+    }
   });
 }
 
@@ -468,9 +477,9 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
                       .map(child => `
                         <div class="flex gap-1 items-center">
                           <span class="whitespace-nowrap">${child.newOrder}. ${child.name}</span>
-                            <span class="text-blue-600 font-medium">
-                              ${child.newOrder !== child.currentOrder ? `(Moved from ${child.currentOrder})` : ''}
-                            </span>
+                          <span class="text-blue-600 font-medium">
+                            ${child.newOrder !== child.currentOrder ? `(Moved from ${child.currentOrder})` : ''}
+                          </span>
                         </div>
                       `).join('')}
                     ${changeDetails.children.all
@@ -509,7 +518,7 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
                           <span class="line-through whitespace-nowrap">
                              ${child.name}
                           </span>
-                          <span class="text-blue-600 font-medium">(Removed order ${child.currentOrder})</span>
+                          <span class="text-blue-600 font-medium"> (Removed order ${child.currentOrder})</span>
                         </div>
                       `).join('')}
                   </div>

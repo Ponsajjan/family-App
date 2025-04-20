@@ -47,7 +47,7 @@ export default function Details({ showMember, openDetails }: any) {
       }, [showMember, token]);
 
       if (error) return <div className='p-4'>Error: {error}</div>;
-      if (!data) return <div className='p-4 loading-text'>No data found</div>;
+      if (!data && !loadingDetails) return <div className='p-4 loading-text'>No data found</div>;
 
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
