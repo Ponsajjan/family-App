@@ -509,8 +509,9 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
                   <p class="font-semibold">Removed Children:</p>
                   <div class="flex flex-col gap-1 pl-4 mt-1">
                     ${changeDetails.children.all
-                      .filter(child => changeDetails.children?.removedIds.includes(child.id))
-                      .map((child, index) => `
+                      .filter(child => changeDetails.children?.removedIds.includes(child.id)).length > 0 
+                      ? changeDetails.children.all
+                      .filter(child => changeDetails.children?.removedIds.includes(child.id)).map((child, index) => `
                         <div class="flex gap-1 items-center">
                           <span>${index + 1}.</span>
                           <span class="line-through whitespace-nowrap">
@@ -518,7 +519,9 @@ async function handleEditRelationshipCase(member: any, changeData: any) {
                           </span>
                           <span class="text-blue-600 font-medium"> (Removed order ${child.currentOrder})</span>
                         </div>
-                      `).join('')}
+                      `).join('')
+                      : `<p class="text-blue-600 font-medium">Already Applied changes</p>`
+                    }
                   </div>
                 </div>
               ` : ''}

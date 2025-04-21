@@ -15,8 +15,9 @@ export default function NewMembers() {
   const [loadingList, setLoadingList] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const [showDetailsFor, setShowDetailsFor] = useState(null);
+  const [showDetailsFor, setShowDetailsFor] = useState([]);
   const [currentDetailIndex, setCurrentDetailIndex] = useState<number>(0);
+  const [memberId, setMemberId] = useState<number | null>(null)
   const token = getCookie('token');
   const router = useRouter(); 
   const [params, setParams] = useState({
@@ -91,10 +92,11 @@ export default function NewMembers() {
     };
   }, [params, hasMore, toast]);
 
-  const handleShowDetails = (value: any) => {
+  const handleShowDetails = (value: any, id:number) => {
     setShowDetails(true);
     setShowDetailsFor(value)
     setCurrentDetailIndex(0)
+    setMemberId(id)
   }
 
   return (
@@ -112,7 +114,7 @@ export default function NewMembers() {
                 <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
                     <div 
-                      onClick={() => handleShowDetails(member.pendingVerification)} 
+                      onClick={() => handleShowDetails(member.pendingVerification, member.id)} 
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
                       <div>
@@ -161,6 +163,9 @@ export default function NewMembers() {
               setShowDetails={setShowDetails} 
               currentDetailIndex={currentDetailIndex}
               setCurrentDetailIndex={setCurrentDetailIndex}
+              setShowDetailsFor={setShowDetailsFor}
+              setChangeList={setChangeList}
+              memberId={memberId}
             />
           </div>
         </div>
