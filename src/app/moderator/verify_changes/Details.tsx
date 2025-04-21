@@ -197,19 +197,27 @@ const ChangeRequestView = ({
         </div>
         {showDetailsFor?.length > 1 && (
           <div className='flex mr-10'>
-            <span 
+            <button
+              disabled={loading || disableButton || currentDetailIndex === 0}
               className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${
-                currentDetailIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                currentDetailIndex === 0 || loading || disableButton 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : ''
               }`}
               onClick={handlePrevious}
-            >{`<`}</span>
+            >{`<`}</button>
+            
             <span>{currentDetailIndex + 1}/{showDetailsFor.length}</span>
-            <span 
+            
+            <button
+              disabled={loading || disableButton || currentDetailIndex === showDetailsFor.length - 1}
               className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${
-                currentDetailIndex === showDetailsFor.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
+                currentDetailIndex === showDetailsFor.length - 1 || loading || disableButton 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : ''
               }`}
               onClick={handleNext}
-            >{`>`}</span>
+            >{`>`}</button>
           </div>
         )}
       </div>

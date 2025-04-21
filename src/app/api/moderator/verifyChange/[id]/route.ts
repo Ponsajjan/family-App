@@ -98,7 +98,214 @@ export async function GET(request: Request) {
   }
 }
 
-// Helper functions for different request types
+// Main PUT handler
+export async function PUT(request: Request) {
+  const url = new URL(request.url);
+  const requestId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  
+  // Initial validation
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (isNaN(requestId)) {
+    return NextResponse.json({ error: "Invalid request ID" }, { status: 400 });
+  }
+
+  try {
+    // Authentication
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    // Request validation
+    const requestData: RequestData = await request.json();
+
+    if (!requestData.formData || !requestData.memberId || !requestData.type) {
+      return NextResponse.json(
+        { error: "Invalid request data" },
+        { status: 400 }
+      );
+    }
+
+    // Verify member exists and belongs to the lineage
+    const member = await prisma.member.findUnique({
+      where: { 
+        id: requestData.memberId,
+        descendantOf: forDescendanceOf 
+      },
+      select: { id: true, verified: true },
+    });
+
+    if (!member) {
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    }
+
+    // Prevent self-referential relationships
+    if ('partnerId' in requestData.formData && 
+        requestData.formData.partnerId === requestData.memberId) {
+      return NextResponse.json(
+        { error: "Cannot set self as partner" },
+        { status: 400 }
+      );
+    }
+
+    // Process request in transaction
+    const result = await prisma.$transaction(async (tx) => {
+      const handlers = {
+        "Edit Member": handleEditMember,
+        "Add Relationship": handleAddRelationship,
+        "Edit Relationship": handleEditRelationship
+      };
+
+      const handler = handlers[requestData.type];
+      if (!handler) throw new Error("Invalid operation type");
+
+      const result = await handler(requestData, tx);
+      
+      // Delete the request after successful processing
+      await tx.requestDetails.delete({ where: { id: requestId } });
+      
+      return result;
+    });
+
+    return NextResponse.json(result);
+
+  } catch (error: any) {
+    console.error("Error in PUT request:", error);
+
+    if (error.code === "P2025") {
+      return NextResponse.json(
+        { error: "Member not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: error.message || "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+    const url = new URL(request.url);
+    const editDataId = parseInt(url.pathname.split('/').pop() || '', 10);
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+  
+    if (isNaN(editDataId)) {
+      return NextResponse.json(
+        { error: "Invalid request ID" },
+        { status: 400 }
+      );
+    }
+  
+    try {
+      const decoded = await verifyToken(token);
+      const forDescendanceOf = decoded.forDescendanceOf;
+  
+      if (!forDescendanceOf) {
+        return NextResponse.json(
+          { error: "Invalid token" },
+          { status: 401 }
+        );
+      }
+  
+      // Fetch the request with their relationships
+      const requestData = await prisma.requestDetails.findUnique({
+        where: { 
+          id: editDataId,
+          descendantOf: forDescendanceOf
+        },
+        select: {
+          type: true
+        },
+      });
+  
+      // If the request doesn't exist, return an error
+      if (!requestData) {
+        return NextResponse.json(
+          { error: "Request not found" },
+          { status: 404 }
+        );
+      }
+  
+      // Delete the request details
+      await prisma.requestDetails.delete({
+        where: { id: editDataId },
+      });
+  
+      return NextResponse.json({
+        success: true,
+        message: `Rejected ${requestData.type}`,
+      });
+    } catch (error: any) {
+      console.error("Error deleting request:", error);
+  
+      // Handle token verification errors
+      if (error instanceof Error && error.name === 'JsonWebTokenError') {
+        return NextResponse.json(
+          { error: "Invalid token" },
+          { status: 401 }
+        );
+      }
+  
+      if (error.code === "P2025") {
+        // Prisma-specific error for "Record not found"
+        return NextResponse.json(
+          { error: "Request not found" },
+          { status: 404 }
+        );
+      }
+  
+      return NextResponse.json(
+        { error: "Internal server error" },
+        { status: 500 }
+      );
+    }
+} 
+
+
+//---------- UTILITIES ----------//
+
+
+interface ChildRelation {
+  id: number;
+  order: number;
+}
+
+interface RelationshipDetails {
+  partnerId?: number;
+  motherOf?: ChildRelation[];
+  fatherOf?: ChildRelation[];
+}
+
+interface EditRelationshipDetails {
+  deleteData?: {
+    partnerId?: number | null;
+    childrenId?: number[];
+  };
+  hasPartner?: number;
+  childrenOrder?: Array<{
+    id: number;
+    order: number;
+  }>;
+}
+
+// GET request handler for Edit Member
 async function handleEditMemberCase(member: any, changeData: any) {
   const formData = {
     name: member.name,
@@ -157,17 +364,7 @@ async function handleEditMemberCase(member: any, changeData: any) {
   });
 }
 
-interface ChildRelation {
-  id: number;
-  order: number;
-}
-
-interface RelationshipDetails {
-  partnerId?: number;
-  motherOf?: ChildRelation[];
-  fatherOf?: ChildRelation[];
-}
-
+// GET request handler for Add Relationship
 async function handleAddRelationshipCase(member: any, changeData: any) {
   // Get current relationships with proper typing
   const currentRelationships = await prisma.member.findUnique({
@@ -310,18 +507,7 @@ async function handleAddRelationshipCase(member: any, changeData: any) {
   });
 }
 
-interface EditRelationshipDetails {
-  deleteData?: {
-    partnerId?: number | null;
-    childrenId?: number[];
-  };
-  hasPartner?: number;
-  childrenOrder?: Array<{
-    id: number;
-    order: number;
-  }>;
-}
-
+// GET request handler for Edit Relationship
 async function handleEditRelationshipCase(member: any, changeData: any) {
   // First get current relationships
   const currentRelationships = await prisma.member.findUnique({
@@ -600,19 +786,24 @@ interface MemberUpdateData {
   siblings?: string;
 }
 
-interface RelationshipData {
-  partnerId?: number;
-  fatherOf?: { connect: { id: number }[] };
-  motherOf?: { connect: { id: number }[] };
-}
-
 interface RequestData {
   formData: any;
   memberId: number;
   type: "Edit Member" | "Add Relationship" | "Edit Relationship";
 }
 
-// Handler functions
+interface AddRelationshipData {
+  partnerId?: number;
+  fatherOf?: Array<{ id: number; order: number }>;
+  motherOf?: Array<{ id: number; order: number }>;
+}
+
+interface AddRelationshipDataRequetData {
+  memberId: number;
+  formData: AddRelationshipData;
+}
+
+// PUT request handler
 const handleEditMember = async (data: RequestData, tx: any) => {
   const formData = data.formData as MemberUpdateData;
   const deceased = formData.deceased === true;
@@ -665,17 +856,7 @@ const handleEditMember = async (data: RequestData, tx: any) => {
   };
 };
 
-interface AddRelationshipData {
-  partnerId?: number;
-  fatherOf?: Array<{ id: number; order: number }>;
-  motherOf?: Array<{ id: number; order: number }>;
-}
-
-interface AddRelationshipDataRequetData {
-  memberId: number;
-  formData: AddRelationshipData;
-}
-
+// PUT request handler
 const handleAddRelationship = async (data: AddRelationshipDataRequetData, tx: any) => {
   const formData = data.formData;
   
@@ -756,6 +937,7 @@ const handleAddRelationship = async (data: AddRelationshipDataRequetData, tx: an
   };
 };
 
+// PUT request handler
 const handleEditRelationship = async (data: RequestData, tx: any) => {
   const updatePromises: Promise<any>[] = [];
 
@@ -819,183 +1001,3 @@ const handleEditRelationship = async (data: RequestData, tx: any) => {
     message: "Successfully Edited Relationship",
   };
 };
-
-// Main PUT handler
-export async function PUT(request: Request) {
-  const url = new URL(request.url);
-  const requestId = parseInt(url.pathname.split('/').pop() || '', 10);
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
-  
-  // Initial validation
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (isNaN(requestId)) {
-    return NextResponse.json({ error: "Invalid request ID" }, { status: 400 });
-  }
-
-  try {
-    // Authentication
-    const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
-
-    if (!forDescendanceOf) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    // Request validation
-    const requestData: RequestData = await request.json();
-
-    if (!requestData.formData || !requestData.memberId || !requestData.type) {
-      return NextResponse.json(
-        { error: "Invalid request data" },
-        { status: 400 }
-      );
-    }
-
-    // Verify member exists and belongs to the lineage
-    const member = await prisma.member.findUnique({
-      where: { 
-        id: requestData.memberId,
-        descendantOf: forDescendanceOf 
-      },
-      select: { id: true, verified: true },
-    });
-
-    if (!member) {
-      return NextResponse.json({ error: "Member not found" }, { status: 404 });
-    }
-
-    // Prevent self-referential relationships
-    if ('partnerId' in requestData.formData && 
-        requestData.formData.partnerId === requestData.memberId) {
-      return NextResponse.json(
-        { error: "Cannot set self as partner" },
-        { status: 400 }
-      );
-    }
-
-    // Process request in transaction
-    const result = await prisma.$transaction(async (tx) => {
-      const handlers = {
-        "Edit Member": handleEditMember,
-        "Add Relationship": handleAddRelationship,
-        "Edit Relationship": handleEditRelationship
-      };
-
-      const handler = handlers[requestData.type];
-      if (!handler) throw new Error("Invalid operation type");
-
-      const result = await handler(requestData, tx);
-      
-      // Delete the request after successful processing
-      await tx.requestDetails.delete({ where: { id: requestId } });
-      
-      return result;
-    });
-
-    return NextResponse.json(result);
-
-  } catch (error: any) {
-    console.error("Error in PUT request:", error);
-
-    if (error.code === "P2025") {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: error.message || "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request: Request) {
-    const url = new URL(request.url);
-    const editDataId = parseInt(url.pathname.split('/').pop() || '', 10);
-    const authHeader = request.headers.get('Authorization');
-    const token = authHeader?.split(' ')[1];
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-  
-    if (isNaN(editDataId)) {
-      return NextResponse.json(
-        { error: "Invalid request ID" },
-        { status: 400 }
-      );
-    }
-  
-    try {
-      const decoded = await verifyToken(token);
-      const forDescendanceOf = decoded.forDescendanceOf;
-  
-      if (!forDescendanceOf) {
-        return NextResponse.json(
-          { error: "Invalid token" },
-          { status: 401 }
-        );
-      }
-  
-      // Fetch the request with their relationships
-      const requestData = await prisma.requestDetails.findUnique({
-        where: { 
-          id: editDataId,
-          descendantOf: forDescendanceOf
-        },
-        select: {
-          type: true
-        },
-      });
-  
-      // If the request doesn't exist, return an error
-      if (!requestData) {
-        return NextResponse.json(
-          { error: "Request not found" },
-          { status: 404 }
-        );
-      }
-  
-      // Delete the request details
-      await prisma.requestDetails.delete({
-        where: { id: editDataId },
-      });
-  
-      return NextResponse.json({
-        success: true,
-        message: `Rejected ${requestData.type}`,
-      });
-    } catch (error: any) {
-      console.error("Error deleting request:", error);
-  
-      // Handle token verification errors
-      if (error instanceof Error && error.name === 'JsonWebTokenError') {
-        return NextResponse.json(
-          { error: "Invalid token" },
-          { status: 401 }
-        );
-      }
-  
-      if (error.code === "P2025") {
-        // Prisma-specific error for "Record not found"
-        return NextResponse.json(
-          { error: "Request not found" },
-          { status: 404 }
-        );
-      }
-  
-      return NextResponse.json(
-        { error: "Internal server error" },
-        { status: 500 }
-      );
-    }
-}  
