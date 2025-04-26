@@ -90,7 +90,7 @@ export default function NewMembers() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast]);
+  }, [params, hasMore, toast, token, router]);
 
   const handleShowDetails = (value: any, id:number) => {
     setShowDetails(true);

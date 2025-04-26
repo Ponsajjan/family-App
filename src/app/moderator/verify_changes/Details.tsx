@@ -93,7 +93,7 @@ const ChangeRequestView = ({
     };
 
     fetchData();
-  }, [showDetailsFor, currentDetailIndex, token]);
+  }, [showDetailsFor, currentDetailIndex, token, memberId, setChangeList]);
 
   const handleNext = () => {
     if (showDetailsFor && currentDetailIndex < showDetailsFor.length - 1) {

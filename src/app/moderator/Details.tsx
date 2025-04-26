@@ -58,7 +58,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     
         fetchMembers();
 
-    }, [toast, showDetailsFor]);
+    }, [toast, showDetailsFor, token, router]);
 
 
     const handleVerification = async (memberId: number) => {

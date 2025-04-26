@@ -107,7 +107,7 @@ export default function Relatives() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast]);
+  }, [params, hasMore, toast, token, router]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

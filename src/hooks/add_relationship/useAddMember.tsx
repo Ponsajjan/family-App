@@ -68,7 +68,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
             setExcludeMemberRelation([])
             setPendingVerification(0)
         }
-    }, [selectedMemberId, router, toast])
+    }, [selectedMemberId, router, toast, token]);
     return {
         memberloading,
         descendant,

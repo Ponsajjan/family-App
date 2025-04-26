@@ -207,7 +207,7 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [forType, showCousin, params, hasMore, toast, descendant, excludeId, gender]);
+  }, [router, token, params, hasMore, toast, descendant, excludeId, gender]);
 
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
     setSelectedValue(item, id, select, verified);

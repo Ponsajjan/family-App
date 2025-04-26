@@ -9,7 +9,7 @@ import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { useRouter } from 'next/navigation';
 import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
-import EditRelationShipForm from "@/components/forms/EditRelationShipForm";
+import EditRelationShipForm from "@/components/forms/EditRelationForm";
 import { getCookie } from 'cookies-next';
 
 export default function EditRelationshipDetails() {
@@ -73,7 +73,7 @@ export default function EditRelationshipDetails() {
 
       fetchMembers();
     }
-  }, [formData.id, toast, router]);
+  }, [formData.id, toast, router, token]);
 
   const handleRemoveChildrenValue = (id: number) => {
     setNoChanges(false);

@@ -77,7 +77,7 @@ export default function Page() {
     if (memberId) {
       fetchMemberData();
     }
-  }, [memberId, toast]);
+  }, [memberId, toast, router, token]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

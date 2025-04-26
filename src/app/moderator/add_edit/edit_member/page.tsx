@@ -3,14 +3,13 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/Container";
-import { ButtonOutline, ButtonSolid, LinkButtonOutline } from "@/components/Button";
+import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { BackButton, DeleteRecord, EditMember, Warning } from "@/utils/Icons";
+import { BackButton, EditMember, Warning } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue, EditMemberDefaultFormValue, EditMemberFormErrorTypes, EditMemberFormValueTypes } from "@/types/add__edit/edit_member/types";
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
-import { Popup } from "@/components/Popup";
 import { getCookie } from 'cookies-next';
 import { useRouter } from "next/navigation";
 
@@ -70,7 +69,7 @@ export default function EditMemberDetails () {
   
       fetchMember()
     }
-  }, [formData.id, toast]);
+  }, [formData.id, toast, router, token]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowList(false)

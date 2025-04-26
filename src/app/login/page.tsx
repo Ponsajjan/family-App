@@ -15,7 +15,7 @@ export default function Page() {
     if (token) {
       router.push("/");
     }
-  }, [router]);
+  }, [router, token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

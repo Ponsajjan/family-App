@@ -53,7 +53,7 @@ export default function Terms() {
       }
   
       fetchMembers();
-    }, []);
+    }, [router, token, toast]);
 
   const logout = async () => {
     try {
@@ -74,7 +74,7 @@ export default function Terms() {
       <Topnav> </Topnav>
       <Container>
         {loading ? <Loading /> :
-        <div className="max-w-4xl mx-auto p-4">
+        <div className="max-w-4xl mx-auto px-4 py-10">
           <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
             {head} Family, Birthdays & Remembrances
           </h1>

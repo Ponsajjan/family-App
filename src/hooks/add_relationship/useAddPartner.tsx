@@ -75,7 +75,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
             setExcludePartnerRelation([]);
         }
 
-    }, [selectedPartnerId, router, selectedMemberData.children, toast])
+    }, [selectedPartnerId, router, selectedMemberData.children, toast, token]);
     return {
         patnerLoading,
         selectedPartnerData,

@@ -1,11 +1,8 @@
 'use client'
 
 import { CloseIcon, Filter, SearchIcon, Verified } from "@/utils/Icons";
-import { Call, Female, Male } from '@/utils/Icons';
+import { Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
-
-import Link from 'next/link';
-import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
@@ -129,7 +126,7 @@ export default function VerifyMember() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast]);
+  }, [params, hasMore, toast, token, router]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

@@ -39,7 +39,7 @@ export default function ExpandableTable() {
     };
 
     fetchData();
-  }, []);
+  }, [toast]);
 
   const toggleRow = (index: number) => {
     setEditingModerator(null);

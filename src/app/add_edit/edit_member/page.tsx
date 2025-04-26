@@ -65,7 +65,7 @@ export default function EditMemberDetails () {
   
       fetchMember()
     }
-  }, [formData.id, toast]);
+  }, [formData.id, toast, router, token]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowList(false)

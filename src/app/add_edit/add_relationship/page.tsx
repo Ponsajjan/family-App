@@ -9,7 +9,7 @@ import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
 import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
-import AddRelationShipForm from "@/components/forms/AddRelationShipForm";
+import AddRelationShipForm from "@/components/forms/AddRelationForm";
 import { useToast } from "@/components/Toast";
 import { getCookie } from 'cookies-next';
 import { useRouter } from "next/navigation";
