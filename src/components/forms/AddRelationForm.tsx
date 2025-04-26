@@ -4,7 +4,6 @@ import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
 
 interface AddRelationShipFormPropType {
-    moderatorForm: boolean;
     selectedMemberData: AddRelationFormValuesType;
     selectedPartnerData: AddRelationFormValuesType;
     newChildrenData: AddRelationFormValuesType;
@@ -18,7 +17,6 @@ interface AddRelationShipFormPropType {
 }
 
 function AddRelationShipForm({
-    moderatorForm,
     selectedMemberData,
     selectedPartnerData,
     newChildrenData,
@@ -122,15 +120,15 @@ function AddRelationShipForm({
             </>
         </div>}
         {(selectedMemberData.partner?.name || selectedPartnerData?.name) && 
-        <div className="flex items-center cursor-pointer text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit" onClick={() => handleShowList('selectChildren')}>
+        <div className="flex items-center bg-field_color cursor-pointer text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit" onClick={() => handleShowList('selectChildren')}>
             <span className="pr-2">Add Children</span>
             <span className="w-4 h-4"><PlusIcon /></span>
         </div>}
 
         {
-            ((selectedMemberData.verified || 
+            (selectedMemberData.verified || 
             selectedPartnerData.verified || 
-            newChildrenData.children.some((child:any) => child.verified)) && !moderatorForm) &&
+            newChildrenData.children.some((child:any) => child.verified)) &&
             <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
         }
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />

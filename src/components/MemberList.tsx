@@ -249,7 +249,7 @@ export default function MemberList({
             <Input
               placeholder={
                 forType === ForType.SelectMember
-                  ? 'Select Member To Edit'
+                  ? 'Select Member'
                   : forType === ForType.SelectPartner
                   ? 'Select partner'
                   : 'Select Children'
@@ -362,7 +362,7 @@ export default function MemberList({
         }
         </div>
 
-        {multiselect && <ButtonSolid buttonText={selectedValues.length <= 0 ? 'Close' : 'Submit'} onClick={() => openList((prev:any) => !prev)} className={`w-full absolute bottom-0 left-0 right-0 z-10 rounded-none ${selectedValues.length <= 0 ? 'opacity-45' : 'opacity-100'}`} />}
+        {multiselect && <ButtonSolid buttonText={selectedValues.length <= 0 ? 'Close' : 'Submit'} onClick={() => openList((prev:any) => !prev)} className={`w-full absolute bottom-0 left-0 right-0 z-10 rounded-none`} />}
       </div>
   );
 }

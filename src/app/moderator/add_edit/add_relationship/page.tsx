@@ -9,7 +9,7 @@ import { AddRelationship, BackButton } from "@/utils/Icons";
 import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
-import AddRelationShipForm from "@/components/forms/AddRelationForm";
+import ModeratorAddRelationshipForm from "@/components/forms/ModeratorAddRelationForm";
 import { useToast } from "@/components/Toast";
 import { getCookie } from 'cookies-next';
 import { useRouter } from "next/navigation";
@@ -190,12 +190,11 @@ export default function ModeratorAddRelationship () {
                 <span><BackButton /></span>
               </Link>
               <p className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
-                Add Relationship
+                Add Relationship (M)
               </p>
             </div>
           </div>
-          <AddRelationShipForm 
-            moderatorForm={true}
+          <ModeratorAddRelationshipForm
             selectedMemberData={selectedMemberData}
             selectedPartnerData={selectedPartnerData}
             newChildrenData={newChildrenData}

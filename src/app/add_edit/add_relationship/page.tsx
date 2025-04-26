@@ -24,7 +24,6 @@ export default function AddRelationshipDetails () {
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
   const token = getCookie('token');
-  const access = getCookie('access');
   const router = useRouter(); 
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
@@ -199,7 +198,6 @@ export default function AddRelationshipDetails () {
           </div>
           {(pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color border-dashed rounded-md bg-field_color"><span className='inline-block align-bottom pr-2'><Warning /></span>{pendingVerification} pending verification</p>}
           <AddRelationShipForm
-            moderatorForm={access == "moderator" ? true : false}
             selectedMemberData={selectedMemberData}
             selectedPartnerData={selectedPartnerData}
             newChildrenData={newChildrenData}

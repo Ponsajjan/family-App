@@ -74,7 +74,7 @@ export async function GET(request: Request) {
         id: member.id,
         name: member.name,
         gender: member.gender,
-        verified: false,
+        verified: false, // Set this to false to allow editing
         pendingVerification: 0,
         birth_date: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
         birth_month: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
@@ -93,8 +93,8 @@ export async function GET(request: Request) {
         siblings: member.nonDescendantRelation?.[0]?.siblingNames,
       },
       allowEdit: {
-        editGender: true,
-        editDescendant: true,
+        editGender: true, // Set this to false to allow editing
+        editDescendant: true, // Set this to false to allow editing
       },
     };
 

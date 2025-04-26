@@ -81,7 +81,7 @@ export async function GET(request: Request) {
       partner: member.partner,
       children: children,
       pendingVerification: 0,
-      hasVerified: false,
+      hasVerified: false, // Set to false to allow editing
     };
 
     return NextResponse.json({ data });
