@@ -203,7 +203,6 @@ export default function AddRelationshipDetails () {
             newChildrenData={newChildrenData}
             setNewChildrenData={setNewChildrenData}
             setSelectedPartnerId={setSelectedPartnerId}
-            setShowListFor={setShowListFor}
             handleShowList={handleShowList}
             handleSelectedValue={handleSelectedValue}
             handleSubmit={handleSubmit}

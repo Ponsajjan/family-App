@@ -1,4 +1,4 @@
-import { ChangeMember, Info, MinusIcon } from '@/utils/Icons'
+import { ChangeMember, Info, MinusIcon, Move } from '@/utils/Icons'
 import { useRef } from 'react'
 import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
@@ -9,7 +9,6 @@ interface ModeratorAddRelationFormPropType {
     newChildrenData: AddRelationFormValuesType;
     setNewChildrenData: (value: AddRelationFormValuesType) => void;
     setSelectedPartnerId: (value: number | null | undefined) => void;
-    setShowListFor: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
     handleShowList: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
     handleSelectedValue: (name: string, id: number, select: string, verified: boolean) => void;
     handleSubmit: any;
@@ -22,7 +21,6 @@ function ModeratorAddRelationForm({
     newChildrenData,
     setNewChildrenData,
     setSelectedPartnerId,
-    setShowListFor,
     handleShowList,
     handleSelectedValue,
     handleSubmit,
@@ -68,19 +66,36 @@ function ModeratorAddRelationForm({
             <h3 className="text-sm">Partner</h3>
             {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
-        <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
-        {(selectedMemberData?.partner?.name)
-            ? <span className="py-2 w-full cursor-not-allowed">{selectedMemberData.partner?.name}</span>
-            : (selectedPartnerData?.name)
-            ? <>
-                <span className="py-2 w-full">{selectedPartnerData?.name}</span>
-                <span
-                    onClick={() => {setShowListFor('selectPartner'); setSelectedPartnerId(null)}}
-                    className="border border-border_color cursor-pointer rounded-md h-fit">
-                    <MinusIcon />
+        <div>
+        {selectedMemberData?.partner?.name ? (
+            <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2">
+                <span className="py-2 w-full cursor-not-allowed">
+                    {selectedMemberData.partner?.name}
                 </span>
-                </>
-            : <span onClick={() => handleShowList('selectPartner')} className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>}
+            </div>
+            ) : (false) ? (
+                [].map((item, index) => (
+                <div
+                    key={index}
+                    className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2"
+                    onClick={() => handleShowList('selectPartner')}
+                >
+                    <span className="py-2 w-full">{item}</span>
+                    <span
+                        onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPartnerId(null);
+                        }}
+                        className="border border-border_color rounded-md h-fit cursor-pointer"
+                    >
+                        <MinusIcon />
+                    </span>
+                </div>
+            ))
+        ) : 
+        <div onClick={() => handleShowList('selectPartner')} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2">
+            <span className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>
+        </div>} 
         </div>
 
         <h3 className="text-sm">Children</h3>
@@ -88,21 +103,22 @@ function ModeratorAddRelationForm({
         <div>
             <>
                 {selectedMemberData.children?.map((item: {id:any, name:string}) => (
-                <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
+                <div onClick={() => handleShowList('selectChildren')} key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
                     <span className="py-2 w-full">{item?.name}</span>
                 </div>)
                 )}
             </>
             <>
                 {selectedPartnerData?.children.map((item: {id:any, name:string}) => (
-                <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
+                <div onClick={() => handleShowList('selectChildren')} key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
                     <span className="py-2 w-full">{item?.name}</span>
                 </div>)
                 )}
             </>
             <>
                 {newChildrenData?.children.map((item: {id:any, name:string, verified:boolean}, index) => (
-                <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 cursor-grab`} 
+                <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer `} 
+                    onClick={() => handleShowList('selectChildren')}    
                     draggable={true}
                     onDragStart={() => handleDragStart(index)}
                     onDragEnter={() => handleDragEnter(index)}
@@ -123,12 +139,6 @@ function ModeratorAddRelationForm({
           <span onClick={() => handleShowList('selectChildren')} className='py-2 w-full text-gray-400 cursor-pointer'>Select Children</span>
         </div>}
 
-        {
-            (selectedMemberData.verified || 
-            selectedPartnerData.verified || 
-            newChildrenData.children.some((child:any) => child.verified)) &&
-            <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
-        }
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />
     </form>
   )

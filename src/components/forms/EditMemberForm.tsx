@@ -45,7 +45,7 @@ function EditMemberForm({
                 </div>
                 {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
 
-                {formData.verified && <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span>This member is already verified. Any changes will require moderator approval before they take effect.</p>}
+                {formData.verified && <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span>This member is already verified. so updated will require moderator approval before they take effect.</p>}
             </div>
             <div className="flex gap-2 py-4">
                 <p className="text-sm font-medium">Gender:</p>

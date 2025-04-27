@@ -200,7 +200,6 @@ export default function ModeratorAddRelationship () {
             newChildrenData={newChildrenData}
             setNewChildrenData={setNewChildrenData}
             setSelectedPartnerId={setSelectedPartnerId}
-            setShowListFor={setShowListFor}
             handleShowList={handleShowList}
             handleSelectedValue={handleSelectedValue}
             handleSubmit={handleSubmit}
@@ -222,7 +221,7 @@ export default function ModeratorAddRelationship () {
             getSelectedValues={newChildrenData} 
             setSelectedValue={ handleSelectedValue } 
             openList={setShowList} 
-            multiselect={'selectChildren' === showListFor} 
+            multiselect={showListFor !== 'selectMember'} 
             descendant={memberListConstrain?.descendant} 
           />
         </div>

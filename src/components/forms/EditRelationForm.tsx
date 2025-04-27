@@ -95,7 +95,7 @@ function EditRelationShipForm({
                 </div>)
             )}
         </>}
-        {formData.hasVerified && <p><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>}
+        {formData.hasVerified && <p><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>}
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Update Details" />
     </form>
   )

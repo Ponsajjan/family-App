@@ -9,7 +9,6 @@ interface AddRelationShipFormPropType {
     newChildrenData: AddRelationFormValuesType;
     setNewChildrenData: (value: AddRelationFormValuesType) => void;
     setSelectedPartnerId: (value: number | null | undefined) => void;
-    setShowListFor: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
     handleShowList: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
     handleSelectedValue: (name: string, id: number, select: string, verified: boolean) => void;
     handleSubmit: any;
@@ -22,7 +21,6 @@ function AddRelationShipForm({
     newChildrenData,
     setNewChildrenData,
     setSelectedPartnerId,
-    setShowListFor,
     handleShowList,
     handleSelectedValue,
     handleSubmit,
@@ -75,7 +73,7 @@ function AddRelationShipForm({
             ? <>
                 <span className="py-2 w-full">{selectedPartnerData?.name}</span>
                 <span
-                    onClick={() => {setShowListFor('selectPartner'); setSelectedPartnerId(null)}}
+                    onClick={() => {handleShowList('selectPartner'); setSelectedPartnerId(null)}}
                     className="border border-border_color cursor-pointer rounded-md h-fit">
                     <MinusIcon />
                 </span>
@@ -120,7 +118,7 @@ function AddRelationShipForm({
             </>
         </div>}
         {(selectedMemberData.partner?.name || selectedPartnerData?.name) && 
-        <div className="flex items-center bg-field_color cursor-pointer text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit" onClick={() => handleShowList('selectChildren')}>
+        <div onClick={() => handleShowList('selectChildren')} className="flex items-center bg-field_color cursor-pointer text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit">
             <span className="pr-2">Add Children</span>
             <span className="w-4 h-4"><PlusIcon /></span>
         </div>}
@@ -129,7 +127,7 @@ function AddRelationShipForm({
             (selectedMemberData.verified || 
             selectedPartnerData.verified || 
             newChildrenData.children.some((child:any) => child.verified)) &&
-            <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so any modifications will require moderator approval before they take effect.</p>
+            <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>
         }
         <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />
     </form>

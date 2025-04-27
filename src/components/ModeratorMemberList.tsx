@@ -145,9 +145,9 @@ export default function MemberList({
         if (hasMore === false) {
           return;
         }
-        const excludeIdSet = [...new Set(excludeId)];
+
         const response = await fetch(
-          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${forType}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${showCousin}`,
+          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${forType}&gender=${gender}&excludeId=${excludeId}&descendant=${descendant}&showCousin=${showCousin}`,
           { 
             method: 'GET',
             headers: { 
