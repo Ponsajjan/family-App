@@ -171,10 +171,10 @@ export default function Relatives() {
                               {member.father && <span className="pr-1">{member.father.name},</span>}
                               {member.mother && <span className="pr-1">{member.mother.name}</span>}
                             </>
-                            ) : member.partner ? (
+                            ) : member.partners.length ? (
                             <div>
                               <span className="pr-1 font-semibold">Partner:</span>
-                              <span className="pr-1">{member.partner.name}</span>
+                              <span className="pr-1">{member.partners.join(", ")}</span>
                             </div>
                             ) : 'No family relationship assigned yet'}
                         </div>
@@ -199,7 +199,7 @@ export default function Relatives() {
           onClick={() => setShowDetails(false)}
           className={`fixed md:hidden ${showDetails ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
         />
-        <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
+        <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-[40%] mx-auto md:h-[calc(100vh-3rem)]`}>
           <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}><Details showMember={showMember} openDetails={setShowDetails} /></div>
         </div>
       </div>

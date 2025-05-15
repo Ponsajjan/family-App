@@ -213,7 +213,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                         }
                     </div>
                 </div>
-                <div className='ml-auto mr-0 w-fit'>{data?.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
+                <div className='ml-auto mr-0 w-fit'>{data?.generalInformation.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
                 {(data?.relationInformation) &&
                 <>
                     <div className='flex pt-3 items-center'>
@@ -225,19 +225,19 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                             {data?.relationInformation.father && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div onClick={() => handleMemberSearch(data?.relationInformation.father)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_father ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.father}</div>
+                                    <div onClick={() => handleMemberSearch(data?.relationInformation.father)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_father ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.father}</div>
                                 </>
                             )}
                             {data?.relationInformation.mother && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div onClick={() => handleMemberSearch(data?.relationInformation.mother)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_mother ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.mother}</div>
+                                    <div onClick={() => handleMemberSearch(data?.relationInformation.mother)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_mother ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.mother}</div>
                                 </>
                             )}
                             {data?.relationInformation.siblings && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7'>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                         {data?.relationInformation.siblings?.sort((a: any, b: any) => a.order - b.order)?.map((sibling: { name: string, verified: boolean }, index: number) => (
                                             <>
                                                 <span onClick={() => handleMemberSearch(sibling.name)} key={index} className={`${sibling.verified ? 'text-text_color': 'text-text_color/80 underline decoration-wavy'} hover:underline cursor-context-menu`} >
@@ -252,42 +252,56 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                             {data?.relationInformation.nonDescendantRelations?.fatherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.motherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.siblingNames && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
                                 </>
                             )}
-                            {data?.descendant ? data?.relationInformation.partner &&
+                            
+                            {data?.generalInformation.descendant ? 
+                                data?.relationInformation?.partners?.length > 0 && 
+                                data?.relationInformation?.partners?.map((partner: any, index: number) => 
                                     <>
                                         <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                        <div onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.partner}</div>
-                                    </> 
-                                    :<>
-                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                        <div className={`w-3/5 md:leading-7 `}>
-                                            {data?.relationInformation.partner 
-                                            ? <span onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'} hover:underline cursor-context-menu`}>{data?.relationInformation.partner}</span>
-                                            : <span className='italic'>-- Partner Unassigned --</span>}
-                                        </div>
-                                    </> 
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                            <span key={index} onClick={() => handleMemberSearch(partner.name)} className={`whitespace-nowrap hover:underline cursor-context-menu ${partner.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
+                                                {partner.name}
+                                                {index < data.relationInformation?.partners.length - 1 && ", "}
+                                            </span>
+                                        </div> 
+                                    </>)
+                                :
+                                <>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                        {data?.relationInformation?.partners?.length > 0
+                                        ? data?.relationInformation?.partners.map((partner: any, index: number) => 
+                                            <span key={index} onClick={() => handleMemberSearch(partner.name)} className={`whitespace-nowrap hover:underline cursor-context-menu${partner.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
+                                                {partner.name}
+                                                {index < data.relationInformation?.partners.length - 1 && ", "}
+                                            </span>
+                                        ) :
+                                        <span className='italic'>-- Partner Unassigned --</span>}
+                                    </div> 
+                                </>
                             }
 
-                            {data?.relationInformation.children && (
+                            {data?.relationInformation?.children && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
-                                    <div className='w-3/5 md:leading-7'>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                     {data.relationInformation.children?.sort((a: any, b: any) => a.order - b.order)?.map((child: { name: string, verified: boolean }, index: number) => (
-                                        <span key={index} onClick={() => handleMemberSearch(child.name)} className={`hover:underline cursor-context-menu ${child.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
+                                        <span key={index} onClick={() => handleMemberSearch(child.name)} className={`whitespace-nowrap hover:underline cursor-context-menu ${child.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
                                             {child.name}
                                             {index < data.relationInformation.children.length - 1 && ", "}
                                         </span>
@@ -310,13 +324,13 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                             {data?.contactInformation.phoneNumber && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Phone no.</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.contactInformation.phoneNumber}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.phoneNumber}</div>
                                 </>
                             )}
                             {data?.contactInformation.address && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Location</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.contactInformation.address}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.address}</div>
                                 </>
                             )}
                         </div>
@@ -335,13 +349,13 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                             {data?.personalInformation.occupation && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Occupation</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.personalInformation.occupation}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.occupation}</div>
                                 </>
                             )}
                             {data?.personalInformation.education && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Education</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.personalInformation.education}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.education}</div>
                                 </>
                             )}
                         </div>

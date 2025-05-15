@@ -1,13 +1,11 @@
 "use client";
-import { BurgerMenuIcon, CalenderIcon, CloseIcon, Community, DarkMode, FamilyProfessionals, LightMode, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
+import { BurgerMenuIcon, CalenderIcon, CloseIcon, FamilyProfessionals, Moderator, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Sidenav() {
     const [showNav, setShowNav] = useState(false);
-    const { theme, toggleTheme } = useTheme();
     const router = useRouter();
 
     const navigateTo = (link: string) => {
@@ -31,23 +29,9 @@ export default function Sidenav() {
                         <NavLink linkName="Relatives" link="relatives" onClick={() => navigateTo("/relatives")} />
                         <NavLink linkName="Relation" link="tree" onClick={() => navigateTo("/tree")} />
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/add_edit")} />
-                        {/* <NavLink linkName="Community" link="community" onClick={() => navigateTo("/community")} /> */}
+                        <NavLink linkName="Moderator" link="moderator" onClick={() => navigateTo("/moderator")} />
                         <span  className="border-t border-border_color pt-2 mt-6 block mx-4"></span>
                         <NavLink linkName="Terms" link="terms" onClick={() => navigateTo("/terms")} />
-                    </div>
-                    <div className="flex justify-center items-center py-2">
-                        <LightMode />
-                        <label className="relative inline-flex items-center cursor-pointer p-1">
-                            <input 
-                                className="sr-only peer" 
-                                type="checkbox" 
-                                checked={theme === "dark"} 
-                                onChange={toggleTheme} 
-                            />
-                            <div className="peer rounded-full outline-none duration-100 border border-border_color after:duration-500 w-[42px] h-[18px] bg-blue-300 peer-focus:outline-none after:absolute after:outline-none after:rounded-full after:h-4 after:w-4 after:bg-white after:flex after:justify-center after:items-center after:text-sky-800 after:font-bold peer-checked:after:translate-x-6 peer-checked:after:border-white">
-                            </div>
-                        </label>
-                        <DarkMode />
                     </div>
                 </div>
             </nav>
@@ -68,7 +52,7 @@ export function NavLink({ link, linkName, onClick }: { link: string, linkName: s
                 {linkName === 'Relatives' && <RelativesIcon />}
                 {linkName === 'Relation' && <TreeIcon />}
                 {linkName === 'Add/Edit' && <FamilyProfessionals />}
-                {/* {linkName === 'Community' && <Community />} */}
+                {linkName === 'Moderator' && <Moderator />}
                 {linkName === 'Terms' && <Terms />}
             </p>
             <p>{linkName}</p>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
+import { AddRelationship, BackButton, MoreOptions, NextArrow, PrevArrow, Warning } from "@/utils/Icons";
 import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
@@ -95,11 +95,11 @@ export default function AddRelationshipDetails () {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (selectedPartnerData.id === undefined && selectedMemberData.partner === null) { // No partner selected
+    if (!selectedPartnerData.id && selectedMemberData.partners?.length === 0) { // No partner selected
       setError('Select partner');
       return
     }
-    if (selectedPartnerData.id === undefined && newChildrenData.children.length === 0) { // No changes made
+    if (!selectedPartnerData.id && newChildrenData.children?.length === 0) { // No changes made
       return
     }
     try {
@@ -122,10 +122,16 @@ export default function AddRelationshipDetails () {
       };
       
       const memberData = {
-        partnerId: selectedMemberData.partner?.id ?? selectedPartnerData?.id,
+        partners: (selectedMemberData.partners !== null &&  selectedMemberData.partners?.length > 0)
+          ? selectedMemberData.partners.map((partner: any) => partner.id)
+          : selectedPartnerData?.id 
+            ? [selectedPartnerData.id] 
+            : [],
         ...(isMale && { fatherOf: getOrderedChildren() }),
         ...(isFemale && { motherOf: getOrderedChildren() }),
       };
+
+      console.log("memberData", memberData)
   
       const response = await fetch(`/api/addRelationship/${selectedMemberData?.id}`, {
         method: "PUT",
@@ -143,23 +149,15 @@ export default function AddRelationshipDetails () {
       }
       if (!response.ok) {
         const errorData = await response.json();
-        if (toast) {
-          toast.show(errorData.error || "Failed to update member", "error", 5000)
-        }
-        throw new Error(errorData.error || "Failed to update member");
+        toast?.show(errorData.error || "Failed to update member", "error", 5000)
+        return
       }
   
       const result = await response.json();
       if (!response.ok) {
-        if (toast) {
-          toast.show(result.error || "Something went wrong", "error", 5000);
-        }
-        throw new Error(result.error || "Something went wrong");
-        // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
+        toast?.show(result.error || "Something went wrong", "error", 5000);
       } else {
-        if (toast) {
-          toast.show(result.message, "success", 5000);
-        }
+        toast?.show(result.message, "success", 5000);
       }
   
       // Reset the form
@@ -167,11 +165,7 @@ export default function AddRelationshipDetails () {
       setSelectedPartnerId(null);
       setNewChildrenData(AddRelationDefaultFormValue);
     } catch (error: any) {
-      if (toast) {
-        toast.show(error.error || "Failed to update member", "error", 5000);
-      } else {
-        alert(error.error || "Failed to update member.");
-      }
+      toast?.show(error.error || "Failed to update member", "error", 5000);
     } finally {
       setLoading(false);
     }
@@ -181,19 +175,30 @@ export default function AddRelationshipDetails () {
   return (
     <div className="md:flex text-text_color">
       <Container className='relative'>
-        {(memberloading || patnerLoading || loading) && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
-            <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
-          </div>}
-        <div className="w-full md:max-w-xl p-4 mx-auto">
+        {(memberloading || patnerLoading || loading) && 
+        <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
+          <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
+        </div>}
+        <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
           <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center">
-              <span className="hidden md:block"><AddRelationship /></span>
-              <Link href={"/add_edit"} className="md:hidden block">
-                <span><BackButton /></span>
-              </Link>
-              <p className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
-                Add Relationship
-              </p>
+            <div className="w-full flex items-center justify-between pr-6">
+              <div className="flex items-center">
+                <span className="hidden md:block"><AddRelationship /></span>
+                <Link href={"/add_edit"} className="md:hidden block">
+                  <span><BackButton /></span>
+                </Link>
+                <p className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
+                  Add Relationship
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="w-8 h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+                  <PrevArrow />
+                </button>
+                <button className="w-8 h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+                  <NextArrow />
+                </button>
+              </div>
             </div>
           </div>
           {(pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color border-dashed rounded-md bg-field_color"><span className='inline-block align-bottom pr-2'><Warning /></span>{pendingVerification} pending verification</p>}
@@ -210,12 +215,15 @@ export default function AddRelationshipDetails () {
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>
+        <div className="absolute right-0 top-11 md:top-1">
+          <MoreOptions />
+        </div>
       </Container>
       <div
         onClick={() => setShowList(false)}
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       />
-      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
+      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-[40%] mx-auto md:h-[calc(100vh-3rem)]`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
           <MemberList 
             forType={showListFor}

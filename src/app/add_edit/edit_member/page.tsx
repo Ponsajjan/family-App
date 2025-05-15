@@ -149,7 +149,7 @@ export default function EditMemberDetails () {
         {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
             <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
           </div>}
-        <div className="w-full md:max-w-xl p-4 mx-auto">
+        <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
           <div className="mb-3">
             <div className="flex justify-between items-center">
               <div className="flex items-center">                

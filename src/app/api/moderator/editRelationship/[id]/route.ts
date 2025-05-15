@@ -33,12 +33,16 @@ export async function GET(request: Request) {
         name: true,
         gender: true,
         verified: true,
-        partner: {
+        partnerships: {
           select: {
-            id: true,
-            name: true,
-            verified: true,
-          },
+            partner: {
+              select: {
+                id: true,
+                name: true,
+                verified: true,
+              }
+            }
+          }
         },
         fatherOf: {
           select: {
@@ -47,6 +51,7 @@ export async function GET(request: Request) {
             verified: true,
             order: true,
           },
+          orderBy: { order: 'asc' }
         },
         motherOf: {
           select: {
@@ -55,6 +60,7 @@ export async function GET(request: Request) {
             verified: true,
             order: true,
           },
+          orderBy: { order: 'asc' }
         },
       },
     });
@@ -65,20 +71,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
+    // Get partner from first partnership (if exists)
+    const partners = member.partnerships.map((p) => p.partner) || null;
+
     // Combine fatherOf and motherOf children
     const children = member.fatherOf.length > 0 ? member.fatherOf : member.motherOf.length > 0 ? member.motherOf : [];
-
-    // Sort children by order
-    if (children && Array.isArray(children)) {
-      children.sort((a, b) => a.order - b.order);
-    }
 
     // Format the data
     const data = {
       id: member.id,
       name: member.name,
       gender: member.gender,
-      partner: member.partner,
+      partners,
       children: children,
       pendingVerification: 0,
       hasVerified: false, // Set to false to allow editing
@@ -123,76 +127,70 @@ export async function PUT(request: Request) {
     // Start processing updates
     const updatePromises: Promise<any>[] = [];
 
-    // Handle partner removal
-    if (deleteData.partnerId) {
-      const partnerIdToRemove = deleteData.partnerId;
-
+    // Handle partnership removal
+    if (deleteData.partnersId?.length) {
+      // Delete all partnerships between memberId and any partner in the partnersId array
       updatePromises.push(
-        prisma.$transaction([
-          prisma.member.update({
-            where: { id: partnerIdToRemove },
-            data: { partnerId: null },
-          }),
-          prisma.member.update({
-            where: { id: memberId },
-            data: { partnerId: null },
-          }),
-        ])
+        prisma.partnership.deleteMany({
+          where: {
+            OR: [
+              // Member is in memberId position
+              {
+                memberId: memberId,
+                partnerId: { in: deleteData.partnersId }
+              },
+              // Member is in partnerId position
+              {
+                memberId: { in: deleteData.partnersId },
+                partnerId: memberId
+              }
+            ]
+          }
+        })
       );
     }
 
     // Handle children relations removal
-    if (deleteData.childrenId && Array.isArray(deleteData.childrenId)) {
-      const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
+    if (deleteData.childrenId?.length > 0) {
+      const childrenIds: number[] = Array.from(new Set(deleteData.childrenId));
 
-      // Update the member's fatherOf and motherOf relationships
       updatePromises.push(
         prisma.member.update({
           where: { id: memberId },
           data: {
-            // Remove children from fatherOf if it exists
-            fatherOf: {
-              disconnect: removeChildRelation.map((childId) => ({ id: childId })),
-            },
-            // Remove children from motherOf if it exists
-            motherOf: {
-              disconnect: removeChildRelation.map((childId) => ({ id: childId })),
-            },
-          },
+            fatherOf: { disconnect: childrenIds.map(id => ({ id })) },
+            motherOf: { disconnect: childrenIds.map(id => ({ id })) }
+          }
         })
       );
 
-      // Update the partner's fatherOf and motherOf relationships (if partner exists)
-      if (hasPartner !== null && hasPartner !== undefined && !deleteData.partnerId) {
-        updatePromises.push(
-          prisma.member.update({
-            where: { id: hasPartner },
-            data: {
-              // Remove children from fatherOf if it exists
-              fatherOf: {
-                disconnect: removeChildRelation.map((childId) => ({ id: childId })),
-              },
-              // Remove children from motherOf if it exists
-              motherOf: {
-                disconnect: removeChildRelation.map((childId) => ({ id: childId })),
-              },
-            },
-          })
+      // Also disconnect from partner if exists
+      if (hasPartner?.length && !deleteData.partnersId?.length) {
+        // Disconnect children from all partners in the hasPartner list
+        await Promise.all(
+          hasPartner.map((partnerId: number) => 
+            prisma.member.update({
+              where: { id: partnerId },
+              data: {
+                fatherOf: { disconnect: childrenIds.map(id => ({ id })) },
+                motherOf: { disconnect: childrenIds.map(id => ({ id })) }
+              }
+            })
+          )
         );
       }
     }
 
     // Handle children order update
-    if (childrenOrder && Array.isArray(childrenOrder)) {
-      for (let i = 0; i < childrenOrder.length; i++) {
-        const child = childrenOrder[i];
+    if (childrenOrder?.length > 0) {
+      childrenOrder.forEach((child: { id: number, order: number }) => {
         updatePromises.push(
           prisma.member.update({
             where: { id: child.id },
-            data: { order: i + 1 }, // Update the order based on the position in the array
+            data: { order: child.order }
           })
         );
-      }
+      });
     }
 
     // Wait for all updates to complete

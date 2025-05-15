@@ -16,8 +16,10 @@ async function fetchFamilyTree(memberIds: number[]): Promise<any[]> {
       motherOf: {
         select: { id: true, name: true, gender: true },
       },
-      partner: {
-        select: { id: true, name: true, gender: true },
+      partnerships: {
+        select: {
+          partner: { select: { name: true, gender: true } }
+        }
       },
     },
   });

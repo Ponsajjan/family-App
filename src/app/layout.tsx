@@ -26,6 +26,9 @@ export default function RootLayout({
     '/add_edit/add_relationship',
     '/add_edit/edit_member',
     '/add_edit/edit_relationship',
+    '/moderator',
+    '/moderator/verify_members',
+    '/moderator/verify_changes',
     '/terms/login'
   ];
 
@@ -38,7 +41,7 @@ export default function RootLayout({
             <ThemeProvider>
               <AuthProvider>
                 <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
-                  <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+                  <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
                     <Sidenav />
                     <div className="w-full relative">
                       <ToastProvider>
@@ -62,7 +65,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
-              <div className="w-full max-w-7xl mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+              <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
                 {children}
               </div>
             </div>

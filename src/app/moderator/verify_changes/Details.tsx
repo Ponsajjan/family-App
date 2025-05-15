@@ -180,12 +180,11 @@ const ChangeRequestView = ({
     }
   };
   
-  if (error) return <div className='p-4'>Error: {error}</div>;
   if (!showDetailsFor || showDetailsFor.length === 0) return <div className='p-4'>No pending requests</div>;
   if (!data && !loading) return <div className='p-4 loading-text'>No data found</div>;
 
   return (
-    <Container className='text-text_color p-4 relative bg-main_background'>
+    <Container className='text-text_color p-4 relative bg-main_background max-w-[40px]'>
       <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
         <CloseIcon />
       </div>
@@ -227,7 +226,8 @@ const ChangeRequestView = ({
       ) : (
         <>
           <div className='relative'>
-            <div dangerouslySetInnerHTML={{ __html: data.htmlContent }} />
+            {data && <div dangerouslySetInnerHTML={{ __html: data.htmlContent }} />}
+            {error && <div className='p-4'>Error: {error}</div>}
             <div className='absolute right-4 bottom-4'>
               {requestStatus === 'approved' && <Approved />}
               {requestStatus === 'rejected' && <Rejected />}

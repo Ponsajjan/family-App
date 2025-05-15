@@ -25,7 +25,10 @@ export async function GET(request: Request) {
 
     // Step 1: Fetch the member and their direct relations
     const member = await prisma.member.findUnique({
-      where: { id },
+      where: { 
+        id, 
+        descendantOf: forDescendanceOf 
+      },
       select: {
         id: true,
         name: true,
@@ -49,14 +52,27 @@ export async function GET(request: Request) {
         mother: {
           select: { id: true, name: true },
         },
-        partner: {
-          select: { name: true },
+        partnerships: {
+          select: {
+            partner: {
+              select: { name: true }
+            }
+          }
+        },
+        partneredWith: {
+          select: {
+            member: {
+              select: { name: true }
+            }
+          }
         },
         fatherOf: {
           select: { name: true, order: true },
+          orderBy: { order: 'asc' }
         },
         motherOf: {
           select: { name: true, order: true },
+          orderBy: { order: 'asc' }
         },
         nonDescendantRelation: {
           select: {
@@ -73,20 +89,27 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
+    // Combine partnerships and partneredWith into a single partners array
+    const partners = [
+      ...new Set([
+        ...member.partnerships.map(p => p.partner.name),
+        ...member.partneredWith.map(p => p.member.name)
+      ]),
+    ];
+
     // Step 2: Fetch siblings using father's and mother's IDs
     type SiblingInfo = {
       name: string | null;
       order: number | null;
     };
     
-    // Then modify your implementation like this:
-    const siblingMap = new Map<string, SiblingInfo>(); // Use name as unique key
+    const siblingMap = new Map<string, SiblingInfo>();
     
     if (member.father?.id) {
       const fatherChildren = await prisma.member.findMany({
         where: {
           fatherId: member.father.id,
-          id: { not: member.id }, // Exclude the current member
+          id: { not: member.id },
         },
         select: { 
           name: true,
@@ -104,7 +127,7 @@ export async function GET(request: Request) {
       const motherChildren = await prisma.member.findMany({
         where: {
           motherId: member.mother.id,
-          id: { not: member.id }, // Exclude the current member
+          id: { not: member.id },
         },
         select: { 
           name: true,
@@ -118,7 +141,6 @@ export async function GET(request: Request) {
       });
     }
     
-    // Convert the sibling map values to an array
     const siblings = Array.from(siblingMap.values());
 
     // Step 3: Respond with enriched data
@@ -136,15 +158,15 @@ export async function GET(request: Request) {
           ...(member.deathYear ? { deathYear: member.deathYear } : {}),
         }
       },
-      ...(member.father || member.mother || member.partner || 
+      ...(member.father || member.mother || partners.length > 0 || 
           member.fatherOf.length > 0 || member.motherOf.length > 0 || 
           siblings.length > 0 || member.nonDescendantRelation[0]) ? {
         relationInformation: {
           ...(member.father ? { father: member.father.name } : {}),
           ...(member.mother ? { mother: member.mother.name } : {}),
-          ...(member.partner ? { partner: member.partner.name } : {}),
+          ...(partners.length > 0 ? { partners: partners } : {}),
           ...(member.fatherOf.length > 0 || member.motherOf.length > 0 ? { 
-            children: [...member.fatherOf, ...member.motherOf] 
+            children: [...new Set([...member.fatherOf, ...member.motherOf])] 
           } : {}),
           ...(siblings.length > 0 ? { siblings: siblings } : {}),
           ...(member.nonDescendantRelation[0] ? { 
@@ -175,7 +197,6 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Error fetching member data:", error);
-    // Handle token verification errors
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }

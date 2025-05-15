@@ -11,51 +11,47 @@ export async function GET(request: NextRequest) {
   const forType = searchParams.get("for");
   const gender = searchParams.get("gender");
   const descendant = searchParams.get("descendant");
-  const showCousin = searchParams.get("showCousin") === "true"; // Parse to boolean
-  const page = parseInt(searchParams.get("page") || "1", 10); // Current page
-  const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
+  const showCousin = searchParams.get("showCousin") === "true";
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const limit = parseInt(searchParams.get("limit") || "50", 10);
   const authHeader = request.headers.get("Authorization");
   const token = authHeader?.split(" ")[1];
 
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  // Calculate skip for pagination
+
   const skip = (page - 1) * limit;
 
   if (page === 1) {
     memberListCurrentLetter = "";
   }
-  // Parse excludeId to a number array
+
   const excludeIdParam = searchParams.get("excludeId");
   const excludeId = excludeIdParam
     ? excludeIdParam.split(",").map(Number).filter(Boolean)
     : [];
-  // Exclude the member for selectPartner
-  // Exclude the member and partner for selectChildren
+
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
-    const mainMemberId = decoded.memberId
+    const mainMemberId = decoded.memberId;
+    
     if (!forDescendanceOf || !mainMemberId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
-    let memberList: any[] = [];
-    const groupedData:any = [];
 
-    // Calculate current year minus 18
+    let memberList: any[] = [];
+    const groupedData: any = [];
     const currentYear = new Date().getFullYear();
     const yearThreshold = currentYear - 18;
 
     switch (forType) {
       case "selectMember":
-        groupedData.length = 0; // Clear the grouped data
+        groupedData.length = 0;
         memberList = await prisma.member.findMany({
           where: {
-            name: {
-              contains: searchQuery,
-              // mode: "insensitive", // PostgreSQL-specific support in Prisma
-            },
+            name: { contains: searchQuery },
             descendantOf: forDescendanceOf
           },
           select: {
@@ -64,33 +60,45 @@ export async function GET(request: NextRequest) {
             gender: true,
             father: { select: { name: true } },
             mother: { select: { name: true } },
-            partner: { select: { name: true } },
+            partnerships: {
+              select: {
+                partner: { select: { name: true } }
+              }
+            },
+            nonDescendantRelation: true,
+            order: true
           },
-          orderBy: { name: "asc" },
+          orderBy: { order: "asc" },
           skip,
           take: limit,
         });
         break;
 
       case "selectPartner":
-        groupedData.length = 0; // Clear the grouped data
+        groupedData.length = 0;
         memberList = await prisma.member.findMany({
           where: {
-            name: {
-              contains: searchQuery,
-              // mode: "insensitive", // PostgreSQL-specific support in Prisma
-            },
+            name: { contains: searchQuery },
             descendantOf: forDescendanceOf,
             gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
-            partnerId: null,
             id: { notIn: excludeId },
             descendant: descendant == 'true' ? showCousin : true,
-            AND: {
-              OR: [
-                { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
-                { birthYear: null },
-              ],
-            }
+            AND: [
+              {
+                OR: [
+                  { birthYear: { lt: yearThreshold } },
+                  { birthYear: null },
+                ],
+              },
+              {
+                NOT: {
+                  OR: [
+                    { partnerships: { some: {} } },
+                    { partneredWith: { some: {} } }
+                  ]
+                }
+              }
+            ]
           },
           select: {
             id: true,
@@ -99,15 +107,16 @@ export async function GET(request: NextRequest) {
             birthYear: true,
             father: { select: { name: true } },
             mother: { select: { name: true } },
+            order: true
           },
-          orderBy: { name: "asc" },
+          orderBy: { order: "asc" },
           skip,
           take: limit,
         });
         break;
 
       case "selectChildren":
-        groupedData.length = 0; // Clear the grouped data
+        groupedData.length = 0;
         memberList = await prisma.member.findMany({
           where: {
             name: {
@@ -126,16 +135,21 @@ export async function GET(request: NextRequest) {
             gender: true,
             verified: true,
             birthYear: true,
-            partner: { select: { name: true } },
+            partnerships: {
+              select: {
+                partner: { select: { name: true } }
+              }
+            },
+            order: true
           },
-          orderBy: { name: "asc" },
+          orderBy: { order: "asc" },
           skip,
           take: limit,
         });
         break;
 
       case "editRelationship":
-        groupedData.length = 0; // Clear the grouped data
+        groupedData.length = 0;
         memberList = await prisma.member.findMany({
           where: {
             name: {
@@ -146,7 +160,8 @@ export async function GET(request: NextRequest) {
             OR: [
               { fatherOf: { some: {} } },
               { motherOf: { some: {} } },
-              { partnerId: { not: null } },
+              { partnerships: { some: {} } },
+              { partneredWith: { some: {} } }
             ],
           },
           select: {
@@ -154,9 +169,14 @@ export async function GET(request: NextRequest) {
             name: true,
             gender: true,
             birthYear: true,
-            partner: { select: { name: true } },
+            partnerships: {
+              select: {
+                partner: { select: { name: true } }
+              }
+            },
+            order: true
           },
-          orderBy: { name: "asc" },
+          orderBy: { order: "asc" },
           skip,
           take: limit,
         });
@@ -170,18 +190,22 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    // Total count for pagination
+    // Flatten partnership data to match old structure
+    memberList = memberList.map(member => ({
+      ...member,
+      partners: member.partnerships?.map((p: {partner: {name:string}}) => p.partner.name)
+    }));
+
     const totalCount = await prisma.member.count({
       where: {
         name: { contains: searchQuery },
+        descendantOf: forDescendanceOf,
       },
     });
 
-    // Add starting letter headers to the paginated data
     memberList.forEach((member) => {
       const firstLetter = member.name.charAt(0).toUpperCase();
 
-      // If this is a new starting letter, add a header entry
       if (firstLetter !== memberListCurrentLetter) {
         memberListCurrentLetter = firstLetter;
         groupedData.push({
@@ -191,22 +215,19 @@ export async function GET(request: NextRequest) {
           phoneNumber: null,
           father: null,
           mother: null,
-          partner: null,
+          partners: null,
         });
       }
 
-      // Add the current member to the grouped data
       groupedData.push(member);
     });
 
-    // Return paginated data with headers
     return NextResponse.json({
       data: groupedData,
       totalCount,
     });
   } catch (error) {
     console.error("Error fetching memberList:", error);
-    // Handle token verification errors
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }

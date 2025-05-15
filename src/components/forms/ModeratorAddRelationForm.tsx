@@ -4,7 +4,7 @@ import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
 
 interface ModeratorAddRelationFormPropType {
-    selectedMemberData: AddRelationFormValuesType;
+    selectedMemberData: any;
     selectedPartnerData: AddRelationFormValuesType;
     newChildrenData: AddRelationFormValuesType;
     setNewChildrenData: (value: AddRelationFormValuesType) => void;
@@ -66,37 +66,25 @@ function ModeratorAddRelationForm({
             <h3 className="text-sm">Partner</h3>
             {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
-        <div>
-        {selectedMemberData?.partner?.name ? (
-            <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2">
-                <span className="py-2 w-full cursor-not-allowed">
-                    {selectedMemberData.partner?.name}
-                </span>
-            </div>
-            ) : (false) ? (
-                [].map((item, index) => (
-                <div
-                    key={index}
-                    className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2"
-                    onClick={() => handleShowList('selectPartner')}
-                >
-                    <span className="py-2 w-full">{item}</span>
-                    <span
-                        onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedPartnerId(null);
-                        }}
-                        className="border border-border_color rounded-md h-fit cursor-pointer"
-                    >
-                        <MinusIcon />
-                    </span>
+        {(selectedMemberData?.partners != null && selectedMemberData?.partners.length > 0) ?   
+            selectedMemberData?.partners.map((partner: {id:any, name:string}) => (
+                <div onClick={() => {handleShowList('selectPartner')}} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                    <span className="py-2 w-full cursor-not-allowed">{partner?.name}</span>
                 </div>
             ))
-        ) : 
-        <div onClick={() => handleShowList('selectPartner')} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2">
-            <span className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>
-        </div>} 
-        </div>
+            : (selectedPartnerData?.name) ? 
+            <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                <span className="py-2 w-full">{selectedPartnerData?.name}</span>
+                <span
+                    onClick={() => {handleShowList('selectPartner'); setSelectedPartnerId(null)}}
+                    className="border border-border_color cursor-pointer rounded-md h-fit">
+                    <MinusIcon />
+                </span>
+            </div> : 
+            <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                <span onClick={() => handleShowList('selectPartner')} className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>
+            </div>
+        }
 
         <h3 className="text-sm">Children</h3>
         {(selectedMemberData.children?.length > 0 || newChildrenData.children.length > 0 || selectedPartnerData?.children?.length > 0) ?

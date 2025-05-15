@@ -4,8 +4,7 @@ import { ChangeMember, CloseIcon, Divorced, Info } from '@/utils/Icons'
 
 function EditRelationShipForm({
     handleShowList,
-    handleDivorcePartner,
-    handleRemoveChildrenValue,
+    handleRemoveValue,
     handleSubmit,
     formData,
     setFormData,
@@ -54,41 +53,38 @@ function EditRelationShipForm({
                 <span className='block py-2 w-full text-gray-400'>Select Partner</span> 
             </div>
         </> :
-        formData.partner && formData.partner?.name !== 'undefined' ? 
+        formData.partners?.length > 0 ? 
         <>
             <p className="text-sm">Partner</p>
-            <div className="w-full flex justify-between items-center pl-2 pr-[3px] border bg-field_color border-border_color text-sm rounded-md mb-2" >
-                <span className="py-2 w-full">{formData.partner?.name}</span>
-                <div className="flex gap-2 items-center border border-border_color px-1 py-0.5 rounded-md">
-                    <span 
-                        onClick={() => handleDivorcePartner()}
-                        className="block w-9 h-6 cursor-pointer">
-                        <Divorced />
-                    </span>
-                    {/* <span
-                        onClick={() => handleRemovePartnerValue()}
-                        className="block h-fit cursor-pointer">
-                        <CloseIcon />
-                    </span> */}
+            {formData.partners?.map((partner: {id: number, name: string}) => (
+                <div key={partner.id} className="w-full flex justify-between items-center pl-2 pr-[3px] border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                    <span className="py-2 w-full">{partner?.name}</span>
+                    <div className="flex gap-2 items-center border border-border_color px-1 py-0.5 rounded-md">
+                        <span 
+                            onClick={() => handleRemoveValue(partner.id, 'partners')}
+                            className="block w-9 h-6 cursor-pointer">
+                            <Divorced />
+                        </span>
+                    </div>
                 </div>
-            </div>
+            ))}
         </>: 
         <></>
         }
         {formData.children.length > 0 && 
         <>
             <p className="text-sm">Children</p>
-            {formData.children?.map((item: {id:any, name:string, order:number}, index:number) => (
-                <div key={item.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-grab" 
+            {formData.children?.map((child: {id:number, name:string, order:number}, index:number) => (
+                <div key={child.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-grab" 
                     draggable={true}
                     onDragStart={() => handleDragStart(index)}
                     onDragEnter={() => handleDragEnter(index)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleDrop}
                 >
-                <span className="py-2 w-full">{item?.name}</span>
+                <span className="py-2 w-full">{child?.name}</span>
                 {formData.children.length > 0 && <span
-                    onClick={() => handleRemoveChildrenValue(item?.id)}
+                    onClick={() => handleRemoveValue(child?.id, 'children')}
                     className="border border-border_color rounded-md h-fit  cursor-pointer">
                     <CloseIcon />
                 </span>}

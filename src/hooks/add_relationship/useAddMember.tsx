@@ -1,5 +1,5 @@
 import { useToast } from '@/components/Toast';
-import { AddRelationDefaultFormValue } from '@/types/add__edit/add_relationship/types';
+import { AddRelationMemberValue } from '@/types/add__edit/add_relationship/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
 import { getCookie } from 'cookies-next';
@@ -9,8 +9,8 @@ interface AddMemberPropType {
 }
 function useAddMember({selectedMemberId}: AddMemberPropType) {
     const [memberloading, setMemberloading] = useState(false);
-    const [descendant, setDescendant] = useState<any>(null);
-    const [selectedMemberData, setSelectedMemberData] = useState(AddRelationDefaultFormValue);
+    const [descendant, setDescendant] = useState<boolean | null>(null);
+    const [selectedMemberData, setSelectedMemberData] = useState(AddRelationMemberValue);
     const [excludeMemberRelation, setExcludeMemberRelation] = useState<number[]>([]);
     const [pendingVerification, setPendingVerification] = useState<number>(0)
     const token = getCookie('token');
@@ -41,9 +41,16 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                         name:  data.name || undefined,
                         gender: data.gender || undefined,
                         verified: data.verified,
-                        partner: data.partner ? {id: data.partner.id, name: data.partner.name} : null,
+                        partners: data.partners ? data.partners.map((partner: any) => ({
+                            id: partner.id,
+                            name: partner.name,
+                            verified: partner.verified,
+                            order: partner.order
+                        })) : [],
                         children: data.childrenData ? data.childrenData : [],
                     }
+
+                    console.log('formatedDbData', formatedDbData)
                     // Update states
                     setDescendant(data.descendant)
                     setSelectedMemberData(formatedDbData);
@@ -64,7 +71,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
         } else {
             setMemberloading(false)
             setDescendant(null)
-            setSelectedMemberData(AddRelationDefaultFormValue)
+            setSelectedMemberData(AddRelationMemberValue)
             setExcludeMemberRelation([])
             setPendingVerification(0)
         }

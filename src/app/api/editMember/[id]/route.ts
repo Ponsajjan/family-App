@@ -29,42 +29,23 @@ export async function GET(request: Request) {
 
     const member = await prisma.member.findUnique({
       where: { id: id },
-      select: {
-        id: true,
-        name: true,
-        verified: true,
-        gender: true,
-        phoneNumber: true,
+      include: {
+        father: { select: { id: true, name: true } },
+        mother: { select: { id: true, name: true } },
+        partnerships: {
+          include: {
+            partner: { select: { id: true, name: true } }
+          }
+        },
+        fatherOf: { select: { id: true } },
+        motherOf: { select: { id: true } },
+        nonDescendantRelation: true,
         pendingVerification: {
           where: {
             type: "Edit Member"
           }
-        },
-        address: true,
-        occupation: true,
-        education: true,
-        birthDate: true,
-        birthMonth: true,
-        birthYear: true,
-        deceased: true,
-        deathDate: true,
-        deathMonth: true,
-        deathYear: true,
-        descendant: true,
-        partnerId: true,
-        fatherId: true,
-        motherId: true,
-        fatherOf: true,
-        motherOf: true,
-        nonDescendantRelation: {
-          select: {
-            id: true,
-            fatherName: true,
-            motherName: true,
-            siblingNames: true,
-          },
-        },
-      },
+        }
+      }
     });
 
     if (!member) {
@@ -80,7 +61,7 @@ export async function GET(request: Request) {
         name: member.name,
         gender: member.gender,
         verified: member.verified,
-        pendingVerification: member.pendingVerification?.length,
+        pendingVerification: member.pendingVerification?.length || 0,
         birth_date: member.birthDate ? String(member.birthDate).padStart(2, '0') : null,
         birth_month: member.birthMonth ? String(member.birthMonth).padStart(2, '0') : null,
         birth_year: member.birthYear ? String(member.birthYear) : null,
@@ -98,8 +79,8 @@ export async function GET(request: Request) {
         siblings: member.nonDescendantRelation?.[0]?.siblingNames,
       },
       allowEdit: {
-        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
-        editDescendant: member.fatherId || member.motherId,
+        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerships.length > 0,
+        editDescendant: member.fatherId || member.motherId || member.fatherOf || member.motherOf || member.partnerships.length > 0,
       },
     };
 
@@ -152,40 +133,18 @@ export async function PUT(request: Request, context: any) {
         id: memberId,
         descendantOf: forDescendanceOf 
       },
-      select: {
-        id: true,
-        name: true,
-        gender: true,
-        phoneNumber: true,
-        address: true,
-        occupation: true,
-        education: true,
-        birthDate: true,
-        birthMonth: true,
-        birthYear: true,
-        deceased: true,
-        deathDate: true,
-        deathMonth: true,
-        deathYear: true,
-        descendant: true,
-        father: true,
-        mother: true,
-        partner: true,
-        fatherOf: true,
-        motherOf: true,
-        verified: true,
-        partnerId: true,
-        fatherId: true,
-        motherId: true,
-        nonDescendantRelation: {
+      include: {
+        father: { select: { id: true } },
+        mother: { select: { id: true } },
+        partnerships: {
           select: {
-            id: true,
-            fatherName: true,
-            motherName: true,
-            siblingNames: true,
-          },
+            partner: { select: { id: true } }
+          }
         },
-      },
+        fatherOf: { select: { id: true } },
+        motherOf: { select: { id: true } },
+        nonDescendantRelation: true,
+      }
     });
 
     if (!member) {
@@ -195,13 +154,16 @@ export async function PUT(request: Request, context: any) {
       );
     }
 
-    if (member.partner) {
+    // Check if member has partners
+    const hasPartners = member.partnerships.length > 0;
+
+    if (hasPartners) {
       const currentGender = member.gender;
       const updatedGender = updatedData.gender;
 
       if (updatedGender && (currentGender !== updatedGender)) {
         return NextResponse.json(
-          { error: "Gender mismatch: Cannot update gender." },
+          { error: "Gender mismatch: Cannot update gender for partnered member." },
           { status: 400 }
         );
       }
@@ -213,7 +175,7 @@ export async function PUT(request: Request, context: any) {
 
       if (updatedGender && (currentGender !== updatedGender)) {
         return NextResponse.json(
-          { error: "Update not allowed." },
+          { error: "Cannot change gender for a parent member." },
           { status: 400 }
         );
       }
@@ -225,13 +187,13 @@ export async function PUT(request: Request, context: any) {
 
       if (currentDescendant !== updatedDescendant) {
         return NextResponse.json(
-          { error: "Update not allowed: The member is already assigned as a descendant." },
+          { error: "Cannot change descendant status for a member with parents." },
           { status: 400 }
         );
       }
     }
 
-    const deceased = updatedData.deceased === true;
+    const deceased = updatedData.deceased === true || updatedData.deceased === 'true';
 
     // Prepare the update data
     const memberUpdateData = {
@@ -304,7 +266,7 @@ export async function PUT(request: Request, context: any) {
 
         return NextResponse.json({
           success: true,
-          message: "Update request has been added for verification.",
+          message: "Update request submitted for verification.",
         });
       }
 

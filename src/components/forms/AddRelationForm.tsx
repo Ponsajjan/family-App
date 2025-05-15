@@ -4,7 +4,7 @@ import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
 
 interface AddRelationShipFormPropType {
-    selectedMemberData: AddRelationFormValuesType;
+    selectedMemberData: any;
     selectedPartnerData: AddRelationFormValuesType;
     newChildrenData: AddRelationFormValuesType;
     setNewChildrenData: (value: AddRelationFormValuesType) => void;
@@ -66,21 +66,26 @@ function AddRelationShipForm({
             <h3 className="text-sm">Partner</h3>
             {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
-        <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
-        {(selectedMemberData?.partner?.name)
-            ? <span className="py-2 w-full cursor-not-allowed">{selectedMemberData.partner?.name}</span>
-            : (selectedPartnerData?.name)
-            ? <>
+        
+        {(selectedMemberData?.partners != null && selectedMemberData?.partners.length > 0) ?   
+            selectedMemberData?.partners.map((partner: {id:any, name:string}) => (
+                <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                    <span className="py-2 w-full cursor-not-allowed">{partner?.name}</span>
+                </div>
+            ))
+            : (selectedPartnerData?.name) ? 
+            <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
                 <span className="py-2 w-full">{selectedPartnerData?.name}</span>
                 <span
                     onClick={() => {handleShowList('selectPartner'); setSelectedPartnerId(null)}}
                     className="border border-border_color cursor-pointer rounded-md h-fit">
                     <MinusIcon />
                 </span>
-                </>
-            : <span onClick={() => handleShowList('selectPartner')} className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>}
-        </div>
-
+            </div> : 
+            <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                <span onClick={() => handleShowList('selectPartner')} className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>
+            </div>}
+            
         {(selectedMemberData.children?.length > 0 || newChildrenData.children.length > 0 || selectedPartnerData?.children?.length > 0) &&
         <div>
             <h3 className="text-sm">Children</h3>
@@ -117,7 +122,7 @@ function AddRelationShipForm({
                 )}
             </>
         </div>}
-        {(selectedMemberData.partner?.name || selectedPartnerData?.name) && 
+        {(selectedMemberData.partners.length || selectedPartnerData?.name) && 
         <div onClick={() => handleShowList('selectChildren')} className="flex items-center bg-field_color cursor-pointer text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit">
             <span className="pr-2">Add Children</span>
             <span className="w-4 h-4"><PlusIcon /></span>

@@ -19,6 +19,8 @@ export async function POST(request: Request) {
         mainMemberId: -1,
         moderatorPassword: "hi",
         password: process.env.SUPER_ADMIN_PASSWORD || 'trust me, there is a password',
+        createdAt: new Date("2025-05-03T12:46:17.077Z"),
+        updatedAt: new Date("2025-05-03T12:46:17.077Z")
       };
     }
 

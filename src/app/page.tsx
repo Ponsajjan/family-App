@@ -156,8 +156,8 @@ export default function Home() {
       </Topnav>
       
       <div className="md:flex">
-        <Container className='px-3 md:border-r md:border-border_color pb-3 w-full max-w-5xl'>
-          <div className="w-full lg:max-w-xl mx-auto mt-6">
+        <Container className='px-3 md:border-r md:border-border_color pb-3 w-full'>
+          <div className="w-full max-w-3xl mx-auto mt-6">
             <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
@@ -208,10 +208,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
-
-
-          <>
             <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[60vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
@@ -222,9 +218,11 @@ export default function Home() {
                 <OnDate events={eventForDate} selectedDate={selectedDate} />
               </div>
             </div>
-          </>
+          </div>
+
+
         </Container>
-        <div className="w-full lg:max-w-lg mx-auto">
+        <div className="w-full lg:max-w-[40%] mx-auto">
           {/* <Suspense fallback={<p className="text-center pt-4">Loading calendar details...</ p>}> */}
             {loading ? 
             <Loading /> :

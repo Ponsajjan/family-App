@@ -5,7 +5,7 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
+import { AddRelationship, BackButton, NextArrow, PrevArrow, Warning } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { useRouter } from 'next/navigation';
 import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
@@ -15,7 +15,6 @@ import { getCookie } from 'cookies-next';
 export default function EditRelationshipDetails() {
   const toast = useToast();
   const [noChanges, setNoChanges] = useState<boolean>(true);
-  const [previousData, setPreviousData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
   const [formData, setFormData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
   const [deleteData, setDeleteData] = useState<DeleteValueTypes>(editRelationshipDefaultDeleteValue);
   const [hasPartner, setHasPatner] = useState<number | undefined | null>(null);
@@ -57,8 +56,7 @@ export default function EditRelationshipDetails() {
           }
 
           setFormData(data);
-          setHasPatner(data.partner?.id);
-          setPreviousData(data);
+          setHasPatner(data.partners?.map((p:any) => p.id));
         } catch (error: any) {
           if (toast) {
             toast.show(error.error || "Error fetching member details", "error", 5000);
@@ -75,22 +73,21 @@ export default function EditRelationshipDetails() {
     }
   }, [formData.id, toast, router, token]);
 
-  const handleRemoveChildrenValue = (id: number) => {
+  const handleRemoveValue = (id: number, key: string) => {
     setNoChanges(false);
     setFormData((prev: any) => {
-      if (Array.isArray(prev['children'])) {
-        // Check if the name already exists
-        const exists = prev['children'].some((entry: any) => entry.id === id);
+      if (Array.isArray(prev[key])) {
+        const exists = prev[key].some((entry: any) => entry.id === id);
         if (exists) {
           // If the entry exists, remove it and add it to setDeleteData
           setDeleteData((prevDeleted: any) => ({
             ...prevDeleted,
-            ['childrenId']: [...prevDeleted['childrenId'], id],
+            [`${key}Id`]: [...prevDeleted[`${key}Id`], id],
           }));
           // Remove the existing entry
           return {
             ...prev,
-            ['children']: prev['children'].filter((entry: any) => entry.id !== id),
+            [key]: prev[key].filter((entry: any) => entry.id !== id),
           };
         }
       }
@@ -98,22 +95,22 @@ export default function EditRelationshipDetails() {
       // If not an array, initialize with the first object
       return {
         ...prev,
-        ['children']: { id },
+        [key]: { id },
       };
     });
   };
 
-  const handleDivorcePartner = () => {
-    setNoChanges(false);
-    setDeleteData((prev: any) => ({
-      ...prev,
-      partnerId: previousData.partner?.id,
-    }));
-    setFormData((prev: any) => ({
-      ...prev,
-      partner: null,
-    }));
-  };
+  // const handleDivorcePartner = (id: number) => {
+  //   setNoChanges(false);
+  //   setDeleteData((prev: any) => ({
+  //     ...prev,
+  //     partnerId: previousData.partner?.id,
+  //   }));
+  //   setFormData((prev: any) => ({
+  //     ...prev,
+  //     partner: null,
+  //   }));
+  // };
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -179,21 +176,30 @@ export default function EditRelationshipDetails() {
         {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
         </div>}
-        <div className="w-full md:max-w-xl p-4 mx-auto">
-          <div className="flex items-center mb-3">
-            <span className="hidden md:block"><AddRelationship /></span>
-            <Link href={"/add_edit"} className="md:hidden block">
-              <span><BackButton /></span>
-            </Link>
-            <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
-              Edit Relationship
-            </p>
+        <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center justify-between">
+              <span className="hidden md:block"><AddRelationship /></span>
+              <Link href={"/add_edit"} className="md:hidden block">
+                <span><BackButton /></span>
+              </Link>
+              <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
+                Edit Relationship
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="w-8 h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+                <PrevArrow />
+              </button>
+              <button className="w-8 h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+                <NextArrow />
+              </button>
+            </div>
           </div>
           {(formData.pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color border-dashed rounded-md bg-field_color"><span className='inline-block align-bottom pr-2'><Warning /></span>{formData.pendingVerification} pending verification</p>}
           <EditRelationShipForm
             handleShowList={handleShowList}
-            handleDivorcePartner={handleDivorcePartner}
-            handleRemoveChildrenValue={handleRemoveChildrenValue}
+            handleRemoveValue={handleRemoveValue}
             handleSubmit={handleSubmit}
             formData={formData}
             setFormData={setFormData}
@@ -206,7 +212,7 @@ export default function EditRelationshipDetails() {
         onClick={() => setShowList(false)}
         className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
       />
-      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-lg mx-auto md:h-[calc(100vh-3rem)]`}>
+      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-[40%] mx-auto md:h-[calc(100vh-3rem)]`}>
         <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
           <MemberList
             forType={'editRelationship'}

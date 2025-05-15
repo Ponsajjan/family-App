@@ -44,7 +44,6 @@ export default function ModeratorSidenav() {
                     <div>
                         <ModeratorNavLink linkName="Verify Member" link={undefined} onClick={() => navigateTo("/moderator")} />
                         <ModeratorNavLink linkName="Verify Changes" link="verify_changes" onClick={() => navigateTo("/moderator/verify_changes")} />
-                        <ModeratorNavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/moderator/add_edit")} />
                     </div>
                     <div>
                         <div onClick={logout} className="py-2 px-2 w-full flex gap-1 items-center justify-center cursor-pointer text-text_color" >
@@ -80,10 +79,8 @@ export function ModeratorNavLink({ link, linkName, onClick }: { link: string | u
             className={`group py-2 px-2 w-full flex gap-2 items-center justify-start text-start hover:bg-accent_color_hover/75 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName?.split('/')[2] === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >
             <p className={`group-hover:invert ${(pathName?.split('/')[2] === link) ? "invert" : " "}`}>
-                {/* {linkName === 'New Member' && <NavIconNew />} */}
                 {linkName === 'Verify Member' && <NavIconVerified />}
                 {linkName === 'Verify Changes' && <NavIconVerified />}
-                {linkName === 'Add/Edit' && <FamilyProfessionals />}
             </p>
             <div className="flex items-center justify-between w-full">
                 <p className="text-base">{linkName}</p>

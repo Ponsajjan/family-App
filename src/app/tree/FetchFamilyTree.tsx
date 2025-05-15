@@ -63,9 +63,46 @@ async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
       members = await prisma.member.findMany({
         where: { id: { in: memberId } },
         include: {
-          fatherOf: { select: { id: true, name: true, gender: true, order: true } },
-          motherOf: { select: { id: true, name: true, gender: true, order: true } },
-          partner: { select: { id: true, name: true, gender: true } },
+          fatherOf: { 
+            select: { 
+              id: true, 
+              name: true, 
+              gender: true, 
+              order: true 
+            },
+            orderBy: { order: 'asc' }
+          },
+          motherOf: { 
+            select: { 
+              id: true, 
+              name: true, 
+              gender: true, 
+              order: true 
+            },
+            orderBy: { order: 'asc' }
+          },
+          partnerships: {
+            select: {
+              partner: {
+                select: { 
+                  id: true, 
+                  name: true, 
+                  gender: true 
+                }
+              }
+            }
+          },
+          partneredWith: {
+            select: {
+              member: {
+                select: { 
+                  id: true, 
+                  name: true, 
+                  gender: true 
+                }
+              }
+            }
+          }
         },
       });
     } catch (error) {
@@ -88,18 +125,37 @@ async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
           // Fetch the next generation recursively
           const nextGen = await fetchFamilyTreeData(childIds);
 
-          // Sort nextGen based on the order value of each child
-          nextGen.sort((a, b) => a.order - b.order);
+          // Combine all partners (from partnerships and partneredWith)
+          interface Member {
+            id: number;
+            name: string;
+            gender: string;
+          }
+          
+          const partnerEntries: [string, Member][] = [
+            ...member.partneredWith.map(
+              (p): [string, Member] => [p.member.id.toString(), p.member]
+            ),
+            ...member.partnerships.map(
+              (p): [string, Member] => [p.partner.id.toString(), p.partner]
+            ),
+          ];
+          
+          const partners: Member[] = Array.from(new Map<string, Member>(partnerEntries).values());
 
           // Current generation data
           const currentGen = [
             { name: member.name, gender: member.gender },
-            ...(member.partner ? [{ name: member.partner.name, gender: member.partner.gender }] : []),
+            ...partners.map(partner => ({ 
+              name: partner.name, 
+              gender: partner.gender 
+            })),
           ];
 
           return {
             gen: currentGen,
             next_gen: nextGen,
+            order: member.order // Keep order for sorting
           };
         } catch (innerError) {
           console.error(`Error processing member ${member.id}:`, innerError);
@@ -115,7 +171,6 @@ async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
 
 export default async function FetchFamilyTree({ memberId }: { memberId: number[] }) {
   const data = await fetchFamilyTreeData(memberId);
-  // console.log(JSON.stringify(data, null, 2));
   return (
     <>
       <div className="flex">

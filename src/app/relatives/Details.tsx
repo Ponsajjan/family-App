@@ -95,19 +95,19 @@ export default function Details({ showMember, openDetails }: any) {
                             {data?.relationInformation.father && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.father}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.father}</div>
                                 </>
                             )}
                             {data?.relationInformation.mother && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.mother}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.mother}</div>
                                 </>
                             )}
                             {data?.relationInformation.siblings && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7'>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                         {data.relationInformation.siblings
                                                 .sort((a: any, b: any) => a.order - b.order)
                                                 .map((sibling: { name: string, order: number }) => sibling.name)
@@ -118,35 +118,39 @@ export default function Details({ showMember, openDetails }: any) {
                             {data?.relationInformation.nonDescendantRelations?.fatherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.motherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.siblingNames && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
                                 </>
                             )}
-                            {data?.relationInformation.partner && (
+                            {data?.relationInformation.partners && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.partner}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                        {data?.relationInformation.partners
+                                            .map((partner: string) => partner)
+                                            .join(", ")}
+                                    </div>
                                 </>
                             )}
 
                             {data?.relationInformation.children && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
-                                    <div className='w-3/5 md:leading-7'>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                         {data.relationInformation.children
                                             .sort((a: any, b: any) => a.order - b.order)
-                                            .map((child: { name: string, order: number }) => child.name)
+                                            .map((child: { name: string }) => child.name)
                                             .join(", ")}
                                     </div>
                                 </>
@@ -166,13 +170,13 @@ export default function Details({ showMember, openDetails }: any) {
                             {data?.contactInformation.phoneNumber && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Phone no.</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.contactInformation.phoneNumber}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.phoneNumber}</div>
                                 </>
                             )}
                             {data?.contactInformation.address && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Location</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.contactInformation.address}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.address}</div>
                                 </>
                             )}
                         </div>
@@ -191,13 +195,13 @@ export default function Details({ showMember, openDetails }: any) {
                             {data?.personalInformation.occupation && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Occupation</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.personalInformation.occupation}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.occupation}</div>
                                 </>
                             )}
                             {data?.personalInformation.education && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Education</div>
-                                    <div className='w-3/5 md:leading-7'>{data?.personalInformation.education}</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.education}</div>
                                 </>
                             )}
                         </div>

@@ -23,7 +23,7 @@ interface Member {
   father: EachMember | null;
   mother: EachMember | null;
   children: EachMember[];
-  partner?: EachMember | null;
+  partners?: string[] | [];
   birthYear?: number;
   parentNames?: string;
   phoneNumber?: string;
@@ -240,13 +240,15 @@ export default function MemberList({
     }
   };
 
+  console.log("membersssss", members)
+
   return (
     <div className="relative bg-main_background">
       <div className="border-b border-border_color bg-main_background z-10 relative">
         <div className="relative w-full p-3 border-b border-border_color">
           <div className="flex gap-2">
             <Input
-              placeholder={
+              placeholder={ 
                 forType === ForType.SelectMember
                   ? 'Select Member'
                   : forType === ForType.SelectPartner
@@ -335,10 +337,10 @@ export default function MemberList({
                               {member.father && <span className="pr-1">{member.father.name},</span>}
                               {member.mother && <span className="pr-1">{member.mother.name}</span>}
                             </>
-                          ) : member.partner ? (
+                          ) : (member.partners && member.partners?.length > 0) ? (
                             <div>
                               <span className="pr-1 font-semibold">Partner: </span>
-                              <span className="pr-1">{member.partner.name}</span>
+                              <span className="pr-1">{member.partners[0]}</span>
                             </div>
                           ) : (
                             'No family relationship assigned yet'

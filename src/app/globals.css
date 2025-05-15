@@ -6,14 +6,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* color: rgb(243, 243, 243); */
 }
 
 .light {
-  --main_background: 255, 255, 255;
-  --field_color: 255, 255, 255;
+  --main_background: 245, 245, 245;
+  --field_color: 245, 245, 245;
   --field_hover: 245, 245, 245;
   --accent_color: 0, 0, 0;
-  --accent_contrast: 255, 255, 255;
+  --accent_contrast: 245, 245, 245;
   --border_color: 116, 116, 116;
   --text_color: 0, 0, 0;
 }
@@ -30,17 +31,17 @@
 
 /*same style of light  */
 :root {
-  --main_background: 255, 255, 255;
-  --field_color: 255, 255, 255;
+  --main_background: 245, 245, 245;
+  --field_color: 245, 245, 245;
   --field_hover: 245, 245, 245;
   --accent_color: 0, 0, 0;
-  --accent_contrast: 255, 255, 255;
+  --accent_contrast: 245, 245, 245;
   --border_color: 0, 0, 0;
   --text_color: 0, 0, 0;
 }
 
 /*same style of dark */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --main_background: 0, 26, 42;
     --field_color: 4, 44, 64;
@@ -50,7 +51,7 @@
     --border_color: 15, 80, 110;
     --text_color: 155, 166, 174;
   }
-}
+} */
 
 ::-webkit-scrollbar {
   width: 4px;

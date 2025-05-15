@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   if (isNaN(id)) {
-    return NextResponse.json({ error: "Member ID is required and should be a valid number." });
+    return NextResponse.json({ error: "Member ID is required and should be a valid number." }, { status: 400 });
   }
 
   try {
@@ -20,184 +20,149 @@ export async function GET(request: Request) {
     const forDescendanceOf = decoded.forDescendanceOf;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Step 1: Fetch the member and their direct relations
+    // Fetch the member with all relationships
     const member = await prisma.member.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        gender: true,
-        verified: true,
-        phoneNumber: true,
-        address: true,
-        occupation: true,
-        education: true,
-        birthDate: true,
-        birthMonth: true,
-        birthYear: true,
-        deceased: true,
-        deathDate: true,
-        deathMonth: true,
-        deathYear: true,
-        descendant: true,
-        father: {
-          select: { 
-            id: true, 
-            name: true,
-            verified: true,
-          },
-        },
-        mother: {
-          select: { 
-            id: true, 
-            name: true,
-            verified: true,
-          },
-        },
-        partner: {
-          select: { 
-            name: true,
-            verified: true,
-          },
-        },
-        fatherOf: {
-          select: { 
-            name: true,
-            verified: true,
-            order: true
-          },
-        },
-        motherOf: {
-          select: { 
-            name: true,
-            verified: true,
-            order: true
-          },
-        },
-        nonDescendantRelation: {
+      include: {
+        father: { select: { id: true, name: true, verified: true } },
+        mother: { select: { id: true, name: true, verified: true } },
+        partnerships: {
           select: {
-            id: true,
-            fatherName: true,
-            motherName: true,
-            siblingNames: true,
-          },
+            partner: {
+              select: { name: true, verified: true }
+            }
+          }
         },
-      },
+        partneredWith: {
+          select: {
+            member: {
+              select: { name: true, verified: true }
+            }
+          }
+        },
+        fatherOf: { select: { name: true, verified: true, order: true } },
+        motherOf: { select: { name: true, verified: true, order: true } },
+        nonDescendantRelation: true
+      }
     });
 
     if (!member) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    // Step 2: Fetch siblings using father's and mother's IDs
-    type SiblingInfo = {
-      name: string | null;
+    // Get partners from both sides of the relationship// Get partners from both sides of the relationship
+    interface PartnerInfo {
+      name: string;
       verified: boolean | null;
-      order: number | null;
-    };
-    
-    const siblingMap = new Map<string | null, SiblingInfo>(); // Track by name
-    
-    if (member.father?.id) {
-      const fatherChildren = await prisma.member.findMany({
-        where: {
-          fatherId: member.father.id,
-          id: { not: id }, // Exclude the current member
-        },
-        select: { 
-          name: true,
-          verified: true,
-          order: true
-        },
-      });
-      fatherChildren.forEach((child) => {
-        if (child.name && !siblingMap.has(child.name)) {
-          siblingMap.set(child.name, { name: child.name, verified: child.verified, order: child.order });
-        }
-      });
     }
-    
-    if (member.mother?.id) {
-      const motherChildren = await prisma.member.findMany({
-        where: {
-          motherId: member.mother.id,
-          id: { not: id }, // Exclude the current member
-        },
-        select: { 
-          name: true,
-          verified: true,
-          order: true
-        },
-      });
-      motherChildren.forEach((child) => {
-        if (child.name && !siblingMap.has(child.name)) {
-          siblingMap.set(child.name, { name: child.name, verified: child.verified, order: child.order });
-        }
-      });
-    }
-    
-    // Convert the Map values to an array (automatically unique by name)
-    const siblings = Array.from(siblingMap.values());
 
-    // Step 3: Respond with enriched data
+    const partnerEntries: PartnerInfo[] = [
+      ...member.partneredWith.map(p => ({
+        name: p.member.name,
+        verified: p.member.verified
+      })),
+      ...member.partnerships.map(p => ({
+        name: p.partner.name,
+        verified: p.partner.verified
+      }))
+    ];
+
+    // Deduplicate partners by name
+    const partners = Array.from(new Map(
+      partnerEntries.map(partner => [partner.name, partner])
+    ).values());
+
+    // const partners = [
+    //   ...member.partnerships.map(p => p.partner),
+    //   ...(await prisma.partnership.findMany({
+    //     where: { 
+    //       partnerId: member.id 
+    //     },
+    //     select: { 
+    //       member: { 
+    //         select: { 
+    //           name: true, 
+    //           verified: true 
+    //         } 
+    //       } 
+    //     }
+    //   })).map(p => p.member)
+    // ];
+
+    // Get siblings
+    const siblingConditions = [];
+    if (member.father) siblingConditions.push({ fatherId: member.father.id });
+    if (member.mother) siblingConditions.push({ motherId: member.mother.id });
+
+    const siblings = siblingConditions.length > 0
+      ? await prisma.member.findMany({
+          where: {
+            AND: [
+              { id: { not: member.id } },
+              { OR: siblingConditions }
+            ]
+          },
+          select: { name: true, verified: true, order: true }
+        })
+      : [];
+
+    // Format the response data
     const responseData = {
-      ...{generalInformation: {
-          ...(member.id ? { id: member.id } : {}),
-          ...(member.name ? { name: member.name } : {}),
-          ...(member.gender ? { gender: member.gender } : {}),
-          ...(member.verified !== undefined ? { verified: member.verified } : {}),
-          ...(member.deceased !== undefined ? { deceased: member.deceased } : {}),
-          ...(member.birthDate ? { birthDate: member.birthDate } : {}),
-          ...(member.birthMonth ? { birthMonth: member.birthMonth } : {}),
-          ...(member.birthYear ? { birthYear: member.birthYear } : {}),
-          ...(member.deathDate ? { deathDate: member.deathDate } : {}),
-          ...(member.deathMonth ? { deathMonth: member.deathMonth } : {}),
-          ...(member.deathYear ? { deathYear: member.deathYear } : {}),
+      generalInformation: {
+        id: member.id,
+        name: member.name,
+        gender: member.gender,
+        verified: member.verified,
+        deceased: member.deceased,
+        birthDate: member.birthDate,
+        birthMonth: member.birthMonth,
+        birthYear: member.birthYear,
+        deathDate: member.deathDate,
+        deathMonth: member.deathMonth,
+        deathYear: member.deathYear,
+        descendant: member.descendant
+      },
+      relationInformation: {
+        ...(member.father && { 
+          father: member.father.name, 
+          v_father: member.father.verified 
+        }),
+        ...(member.mother && { 
+          mother: member.mother.name, 
+          v_mother: member.mother.verified 
+        }),
+        ...(partners.length > 0 && { 
+          partners: partners
+        }),
+        ...((member.fatherOf.length > 0 || member.motherOf.length > 0) && { 
+          children: [...member.fatherOf, ...member.motherOf] 
+        }),
+        ...(siblings.length > 0 && { siblings }),
+        ...(member.nonDescendantRelation && { 
+          nonDescendantRelations: member.nonDescendantRelation 
+        })
+      },
+      ...(member.phoneNumber || member.address) && {
+        contactInformation: {
+          ...(member.phoneNumber && { phoneNumber: member.phoneNumber }),
+          ...(member.address && { address: member.address })
         }
       },
-      ...(member.father || member.mother || member.partner || 
-          member.fatherOf.length > 0 || member.motherOf.length > 0 || 
-          siblings.length > 0 || member.nonDescendantRelation[0]) ? {
-        relationInformation: {
-          ...(member.father ? { father: member.father.name, v_father: member.father.verified } : {}),
-          ...(member.mother ? { mother: member.mother.name, v_mother: member.mother.verified } : {}),
-          ...(member.partner ? { partner: member.partner.name, v_partner: member.partner.verified } : {}),
-          ...(member.fatherOf.length > 0 || member.motherOf.length > 0 ? { 
-            children: [...member.fatherOf, ...member.motherOf] 
-          } : {}),
-          ...(siblings.length > 0 ? { siblings: siblings } : {}),
-          ...(member.nonDescendantRelation[0] ? { 
-            nonDescendantRelations: member.nonDescendantRelation[0] 
-          } : {}),
-        }
-      } : {},
-    
-      ...(member.phoneNumber || member.address) ? {
-        contactInformation: {
-          ...(member.phoneNumber ? { phoneNumber: member.phoneNumber } : {}),
-          ...(member.address ? { address: member.address } : {}),
-        }
-      } : {},
-    
-      ...(member.occupation || member.education) ? {
+      ...(member.occupation || member.education) && {
         personalInformation: {
-          ...(member.occupation ? { occupation: member.occupation } : {}),
-          ...(member.education ? { education: member.education } : {}),
+          ...(member.occupation && { occupation: member.occupation }),
+          ...(member.education && { education: member.education })
         }
-      } : {},
-    
-      ...(member.descendant !== undefined ? { descendant: member.descendant } : {})
+      }
     };
 
-    return NextResponse.json({
-      data: responseData,
-    });
+    return NextResponse.json({ data: responseData });
+
   } catch (error) {
     console.error("Error fetching member data:", error);
-    // Handle token verification errors
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
@@ -216,16 +181,13 @@ export async function PATCH(request: Request) {
   }
 
   if (isNaN(memberId)) {
-    return NextResponse.json(
-      { error: "Invalid member ID" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
   }
 
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
-    const mainMemberId = decoded.memberId
+    const mainMemberId = decoded.memberId;
 
     if (!forDescendanceOf) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
@@ -240,36 +202,27 @@ export async function PATCH(request: Request) {
         id: memberId,
         descendantOf: forDescendanceOf 
       },
-      select: {
-        verified: true
-      },
+      select: { verified: true }
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
     const updatedMember = await prisma.member.update({
       where: { id: memberId },
-      data: { 
-        verified: !(member.verified)
-      },
+      data: { verified: !member.verified }
     });
 
     return NextResponse.json({
       success: true,
-      message: `${updatedMember.verified ? 'Switched to verified member' : 'Switched to unverified member'}`,
-      data: updatedMember,
+      message: `${updatedMember.verified ? 'Verified' : 'Unverified'} successfully`,
+      data: updatedMember
     });
+
   } catch (error) {
     console.error("Error updating member:", error);
-    return NextResponse.json(
-      { error: "Failed to update member." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update member" }, { status: 500 });
   }
 }
 
@@ -280,7 +233,7 @@ export async function DELETE(request: Request) {
   const token = authHeader?.split(' ')[1];
   
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (isNaN(memberId)) {
@@ -290,71 +243,40 @@ export async function DELETE(request: Request) {
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
-    const mainMemberId = decoded.memberId
+    const mainMemberId = decoded.memberId;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     if (memberId == mainMemberId) {
       return NextResponse.json({ error: "Main member cannot be deleted" }, { status: 400 });
     }
 
-    // Fetch the member with their relationships
-    const member = await prisma.member.findUnique({
-      where: { 
-        id: memberId,
-        descendantOf: forDescendanceOf
-      },
-      select: {
-        verified: true
-      },
-    });
-
-    // If the member doesn't exist, return an error
-    if (!member) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
-    }
-
-    // Use a transaction to ensure atomicity
-    await prisma.$transaction(async (prisma) => {
-      // Delete associated nonDescendantRelation (if it exists)
-      await prisma.nonDescendantRelation.deleteMany({
-        where: { memberId: memberId },
-      });
-
-      // Delete the member
-      await prisma.member.delete({
-        where: { id: memberId },
-      });
-    });
+    await prisma.$transaction([
+      prisma.nonDescendantRelation.deleteMany({ where: { memberId } }),
+      prisma.partnership.deleteMany({
+        where: { OR: [{ memberId }, { partnerId: memberId }] }
+      }),
+      prisma.member.delete({ where: { id: memberId } })
+    ]);
 
     return NextResponse.json({
       success: true,
-      message: "Member deleted successfully",
+      message: "Member deleted successfully"
     });
+
   } catch (error: any) {
     console.error("Error deleting member:", error);
 
-    // Handle token verification errors
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     if (error.code === "P2025") {
-      // Prisma-specific error for "Record not found"
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-}  
+}

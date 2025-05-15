@@ -50,12 +50,22 @@ export async function GET(request: NextRequest) {
         verified: true,
         father: { select: { name: true } },
         mother: { select: { name: true } },
-        partner: { select: { name: true } },
+        partnerships: {
+          select: {
+            partner: { select: { name: true } }
+          }
+        },
       },
       orderBy: { name: "asc" },
       skip,
       take: limit,
     });
+
+    // Flatten partnership data to match old structure
+    const flatMemberList = memberList.map(member => ({
+      ...member,
+      partner: member.partnerships?.[0]?.partner || null
+    }));
 
     // Total count for pagination
     const totalCount = await prisma.member.count({
@@ -67,7 +77,7 @@ export async function GET(request: NextRequest) {
     // Add starting letter headers to the paginated data
     const groupedData:any = [];
 
-    memberList.forEach((member) => {
+    flatMemberList.forEach((member) => {
       const firstLetter = member.name.charAt(0).toUpperCase();
 
       // If this is a new starting letter, add a header entry

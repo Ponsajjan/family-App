@@ -44,16 +44,16 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                     ];
         
                     }
-                    const formatedDbData = {
+                    const formattedDbData = {
                         id: data.id || undefined,
                         name: data.name || undefined,
-                        gender: undefined,
+                        gender: undefined, // For typescript purposes
                         verified: data.verified,
-                        partner: null,
+                        partner: null, // For typescript purposes
                         children: uniqueChildren ? uniqueChildren : [],
                     }
         
-                    setSelectedPartnerData(formatedDbData);
+                    setSelectedPartnerData(formattedDbData);
                     setExcludePartnerRelation(data.excludeIds);
 
                 } catch (error: any) {

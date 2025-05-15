@@ -52,7 +52,6 @@ function EditMemberForm({
                 <RadioButton
                     label="Male"
                     name="gender"
-                    // disabled = {formData.hasPartner || formData.isParent}
                     value="Male"
                     checked={formData.gender === "Male"}
                     onChange={allowedEdit.editGender ? () => {showWarning('gender')} : handleInputChange}
@@ -60,7 +59,6 @@ function EditMemberForm({
                 <RadioButton
                     label="Female"
                     name="gender"
-                    // disabled = {formData.hasPartner || formData.isParent}
                     value="Female"
                     checked={formData.gender === "Female"}
                     onChange={allowedEdit.editGender ? () => {showWarning('gender')} : handleInputChange}

@@ -29,37 +29,18 @@ export async function GET(request: Request) {
 
     const member = await prisma.member.findUnique({
       where: { id: id },
-      select: {
-        id: true,
-        name: true,
-        verified: true,
-        gender: true,
-        phoneNumber: true,
-        address: true,
-        occupation: true,
-        education: true,
-        birthDate: true,
-        birthMonth: true,
-        birthYear: true,
-        deceased: true,
-        deathDate: true,
-        deathMonth: true,
-        deathYear: true,
-        descendant: true,
-        partnerId: true,
-        fatherId: true,
-        motherId: true,
-        fatherOf: true,
-        motherOf: true,
-        nonDescendantRelation: {
-          select: {
-            id: true,
-            fatherName: true,
-            motherName: true,
-            siblingNames: true,
-          },
+      include: {
+        father: { select: { id: true, name: true } },
+        mother: { select: { id: true, name: true } },
+        partnerships: {
+          include: {
+            partner: { select: { id: true, name: true } }
+          }
         },
-      },
+        fatherOf: { select: { id: true } },
+        motherOf: { select: { id: true } },
+        nonDescendantRelation: true,
+      }
     });
 
     if (!member) {

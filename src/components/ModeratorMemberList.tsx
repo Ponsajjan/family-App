@@ -23,7 +23,7 @@ interface Member {
   father: EachMember | null;
   mother: EachMember | null;
   children: EachMember[];
-  partner?: EachMember | null;
+  partners?: string[] | null;
   birthYear?: number;
   parentNames?: string;
   phoneNumber?: string;
@@ -335,10 +335,10 @@ export default function MemberList({
                               {member.father && <span className="pr-1">{member.father.name},</span>}
                               {member.mother && <span className="pr-1">{member.mother.name}</span>}
                             </>
-                          ) : member.partner ? (
+                          ) : member.partners ? (
                             <div>
                               <span className="pr-1 font-semibold">Partner: </span>
-                              <span className="pr-1">{member.partner.name}</span>
+                              <span className="pr-1">{member.partners.join(", ")}</span> 
                             </div>
                           ) : (
                             'No family relationship assigned yet'

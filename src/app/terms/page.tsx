@@ -2,7 +2,7 @@
 
 import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
-import { Logout } from '@/utils/Icons'
+import { Community, Logout } from '@/utils/Icons'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { getCookie } from 'cookies-next';
@@ -84,19 +84,25 @@ export default function Terms() {
           </p>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Access is limited to:</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              <span className="inline-block mr-2"><Community /></span>
+              <span className="inline-block">Access is limited to:</span>
+            </h2>
             <ul className="list-disc list-inside space-y-2">
               <li>Direct descendants of {head}</li>
               <li>Their partner ( Husband or Wife )</li>
             </ul>
             <p className="mt-4 italic opacity-65">
-             Note: Extended family members (such as in-laws) are excluded to maintain simplicity and ensure that each member remains relevant to one another.
+             Note: Extended family members (such as in-laws) are excluded to maintain simplicity and ensure that each member remains relevant to each other.
             </p>
           </div>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg mb-6">
             <div className='p-4'>
-              <h2 className="text-xl font-semibold mb-4">Guidelines:</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                <span className="inline-block mr-2"><Community /></span>
+                <span className="inline-block">Guidelines:</span>
+              </h2>
               <ul className="list-disc list-inside space-y-2">
                 <li>Ensure family descendants are accurately recorded</li>
                 <li>Add family relationships ( Partner | Children ) if any.</li>
