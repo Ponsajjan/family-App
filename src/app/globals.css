@@ -32,7 +32,7 @@
 :root {
   --main_background: 250, 250, 250;
   --field_color: 250, 250, 250;
-  --field_hover: 250, 250, 250;
+  --field_hover: 200, 200, 200;
   --accent_color: 0, 0, 0;
   --accent_contrast: 250, 250, 250;
   --border_color: 111, 111, 111;

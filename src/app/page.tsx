@@ -218,7 +218,7 @@ export default function Home() {
 
 
         </Container>
-        <div className="w-full lg:max-w-[40%] mx-auto">
+        <div className="w-full lg:max-w-[580px] mx-auto">
           {/* <Suspense fallback={<p className="text-center pt-4">Loading calendar details...</ p>}> */}
             {loading ? <Loading /> :
             eventDates?.length > 0 

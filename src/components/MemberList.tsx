@@ -243,129 +243,125 @@ export default function MemberList({
 
   return (
     <Container className="relative">
-      <div className='bg-main_background md:max-w-[640px]'>
-        <div className='md:max-w-[580px] mx-auto'>
-          <div className="border-b border-border_color bg-main_background z-10 relative">
-            <div className="w-full p-3 border-b border-border_color">
-              <div className="relative flex gap-2">
-                <Input
-                  placeholder={ 
-                    forType === ForType.SelectMember
-                      ? 'Select Member'
-                      : forType === ForType.SelectPartner
-                      ? 'Select partner'
-                      : 'Select Children'
-                  }
-                  className="pl-9"
-                  value={searchInput}
-                  onChange={(e) => handleAssemblySearch(e.target.value)}
-                  type="text"
-                />
-                <span className="absolute left-2 top-1/2 transform -translate-y-1/2">
-                  <SearchIcon />
-                </span>
-              </div>
-            </div>
-            <ul className="py-2 px-3 flex gap-2 flex-nowrap overflow-x-auto min-h-[42px] scroll-stable">
-              {appliedFilters?.map((item, index) => (
-                <li key={index} className="py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between">
-                  <FilterSelect />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+      <div className="border-b border-border_color bg-main_background z-10 relative">
+        <div className="w-full p-3 border-b border-border_color">
+          <div className="relative flex gap-2">
+            <Input
+              placeholder={ 
+                forType === ForType.SelectMember
+                  ? 'Select Member'
+                  : forType === ForType.SelectPartner
+                  ? 'Select partner'
+                  : 'Select Children'
+              }
+              className="pl-9"
+              value={searchInput}
+              onChange={(e) => handleAssemblySearch(e.target.value)}
+              type="text"
+            />
+            <span className="absolute left-2 top-1/2 transform -translate-y-1/2">
+              <SearchIcon />
+            </span>
           </div>
-          <div
-            ref={listContainerRef}
-            className={`${forType === ForType.SelectChildren && 'pb-14'} h-[60vh] md:h-[calc(100vh-154px)] overflow-y-auto scroll-stable`}
-          >
-            {forType === ForType.SelectPartner && descendant === true && (
-              <div className="py-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm border-b border-border_color">
-                <p>Show Cousins List</p>
-                <label className="relative inline-flex items-center cursor-pointer p-1">
-                  <span className="absolute left-[5px] z-10">
-                    <FilterClose />
-                  </span>
-                  <input
-                    className="sr-only peer"
-                    type="checkbox"
-                    checked={showCousin}
-                    onChange={() => setShowCousin((prev) => !prev)}
-                  />
-                  <span className="absolute right-[5px] z-10">
-                    <FilterSelect />
-                  </span>
-                  <div className="peer rounded-full outline-none duration-75 border border-border_color after:duration-100 w-9 h-[18px] bg-accent_color peer-focus:outline-none after:absolute after:outline-none after:rounded-full after:h-4 after:w-4 after:bg-white after:flex after:justify-center after:items-center after:font-bold peer-checked:after:translate-x-[18px] peer-checked:after:border-border_active" />
-                </label>
-              </div>
-            )}
-            {switchingList ? (
-              <Loading />
-            ) : !loadingList && !members ? (
-              <p className="p-4">No members found.</p>
-            ) : members.length > 0 ? (
-              <>
-                {members.map((member) =>
-                  member.gender === 'Letter' ? (
-                    <div key={member.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10">
-                      <span className="font-semibold pr-1">{member.name}</span>
-                      <span className="border-t border-border_color block w-full"></span>
-                    </div>
-                  ) : (
-                    <div key={member.id} onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified)} className="pl-4">
-                      <div className="border-l border-border_color py-1 pl-4 pr-3">
-                        <div className="cursor-pointer px-3 py-2 flex items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
-                          {multiselect && (
-                            <div className="pr-3 border-r border-border_color mr-2">
-                              <Checkbox checked={selectedValues.some((value: EachMember) => value.id === member.id)} readOnly />
-                            </div>
-                          )}
+        </div>
+        <ul className="py-2 px-3 flex gap-2 flex-nowrap overflow-x-auto min-h-[42px] scroll-stable">
+          {appliedFilters?.map((item, index) => (
+            <li key={index} className="py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between">
+              <FilterSelect />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div
+        ref={listContainerRef}
+        className={`${forType === ForType.SelectChildren && 'pb-14'} h-[60vh] md:h-[calc(100vh-154px)] overflow-y-auto scroll-stable`}
+      >
+        {forType === ForType.SelectPartner && descendant === true && (
+          <div className="py-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm border-b border-border_color">
+            <p>Show Cousins List</p>
+            <label className="relative inline-flex items-center cursor-pointer p-1">
+              <span className="absolute left-[5px] z-10">
+                <FilterClose />
+              </span>
+              <input
+                className="sr-only peer"
+                type="checkbox"
+                checked={showCousin}
+                onChange={() => setShowCousin((prev) => !prev)}
+              />
+              <span className="absolute right-[5px] z-10">
+                <FilterSelect />
+              </span>
+              <div className="peer rounded-full outline-none duration-75 border border-border_color after:duration-100 w-9 h-[18px] bg-accent_color peer-focus:outline-none after:absolute after:outline-none after:rounded-full after:h-4 after:w-4 after:bg-white after:flex after:justify-center after:items-center after:font-bold peer-checked:after:translate-x-[18px] peer-checked:after:border-border_active" />
+            </label>
+          </div>
+        )}
+        {switchingList ? (
+          <Loading />
+        ) : !loadingList && !members ? (
+          <p className="p-4">No members found.</p>
+        ) : members.length > 0 ? (
+          <>
+            {members.map((member) =>
+              member.gender === 'Letter' ? (
+                <div key={member.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10">
+                  <span className="font-semibold pr-1">{member.name}</span>
+                  <span className="border-t border-border_color block w-full"></span>
+                </div>
+              ) : (
+                <div key={member.id} onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified)} className="pl-4">
+                  <div className="border-l border-border_color py-1 pl-4 pr-3">
+                    <div className="cursor-pointer px-3 py-2 flex items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
+                      {multiselect && (
+                        <div className="pr-3 border-r border-border_color mr-2">
+                          <Checkbox checked={selectedValues.some((value: EachMember) => value.id === member.id)} readOnly />
+                        </div>
+                      )}
+                      <div>
+                        <div className="flex gap-2">
                           <div>
-                            <div className="flex gap-2">
-                              <div>
-                                {member.gender === 'Male' && <Male />}
-                                {member.gender === 'Female' && <Female />}
-                              </div>
-                              <div
-                                className="font-semibold"
-                                dangerouslySetInnerHTML={{
-                                  __html: highlightSearchText(member.name, params.search),
-                                }}
-                              />
-                            </div>
-                            <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                              {member.father || member.mother ? (
-                                <>
-                                  <span className="pr-1 font-semibold">Parents: </span>
-                                  {member.father && <span className="pr-1">{member.father.name},</span>}
-                                  {member.mother && <span className="pr-1">{member.mother.name}</span>}
-                                </>
-                              ) : (member.partners && member.partners?.length > 0) ? (
-                                <div>
-                                  <span className="pr-1 font-semibold">Partner: </span>
-                                  <span className="pr-1">{member.partners[0]}</span>
-                                </div>
-                              ) : (
-                                'No family relationship assigned yet'
-                              )}
-                            </div>
+                            {member.gender === 'Male' && <Male />}
+                            {member.gender === 'Female' && <Female />}
                           </div>
+                          <div
+                            className="font-semibold"
+                            dangerouslySetInnerHTML={{
+                              __html: highlightSearchText(member.name, params.search),
+                            }}
+                          />
+                        </div>
+                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                          {member.father || member.mother ? (
+                            <>
+                              <span className="pr-1 font-semibold">Parents: </span>
+                              {member.father && <span className="pr-1">{member.father.name},</span>}
+                              {member.mother && <span className="pr-1">{member.mother.name}</span>}
+                            </>
+                          ) : (member.partners && member.partners?.length > 0) ? (
+                            <div>
+                              <span className="pr-1 font-semibold">Partner: </span>
+                              <span className="pr-1">{member.partners[0]}</span>
+                            </div>
+                          ) : (
+                            'No family relationship assigned yet'
+                          )}
                         </div>
                       </div>
                     </div>
-                  )
-                )}
-                <div className="h-10 px-4 py-2">
-                  {loadingList && <p className="text-text_color">Loading....</p>}
-                  {!loadingList && !hasMore && <p>, , ,</p>}
+                  </div>
                 </div>
-              </>
-            ) : error ? (
-              <div className="p-6 text-center">{error}</div>
-            ) : <div>{renderNoMembersMessage()}</div>
-            }
+              )
+            )}
+            <div className="h-10 px-4 py-2">
+              {loadingList && <p className="text-text_color">Loading....</p>}
+              {!loadingList && !hasMore && <p>, , ,</p>}
             </div>
-        </div>
+          </>
+        ) : error ? (
+          <div className="p-6 text-center">{error}</div>
+        ) : <div>{renderNoMembersMessage()}</div>
+        }
       </div>
 
       {multiselect && <ButtonSolid buttonText={selectedValues.length <= 0 ? 'Close' : 'Submit'} onClick={() => openList((prev:any) => !prev)} className={`w-full absolute bottom-0 left-0 right-0 z-10 rounded-none overflow-hidden mx-auto`} />}
