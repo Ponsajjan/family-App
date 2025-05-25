@@ -83,7 +83,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
   
     return (
       sortedEvents.length > 0 && (
-      <Container>
+      <div className="w-full">
           <div className="flex text-text_color items-center px-3 py-1 bg-main_background sticky top-12 md:top-0 z-10">
             <span className="font-medium pr-2 whitespace-nowrap">{title}</span>
             <span className="border-t border-border_color block w-full"></span>
@@ -127,7 +127,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
               </div>
             ))}
           </div>
-      </Container>
+      </div>
       )
     );
   };

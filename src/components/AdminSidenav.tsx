@@ -1,13 +1,11 @@
 "use client";
-import { BurgerMenuIcon, CloseIcon, DarkMode, LightMode, Login, LoginList } from "@/utils/Icons";
+import { BurgerMenuIcon, CloseIcon, Login, LoginList } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useTheme } from "@/contexts/ThemeContext";
 
 export default function AdminSidenav() {
     const [showNav, setShowNav] = useState(false);
-    const { theme, toggleTheme } = useTheme();
     const router = useRouter();
 
     const navigateTo = (link: string) => {
@@ -29,20 +27,6 @@ export default function AdminSidenav() {
                     <div>
                         <AdminNavLink linkName="Login List" link="/admin" onClick={() => navigateTo("/admin")} />
                         <AdminNavLink linkName="New Login" link="/admin/new_login" onClick={() => navigateTo("/admin/new_login")} />
-                    </div>
-                    <div className="flex justify-center items-center py-2">
-                        <LightMode />
-                        <label className="relative inline-flex items-center cursor-pointer p-1">
-                            <input 
-                                className="sr-only peer" 
-                                type="checkbox" 
-                                checked={theme === "dark"} 
-                                onChange={toggleTheme} 
-                            />
-                            <div className="peer rounded-full outline-none duration-100 border border-border_color after:duration-500 w-[42px] h-[18px] bg-blue-300 peer-focus:outline-none after:absolute after:outline-none after:rounded-full after:h-4 after:w-4 after:bg-white after:flex after:justify-center after:items-center after:text-sky-800 after:font-bold peer-checked:after:translate-x-6 peer-checked:after:border-white">
-                            </div>
-                        </label>
-                        <DarkMode />
                     </div>
                 </div>
             </nav>

@@ -160,7 +160,7 @@ export default function EditRelationshipDetails() {
   return (
     <div className="md:flex text-text_color">
       <Container className='relative'>
-        {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
+        {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10 cursor-wait`}>
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
         </div>}
         <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
@@ -175,10 +175,10 @@ export default function EditRelationshipDetails() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+              <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color">
                 <PrevArrow />
               </button>
-              <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+              <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color">
                 <NextArrow />
               </button>
             </div>

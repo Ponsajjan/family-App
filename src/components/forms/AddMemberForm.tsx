@@ -17,35 +17,35 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
     return (
         <form className="text-text_color" onSubmit={handleFormSubmit}>
             <Input
-            name="name"
-            label="Name"
-            value={formData.name || ''}
-            onChange={handleInputChange}
-            error={errors.name}
+                name="name"
+                label="Name"
+                value={formData.name || ''}
+                onChange={handleInputChange}
+                error={errors.name}
             />
             <div className="py-4">
-            <div className="flex gap-2">
-                <p className="text-sm font-medium">Gender:</p>
-                <RadioButton
-                label="Male"
-                name="gender"
-                value="Male"
-                checked={formData.gender === "Male"}
-                onChange={handleInputChange}
-                />
-                <RadioButton
-                label="Female"
-                name="gender"
-                value="Female"
-                checked={formData.gender === "Female"}
-                onChange={handleInputChange}
-                />
-            </div>
-            {(errors.gender) && (
-                <p className="text-red-500 text-sm">
-                {errors.gender}
-                </p>
-            )}
+                <div className="flex gap-2">
+                    <p className="text-sm font-medium">Gender:</p>
+                    <RadioButton
+                        label="Male"
+                        name="gender"
+                        value="Male"
+                        checked={formData.gender === "Male"}
+                        onChange={handleInputChange}
+                    />
+                    <RadioButton
+                        label="Female"
+                        name="gender"
+                        value="Female"
+                        checked={formData.gender === "Female"}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                {(errors.gender) && (
+                    <p className="text-red-500 text-sm">
+                    {errors.gender}
+                    </p>
+                )}
             </div>
             <div>
             <p className="text-sm font-medium">
@@ -53,37 +53,37 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
             </p>
             <div className="w-full mb-2 flex gap-2">
                 <Input
-                type="number"
-                placeholder="DD"
-                name="birth_date"
-                min="1"
-                max="31"
-                maxLength={2}
-                label=""
-                value={formData.birth_date || ''}
-                onChange={handleInputChange}
+                    type="number"
+                    placeholder="DD"
+                    name="birth_date"
+                    min="1"
+                    max="31"
+                    maxLength={2}
+                    label=""
+                    value={formData.birth_date || ''}
+                    onChange={handleInputChange}
                 />
                 <Input
-                type="number"
-                placeholder="MM"
-                name="birth_month"
-                min="1"
-                max="12"
-                maxLength={2}
-                label=""
-                value={formData.birth_month || ''}
-                onChange={handleInputChange}
+                    type="number"
+                    placeholder="MM"
+                    name="birth_month"
+                    min="1"
+                    max="12"
+                    maxLength={2}
+                    label=""
+                    value={formData.birth_month || ''}
+                    onChange={handleInputChange}
                 />
                 <Input
-                type="number"
-                placeholder="YYYY(Opt)"
-                name="birth_year"
-                min="1600"
-                max={new Date().getFullYear()}
-                maxLength={4}
-                label=""
-                value={formData.birth_year || ''}
-                onChange={handleInputChange}
+                    type="number"
+                    placeholder="YYYY(Opt)"
+                    name="birth_year"
+                    min="1600"
+                    max={new Date().getFullYear()}
+                    maxLength={4}
+                    label=""
+                    value={formData.birth_year || ''}
+                    onChange={handleInputChange}
                 />
             </div>
             {(errors.birth_day) && (
@@ -96,11 +96,11 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 <div className="pb-2">
                     <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
                     <input
-                    type="checkbox"
-                    className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
-                    name="deceased"
-                    checked={formData.deceased || false}
-                    onChange={handleInputChange}
+                        type="checkbox"
+                        className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
+                        name="deceased"
+                        checked={formData.deceased || false}
+                        onChange={handleInputChange}
                     />
                 </div>
 
@@ -166,39 +166,39 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 />
             </div>
             <Input
-            className="mb-2"
-            showOptional={true}
-            name="occupation"
-            label="Occupation"
-            value={formData.occupation || ''}
-            onChange={handleInputChange}
+                className="mb-2"
+                showOptional={true}
+                name="occupation"
+                label="Occupation"
+                value={formData.occupation || ''}
+                onChange={handleInputChange}
             />
             <Input
-            className="mb-2"
-            showOptional={true}
-            name="education"
-            label="Education"
-            value={formData.education || ''}
-            onChange={handleInputChange}
+                className="mb-2"
+                showOptional={true}
+                name="education"
+                label="Education"
+                value={formData.education || ''}
+                onChange={handleInputChange}
             />
             <Input
-            className="mb-4"
-            showOptional={true}
-            name="address"
-            label="Location State/Country"
-            value={formData.address || ''}
-            onChange={handleInputChange}
+                className="mb-4"
+                showOptional={true}
+                name="address"
+                label="Location State/Country"
+                value={formData.address || ''}
+                onChange={handleInputChange}
             />
             <div className="flex justify-start items-center gap-2">
                 <p className="text-sm font-medium">Family descendant:</p>
                 {["Yes", "No"].map((option) => (
-                    <RadioButton
-                    key={option}
-                    label={option}
-                    name="descendant"
-                    value={option} // "Yes" maps to true, "No" maps to false
-                    checked={formData.descendant === option }
-                    onChange={handleInputChange}
+                        <RadioButton
+                        key={option}
+                        label={option}
+                        name="descendant"
+                        value={option} // "Yes" maps to true, "No" maps to false
+                        checked={formData.descendant === option }
+                        onChange={handleInputChange}
                     />
                 ))}
             </div>
@@ -230,12 +230,12 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 </div>
                 <div>
                     <Input
-                    showOptional={true}
-                    name="siblings"
-                    label="Siblings"
-                    placeholder="Name1, Name2, ..."
-                    value={formData.siblings || ''}
-                    onChange={handleInputChange}
+                        showOptional={true}
+                        name="siblings"
+                        label="Siblings"
+                        placeholder="Name1, Name2, ..."
+                        value={formData.siblings || ''}
+                        onChange={handleInputChange}
                     />
                 </div>
             </div>}

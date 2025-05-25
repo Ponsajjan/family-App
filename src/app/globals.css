@@ -8,49 +8,16 @@
   box-sizing: border-box;
 }
 
-/* .light {
-  --main_background: 250, 250, 250;
-  --field_color: 250, 250, 250;
-  --field_hover: 250, 250, 250;
-  --accent_color: 0, 0, 0;
-  --accent_contrast: 250, 250, 250;
-  --border_color: 116, 116, 116;
-  --text_color: 0, 0, 0;
-} */
-
-/* .dark {
-  --main_background: 0, 26, 42;
-  --field_color: 4, 44, 64;
-  --field_hover: 18, 48, 68;
-  --accent_color: 155, 166, 174;
-  --accent_contrast: 0, 26, 42;
-  --border_color: 15, 80, 110;
-  --text_color: 155, 166, 174;
-} */
-
 /*same style of light  */
 :root {
   --main_background: 250, 250, 250;
   --field_color: 250, 250, 250;
-  --field_hover: 200, 200, 200;
+  --field_hover: 230, 230, 230;
   --accent_color: 0, 0, 0;
   --accent_contrast: 250, 250, 250;
   --border_color: 111, 111, 111;
   --text_color: 0, 0, 0;
 }
-
-/*same style of dark */
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --main_background: 0, 26, 42;
-    --field_color: 4, 44, 64;
-    --field_hover: 18, 48, 68;
-    --accent_color: 155, 166, 174;
-    --accent_contrast: 75, 75, 75;
-    --border_color: 15, 80, 110;
-    --text_color: 155, 166, 174;
-  }
-} */
 
 ::-webkit-scrollbar {
   width: 4px;
@@ -242,16 +209,6 @@ input[type="radio"]:checked::after {
   visibility: visible;
   opacity: 1;
 }
-
-
-
-
-
-
-
-
-
-
 
 .loading-text {
   opacity: 0; /* Start hidden */

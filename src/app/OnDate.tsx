@@ -44,13 +44,11 @@ function OnDate({ events, selectedDate }: { events: Event[], selectedDate: any }
                     <div className="w-full flex justify-between items-center">
                         <div>
                             <div className="font-semibold capitalize">{item.name}</div>
-                            <div className="text-xs font-light capitalize flex items-baseline gap-2">
-                                <span>
-                                    {item.type === 'birthday' ? 'Born At:' : 'Died At:'}{' '}
-                                    {item.date.getFullYear() === 1600
-                                        ? format(item.date, 'd MMM')
-                                        : format(item.date, 'd MMM yyyy')}
-                                </span>
+                            <div className="text-xs font-light capitalize">
+                                {item.type === 'birthday' ? 'Born At:' : 'Died At:'}{' '}
+                                {item.date.getFullYear() === 1600
+                                    ? format(item.date, 'd MMM')
+                                    : format(item.date, 'd MMM yyyy')}
                             </div>
                         </div>
                         {item.age !== 'n/a' && item.date.getFullYear() !== parseInt(format(selectedDate, 'yyyy')) && (

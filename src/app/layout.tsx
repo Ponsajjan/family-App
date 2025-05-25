@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import Sidenav from "@/components/Sidenav";
 import "./globals.css";
 import ToastProvider from "@/components/Toast";
-import { ThemeProvider } from "@/contexts/ThemeContext";
+// import { ThemeProvider } from "@/contexts/ThemeContext";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -38,21 +38,19 @@ export default function RootLayout({
         <body className={inter.className} suppressHydrationWarning={true}>
           <main id="MainDiv">
             <noscript>hi hello!..</noscript>
-            <ThemeProvider>
-              <AuthProvider>
-                <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
-                  <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
-                    <Sidenav />
-                    <div className="w-full relative">
-                      <ToastProvider>
-                        {children}
-                        <div id='portal'></div>
-                      </ToastProvider>
-                    </div>
+            <AuthProvider>
+              <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
+                <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+                  <Sidenav />
+                  <div className="w-full relative">
+                    <ToastProvider>
+                      {children}
+                      <div id='portal'></div>
+                    </ToastProvider>
                   </div>
                 </div>
-              </AuthProvider>
-            </ThemeProvider>
+              </div>
+            </AuthProvider>
           </main>
         </body>
       </html>
@@ -62,15 +60,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning={true}>
-        <ThemeProvider>
-          <AuthProvider>
-            <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
-              <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
-                {children}
-              </div>
+        <AuthProvider>
+          <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
+            <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+              {children}
             </div>
-          </AuthProvider>
-        </ThemeProvider>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

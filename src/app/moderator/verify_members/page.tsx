@@ -135,6 +135,10 @@ export default function VerifyMember() {
   }
 
   const handleFilterChange = (value: string) => {
+    if (value === selectedFilter) {
+      setDropdownOpen(false);
+      return
+    }
     setMembers([]);
     setSelectedFilter(value);
     setParams((prevParams) => ({
@@ -157,7 +161,7 @@ export default function VerifyMember() {
             value={searchInput}
             onChange={(e) => handleMemberSearch(e.target.value)}
             type="text"
-            placeholder="All Member Search"
+            placeholder="All Members"
             className="peer p-1 block w-[calc(100%-1px)] pl-10 border border-border_color focus:outline-none font-normal rounded-md bg-main_background"
           />
           <button onClick={() => resetPrams()} className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md">

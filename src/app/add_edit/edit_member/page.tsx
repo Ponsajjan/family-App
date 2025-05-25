@@ -68,6 +68,7 @@ export default function EditMemberDetails () {
   }, [formData.id, toast, router, token]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (loading) return
     setShowList(false)
     const { name, value, type, checked } = e.target;
 
@@ -144,7 +145,7 @@ export default function EditMemberDetails () {
   return (
     <div className="md:flex text-text_color relative">
       <Container className='relative'>
-        {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10`}>
+        {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10 cursor-wait`}>
             <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
           </div>}
         <div className="w-full md:max-w-xl px-4 py-10 mx-auto">

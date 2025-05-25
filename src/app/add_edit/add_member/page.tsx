@@ -20,6 +20,7 @@ export default function AddMemberDetails () {
   const router = useRouter(); 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (loading) return
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
