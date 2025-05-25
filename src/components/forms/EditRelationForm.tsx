@@ -37,7 +37,7 @@ function EditRelationShipForm({
         <p className="text-sm">Member</p>
         <div 
             onClick={() => handleShowList()} 
-            className={`w-full flex justify-between ${!formData.name || formData.name == 'undefined' ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer`} 
+            className={`w-full flex justify-between ${!formData.name || formData.name == 'undefined' ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-pointer`} 
         >
         {formData.name && formData.name !== 'undefined' ? 
             <>
@@ -49,7 +49,7 @@ function EditRelationShipForm({
         {!formData.name || formData.name === 'undefined' ? 
         <>
             <p className="text-sm">Partner</p>
-            <div className="w-full px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-pointer" >
+            <div className="w-full px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-pointer" >
                 <span className='block py-2 w-full text-gray-400'>Select Partner</span> 
             </div>
         </> :
@@ -57,7 +57,7 @@ function EditRelationShipForm({
         <>
             <p className="text-sm">Partner</p>
             {formData.partners?.map((partner: {id: number, name: string}) => (
-                <div key={partner.id} className="w-full flex justify-between items-center pl-2 pr-[3px] border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                <div key={partner.id} className="w-full flex justify-between items-center pl-2 pr-[3px] border bg-field_color border-border_color text-sm rounded-md mb-[10px]" >
                     <span className="py-2 w-full">{partner?.name}</span>
                     <div className="flex gap-2 items-center border border-border_color px-1 py-0.5 rounded-md">
                         <span 
@@ -75,7 +75,7 @@ function EditRelationShipForm({
         <>
             <p className="text-sm">Children</p>
             {formData.children?.map((child: {id:number, name:string, order:number}, index:number) => (
-                <div key={child.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-grab" 
+                <div key={child.id} className={`w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 ${formData.children.lenth > 1 ? 'cursor-grab' : 'cursor-default'}`} 
                     draggable={true}
                     onDragStart={() => handleDragStart(index)}
                     onDragEnter={() => handleDragEnter(index)}

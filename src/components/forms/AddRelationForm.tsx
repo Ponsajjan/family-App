@@ -7,24 +7,26 @@ interface AddRelationShipFormPropType {
     selectedMemberData: any;
     selectedPartnerData: AddRelationFormValuesType;
     newChildrenData: AddRelationFormValuesType;
+    showListFor: string;
     setNewChildrenData: (value: AddRelationFormValuesType) => void;
     setSelectedPartnerId: (value: number | null | undefined) => void;
     handleShowList: (value: 'selectMember' | 'selectPartner' | 'selectChildren') => void;
     handleSelectedValue: (name: string, id: number, select: string, verified: boolean) => void;
     handleSubmit: any;
-    error: string | null;
+    showList: boolean;
 }
 
 function AddRelationShipForm({
     selectedMemberData,
     selectedPartnerData,
     newChildrenData,
+    showListFor,
     setNewChildrenData,
     setSelectedPartnerId,
     handleShowList,
     handleSelectedValue,
     handleSubmit,
-    error
+    showList
 }: AddRelationShipFormPropType) {
 
     const dragItem = useRef<number>(0);
@@ -52,7 +54,7 @@ function AddRelationShipForm({
         <h3 className="text-sm">Member</h3>
         <div 
             onClick={() => handleShowList('selectMember')} 
-            className={`w-full flex justify-between items-center ${selectedMemberData?.name == undefined ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-2 cursor-pointer`} 
+            className={`w-full flex justify-between items-center ${(selectedMemberData?.name == undefined || (showListFor === 'selectMember' && showList)) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-[10px] cursor-pointer`} 
         >
             {selectedMemberData?.name ? 
             <>
@@ -64,17 +66,16 @@ function AddRelationShipForm({
 
         <div className="flex gap-1 items-center">
             <h3 className="text-sm">Partner</h3>
-            {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
         
         {(selectedMemberData?.partners != null && selectedMemberData?.partners.length > 0) ?   
             selectedMemberData?.partners.map((partner: {id:any, name:string}) => (
-                <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
                     <span className="py-2 w-full cursor-not-allowed">{partner?.name}</span>
                 </div>
             ))
             : (selectedPartnerData?.name) ? 
-            <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+            <div onClick={() => handleShowList('selectPartner')} className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
                 <span className="py-2 w-full">{selectedPartnerData?.name}</span>
                 <span
                     onClick={() => {handleShowList('selectPartner'); setSelectedPartnerId(null)}}
@@ -82,7 +83,7 @@ function AddRelationShipForm({
                     <MinusIcon />
                 </span>
             </div> : 
-            <div className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2" >
+            <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
                 <span onClick={() => handleShowList('selectPartner')} className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>
             </div>}
             
@@ -91,21 +92,21 @@ function AddRelationShipForm({
             <h3 className="text-sm">Children</h3>
             <>
                 {selectedMemberData.children?.map((item: {id:any, name:string}) => (
-                <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
+                <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-not-allowed" >
                     <span className="py-2 w-full">{item?.name}</span>
                 </div>)
                 )}
             </>
             <>
                 {selectedPartnerData?.children.map((item: {id:any, name:string}) => (
-                <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-2 cursor-not-allowed" >
+                <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-not-allowed" >
                     <span className="py-2 w-full">{item?.name}</span>
                 </div>)
                 )}
             </>
             <>
                 {newChildrenData?.children.map((item: {id:any, name:string, verified:boolean}, index) => (
-                <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 cursor-grab`} 
+                <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-grab`} 
                     draggable={true}
                     onDragStart={() => handleDragStart(index)}
                     onDragEnter={() => handleDragEnter(index)}
@@ -122,11 +123,10 @@ function AddRelationShipForm({
                 )}
             </>
         </div>}
-        {(selectedMemberData.partners.length || selectedPartnerData?.name) && 
-        <div onClick={() => handleShowList('selectChildren')} className="flex items-center bg-field_color cursor-pointer text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit">
+        <div onClick={() => handleShowList('selectChildren')} className={`flex items-center bg-field_color cursor-pointer ${(showListFor === 'selectChildren' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit mb-2`}>
             <span className="pr-2">Add Children</span>
             <span className="w-4 h-4"><PlusIcon /></span>
-        </div>}
+        </div>
 
         {
             (selectedMemberData.verified || 

@@ -130,9 +130,7 @@ export default function EditMemberDetails () {
         throw new Error(errorData.error || "Failed to update member");
       }
       const result = await response.json();
-      if (toast) {
-        toast.show(result.message, "success", 5000);
-      }
+      toast?.show(result.message, "success", 5000);
       setEditedMember('')
       setFormData(EditMemberDefaultFormValue);
       setErrors(EditMemberDefaultFormErrorValue);

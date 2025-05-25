@@ -18,9 +18,7 @@ function EditMemberForm({
 
     const toast = useToast();
     const showWarning = (input: string) => {
-        if (toast) {
-            toast.show(`Can not change ${input} for this member`, "warning", 5000);
-        }
+        toast?.show(`Can not change ${input} for this member`, "warning", 5000);
     }
 
     // show and hide death details fields based on checkbox

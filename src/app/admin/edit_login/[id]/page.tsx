@@ -66,11 +66,9 @@ export default function Page() {
           member_password: edit_member.member_password,
           moderator_password: edit_member.moderator_password,
         });
-      } catch (error) {
+      } catch (error:any) {
         console.error("Error fetching member data:", error);
-        if (toast) {
-          toast.show("Failed to fetch member data", "error", 5000);
-        }
+        toast?.show(error.message || "Failed to fetch member data", "error", 5000);
       }
     };
 
@@ -141,19 +139,12 @@ export default function Page() {
       // Handle API response
       const result = await response.json();
       if (!response.ok) {
-        if (toast) {
-          toast.show(result.error || "Something went wrong", "error", 5000);
-        }
-        throw new Error(result.error || "Something went wrong");
+        toast?.show(result.error || "Something went wrong", "error", 5000);
       }
-      if (toast) {
-        toast.show(result.message, "success", 5000);
-      }     
-    } catch (error) {
+      toast?.show(result.message, "success", 5000); 
+    } catch (error: any) {
       console.error("Error submitting form:", error);
-      if (toast) {
-        toast.show("An error occurred. Please try again.", "error", 5000);
-      } 
+      toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
     } finally {
       router.push("/admin")
     }

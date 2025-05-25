@@ -50,18 +50,13 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                         children: data.childrenData ? data.childrenData : [],
                     }
 
-                    console.log('formatedDbData', formatedDbData)
                     // Update states
                     setDescendant(data.descendant)
                     setSelectedMemberData(formatedDbData);
                     setExcludeMemberRelation(data.excludeIds);
                     setPendingVerification(data.pendingVerification)
                 } catch (error: any) {
-                    if (toast) {
-                        toast.show(error.message || "Error fetching member details", "error", 5000)
-                    } else {
-                        alert(error.message || 'Error fetching member details');
-                    }
+                    toast?.show(error.message || "Error fetching member details", "error", 5000)
                     router.push('/add_edit');
                 } finally {
                     setMemberloading(false)

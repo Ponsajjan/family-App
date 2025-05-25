@@ -8,9 +8,9 @@ export default function AdminDashboard() {
               <Topnav />
             <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
                 
-                <LinkButtonOutline linkto={`moderator/verify_members`} className="w-full mb-4" buttonText={'Verify Members'} />
+                <LinkButtonOutline linkto={`moderator/verify_members`} className="w-full mb-4" buttonText={'Verify Members (4)'} />
 
-                <LinkButtonOutline linkto={`moderator/verify_changes`}  className="w-full" buttonText={'Verify Changes'} />
+                <LinkButtonOutline linkto={`moderator/verify_changes`}  className="w-full" buttonText={'Verify Changes (8)'} />
             </div>
         </>
     )

@@ -124,9 +124,9 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                 setMembers(updatedData);
             }
     
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error verifying member:", error);
-            toast?.show("An error occurred. Please try again.", "error", 5000);
+            toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
         }
     };
     
@@ -150,28 +150,19 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             }
             // Handle API response
             if (!response.ok) {
-                if (toast) {
-                toast.show(result.error || "Something went wrong", "error", 5000);
-                return;
-                }
+                toast?.show(result.error || "Something went wrong", "error", 5000);
                 throw new Error(result.error || "Something went wrong");
                 // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
             }
-            if (toast) {
-                toast.show(result.message, "success", 5000);
-            }
+            toast?.show(result.message, "success", 5000);
             const updatedData = members.filter(
                 (item: any) => item.id !== memberId
             );
             setMembers((updatedData));
             setDeleted(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error submitting form:", error);
-            if (toast) {
-                toast.show("An error occurred. Please try again.", "error", 5000);
-            } else {
-                alert("An error occurred. Please try again.");
-            }
+            toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
         };
     }
 
@@ -180,192 +171,194 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background'>
-            <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
-            {loadingDetails ? <Loading />
-            : <>
-                {deleted && <div className='bg-field_color text-text_color p-2 border border-border_color border-dashed rounded-md my-4'><span className='inline-block align-bottom pr-1'><Info /></span>Member deleted</div>}
-                <div className='flex gap-2 items-center w-full pb-3'>
-                    <div className='border border-border_color p-2 rounded-md relative'>
-                        {data?.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
-                        {data?.generalInformation.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
-                    </div>
-                    <div className='w-full'>
-                        <p onClick={() => handleMemberSearch(data?.generalInformation.name)} className='text-lg font-semibold flex items-center'>
-                            <span className='hover:underline cursor-context-menu'>{data?.generalInformation.name || 'Name Unavailable'}</span>
-                            {data?.generalInformation.verified && <span className='pl-2'><Verified /></span>}
-                        </p>
+            <div className='w-full max-w-[580px] mx-auto'>
+                <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
+                {loadingDetails ? <Loading />
+                : <>
+                    {deleted && <div className='bg-field_color text-text_color p-2 border border-border_color border-dashed rounded-md my-4'><span className='inline-block align-bottom pr-1'><Info /></span>Member deleted</div>}
+                    <div className='flex gap-2 items-center w-full pb-3'>
+                        <div className='border border-border_color p-2 rounded-md relative'>
+                            {data?.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
+                            {data?.generalInformation.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
+                        </div>
+                        <div className='w-full'>
+                            <p onClick={() => handleMemberSearch(data?.generalInformation.name)} className='text-lg font-semibold flex items-center'>
+                                <span className='hover:underline cursor-context-menu'>{data?.generalInformation.name || 'Name Unavailable'}</span>
+                                {data?.generalInformation.verified && <span className='pl-2'><Verified /></span>}
+                            </p>
 
-                        {data?.generalInformation.birthDate && data?.generalInformation.birthMonth && (
-                            <div className='flex items-baseline gap-1 text-sm'>
-                                <p>Born At :</p>
-                                <p>{`${data?.generalInformation.birthDate} ${format(`${data?.generalInformation.birthMonth}`, 'MMM')} ${data?.generalInformation.birthYear ? data.generalInformation.birthYear : ''}`}</p>
-                            </div>
-                        )}
-
-                        {data?.generalInformation.deceased ?
-                            data?.generalInformation.deathMonth && data?.generalInformation.deathYear 
-                            ?  <div className='flex items-baseline gap-1 text-sm'>
-                                    <p>Died At :</p>
-                                    <p>{`${data?.generalInformation.deathDate ? data?.generalInformation.deathDate : ''} ${format(`${data?.generalInformation.deathMonth}`, 'MMM')} ${data?.generalInformation.deathYear}`}</p>
+                            {data?.generalInformation.birthDate && data?.generalInformation.birthMonth && (
+                                <div className='flex items-baseline gap-1 text-sm'>
+                                    <p>Born At :</p>
+                                    <p>{`${data?.generalInformation.birthDate} ${format(`${data?.generalInformation.birthMonth}`, 'MMM')} ${data?.generalInformation.birthYear ? data.generalInformation.birthYear : ''}`}</p>
                                 </div>
-                            : <p className='text-sm'>Deceased</p>
-                            : ''
-                        }
-                    </div>
-                </div>
-                <div className='ml-auto mr-0 w-fit'>{data?.generalInformation.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
-                {(data?.relationInformation) &&
-                <>
-                    <div className='flex pt-3 items-center'>
-                        <p className='font-semibold whitespace-nowrap pr-4'>Relation Information</p>
-                        <p className='border-t border-border_color w-full'></p>
-                    </div>
-                    <div className='pl-1'>
-                        <div className='flex flex-wrap border-l border-border_color pl-2'>
-                            {data?.relationInformation.father && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div onClick={() => handleMemberSearch(data?.relationInformation.father)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_father ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.father}</div>
-                                </>
                             )}
-                            {data?.relationInformation.mother && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div onClick={() => handleMemberSearch(data?.relationInformation.mother)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_mother ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.mother}</div>
-                                </>
-                            )}
-                            {data?.relationInformation.siblings && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                        {data?.relationInformation.siblings?.sort((a: any, b: any) => a.order - b.order)?.map((sibling: { name: string, verified: boolean }, index: number) => (
-                                            <>
-                                                <span onClick={() => handleMemberSearch(sibling.name)} key={index} className={`${sibling.verified ? 'text-text_color': 'text-text_color/80 underline decoration-wavy'} hover:underline cursor-context-menu`} >
-                                                {sibling.name}
-                                                </span>
-                                                {index < data.relationInformation.siblings.length - 1 && ', ' }
-                                            </>
-                                        ))}
+
+                            {data?.generalInformation.deceased ?
+                                data?.generalInformation.deathMonth && data?.generalInformation.deathYear 
+                                ?  <div className='flex items-baseline gap-1 text-sm'>
+                                        <p>Died At :</p>
+                                        <p>{`${data?.generalInformation.deathDate ? data?.generalInformation.deathDate : ''} ${format(`${data?.generalInformation.deathMonth}`, 'MMM')} ${data?.generalInformation.deathYear}`}</p>
                                     </div>
-                                </>
-                            )}
-                            {data?.relationInformation.nonDescendantRelations?.fatherName && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
-                                </>
-                            )}
-                            {data?.relationInformation.nonDescendantRelations?.motherName && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
-                                </>
-                            )}
-                            {data?.relationInformation.nonDescendantRelations?.siblingNames && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
-                                </>
-                            )}
-                            
-                            {data?.generalInformation.descendant ? 
-                                data?.relationInformation?.partners?.length > 0 && 
-                                data?.relationInformation?.partners?.map((partner: any, index: number) => 
+                                : <p className='text-sm'>Deceased</p>
+                                : ''
+                            }
+                        </div>
+                    </div>
+                    <div className='ml-auto mr-0 w-fit'>{data?.generalInformation.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
+                    {(data?.relationInformation) &&
+                    <>
+                        <div className='flex pt-3 items-center'>
+                            <p className='font-semibold whitespace-nowrap pr-4'>Relation Information</p>
+                            <p className='border-t border-border_color w-full'></p>
+                        </div>
+                        <div className='pl-1'>
+                            <div className='flex flex-wrap border-l border-border_color pl-2'>
+                                {data?.relationInformation.father && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
+                                        <div onClick={() => handleMemberSearch(data?.relationInformation.father)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_father ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.father}</div>
+                                    </>
+                                )}
+                                {data?.relationInformation.mother && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
+                                        <div onClick={() => handleMemberSearch(data?.relationInformation.mother)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_mother ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.mother}</div>
+                                    </>
+                                )}
+                                {data?.relationInformation.siblings && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                            {data?.relationInformation.siblings?.sort((a: any, b: any) => a.order - b.order)?.map((sibling: { name: string, verified: boolean }, index: number) => (
+                                                <>
+                                                    <span onClick={() => handleMemberSearch(sibling.name)} key={index} className={`${sibling.verified ? 'text-text_color': 'text-text_color/80 underline decoration-wavy'} hover:underline cursor-context-menu`} >
+                                                    {sibling.name}
+                                                    </span>
+                                                    {index < data.relationInformation.siblings.length - 1 && ', ' }
+                                                </>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                                {data?.relationInformation.nonDescendantRelations?.fatherName && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
+                                    </>
+                                )}
+                                {data?.relationInformation.nonDescendantRelations?.motherName && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
+                                    </>
+                                )}
+                                {data?.relationInformation.nonDescendantRelations?.siblingNames && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
+                                    </>
+                                )}
+                                
+                                {data?.generalInformation.descendant ? 
+                                    data?.relationInformation?.partners?.length > 0 && 
+                                    data?.relationInformation?.partners?.map((partner: any, index: number) => 
+                                        <>
+                                            <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
+                                            <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                                <span key={index} onClick={() => handleMemberSearch(partner.name)} className={`whitespace-nowrap hover:underline cursor-context-menu ${partner.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
+                                                    {partner.name}
+                                                    {index < data.relationInformation?.partners.length - 1 && ", "}
+                                                </span>
+                                            </div> 
+                                        </>)
+                                    :
                                     <>
                                         <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
                                         <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                            <span key={index} onClick={() => handleMemberSearch(partner.name)} className={`whitespace-nowrap hover:underline cursor-context-menu ${partner.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
-                                                {partner.name}
-                                                {index < data.relationInformation?.partners.length - 1 && ", "}
-                                            </span>
+                                            {data?.relationInformation?.partners?.length > 0
+                                            ? data?.relationInformation?.partners.map((partner: any, index: number) => 
+                                                <span key={index} onClick={() => handleMemberSearch(partner.name)} className={`whitespace-nowrap hover:underline cursor-context-menu${partner.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
+                                                    {partner.name}
+                                                    {index < data.relationInformation?.partners.length - 1 && ", "}
+                                                </span>
+                                            ) :
+                                            <span className='italic'>-- Partner Unassigned --</span>}
                                         </div> 
-                                    </>)
-                                :
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                        {data?.relationInformation?.partners?.length > 0
-                                        ? data?.relationInformation?.partners.map((partner: any, index: number) => 
-                                            <span key={index} onClick={() => handleMemberSearch(partner.name)} className={`whitespace-nowrap hover:underline cursor-context-menu${partner.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
-                                                {partner.name}
-                                                {index < data.relationInformation?.partners.length - 1 && ", "}
+                                    </>
+                                }
+
+                                {data?.relationInformation?.children && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                        {data.relationInformation.children?.sort((a: any, b: any) => a.order - b.order)?.map((child: { name: string, verified: boolean }, index: number) => (
+                                            <span key={index} onClick={() => handleMemberSearch(child.name)} className={`whitespace-nowrap hover:underline cursor-context-menu ${child.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
+                                                {child.name}
+                                                {index < data.relationInformation.children.length - 1 && ", "}
                                             </span>
-                                        ) :
-                                        <span className='italic'>-- Partner Unassigned --</span>}
-                                    </div> 
-                                </>
-                            }
-
-                            {data?.relationInformation?.children && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                    {data.relationInformation.children?.sort((a: any, b: any) => a.order - b.order)?.map((child: { name: string, verified: boolean }, index: number) => (
-                                        <span key={index} onClick={() => handleMemberSearch(child.name)} className={`whitespace-nowrap hover:underline cursor-context-menu ${child.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
-                                            {child.name}
-                                            {index < data.relationInformation.children.length - 1 && ", "}
-                                        </span>
-                                    ))}
-                                    </div>
-                                </>
-                            )}
+                                        ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         </div>
+                    </>}
+
+                    {(data?.contactInformation) &&
+                    <>
+                        <div className='flex pt-3 items-center'>
+                            <p className='font-semibold whitespace-nowrap pr-4'>Contact Information</p>
+                            <p className='border-t border-border_color w-full'></p>
+                        </div>
+                        <div className='pl-1'>
+                            <div className='flex flex-wrap mb-1 border-l border-border_color pl-2'>
+                                {data?.contactInformation.phoneNumber && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Phone no.</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.phoneNumber}</div>
+                                    </>
+                                )}
+                                {data?.contactInformation.address && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Location</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.address}</div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </>
+                    }
+
+                    {(data?.personalInformation) &&
+                    <>
+                        <div className='flex pt-3 items-center'>
+                            <p className='font-semibold whitespace-nowrap pr-4'>Personal Information</p>
+                            <p className='border-t border-border_color w-full'></p>
+                        </div>
+                        <div className='pl-1'>
+                            <div className='flex flex-wrap pb-1 border-l border-border_color pl-2'>
+                                {data?.personalInformation.occupation && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Occupation</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.occupation}</div>
+                                    </>
+                                )}
+                                {data?.personalInformation.education && (
+                                    <>
+                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Education</div>
+                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.education}</div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </>}
+                    <div className='flex flex-col mt-6 gap-2'>
+                        <HoldButton disabled={deleted} holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />
+                        <HoldButton disabled={deleted} type='outline' buttonText='Delete Member' onClick={() => handleDelete(data?.generalInformation.id)} />
                     </div>
                 </>}
-
-                {(data?.contactInformation) &&
-                <>
-                    <div className='flex pt-3 items-center'>
-                        <p className='font-semibold whitespace-nowrap pr-4'>Contact Information</p>
-                        <p className='border-t border-border_color w-full'></p>
-                    </div>
-                    <div className='pl-1'>
-                        <div className='flex flex-wrap mb-1 border-l border-border_color pl-2'>
-                            {data?.contactInformation.phoneNumber && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Phone no.</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.phoneNumber}</div>
-                                </>
-                            )}
-                            {data?.contactInformation.address && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Location</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.address}</div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </>
-                }
-
-                {(data?.personalInformation) &&
-                <>
-                    <div className='flex pt-3 items-center'>
-                        <p className='font-semibold whitespace-nowrap pr-4'>Personal Information</p>
-                        <p className='border-t border-border_color w-full'></p>
-                    </div>
-                    <div className='pl-1'>
-                        <div className='flex flex-wrap pb-1 border-l border-border_color pl-2'>
-                            {data?.personalInformation.occupation && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Occupation</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.occupation}</div>
-                                </>
-                            )}
-                            {data?.personalInformation.education && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Education</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.education}</div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </>}
-                <div className='flex flex-col mt-4 gap-2'>
-                    <HoldButton disabled={deleted} holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />
-                    <HoldButton disabled={deleted} type='outline' buttonText='Delete Member' onClick={() => handleDelete(data?.generalInformation.id)} />
-                </div>
-            </>}
+            </div>
         </Container>
     );
 }

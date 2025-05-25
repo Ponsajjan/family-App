@@ -83,49 +83,51 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
   
     return (
       sortedEvents.length > 0 && (
-      <div>
-        <div className="flex text-text_color items-center px-3 py-1 bg-main_background sticky top-12 md:top-0 z-10">
-          <span className="font-medium pr-2 whitespace-nowrap">{title}</span>
-          <span className="border-t border-border_color block w-full"></span>
-        </div>
-        <div className="pl-5 md:pl-4 pb-1">
-          {sortedEvents.map((item:any, index:number) => (
-            <div key={index} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3">
-              <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-60'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
-                {item.hasDate ?
-                <div className="border-t border-dashed border-text_color w-14 ml-2 mr-3">
-                  <div className="flex flex-col border border-text_color rounded-b-sm">          
-                    <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
-                      {format(new Date(year, month, parseInt(format(item.date, 'd'))).toISOString(), 'EEE').toUpperCase()}
-                    </span>
-                    <span className="text-center font-semibold leading-5 py-0.5">{format(item.date, 'd')}</span>
-                  </div>
-                </div> :
-                <div className="w-14 ml-2 mr-3">
-                  <div className="flex justify-center items-center">          
-                    <Deathday />
-                  </div>
-                </div>}
-                <div className='w-full flex justify-between items-center'>
-                  <div>
-                    <div className='font-semibold capitalize leading-5'>{item.name}</div>
-                    <div className='text-xs font-light capitalize flex items-baseline gap-2'>
-                      <span className="leading-3">
-                      {item.type === 'birthday' ? 'Born At: ' : 'Died At: '} 
-                      {item.date.getFullYear() == 1600 
-                      ? format(item.date, 'd MMM') 
-                      : !item.hasDate 
-                        ? format(item.date, 'MMM yyyy') 
-                        : format(item.date, 'd MMM yyyy')}
+      <div className="w-full md:max-w-[640px]">
+        <div className="md:max-w-[580px] mx-auto">
+          <div className="flex text-text_color items-center px-3 py-1 bg-main_background sticky top-12 md:top-0 z-10">
+            <span className="font-medium pr-2 whitespace-nowrap">{title}</span>
+            <span className="border-t border-border_color block w-full"></span>
+          </div>
+          <div className="pl-5 md:pl-4 pb-1">
+            {sortedEvents.map((item:any, index:number) => (
+              <div key={index} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3">
+                <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-60'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
+                  {item.hasDate ?
+                  <div className="border-t border-dashed border-text_color w-14 ml-2 mr-3">
+                    <div className="flex flex-col border border-text_color rounded-b-sm">          
+                      <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
+                        {format(new Date(year, month, parseInt(format(item.date, 'd'))).toISOString(), 'EEE').toUpperCase()}
                       </span>
-                      {item.hasDate ? item.type === 'birthday' ? <Birthday2 /> : <Deathday2 /> : ''}
+                      <span className="text-center font-semibold leading-5 py-0.5">{format(item.date, 'd')}</span>
                     </div>
+                  </div> :
+                  <div className="w-14 ml-2 mr-3">
+                    <div className="flex justify-center items-center">          
+                      <Deathday />
+                    </div>
+                  </div>}
+                  <div className='w-full flex justify-between items-center'>
+                    <div>
+                      <div className='font-semibold capitalize leading-5'>{item.name}</div>
+                      <div className='text-xs font-light capitalize flex items-baseline gap-2'>
+                        <span className="leading-3">
+                        {item.type === 'birthday' ? 'Born At: ' : 'Died At: '} 
+                        {item.date.getFullYear() == 1600 
+                        ? format(item.date, 'd MMM') 
+                        : !item.hasDate 
+                          ? format(item.date, 'MMM yyyy') 
+                          : format(item.date, 'd MMM yyyy')}
+                        </span>
+                        {item.hasDate ? item.type === 'birthday' ? <Birthday2 /> : <Deathday2 /> : ''}
+                      </div>
+                    </div>
+                    {(item.age === 'n/a' ||  item.date.getFullYear() === currentYear) ? "" : <p className="font-light border-l border-dashed border-border_color min-w-10 text-center text-sm px-0.5">{item.age}</p>}
                   </div>
-                  {(item.age === 'n/a' ||  item.date.getFullYear() === currentYear) ? "" : <p className="font-light border-l border-dashed border-border_color min-w-10 text-center text-sm px-0.5">{item.age}</p>}
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
       )

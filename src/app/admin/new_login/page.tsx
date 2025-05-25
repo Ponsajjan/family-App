@@ -83,24 +83,15 @@ export default function Page() {
       }
       // Handle API response
       if (!response.ok) {
-        if (toast) {
-          toast.show(result.error || "Something went wrong", "error", 5000);
-          return;
-        }
+        toast?.show(result.error || "Something went wrong", "error", 5000);
         throw new Error(result.error || "Something went wrong");
         // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
       }
-      if (toast) {
-        toast.show(result.message, "success", 5000);
-      }
+      toast?.show(result.message, "success", 5000);
       setFormData(NewLoginDefaultFormValue);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting form:", error);
-      if (toast) {
-        toast.show("An error occurred. Please try again.", "error", 5000);
-      } else {
-        alert("An error occurred. Please try again.");
-      }
+      toast?.show( error.message || "An error occurred. Please try again.", "error", 5000);
     }
   };
 

@@ -154,9 +154,11 @@ export default function Relatives() {
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
                       <div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex gap-2">
+                          <div>
                           {member.gender === "Male" && <Male /> }
                           {member.gender === "Female" && <Female />}
+                          </div>
                           <div
                             className="font-semibold"
                             dangerouslySetInnerHTML={{
@@ -167,14 +169,14 @@ export default function Relatives() {
                         <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
                             {(member.father || member.mother) ? (
                             <>
-                              <span className="pr-1 font-semibold">Parents:</span>
-                              {member.father && <span className="pr-1">{member.father.name},</span>}
-                              {member.mother && <span className="pr-1">{member.mother.name}</span>}
+                              <span className="pr-0.5 font-semibold">Parents:</span>
+                              {member.father && <span className="pr-0.5">{member.father.name},</span>}
+                              {member.mother && <span>{member.mother.name}</span>}
                             </>
                             ) : member.partners.length ? (
                             <div>
-                              <span className="pr-1 font-semibold">Partner:</span>
-                              <span className="pr-1">{member.partners.join(", ")}</span>
+                              <span className="pr-0.5 font-semibold">Partner:</span>
+                              <span className="pr-0.5">{member.partners.join(", ")}</span>
                             </div>
                             ) : 'No family relationship assigned yet'}
                         </div>

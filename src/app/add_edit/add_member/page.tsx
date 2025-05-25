@@ -83,24 +83,15 @@ export default function AddMemberDetails () {
         return;
       }
       if (!response.ok) {
-        if (toast) {
-          toast.show(result.error || "Something went wrong", "error", 5000);
-        }
-        throw new Error(result.error || "Something went wrong");
-
+        toast?.show(result.error || "Something went wrong", "error", 5000);
       } else {
-        if (toast) {
-          toast.show(result.message, "success", 5000);
-        }
+        toast?.show(result.message, "success", 5000);
       }
 
       setFormData(AddMemberDefaultFormValue);
       setErrors(AddMemberDefaultErrorValue);
     } catch (error: any) {
-      if (toast) {
-        toast.show(error.error || "An unexpected error occurred.", "error", 5000);
-      }
-      throw new Error(error.error || "Something went wrong");
+      toast?.show(error.error || "An unexpected error occurred.", "error", 5000);
     } finally {
       setLoading(false);
     }

@@ -84,7 +84,7 @@ export default function Terms() {
           </p>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-xl flex items-center font-semibold mb-4">
               <span className="inline-block mr-2"><Community /></span>
               <span className="inline-block">Access is limited to:</span>
             </h2>
@@ -99,7 +99,7 @@ export default function Terms() {
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg mb-6">
             <div className='p-4'>
-              <h2 className="text-xl font-semibold mb-4">
+              <h2 className="text-xl flex items-center font-semibold mb-4">
                 <span className="inline-block mr-2"><Community /></span>
                 <span className="inline-block">Guidelines:</span>
               </h2>

@@ -58,11 +58,7 @@ export default function EditRelationshipDetails() {
           setFormData(data);
           setHasPatner(data.partners?.map((p:any) => p.id));
         } catch (error: any) {
-          if (toast) {
-            toast.show(error.error || "Error fetching member details", "error", 5000);
-          } else {
-            console.error(error.error || 'Error fetching member details');
-          }
+          toast?.show(error.error || "Error fetching member details", "error", 5000);
           router.push('/add_edit');
         } finally {
           setLoading(false);
@@ -140,11 +136,7 @@ export default function EditRelationshipDetails() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (toast) {
-          toast.show(errorData.error || "Failed to update member", "error", 5000);
-        } else {
-          alert(errorData.error || "Failed to update member");
-        }
+        toast?.show(errorData.error || "Failed to update member", "error", 5000);
         throw new Error(errorData.error || "Failed to update member");
       }
 
@@ -159,12 +151,7 @@ export default function EditRelationshipDetails() {
       setNoChanges(true);
     } catch (error: any) {
       console.error("Error updating member:", error);
-
-      if (toast) {
-        toast.show(error.message || "Failed to update member", "error", 5000);
-      } else {
-        alert(error.message || "Failed to update member.");
-      }
+      toast?.show(error.message || "Failed to update member", "error", 5000);
     } finally {
       setLoading(false);
     }
@@ -188,10 +175,10 @@ export default function EditRelationshipDetails() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="w-8 h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+              <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
                 <PrevArrow />
               </button>
-              <button className="w-8 h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+              <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
                 <NextArrow />
               </button>
             </div>

@@ -30,9 +30,7 @@ export default function ExpandableTable() {
         const result = await response.json();
         setData(result);
       } catch (error: any) {
-        if (toast) {
-          toast.show(error.message || 'Error fetching data', "error", 5000);
-        }
+        toast?.show(error.message || 'Error fetching data', "error", 5000);
       } finally {
         setLoading(false)
       }
@@ -88,7 +86,7 @@ export default function ExpandableTable() {
       }
   
       const result = await response.json();
-      toast?.show("Moderator updated Successfully", "success", 5000);
+      toast?.show(result.message || "Moderator updated Successfully", "success", 5000);
       // Update the UI state
       const updatedData: any = data.map((auth: any) => {
         if (auth.id === authId) {
@@ -175,10 +173,7 @@ export default function ExpandableTable() {
       }
   
       const result = await response.json();
-  
-      if (toast) {
-        toast.show(result.message, "success", 5000);
-      }
+      toast?.show(result.message, "success", 5000);
   
       // Update the state to remove the deleted moderator
       const updatedData:any = [...data];
@@ -189,11 +184,7 @@ export default function ExpandableTable() {
       // Update the state with the new data
       setData(updatedData);
     } catch (error: any) {
-      if (toast) {
-        toast.show(error.message || "Failed to delete member", "error", 5000);
-      } else {
-        alert(error.message || "Failed to delete member.");
-      }
+      toast?.show(error.message || "Failed to delete member", "error", 5000);
     } finally {
       setDeleting(false);
     }
@@ -222,10 +213,7 @@ export default function ExpandableTable() {
       }
   
       const result = await response.json();
-  
-      if (toast) {
-        toast.show(result.message, "success", 5000);
-      }
+      toast?.show(result.message, "success", 5000);
   
       // Update the state to remove the deleted moderator
       const updatedData = data.filter(
@@ -235,11 +223,7 @@ export default function ExpandableTable() {
       // Update the state with the new data
       setData(updatedData);
     } catch (error: any) {
-      if (toast) {
-        toast.show(error.message || "Failed to delete member", "error", 5000);
-      } else {
-        alert(error.message || "Failed to delete member.");
-      }
+      toast?.show(error.message || "Failed to delete member", "error", 5000);
     } finally {
       setDeleting(false);
     }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton, MoreOptions, NextArrow, PrevArrow, Warning } from "@/utils/Icons";
+import { AddRelationship, BackButton, NextArrow, PrevArrow, Warning } from "@/utils/Icons";
 import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
@@ -19,7 +19,6 @@ export default function AddRelationshipDetails () {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>();
   const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
@@ -49,7 +48,7 @@ export default function AddRelationshipDetails () {
     setMemberListConstrain((prevParams) => ({
       ...prevParams,
       gender: selectedMemberData?.gender,
-      excludeId: [...excludeMemberRelation, ...excludePartnerRelation],
+      excludeId: [...excludeMemberRelation, ...excludePartnerRelation, ...newChildrenData.children?.map((child:any) => ( child.id ))],
       descendant: descendant
     }));
   };
@@ -82,7 +81,6 @@ export default function AddRelationshipDetails () {
     
       case 'selectPartner':
         setSelectedPartnerId(id);
-        setError(null);
         setShowList(false);
         break;
     
@@ -95,11 +93,8 @@ export default function AddRelationshipDetails () {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedPartnerData.id && selectedMemberData.partners?.length === 0) { // No partner selected
-      setError('Select partner');
-      return
-    }
     if (!selectedPartnerData.id && newChildrenData.children?.length === 0) { // No changes made
+      toast?.show("No new relationship added", "error", 5000)
       return
     }
     try {
@@ -181,7 +176,7 @@ export default function AddRelationshipDetails () {
         </div>}
         <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
           <div className="flex justify-between items-center mb-3">
-            <div className="w-full flex items-center justify-between pr-6">
+            <div className="w-full flex items-center justify-between">
               <div className="flex items-center">
                 <span className="hidden md:block"><AddRelationship /></span>
                 <Link href={"/add_edit"} className="md:hidden block">
@@ -192,10 +187,10 @@ export default function AddRelationshipDetails () {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <button className="w-8 h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+                <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
                   <PrevArrow />
                 </button>
-                <button className="w-8 h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
+                <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color hover:bg-field_hover">
                   <NextArrow />
                 </button>
               </div>
@@ -206,17 +201,15 @@ export default function AddRelationshipDetails () {
             selectedMemberData={selectedMemberData}
             selectedPartnerData={selectedPartnerData}
             newChildrenData={newChildrenData}
+            showListFor={showListFor}
             setNewChildrenData={setNewChildrenData}
             setSelectedPartnerId={setSelectedPartnerId}
             handleShowList={handleShowList}
             handleSelectedValue={handleSelectedValue}
             handleSubmit={handleSubmit}
-            error={error}
+            showList={showList}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
-        </div>
-        <div className="absolute right-0 top-11 md:top-1">
-          <MoreOptions />
         </div>
       </Container>
       <div
@@ -233,7 +226,7 @@ export default function AddRelationshipDetails () {
             setSelectedValue={ handleSelectedValue } 
             openList={setShowList} 
             multiselect={'selectChildren' === showListFor} 
-            descendant={memberListConstrain?.descendant} 
+            descendant={memberListConstrain?.descendant}
           />
         </div>
       </div>

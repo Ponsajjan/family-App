@@ -137,11 +137,7 @@ export default function Home() {
         setDateList(datesList);
 
       } catch (error: any) {
-        if (toast) {
-          toast.show(error.message || "Failed to fetch event dates.", "error", 5000);
-        } else {
-          console.log(error.message)
-        }
+        toast?.show(error.message || "Failed to fetch event dates.", "error", 5000);
       } finally {
         setLoading(false);
       }
@@ -224,11 +220,10 @@ export default function Home() {
         </Container>
         <div className="w-full lg:max-w-[40%] mx-auto">
           {/* <Suspense fallback={<p className="text-center pt-4">Loading calendar details...</ p>}> */}
-            {loading ? 
-            <Loading /> :
-            eventDates?.length > 0 ?
-            <CalendarMonthlyData data={eventDates} month={month} year={year} /> :
-            <p className="text-center pt-4 text-text_color">No events in this month...</p>}
+            {loading ? <Loading /> :
+            eventDates?.length > 0 
+            ? <CalendarMonthlyData data={eventDates} month={month} year={year} /> 
+            : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
           {/* </Suspense> */}
         </div>
       </div>

@@ -233,7 +233,7 @@ const ChangeRequestView = ({
               {requestStatus === 'rejected' && <Rejected />}
             </div>
           </div>
-          <div className='flex flex-col mt-4 gap-2'>
+          <div className='flex flex-col mt-6 gap-2'>
             <HoldButton 
               disabled={disableButton || requestStatus !== 'pending'} 
               buttonText='Approve changes' 
