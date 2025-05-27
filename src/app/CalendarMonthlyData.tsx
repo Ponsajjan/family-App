@@ -91,9 +91,9 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
           <div className="pl-5 md:pl-4 pb-1">
             {sortedEvents.map((item:any, index:number) => (
               <div key={index} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3">
-                <div className={`flex items-center ${title === "Earlier This Month" && 'opacity-60'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]`}>
+                <div className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]">
                   {item.hasDate ?
-                  <div className="border-t border-dashed border-text_color w-14 ml-2 mr-3">
+                  <div className={`border-t border-dashed ${title === "Earlier This Month" && 'opacity-60'} border-text_color w-14 ml-2 mr-3`}>
                     <div className="flex flex-col border border-text_color rounded-b-sm">          
                       <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
                         {format(new Date(year, month, parseInt(format(item.date, 'd'))).toISOString(), 'EEE').toUpperCase()}

@@ -259,6 +259,15 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                         <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
                                     </>
                                 )}
+                                {data?.generalInformation.descendant && !data?.relationInformation.father && !data?.relationInformation.mother && !data?.relationInformation.siblings && 
+                                <>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Parents</div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                        <span className={`whitespace-nowrap`}>
+                                            <span className='italic'>-- Parents Unassigned --</span>
+                                        </span>
+                                    </div> 
+                                </>}
                                 
                                 {data?.generalInformation.descendant ? 
                                     data?.relationInformation?.partners?.length > 0 && 

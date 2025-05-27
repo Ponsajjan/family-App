@@ -8,7 +8,8 @@ function EditRelationShipForm({
     handleSubmit,
     formData,
     setFormData,
-    setNoChanges
+    setNoChanges,
+    submitting
 }: any) {
 
     const dragItem = useRef<number>(0);
@@ -92,7 +93,7 @@ function EditRelationShipForm({
             )}
         </>}
         {formData.hasVerified && <p><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>}
-        <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Update Details" />
+        <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Updateing..." : "Update Details"} />
     </form>
   )
 }

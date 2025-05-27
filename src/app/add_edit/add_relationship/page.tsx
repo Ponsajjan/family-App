@@ -171,7 +171,7 @@ export default function AddRelationshipDetails () {
     <div className="md:flex text-text_color">
       <Container className='relative'>
         {(memberloading || patnerLoading || loading) && 
-        <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10 cursor-wait`}>
+        <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
         </div>}
         <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
@@ -207,6 +207,7 @@ export default function AddRelationshipDetails () {
             handleShowList={handleShowList}
             handleSelectedValue={handleSelectedValue}
             handleSubmit={handleSubmit}
+            submitting={loading}
             showList={showList}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />

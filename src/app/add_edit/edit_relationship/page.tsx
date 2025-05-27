@@ -20,6 +20,7 @@ export default function EditRelationshipDetails() {
   const [hasPartner, setHasPatner] = useState<number | undefined | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [showList, setShowList] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
   const token = getCookie('token');
   const router = useRouter(); 
 
@@ -120,7 +121,7 @@ export default function EditRelationshipDetails() {
     }
 
     try {
-      setLoading(true);
+      setSubmitting(true);
       const response = await fetch(`/api/editRelationship/${formData.id}`, {
         method: "PUT",
         headers: {
@@ -153,14 +154,14 @@ export default function EditRelationshipDetails() {
       console.error("Error updating member:", error);
       toast?.show(error.message || "Failed to update member", "error", 5000);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
     <div className="md:flex text-text_color">
       <Container className='relative'>
-        {loading && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-10 cursor-wait`}>
+        {loading || submitting && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
         </div>}
         <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
@@ -191,6 +192,7 @@ export default function EditRelationshipDetails() {
             formData={formData}
             setFormData={setFormData}
             setNoChanges={setNoChanges}
+            submitting={submitting}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>

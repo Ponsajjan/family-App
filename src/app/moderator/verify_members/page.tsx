@@ -134,21 +134,21 @@ export default function VerifyMember() {
     return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>');
   }
 
-  const handleFilterChange = (value: string) => {
-    if (value === selectedFilter) {
-      setDropdownOpen(false);
-      return
-    }
-    setMembers([]);
-    setSelectedFilter(value);
-    setParams((prevParams) => ({
-      ...prevParams,
-      filter: value,
-      page: 1,
-    }));
-    setHasMore(true);
+const handleFilterChange = (value: string) => {
+  if (value === selectedFilter) {
     setDropdownOpen(false);
-  };
+    return;
+  }
+  setMembers([]);
+  setSelectedFilter(value);
+  setParams((prevParams) => ({
+    ...prevParams,
+    filter: value,
+    page: 1,
+  }));
+  setHasMore(true);
+  setDropdownOpen(false);
+};
 
   return (
     <div className="w-full">
@@ -172,7 +172,8 @@ export default function VerifyMember() {
         {/* Dropdown for Filtering Members */}
         <div className="relative">
           <button 
-            onClick={() => setDropdownOpen(!dropdownOpen)} 
+            onClick={() => {setDropdownOpen(!dropdownOpen); setShowDetails(false)}}
+            onBlur={() => setDropdownOpen(false)} 
             className="py-1 px-2 border border-border_color rounded-md bg-main_background flex justify-between w-32">
             <span>{selectedFilter}</span>
             <span><Filter/></span>
@@ -180,18 +181,21 @@ export default function VerifyMember() {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-32 bg-field_color border border-border_color shadow-md rounded-md overflow-hidden">
               <div 
-                className="p-2 hover:bg-field_hover cursor-pointer" 
-                onClick={() => handleFilterChange("All")}>
+                className="p-2 hover:bg-field_hover cursor-pointer"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {handleFilterChange("All")}}>
                 All
               </div>
               <div 
-                className="p-2 hover:bg-field_hover cursor-pointer" 
-                onClick={() => handleFilterChange("Verified")}>
+                className="p-2 hover:bg-field_hover cursor-pointer"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {handleFilterChange("Verified")}}>
                 Verified
               </div>
               <div 
-                className="p-2 hover:bg-field_hover cursor-pointer" 
-                onClick={() => handleFilterChange("Unverified")}>
+                className="p-2 hover:bg-field_hover cursor-pointer"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {handleFilterChange("Unverified")}}>
                 Unverified
               </div>
             </div>
@@ -206,7 +210,7 @@ export default function VerifyMember() {
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
               <div className="bg-main_background w-full sticky pt-4 top-0 z-20 flex">
-                <span className="border border-border_color -mb-3 rounded-md whitespace-nowrap px-2 py-0.5 ml-2 text-text_color bg-field_color">{selectedFilter} Members</span>
+                <span className="border border-border_color -mb-3 rounded-md whitespace-nowrap shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color">{selectedFilter} Members</span>
                 <span className="border-b border-border_color block w-full"></span>
               </div>
               <div className="pt-3">

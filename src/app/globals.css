@@ -29,6 +29,10 @@
     width: 6px;
     height: 8px;
   }
+
+  ::-webkit-scrollbar:hover {
+    width: 8px;
+  }
 }
 
 ::-webkit-scrollbar-track {
@@ -37,6 +41,10 @@
 
 ::-webkit-scrollbar-thumb {
   background: rgba(var(--accent_color));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  cursor: grab;
 }
 
 svg {

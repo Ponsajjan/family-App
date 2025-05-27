@@ -14,6 +14,7 @@ interface AddRelationShipFormPropType {
     handleSelectedValue: (name: string, id: number, select: string, verified: boolean) => void;
     handleSubmit: any;
     showList: boolean;
+    submitting?: boolean;
 }
 
 function AddRelationShipForm({
@@ -26,7 +27,8 @@ function AddRelationShipForm({
     handleShowList,
     handleSelectedValue,
     handleSubmit,
-    showList
+    showList,
+    submitting = false
 }: AddRelationShipFormPropType) {
 
     const dragItem = useRef<number>(0);
@@ -134,7 +136,7 @@ function AddRelationShipForm({
             newChildrenData.children.some((child:any) => child.verified)) &&
             <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>
         }
-        <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText="Add Relationship" />
+        <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Adding..." : "Add Relationship" } />
     </form>
   )
 }
