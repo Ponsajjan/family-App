@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Container from "@/components/Container";
-import { LinkButtonOutline } from "@/components/Button";
+import { ButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
 import { AddRelationship, BackButton, NextArrow, PrevArrow, Warning } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
@@ -21,6 +21,7 @@ export default function EditRelationshipDetails() {
   const [loading, setLoading] = useState<boolean>(false);
   const [showList, setShowList] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [resetValue, setResetValue] = useState<any>({});
   const token = getCookie('token');
   const router = useRouter(); 
 
@@ -55,9 +56,11 @@ export default function EditRelationshipDetails() {
           if (data.children && Array.isArray(data.children)) {
             data.children.sort((a: any, b: any) => a.order - b.order);
           }
-
+          setResetValue({'data': data, 'hasPartner': data.partners?.map((p:any) => p.id)})
+          
           setFormData(data);
           setHasPatner(data.partners?.map((p:any) => p.id));
+          setNoChanges(true);
         } catch (error: any) {
           toast?.show(error.error || "Error fetching member details", "error", 5000);
           router.push('/add_edit');
@@ -108,6 +111,16 @@ export default function EditRelationshipDetails() {
   //     partner: null,
   //   }));
   // };
+  const handleClose = () => {
+    if (!noChanges) {
+      setFormData(resetValue.data);
+      setHasPatner(resetValue.hasPartner);
+      setDeleteData(editRelationshipDefaultDeleteValue)
+      setNoChanges(true);
+      return
+    }
+    router.push("/add_edit");
+  }
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -162,7 +175,7 @@ export default function EditRelationshipDetails() {
     <div className="md:flex text-text_color">
       <Container className='relative'>
         {loading || submitting && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
-          <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">loading...</p>
+          <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">{loading ? 'Loading...' : 'Submitting...'}</p>
         </div>}
         <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
           <div className="flex justify-between items-center mb-3">
@@ -194,7 +207,7 @@ export default function EditRelationshipDetails() {
             setNoChanges={setNoChanges}
             submitting={submitting}
           />
-          <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
+          <ButtonOutline buttonText={noChanges ? "Cancel" : "Reset Changes"} onClick={handleClose} className="hidden md:block w-full" />
         </div>
       </Container>
       <div
