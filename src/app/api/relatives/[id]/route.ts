@@ -52,19 +52,8 @@ export async function GET(request: Request) {
         mother: {
           select: { id: true, name: true },
         },
-        partnerships: {
-          select: {
-            partner: {
-              select: { name: true }
-            }
-          }
-        },
-        partneredWith: {
-          select: {
-            member: {
-              select: { name: true }
-            }
-          }
+        partner: {
+          select: { name: true },
         },
         fatherOf: {
           select: { name: true, order: true },
@@ -89,27 +78,20 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    // Combine partnerships and partneredWith into a single partners array
-    const partners = [
-      ...new Set([
-        ...member.partnerships.map(p => p.partner.name),
-        ...member.partneredWith.map(p => p.member.name)
-      ]),
-    ];
-
     // Step 2: Fetch siblings using father's and mother's IDs
     type SiblingInfo = {
       name: string | null;
       order: number | null;
     };
     
-    const siblingMap = new Map<string, SiblingInfo>();
+    // Then modify your implementation like this:
+    const siblingMap = new Map<string, SiblingInfo>(); // Use name as unique key
     
     if (member.father?.id) {
       const fatherChildren = await prisma.member.findMany({
         where: {
           fatherId: member.father.id,
-          id: { not: member.id },
+          id: { not: member.id }, // Exclude the current member
         },
         select: { 
           name: true,
@@ -127,7 +109,7 @@ export async function GET(request: Request) {
       const motherChildren = await prisma.member.findMany({
         where: {
           motherId: member.mother.id,
-          id: { not: member.id },
+          id: { not: member.id }, // Exclude the current member
         },
         select: { 
           name: true,
@@ -141,6 +123,7 @@ export async function GET(request: Request) {
       });
     }
     
+    // Convert the sibling map values to an array
     const siblings = Array.from(siblingMap.values());
 
     // Step 3: Respond with enriched data
@@ -158,13 +141,13 @@ export async function GET(request: Request) {
           ...(member.deathYear ? { deathYear: member.deathYear } : {}),
         }
       },
-      ...(member.father || member.mother || partners.length > 0 || 
+      ...(member.father || member.mother || member.partner || 
           member.fatherOf.length > 0 || member.motherOf.length > 0 || 
           siblings.length > 0 || member.nonDescendantRelation[0]) ? {
         relationInformation: {
           ...(member.father ? { father: member.father.name } : {}),
           ...(member.mother ? { mother: member.mother.name } : {}),
-          ...(partners.length > 0 ? { partners: partners } : {}),
+          ...(member.partner ? { partner: member.partner.name } : {}),
           ...(member.fatherOf.length > 0 || member.motherOf.length > 0 ? { 
             children: [...new Set([...member.fatherOf, ...member.motherOf])] 
           } : {}),
@@ -197,6 +180,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Error fetching member data:", error);
+    // Handle token verification errors
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import { ButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton, NextArrow, PrevArrow, Warning } from "@/utils/Icons";
+import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
 import { useRouter } from 'next/navigation';
 import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
@@ -56,10 +56,10 @@ export default function EditRelationshipDetails() {
           if (data.children && Array.isArray(data.children)) {
             data.children.sort((a: any, b: any) => a.order - b.order);
           }
-          setResetValue({'data': data, 'hasPartner': data.partners?.map((p:any) => p.id)})
-          
+          setResetValue({'data': data, 'hasPartner': data.partner?.id})
+
           setFormData(data);
-          setHasPatner(data.partners?.map((p:any) => p.id));
+          setHasPatner(data.partner?.id);
           setNoChanges(true);
         } catch (error: any) {
           toast?.show(error.error || "Error fetching member details", "error", 5000);
@@ -73,21 +73,22 @@ export default function EditRelationshipDetails() {
     }
   }, [formData.id, toast, router, token]);
 
-  const handleRemoveValue = (id: number, key: string) => {
+  const handleRemoveChildrenValue = (id: number) => {
     setNoChanges(false);
     setFormData((prev: any) => {
-      if (Array.isArray(prev[key])) {
-        const exists = prev[key].some((entry: any) => entry.id === id);
+      if (Array.isArray(prev['children'])) {
+        // Check if the name already exists
+        const exists = prev['children'].some((entry: any) => entry.id === id);
         if (exists) {
           // If the entry exists, remove it and add it to setDeleteData
           setDeleteData((prevDeleted: any) => ({
             ...prevDeleted,
-            [`${key}Id`]: [...prevDeleted[`${key}Id`], id],
+            ['childrenId']: [...prevDeleted['childrenId'], id],
           }));
           // Remove the existing entry
           return {
             ...prev,
-            [key]: prev[key].filter((entry: any) => entry.id !== id),
+            ['children']: prev['children'].filter((entry: any) => entry.id !== id),
           };
         }
       }
@@ -95,22 +96,23 @@ export default function EditRelationshipDetails() {
       // If not an array, initialize with the first object
       return {
         ...prev,
-        [key]: { id },
+        ['children']: { id },
       };
     });
   };
 
-  // const handleDivorcePartner = (id: number) => {
-  //   setNoChanges(false);
-  //   setDeleteData((prev: any) => ({
-  //     ...prev,
-  //     partnerId: previousData.partner?.id,
-  //   }));
-  //   setFormData((prev: any) => ({
-  //     ...prev,
-  //     partner: null,
-  //   }));
-  // };
+  const handleDivorcePartner = () => {
+    setDeleteData((prev: any) => ({
+      ...prev,
+      partnerId: formData.partner?.id,
+    }));
+    setNoChanges(false);
+    setFormData((prev: any) => ({
+      ...prev,
+      partner: null,
+    }));
+  };
+
   const handleClose = () => {
     if (!noChanges) {
       setFormData(resetValue.data);
@@ -121,7 +123,7 @@ export default function EditRelationshipDetails() {
     }
     router.push("/add_edit");
   }
-
+  
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
     setShowList(false);
@@ -174,33 +176,24 @@ export default function EditRelationshipDetails() {
   return (
     <div className="md:flex text-text_color">
       <Container className='relative'>
-        {loading || submitting && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
+        {(loading || submitting) && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">{loading ? 'Loading...' : 'Submitting...'}</p>
         </div>}
         <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center justify-between">
-              <span className="hidden md:block"><AddRelationship /></span>
-              <Link href={"/add_edit"} className="md:hidden block">
-                <span><BackButton /></span>
-              </Link>
-              <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
-                Edit Relationship
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color">
-                <PrevArrow />
-              </button>
-              <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color">
-                <NextArrow />
-              </button>
-            </div>
+          <div className="flex items-center mb-3">
+            <span className="hidden md:block"><AddRelationship /></span>
+            <Link href={"/add_edit"} className="md:hidden block">
+              <span><BackButton /></span>
+            </Link>
+            <p className="text-2xl font-semibold text-center text-text_color underline pl-3">
+              Edit Relationship
+            </p>
           </div>
           {(formData.pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color border-dashed rounded-md bg-field_color"><span className='inline-block align-bottom pr-2'><Warning /></span>{formData.pendingVerification} pending verification</p>}
           <EditRelationShipForm
             handleShowList={handleShowList}
-            handleRemoveValue={handleRemoveValue}
+            handleDivorcePartner={handleDivorcePartner}
+            handleRemoveChildrenValue={handleRemoveChildrenValue}
             handleSubmit={handleSubmit}
             formData={formData}
             setFormData={setFormData}

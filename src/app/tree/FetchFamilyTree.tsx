@@ -22,7 +22,7 @@ const TreeNode = ({ node }: { node: any }) => {
                 <SvgArrowStraight />
               </span>
             )}
-            <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap whitespace-nowrap rounded-lg">
+            <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap  rounded-lg">
               {data.gender === "Male" && <Male />}
               {data.gender === "Female" && <Female />}
               <span className="font-medium capitalize">{data.name}</span>
@@ -61,48 +61,11 @@ async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
 
       // Fetch members with their relationships and order field
       members = await prisma.member.findMany({
-        where: { id: { in: memberId } },
+        where: { id: { in: memberId }, verified: true },
         include: {
-          fatherOf: { 
-            select: { 
-              id: true, 
-              name: true, 
-              gender: true, 
-              order: true 
-            },
-            orderBy: { order: 'asc' }
-          },
-          motherOf: { 
-            select: { 
-              id: true, 
-              name: true, 
-              gender: true, 
-              order: true 
-            },
-            orderBy: { order: 'asc' }
-          },
-          partnerships: {
-            select: {
-              partner: {
-                select: { 
-                  id: true, 
-                  name: true, 
-                  gender: true 
-                }
-              }
-            }
-          },
-          partneredWith: {
-            select: {
-              member: {
-                select: { 
-                  id: true, 
-                  name: true, 
-                  gender: true 
-                }
-              }
-            }
-          }
+          fatherOf: { select: { id: true, name: true, gender: true, order: true } },
+          motherOf: { select: { id: true, name: true, gender: true, order: true } },
+          partner: { select: { id: true, name: true, gender: true } },
         },
       });
     } catch (error) {
@@ -125,37 +88,18 @@ async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
           // Fetch the next generation recursively
           const nextGen = await fetchFamilyTreeData(childIds);
 
-          // Combine all partners (from partnerships and partneredWith)
-          interface Member {
-            id: number;
-            name: string;
-            gender: string;
-          }
-          
-          const partnerEntries: [string, Member][] = [
-            ...member.partneredWith.map(
-              (p): [string, Member] => [p.member.id.toString(), p.member]
-            ),
-            ...member.partnerships.map(
-              (p): [string, Member] => [p.partner.id.toString(), p.partner]
-            ),
-          ];
-          
-          const partners: Member[] = Array.from(new Map<string, Member>(partnerEntries).values());
+          // Sort nextGen based on the order value of each child
+          nextGen.sort((a, b) => a.order - b.order);
 
           // Current generation data
           const currentGen = [
             { name: member.name, gender: member.gender },
-            ...partners.map(partner => ({ 
-              name: partner.name, 
-              gender: partner.gender 
-            })),
+            ...(member.partner ? [{ name: member.partner.name, gender: member.partner.gender }] : []),
           ];
 
           return {
             gen: currentGen,
             next_gen: nextGen,
-            order: member.order // Keep order for sorting
           };
         } catch (innerError) {
           console.error(`Error processing member ${member.id}:`, innerError);

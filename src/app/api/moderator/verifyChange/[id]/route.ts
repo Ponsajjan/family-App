@@ -2,96 +2,6 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
-// Type definitions
-interface MemberWithRelationships {
-  id: number;
-  name: string;
-  gender: string;
-  verified: boolean;
-  phoneNumber?: string | null;
-  address?: string | null;
-  occupation?: string | null;
-  education?: string | null;
-  birthDate?: number | null;
-  birthMonth?: number | null;
-  birthYear?: number | null;
-  deceased: boolean;
-  deathDate?: number | null;
-  deathMonth?: number | null;
-  deathYear?: number | null;
-  descendant: boolean;
-  fatherId?: number | null;
-  motherId?: number | null;
-  partnerships: {
-    partner: {
-      id: number;
-      name: string;
-      verified: boolean;
-    };
-  }[];
-  partneredWith: {
-    member: {
-      id: number;
-      name: string;
-      verified: boolean;
-    };
-  }[];
-  fatherOf: { id: number; name: string; order: number }[];
-  motherOf: { id: number; name: string; order: number }[];
-  nonDescendantRelation?: {
-    id: number;
-    memberId: number;
-    fatherName?: string | null;
-    motherName?: string | null;
-    siblingNames?: string | null;
-  }[];
-}
-
-interface RequestData {
-  formData: any;
-  memberId: number;
-  type: "Edit Member" | "Add Relationship" | "Edit Relationship";
-}
-
-interface RelationshipDetails {
-  partnerId?: number;
-  fatherOf?: { id: number; order: number }[];
-  motherOf?: { id: number; order: number }[];
-}
-
-interface EditRelationshipDetails {
-  deleteData?: {
-    partnerId?: number;
-    childrenId?: number[];
-  };
-  hasPartner?: number;
-  childrenOrder?: { id: number; order: number }[];
-}
-
-// Utility functions
-function normalizeValue(value: any, key: string): string {
-  if (value == null) return 'null';
-  if (key === 'descendant' || key === 'deceased') {
-    return (value === true || value === 'Yes') ? 'true' : 'false';
-  }
-  return String(value).trim();
-}
-
-function formatFieldName(key: string): string {
-  return key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase());
-}
-
-function displayValue(val: any, key: string): string {
-  if (val == null) return '-';
-  if (key === 'descendant' || key === 'deceased') {
-    return val === true || val === 'Yes' ? 'Yes' : 'No';
-  }
-  return String(val);
-}
-
-// GET endpoint
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -112,7 +22,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Fetch request details
+    // First fetch changeData separately
     const changeData = await prisma.requestDetails.findUnique({
       where: { id: requestId },
       select: {
@@ -126,9 +36,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
     }
 
-    // Fetch member with relationships
+    // Then fetch member data
     const member = await prisma.member.findUnique({
-      where: { id: changeData.memberId },
+      where: { id: changeData?.memberId },
       select: {
         id: true,
         name: true,
@@ -145,51 +55,39 @@ export async function GET(request: Request) {
         deathMonth: true,
         deathYear: true,
         descendant: true,
+        partnerId: true,
         fatherId: true,
         motherId: true,
-        father: { select: { id: true, name: true, verified: true } },
-        mother: { select: { id: true, name: true, verified: true } },
-        partnerships: {
-          include: {
-            partner: {
-              select: { id: true, name: true, verified: true }
-            }
-          }
+        fatherOf: true,
+        motherOf: true,
+        nonDescendantRelation: {
+          select: {
+            id: true,
+            fatherName: true,
+            motherName: true,
+            siblingNames: true,
+          },
         },
-        partneredWith: {
-          include: {
-            member: {
-              select: { id: true, name: true, verified: true }
-            }
-          }
-        },
-        fatherOf: { select: { id: true, name: true, order: true } },
-        motherOf: { select: { id: true, name: true, order: true } },
-        nonDescendantRelation: true,
-      }
-    });
+      },
+    })
 
     if (!member) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    // Combine partners from both sides
-    const allPartners = [
-      ...member.partnerships.map(p => p.partner),
-      ...member.partneredWith.map(p => p.member)
-    ];
-
-    // Route to appropriate handler based on request type
-    switch (changeData.type) {
-      case "Edit Member":
-        return handleEditMemberCase(member, changeData);
-      case "Add Relationship":
-        return handleAddRelationshipCase(member, changeData, allPartners);
-      case "Edit Relationship":
-        return handleEditRelationshipCase(member, changeData, allPartners);
-      default:
-        return NextResponse.json({ error: "Invalid request type" }, { status: 400 });
+    if (changeData?.type === "Edit Member") {
+      return handleEditMemberCase(member, changeData);
     }
+
+    if (changeData?.type === "Add Relationship") {
+      return handleAddRelationshipCase(member, changeData);
+    }
+
+    if (changeData?.type === "Edit Relationship") {
+      return handleEditRelationshipCase(member, changeData);
+    }
+
+    return NextResponse.json({ error: "Invalid request type" }, { status: 400 });
 
   } catch (error) {
     console.error("Error in GET request:", error);
@@ -200,7 +98,7 @@ export async function GET(request: Request) {
   }
 }
 
-// PUT endpoint
+// Main PUT handler
 export async function PUT(request: Request) {
   const url = new URL(request.url);
   const requestId = parseInt(url.pathname.split('/').pop() || '', 10);
@@ -295,92 +193,123 @@ export async function PUT(request: Request) {
   }
 }
 
-// DELETE endpoint
 export async function DELETE(request: Request) {
-  const url = new URL(request.url);
-  const requestId = parseInt(url.pathname.split('/').pop() || '', 10);
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
+    const url = new URL(request.url);
+    const editDataId = parseInt(url.pathname.split('/').pop() || '', 10);
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
+    
+    if (!token) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
   
-  if (!token) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
-  if (isNaN(requestId)) {
-    return NextResponse.json(
-      { error: "Invalid request ID" },
-      { status: 400 }
-    );
-  }
-
-  try {
-    const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
-
-    if (!forDescendanceOf) {
+    if (isNaN(editDataId)) {
       return NextResponse.json(
-        { error: "Invalid token" },
-        { status: 401 }
+        { error: "Invalid request ID" },
+        { status: 400 }
       );
     }
-
-    // Fetch the request to get its type
-    const requestData = await prisma.requestDetails.findUnique({
-      where: { 
-        id: requestId,
-        descendantOf: forDescendanceOf
-      },
-      select: {
-        type: true
-      },
-    });
-
-    if (!requestData) {
+  
+    try {
+      const decoded = await verifyToken(token);
+      const forDescendanceOf = decoded.forDescendanceOf;
+  
+      if (!forDescendanceOf) {
+        return NextResponse.json(
+          { error: "Invalid token" },
+          { status: 401 }
+        );
+      }
+  
+      // Fetch the request with their relationships
+      const requestData = await prisma.requestDetails.findUnique({
+        where: { 
+          id: editDataId,
+          descendantOf: forDescendanceOf
+        },
+        select: {
+          type: true
+        },
+      });
+  
+      // If the request doesn't exist, return an error
+      if (!requestData) {
+        return NextResponse.json(
+          { error: "Request not found" },
+          { status: 404 }
+        );
+      }
+  
+      // Delete the request details
+      await prisma.requestDetails.delete({
+        where: { id: editDataId },
+      });
+  
+      return NextResponse.json({
+        success: true,
+        message: `Rejected ${requestData.type}`,
+      });
+    } catch (error: any) {
+      console.error("Error deleting request:", error);
+  
+      // Handle token verification errors
+      if (error instanceof Error && error.name === 'JsonWebTokenError') {
+        return NextResponse.json(
+          { error: "Invalid token" },
+          { status: 401 }
+        );
+      }
+  
+      if (error.code === "P2025") {
+        // Prisma-specific error for "Record not found"
+        return NextResponse.json(
+          { error: "Request not found" },
+          { status: 404 }
+        );
+      }
+  
       return NextResponse.json(
-        { error: "Request not found" },
-        { status: 404 }
+        { error: "Internal server error" },
+        { status: 500 }
       );
     }
+} 
 
-    // Delete the request
-    await prisma.requestDetails.delete({
-      where: { id: requestId },
-    });
 
-    return NextResponse.json({
-      success: true,
-      message: `Rejected ${requestData.type}`,
-    });
-  } catch (error: any) {
-    console.error("Error deleting request:", error);
+//---------- UTILITIES ----------//
 
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
-      return NextResponse.json(
-        { error: "Invalid token" },
-        { status: 401 }
-      );
-    }
 
-    if (error.code === "P2025") {
-      return NextResponse.json(
-        { error: "Request not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+interface ChildRelation {
+  id: number;
+  order: number;
 }
 
-// Handler functions for GET requests
+interface RelationshipDetails {
+  partnerId?: number;
+  motherOf?: ChildRelation[];
+  fatherOf?: ChildRelation[];
+}
+
+interface EditRelationshipDetails {
+  deleteData?: {
+    partnerId?: number | null;
+    childrenId?: number[];
+  };
+  hasPartner?: number;
+  childrenOrder?: Array<{
+    id: number;
+    order: number;
+  }>;
+}
+
+// GET request handler for Edit Member
 async function handleEditMemberCase(member: any, changeData: any) {
-  const formData = {
+  const isDescendant = !!member.descendant;
+
+  const formData: any = {
     name: member.name,
     gender: member.gender,
     birthDate: member.birthDate?.toString().padStart(2, '0') ?? null,
@@ -394,11 +323,15 @@ async function handleEditMemberCase(member: any, changeData: any) {
     occupation: member.occupation,
     education: member.education,
     address: member.address,
-    descendant: member.descendant ? 'Yes' : 'No',
-    father: member.nonDescendantRelation?.[0]?.fatherName,
-    mother: member.nonDescendantRelation?.[0]?.motherName,
-    siblings: member.nonDescendantRelation?.[0]?.siblingNames,
+    descendant: isDescendant ? 'Yes' : 'No',
   };
+
+  // Add non-descendant relation fields only if not a descendant
+  if (!isDescendant) {
+    formData.father = member.nonDescendantRelation?.[0]?.fatherName;
+    formData.mother = member.nonDescendantRelation?.[0]?.motherName;
+    formData.siblings = member.nonDescendantRelation?.[0]?.siblingNames;
+  }
 
   let changeDetails: any = {};
   try {
@@ -413,7 +346,7 @@ async function handleEditMemberCase(member: any, changeData: any) {
 
     return `
       <div class="flex gap-2" key="${key}">
-        <p class="whitespace-nowrap font-semibold min-w-[130px]">${formatFieldName(key)}</p>
+        <p class="font-semibold min-w-[130px]">${formatFieldName(key)}</p>
         <div class="flex flex-wrap items-center gap-1">
           ${hasChanged ? `<p class="line-through">${displayValue(value, key)}</p>` : ''}
           <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue, key)}</p>
@@ -430,60 +363,69 @@ async function handleEditMemberCase(member: any, changeData: any) {
         formData: { ...formData, ...changeDetails },
       },
       htmlContent: `<div class="space-y-2 bg-main_background text-text_color">
-      <div class="italic mb-4">---- ${changeData.type} ----</div>
-      ${changesJsx}
+        <div class="italic mb-4">---- ${changeData.type} ----</div>
+        ${changesJsx}
       </div>`
     },
   });
 }
 
-async function handleAddRelationshipCase(member: any, changeData: any, allPartners: any[]) {
+
+// GET request handler for Add Relationship
+async function handleAddRelationshipCase(member: any, changeData: any) {
+  // Get current relationships with proper typing
+  const currentRelationships = await prisma.member.findUnique({
+    where: { id: member.id },
+    select: {
+      partnerId: true,
+      fatherOf: { select: { id: true, name: true, order: true } },
+      motherOf: { select: { id: true, name: true, order: true } },
+    },
+  });
+
   const changeDetails: {
     member: string | null;
     partner?: { name: string | null; isNew: boolean };
     children?: { 
-      all: {id: number, name: string, order: number}[];
-      newIds: number[];
+      all: {id: number, name: string, order: number}[];  // All children (existing + new)
+      newIds: number[];                   // IDs of new children only
     };
   } = { member: member.name };
 
   const details: RelationshipDetails = JSON.parse(changeData?.details || '{}');
   
   if (!details.partnerId && !details.motherOf?.length && !details.fatherOf?.length) {
-    return NextResponse.json({ 
-      data: {
-        submitData: {},
-        htmlContent: '<div class="text-text_color italic mb-4">---- Invalid add relationship request ----</div>'
-      }
-    });
+    return NextResponse.json(
+      { error: "No valid relationship changes found in request" },
+      { status: 400 }
+    );
   }
 
   try {
     // Process partner changes
     if (details.partnerId) {
-      const partner = allPartners.find(p => p.id === details.partnerId) || 
-        await prisma.member.findUnique({
-          where: { id: details.partnerId },
-          select: { name: true }
-        });
+      const partner = await prisma.member.findUnique({
+        where: { id: details.partnerId },
+        select: { name: true }
+      });
       
       changeDetails.partner = {
         name: partner?.name ?? null,
-        isNew: !allPartners.some(p => p.id === details.partnerId)
+        isNew: details.partnerId !== currentRelationships?.partnerId
       };
     }
 
     // Process children changes
     const currentChildren = [
-      ...member.fatherOf,
-      ...member.motherOf
+      ...(currentRelationships?.fatherOf || []),
+      ...(currentRelationships?.motherOf || [])
     ].map(c => ({ id: c.id, name: c.name, order: c.order }));
 
     const newChildrenIds: number[] = [];
     const allChildren = [...currentChildren];
 
     // Process relationship updates with order preservation
-    const processUpdates = async (relations: {id: number, order: number}[] | undefined) => {
+    const processUpdates = async (relations: ChildRelation[] | undefined) => {
       if (!relations) return;
 
       for (const {id, order} of relations) {
@@ -513,7 +455,7 @@ async function handleAddRelationshipCase(member: any, changeData: any, allPartne
 
     if (allChildren.length > 0) {
       changeDetails.children = {
-        all: allChildren.sort((a, b) => a.order - b.order),
+        all: allChildren.sort((a, b) => a.order - b.order), // Sort by order
         newIds: newChildrenIds
       };
     }
@@ -572,57 +514,63 @@ async function handleAddRelationshipCase(member: any, changeData: any, allPartne
   });
 }
 
-async function handleEditRelationshipCase(member: any, changeData: any, allPartners: any[]) {
-  const currentRelationships = {
-    partners: allPartners,
-    fatherOf: member.fatherOf,
-    motherOf: member.motherOf
+// GET request handler for Edit Relationship
+async function handleEditRelationshipCase(member: any, changeData: any) {
+  // First get current relationships
+  const currentRelationships = await prisma.member.findUnique({
+    where: { id: member.id },
+    select: {
+      partnerId: true,
+      fatherOf: { select: { id: true, name: true, order: true } },
+      motherOf: { select: { id: true, name: true, order: true } },
+    },
+  });
+
+  // Define the type for children data
+  type ChildrenData = {
+    all: { id: number; name: string; currentOrder?: number; newOrder?: number }[];
+    removedIds: number[];
+    reorderedIds: number[];
   };
 
   const changeDetails: {
     member: string | null;
     partner?: { name: string | null; isRemoved: boolean };
-    children?: {
-      all: { id: number; name: string; currentOrder?: number; newOrder?: number }[];
-      removedIds: number[];
-      reorderedIds: number[];
-    };
+    children?: ChildrenData;
   } = { member: member.name };
 
   const details: EditRelationshipDetails = JSON.parse(changeData?.details || '{}');
 
   if (!details.deleteData && !details.hasPartner && !details.childrenOrder) {
-    return NextResponse.json({ 
-      data: {
-        submitData: {},
-        htmlContent: '<div class="text-text_color italic mb-4">---- Invalid edit relationship request ----</div>'
-      }
-    });
+    return NextResponse.json(
+      { error: "No valid relationship changes found in request" },
+      { status: 400 }
+    );
   }
 
   try {  
     // Handle partner changes
-    const currentPartnerId = currentRelationships.partners[0]?.id;
+    const currentPartnerId = currentRelationships?.partnerId;
     const newPartnerId = details.hasPartner;
     const isRemovingPartner = details.deleteData?.partnerId;
 
     if (isRemovingPartner && currentPartnerId) {
-      const currentPartner = currentRelationships.partners.find(p => p.id === currentPartnerId) ||
-        await prisma.member.findUnique({
-          where: { id: currentPartnerId },
-          select: { name: true }
-        });
+      // Partner is being removed (deleteData.partnerId exists)
+      const currentPartner = await prisma.member.findUnique({
+        where: { id: currentPartnerId },
+        select: { name: true }
+      });
       
       changeDetails.partner = {
         name: currentPartner?.name ?? null,
         isRemoved: true
       };
     } else if (newPartnerId) {
-      const partner = currentRelationships.partners.find(p => p.id === newPartnerId) ||
-        await prisma.member.findUnique({
-          where: { id: newPartnerId },
-          select: { name: true }
-        });
+      // Partner is not being changed (hasPartner exists)
+      const partner = await prisma.member.findUnique({
+        where: { id: newPartnerId },
+        select: { name: true }
+      });
       
       changeDetails.partner = {
         name: partner?.name ?? null,
@@ -632,22 +580,11 @@ async function handleEditRelationshipCase(member: any, changeData: any, allPartn
 
     // Process children changes
     const currentChildren = [
-      ...currentRelationships.fatherOf,
-      ...currentRelationships.motherOf
+      ...(currentRelationships?.fatherOf || []),
+      ...(currentRelationships?.motherOf || [])
     ];
 
-    interface ChildData {
-      id: number;
-      name: string;
-      currentOrder?: number;
-      newOrder?: number;
-    }
-    
-    const childrenData: {
-      all: ChildData[];
-      removedIds: number[];
-      reorderedIds: number[];
-    } = {
+    const childrenData: ChildrenData = {
       all: currentChildren.map(child => ({
         id: child.id,
         name: child.name || `Unknown (${child.id})`,
@@ -656,8 +593,8 @@ async function handleEditRelationshipCase(member: any, changeData: any, allPartn
       removedIds: details.deleteData?.childrenId || [],
       reorderedIds: []
     };
-    
-    // Check for order changes
+
+    // Check if children order has actually changed
     if (details.childrenOrder) {
       const currentOrder = currentChildren
         .sort((a, b) => (a.order || 0) - (b.order || 0))
@@ -665,21 +602,23 @@ async function handleEditRelationshipCase(member: any, changeData: any, allPartn
       
       const newOrder = details.childrenOrder.map(c => c.id);
       
+      // Only consider it a reorder if the sequence has changed
       if (JSON.stringify(currentOrder) !== JSON.stringify(newOrder)) {
         const newOrders = new Map<number, number>();
         details.childrenOrder.forEach((child, index) => {
           newOrders.set(child.id, index + 1);
         });
-    
+
         childrenData.all.forEach(child => {
           if (newOrders.has(child.id)) {
-            child.newOrder = newOrders.get(child.id);  // Changed from currentOrder to newOrder
+            child.newOrder = newOrders.get(child.id);
             childrenData.reorderedIds.push(child.id);
           }
         });
       }
     }
 
+    // Only add children to changeDetails if there are any
     if (childrenData.all.length > 0) {
       changeDetails.children = childrenData;
     }
@@ -688,19 +627,25 @@ async function handleEditRelationshipCase(member: any, changeData: any, allPartn
     console.error('Error parsing change details:', e);
   }
 
-  // Generate HTML response
+  // Determine what changes exist
+  const hasOrderChanges = changeDetails.children?.reorderedIds && changeDetails.children?.reorderedIds.length > 0;
+  const hasRemovedChildren = changeDetails.children?.removedIds && changeDetails.children?.removedIds.length > 0;
+  const hasPartnerChanges = changeDetails.partner;
+  const hasAnyChanges = hasPartnerChanges || hasOrderChanges || hasRemovedChildren;
+
+  // Generate HTML
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
       <div class="italic mb-4">---- ${changeData.type} ----</div>
       <div class="flex gap-2">
-        <p class="whitespace-nowrap font-semibold min-w-[90px]">Member</p>
+        <p class=" font-semibold min-w-[90px]">Member</p>
         <p>${changeDetails.member || '-'}</p>
       </div>
       
-      ${changeDetails.partner ? `
+      ${hasPartnerChanges ? `
         <div class="flex gap-2">
-          <p class="whitespace-nowrap font-semibold min-w-[90px]">Partner</p>
-          <p> <span class="${changeDetails.partner?.isRemoved ? 'line-through' : ''} whitespace-nowrap">
+          <p class=" font-semibold min-w-[90px]">Partner</p>
+          <p> <span class="${changeDetails.partner?.isRemoved ? 'line-through' : ''} ">
             ${changeDetails.partner?.name || '-'}</span>
             <span class="text-blue-600 font-medium">${changeDetails.partner?.isRemoved ? ' (Removed)' : ''}</span>
           </p>
@@ -709,51 +654,86 @@ async function handleEditRelationshipCase(member: any, changeData: any, allPartn
       
       ${changeDetails.children ? `
         <div class="flex gap-2">
-          <p class="whitespace-nowrap font-semibold min-w-[90px]">Children</p>
-          <div class="flex flex-col gap-2">
-            ${changeDetails.children.all
-              .filter(child => changeDetails.children?.reorderedIds.includes(child.id))
-              .sort((a, b) => (a.newOrder || 0) - (b.newOrder || 0))
-              .map(child => `
-                <div class="flex gap-1 items-center">
-                  <span class="whitespace-nowrap">${child.newOrder}. ${child.name}</span>
-                  <span class="text-blue-600 font-medium">
-                    ${child.newOrder !== child.currentOrder ? `(Moved from ${child.currentOrder})` : ''}
-                  </span>
+          <p class=" font-semibold min-w-[90px]">Children</p>
+          
+          ${hasAnyChanges ? `
+            <div class="flex flex-col gap-2">
+              ${hasOrderChanges ? `
+                <div>
+                  <p class="font-semibold">New Order:</p>
+                  <div class="flex flex-col gap-1 pl-4 mt-1">
+                    ${changeDetails.children.all
+                      .filter(child => changeDetails.children?.reorderedIds.includes(child.id))
+                      .sort((a, b) => (a.newOrder || 0) - (b.newOrder || 0))
+                      .map(child => `
+                        <div class="flex gap-1 items-center">
+                          <span class="">${child.newOrder}. ${child.name}</span>
+                          <span class="text-blue-600 font-medium">
+                            ${child.newOrder !== child.currentOrder ? `(Moved from ${child.currentOrder})` : ''}
+                          </span>
+                        </div>
+                      `).join('')}
+                    ${changeDetails.children.all
+                      .filter(child => !changeDetails.children?.reorderedIds.includes(child.id) && 
+                                      !changeDetails.children?.removedIds.includes(child.id))
+                      .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
+                      .map(child => `
+                        <div class="flex gap-1 items-center">
+                          <span>${child.currentOrder}. ${child.name}</span>
+                        </div>
+                      `).join('')}
+                  </div>
                 </div>
-              `).join('')}
-              
-            ${changeDetails.children.all
-              .filter(child => !changeDetails.children?.reorderedIds.includes(child.id) && 
-                              !changeDetails.children?.removedIds.includes(child.id))
-              .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
-              .map(child => `
-                <div class="flex gap-1 items-center">
-                  <span>${child.currentOrder}. ${child.name}</span>
-                </div>
-              `).join('')}
-              
-            ${changeDetails.children.removedIds.length > 0 ? `
-              <div>
-                <p class="font-semibold">Removed Children:</p>
-                <div class="flex flex-col gap-1 pl-4 mt-1">
+              ` : `
+                <div class="flex flex-col gap-1">
                   ${changeDetails.children.all
-                    .filter(child => changeDetails.children?.removedIds.includes(child.id))
-                    .map((child, index) => `
+                    .filter(child => !changeDetails.children?.removedIds.includes(child.id))
+                    .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
+                    .map(child => `
                       <div class="flex gap-1 items-center">
-                        <span>${index + 1}.</span>
-                        <span class="line-through whitespace-nowrap">
-                          ${child.name}
-                        </span>
-                        <span class="text-blue-600 font-medium"> (Removed order ${child.currentOrder})</span>
+                        <span>${child.currentOrder}. ${child.name}</span>
                       </div>
                     `).join('')}
                 </div>
-              </div>
-            ` : ''}
-          </div>
+              `}
+              
+              ${hasRemovedChildren ? `
+                <div>
+                  <p class="font-semibold">Removed Children:</p>
+                  <div class="flex flex-col gap-1 pl-4 mt-1">
+                    ${changeDetails.children.all
+                      .filter(child => changeDetails.children?.removedIds.includes(child.id)).length > 0 
+                      ? changeDetails.children.all
+                      .filter(child => changeDetails.children?.removedIds.includes(child.id)).map((child, index) => `
+                        <div class="flex gap-1 items-center">
+                          <span>${index + 1}.</span>
+                          <span class="line-through ">
+                             ${child.name}
+                          </span>
+                          <span class="text-blue-600 font-medium"> (Removed order ${child.currentOrder})</span>
+                        </div>
+                      `).join('')
+                      : `<p class="text-blue-600 font-medium">Already Applied changes</p>`
+                    }
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          ` : `
+            <div class="flex flex-col gap-1">
+              ${changeDetails.children.all
+                .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
+                .map(child => `
+                  <div class="flex gap-1 items-center">
+                    <span>${child.currentOrder}. ${child.name}</span>
+                  </div>
+                `).join('')}
+            </div>
+          `}
         </div>
-      ` : ''}
+      ` : `
+        <div class="text-gray-500">No children relationships to display</div>
+      `}
     </div>
   `;
 
@@ -769,9 +749,70 @@ async function handleEditRelationshipCase(member: any, changeData: any, allPartn
   });
 }
 
-// Handler functions for PUT requests
+// Utility functions
+function normalizeValue(value: any, key: string): string {
+  if (value == null) return 'null';
+  if (key === 'descendant' || key === 'deceased') {
+    return (value === true || value === 'Yes') ? 'true' : 'false';
+  }
+  return String(value).trim();
+}
+
+function formatFieldName(key: string): string {
+  return key
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, str => str.toUpperCase());
+}
+
+function displayValue(val: any, key: string): string {
+  if (val == null) return '-';
+  if (key === 'descendant' || key === 'deceased') {
+    return val === true || val === 'Yes' ? 'Yes' : 'No';
+  }
+  return String(val);
+}
+
+// Type definitions
+interface MemberUpdateData {
+  name: string;
+  gender?: string;
+  birthDate?: string | null;
+  birthMonth?: string | null;
+  birthYear?: string | null;
+  deceased: boolean;
+  deathDate?: string | null;
+  deathMonth?: string | null;
+  deathYear?: string | null;
+  phoneNumber?: string;
+  occupation?: string | null;
+  education?: string | null;
+  address?: string | null;
+  descendant: string;
+  father?: string;
+  mother?: string;
+  siblings?: string;
+}
+
+interface RequestData {
+  formData: any;
+  memberId: number;
+  type: "Edit Member" | "Add Relationship" | "Edit Relationship";
+}
+
+interface AddRelationshipData {
+  partnerId?: number;
+  fatherOf?: Array<{ id: number; order: number }>;
+  motherOf?: Array<{ id: number; order: number }>;
+}
+
+interface AddRelationshipDataRequetData {
+  memberId: number;
+  formData: AddRelationshipData;
+}
+
+// PUT request handler
 const handleEditMember = async (data: RequestData, tx: any) => {
-  const formData = data.formData;
+  const formData = data.formData as MemberUpdateData;
   const deceased = formData.deceased === true;
 
   const memberUpdateData = {
@@ -796,7 +837,10 @@ const handleEditMember = async (data: RequestData, tx: any) => {
     data: memberUpdateData,
   });
 
-  if (formData.descendant === 'No' && (formData.father || formData.mother || formData.siblings)) {
+  if (
+    formData.descendant === 'No' &&
+    (formData.father || formData.mother || formData.siblings)
+  ) {
     await tx.nonDescendantRelation.upsert({
       where: { memberId: data.memberId },
       update: {
@@ -815,120 +859,143 @@ const handleEditMember = async (data: RequestData, tx: any) => {
 
   return {
     success: true,
-    message: "Member updated successfully",
+    message: "Successfully Updated Member Edit",
   };
 };
 
-const handleAddRelationship = async (data: RequestData, tx: any) => {
-  const formData = data.formData as RelationshipDetails;
+// PUT request handler
+const handleAddRelationship = async (data: AddRelationshipDataRequetData, tx: any) => {
+  const formData = data.formData;
   
-  // First handle partnerships
-  if (formData.partnerId) {
-    await tx.partnership.createMany({
-      data: [
-        { memberId: data.memberId, partnerId: formData.partnerId },
-        { memberId: formData.partnerId, partnerId: data.memberId }
-      ]
-    });
-  }
+  // Convert to Prisma's expected format
+  const prismaData = {
+    partnerId: formData.partnerId,
+    ...(formData.fatherOf && {
+      fatherOf: { connect: formData.fatherOf.map(({ id }) => ({ id })) }
+    }),
+    ...(formData.motherOf && {
+      motherOf: { connect: formData.motherOf.map(({ id }) => ({ id })) }
+    })
+  };
 
-  // Then handle children relationships
-  const updateData: any = {};
+  const updatedMember = await tx.member.update({
+    where: { id: data.memberId },
+    data: prismaData,
+  });
+
+  // Batch update children orders
+  const childrenUpdates: Promise<any>[] = [];
   
   if (formData.fatherOf) {
-    updateData.fatherOf = { 
-      connect: formData.fatherOf.map(({id}) => ({id})) 
-    };
+    childrenUpdates.push(...formData.fatherOf.map(child => 
+      tx.member.update({
+        where: { id: child.id },
+        data: { order: child.order }
+      })
+    ));
   }
 
   if (formData.motherOf) {
-    updateData.motherOf = { 
-      connect: formData.motherOf.map(({id}) => ({id})) 
+    childrenUpdates.push(...formData.motherOf.map(child => 
+      tx.member.update({
+        where: { id: child.id },
+        data: { order: child.order }
+      })
+    ));
+  }
+
+  if (childrenUpdates.length > 0) {
+    await Promise.all(childrenUpdates);
+  }
+
+  // Update partner relationships
+  if (formData.partnerId) {
+    const partnerUpdateData: Partial<AddRelationshipData> = { 
+      partnerId: data.memberId 
     };
-  }
 
-  if (Object.keys(updateData).length > 0) {
+    if (formData.fatherOf) {
+      partnerUpdateData.motherOf = formData.fatherOf;
+    }
+
+    if (formData.motherOf) {
+      partnerUpdateData.fatherOf = formData.motherOf;
+    }
+
     await tx.member.update({
-      where: { id: data.memberId },
-      data: updateData
-    });
-  }
-
-  // Update children orders if needed
-  if (formData.fatherOf || formData.motherOf) {
-    const childrenToUpdate = [
-      ...(formData.fatherOf || []),
-      ...(formData.motherOf || [])
-    ];
-
-    await Promise.all(
-      childrenToUpdate.map(child => 
-        tx.member.update({
-          where: { id: child.id },
-          data: { order: child.order }
+      where: { id: formData.partnerId },
+      data: {
+        ...partnerUpdateData,
+        // Convert to Prisma format for partner update too
+        ...(partnerUpdateData.fatherOf && {
+          fatherOf: { connect: partnerUpdateData.fatherOf.map(({ id }) => ({ id })) }
+        }),
+        ...(partnerUpdateData.motherOf && {
+          motherOf: { connect: partnerUpdateData.motherOf.map(({ id }) => ({ id })) }
         })
-      )
-    );
+      }
+    });
   }
 
   return {
     success: true,
-    message: "Relationships added successfully"
+    message: "Successfully Added Relationship",
+    data: updatedMember,
   };
 };
 
+// PUT request handler
 const handleEditRelationship = async (data: RequestData, tx: any) => {
-  const formData = data.formData as EditRelationshipDetails;
   const updatePromises: Promise<any>[] = [];
 
   // Handle partner removal
-  if (formData.deleteData?.partnerId) {
+  if (data.formData.deleteData?.partnerId) {
     updatePromises.push(
-      tx.partnership.deleteMany({
-        where: {
-          OR: [
-            { memberId: data.memberId, partnerId: formData.deleteData.partnerId },
-            { memberId: formData.deleteData.partnerId, partnerId: data.memberId }
-          ]
-        }
+      tx.member.update({ 
+        where: { id: data.formData.deleteData.partnerId }, 
+        data: { partnerId: null } 
+      }),
+      tx.member.update({ 
+        where: { id: data.memberId }, 
+        data: { partnerId: null } 
       })
     );
   }
 
   // Handle children removal
-  if (formData.deleteData?.childrenId?.length) {
-    const childrenIds = [...new Set(formData.deleteData.childrenId)];
+  if (data.formData.deleteData?.childrenId?.length) {
+    const removeChildRelation = Array.from(new Set(data.formData.deleteData.childrenId));
 
     updatePromises.push(
       tx.member.update({
         where: { id: data.memberId },
         data: {
-          fatherOf: { disconnect: childrenIds.map(id => ({ id })) },
-          motherOf: { disconnect: childrenIds.map(id => ({ id })) }
-        }
+          fatherOf: { disconnect: removeChildRelation.map(id => ({ id })) },
+          motherOf: { disconnect: removeChildRelation.map(id => ({ id })) },
+        },
       })
     );
 
-    if (formData.hasPartner) {
+    if (data.formData.hasPartner) {
       updatePromises.push(
         tx.member.update({
-          where: { id: formData.hasPartner },
+          where: { id: data.formData.hasPartner },
           data: {
-            fatherOf: { disconnect: childrenIds.map(id => ({ id })) },
-            motherOf: { disconnect: childrenIds.map(id => ({ id })) }
-          }
+            fatherOf: { disconnect: removeChildRelation.map(id => ({ id })) },
+            motherOf: { disconnect: removeChildRelation.map(id => ({ id })) },
+          },
         })
       );
     }
   }
 
   // Handle children order updates
-  if (formData.childrenOrder?.length) {
+  if (data.formData.childrenOrder?.length) {
     updatePromises.push(
-      ...formData.childrenOrder.map(child => 
-        tx.member.update({
-          where: { id: child.id },
-          data: { order: child.order }
+      ...data.formData.childrenOrder.map((child:any, index:number) =>
+        tx.member.update({ 
+          where: { id: child.id }, 
+          data: { order: index + 1 } 
         })
       )
     );
@@ -938,6 +1005,6 @@ const handleEditRelationship = async (data: RequestData, tx: any) => {
 
   return {
     success: true,
-    message: "Relationships updated successfully"
+    message: "Successfully Edited Relationship",
   };
 };

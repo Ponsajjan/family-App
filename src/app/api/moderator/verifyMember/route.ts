@@ -6,16 +6,16 @@ import { verifyToken } from "@/utils/auth";
 export async function GET(request: NextRequest) {
   // Extract search parameters
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = parseInt(searchParams.get("limit") || "50", 10);
-  const searchQuery = searchParams.get("search") || "";
+  const page = parseInt(searchParams.get("page") || "1", 10); // Current page
+  const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
+  const searchQuery = searchParams.get("search") || ""; // Search term
   const filterQuery = searchParams.get("filter") || "";
 
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
   
   if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -23,16 +23,17 @@ export async function GET(request: NextRequest) {
     const forDescendanceOf = decoded.forDescendanceOf;
 
     if (!forDescendanceOf) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    // Calculate skip for pagination
     const skip = (page - 1) * limit;
-    const filterCondition = filterQuery === 'Verified' ? true : 
-                          filterQuery === 'Unverified' ? false : 
-                          undefined;
 
-    // Fetch members with their relationships
-    const members = await prisma.member.findMany({
+    // Define the filter condition
+    const filterCondition = filterQuery === 'Verified' ? true : filterQuery === 'Unverified' ? false : undefined;
+
+    // Fetch paginated data from Prisma
+    const memberList = await prisma.member.findMany({
       where: {
         descendantOf: forDescendanceOf,
         ...(filterCondition !== undefined && { verified: filterCondition }),
@@ -48,47 +49,16 @@ export async function GET(request: NextRequest) {
         verified: true,
         father: { select: { name: true } },
         mother: { select: { name: true } },
-        partnerships: {
-          select: {
-            partner: {
-              select: {
-                name: true
-              }
-            }
-          }
-        },
-        partneredWith: {
-          select: {
-            member: {
-              select: {
-                name: true
-              }
-            }
-          }
-        }
+        partner: { select: { name: true } },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: {
+        createdAt: 'asc',
+      },
       skip,
       take: limit,
     });
 
-    // Format the data with combined partners
-    const formattedMembers = members.map(member => ({
-      id: member.id,
-      name: member.name,
-      gender: member.gender,
-      verified: member.verified,
-      father: member.father,
-      mother: member.mother,
-      partners: [
-        ... new Set([
-          ...member.partnerships.map(p => p.partner.name),
-          ...member.partneredWith.map(p => p.member.name)
-        ])
-      ],
-    }));
-
-    // Get total count for pagination
+    // Total count for pagination
     const totalCount = await prisma.member.count({
       where: {
         descendantOf: forDescendanceOf,
@@ -100,19 +70,17 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Return paginated data with headers
     return NextResponse.json({
-      data: formattedMembers,
+      data: memberList,
       totalCount,
     });
-
   } catch (error) {
     console.error("Error fetching members:", error);
+    // Handle token verification errors
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
-    return NextResponse.json(
-      { error: "Error fetching members" }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error fetching members" }, { status: 500 });
   }
 }

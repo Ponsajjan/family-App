@@ -6,9 +6,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
+import NewMemberDetails from "./Details";
 import { getCookie } from 'cookies-next';
 import { useRouter } from "next/navigation";
-import NewMemberDetails from "./Details";
 
 export default function VerifyMember() {
   const toast = useToast();
@@ -134,21 +134,21 @@ export default function VerifyMember() {
     return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>');
   }
 
-const handleFilterChange = (value: string) => {
+  const handleFilterChange = (value: string) => {
   if (value === selectedFilter) {
     setDropdownOpen(false);
     return;
   }
-  setMembers([]);
-  setSelectedFilter(value);
-  setParams((prevParams) => ({
-    ...prevParams,
-    filter: value,
-    page: 1,
-  }));
-  setHasMore(true);
-  setDropdownOpen(false);
-};
+    setMembers([]);
+    setSelectedFilter(value);
+    setParams((prevParams) => ({
+      ...prevParams,
+      filter: value,
+      page: 1,
+    }));
+    setHasMore(true);
+    setDropdownOpen(false);
+  };
 
   return (
     <div className="w-full">
@@ -181,19 +181,19 @@ const handleFilterChange = (value: string) => {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-32 bg-field_color border border-border_color shadow-md rounded-md overflow-hidden">
               <div 
-                className="p-2 hover:bg-field_hover cursor-pointer"
+                className="p-2 hover:bg-field_hover cursor-pointer" 
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {handleFilterChange("All")}}>
                 All
               </div>
               <div 
-                className="p-2 hover:bg-field_hover cursor-pointer"
+                className="p-2 hover:bg-field_hover cursor-pointer" 
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {handleFilterChange("Verified")}}>
                 Verified
               </div>
               <div 
-                className="p-2 hover:bg-field_hover cursor-pointer"
+                className="p-2 hover:bg-field_hover cursor-pointer" 
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {handleFilterChange("Unverified")}}>
                 Unverified
@@ -210,7 +210,7 @@ const handleFilterChange = (value: string) => {
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
               <div className="bg-main_background w-full sticky pt-4 top-0 z-20 flex">
-                <span className="border border-border_color -mb-3 rounded-md whitespace-nowrap shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color">{selectedFilter} Members</span>
+                <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members</span>
                 <span className="border-b border-border_color block w-full"></span>
               </div>
               <div className="pt-3">
@@ -239,10 +239,10 @@ const handleFilterChange = (value: string) => {
                                 {member.father && <span className="pr-1">{member.father.name},</span>}
                                 {member.mother && <span className="pr-1">{member.mother.name}</span>}
                               </>
-                              ) : member.partners.length > 0 ? (
+                              ) : member.partner ? (
                               <div>
                                 <span className="pr-1 font-semibold">Partner:</span>
-                                <span className="pr-1">{member.partners.join(", ")}</span>
+                                <span className="pr-1">{member.partner.name}</span>
                               </div>
                               ) : 'No family relationship assigned yet'}
                           </div>

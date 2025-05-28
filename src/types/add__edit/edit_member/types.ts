@@ -58,10 +58,8 @@ export const EditMemberDefaultFormErrorValue: EditMemberFormErrorTypes = {
 };
 
 export interface AllowedEditTypes {
-    editGender: boolean,
     editDescendant: boolean
 }
 export const DefaultAllowedEdits: AllowedEditTypes = {
-    editGender: false,
     editDescendant: false
 }

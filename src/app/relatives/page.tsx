@@ -156,8 +156,8 @@ export default function Relatives() {
                       <div>
                         <div className="flex gap-2">
                           <div>
-                          {member.gender === "Male" && <Male /> }
-                          {member.gender === "Female" && <Female />}
+                            {member.gender === "Male" && <Male /> }
+                            {member.gender === "Female" && <Female />}
                           </div>
                           <div
                             className="font-semibold"
@@ -173,10 +173,10 @@ export default function Relatives() {
                               {member.father && <span className="pr-0.5">{member.father.name},</span>}
                               {member.mother && <span>{member.mother.name}</span>}
                             </>
-                            ) : member.partners.length ? (
+                            ) : member.partner ? (
                             <div>
                               <span className="pr-0.5 font-semibold">Partner:</span>
-                              <span className="pr-0.5">{member.partners.join(", ")}</span>
+                              <span className="pr-0.5">{member.partner.name}</span>
                             </div>
                             ) : 'No family relationship assigned yet'}
                         </div>

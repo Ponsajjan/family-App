@@ -4,7 +4,8 @@ import { ChangeMember, CloseIcon, Divorced, Info } from '@/utils/Icons'
 
 function EditRelationShipForm({
     handleShowList,
-    handleRemoveValue,
+    handleDivorcePartner,
+    handleRemoveChildrenValue,
     handleSubmit,
     formData,
     setFormData,
@@ -54,21 +55,24 @@ function EditRelationShipForm({
                 <span className='block py-2 w-full text-gray-400'>Select Partner</span> 
             </div>
         </> :
-        formData.partners?.length > 0 ? 
+        formData.partner && formData.partner?.name !== 'undefined' ? 
         <>
             <p className="text-sm">Partner</p>
-            {formData.partners?.map((partner: {id: number, name: string}) => (
-                <div key={partner.id} className="w-full flex justify-between items-center pl-2 pr-[3px] border bg-field_color border-border_color text-sm rounded-md mb-[10px]" >
-                    <span className="py-2 w-full">{partner?.name}</span>
-                    <div className="flex gap-2 items-center border border-border_color px-1 py-0.5 rounded-md">
-                        <span 
-                            onClick={() => handleRemoveValue(partner.id, 'partners')}
-                            className="block w-9 h-6 cursor-pointer">
-                            <Divorced />
-                        </span>
-                    </div>
+            <div className="w-full flex justify-between items-center pl-2 pr-[3px] border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                <span className="py-2 w-full">{formData.partner?.name}</span>
+                <div className="flex gap-2 items-center border border-border_color px-1 py-0.5 rounded-md">
+                    <span 
+                        onClick={() => handleDivorcePartner()}
+                        className="block w-9 h-6 cursor-pointer">
+                        <Divorced />
+                    </span>
+                    {/* <span
+                        onClick={() => handleRemovePartnerValue()}
+                        className="block h-fit cursor-pointer">
+                        <CloseIcon />
+                    </span> */}
                 </div>
-            ))}
+            </div>
         </>: 
         <></>
         }
@@ -85,7 +89,7 @@ function EditRelationShipForm({
                 >
                 <span className="py-2 w-full">{child?.name}</span>
                 {formData.children.length > 0 && <span
-                    onClick={() => handleRemoveValue(child?.id, 'children')}
+                    onClick={() => handleRemoveChildrenValue(child?.id)}
                     className="border border-border_color rounded-md h-fit  cursor-pointer">
                     <CloseIcon />
                 </span>}

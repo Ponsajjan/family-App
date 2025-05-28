@@ -184,7 +184,7 @@ const ChangeRequestView = ({
   if (!data && !loading) return <div className='p-4 loading-text'>No data found</div>;
 
   return (
-    <Container className='text-text_color p-4 relative bg-main_background max-w-[40px]'>
+    <Container className='text-text_color p-4 relative bg-main_background'>
       <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
         <CloseIcon />
       </div>

@@ -87,7 +87,7 @@ export default function Details({ showMember, openDetails }: any) {
                 {(data?.relationInformation) &&
                 <>
                     <div className='flex pt-3 items-center'>
-                        <p className='font-semibold whitespace-nowrap pr-4'>Relation Information</p>
+                        <p className='font-semibold  pr-4 whitespace-nowrap'>Relation Information</p>
                         <p className='border-t border-border_color w-full'></p>
                     </div>
                     <div className='pl-1'>
@@ -95,13 +95,13 @@ export default function Details({ showMember, openDetails }: any) {
                             {data?.relationInformation.father && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7 whitespace-nowrap'>{data?.relationInformation.father}</div>
+                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.father}</div>
                                 </>
                             )}
                             {data?.relationInformation.mother && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7 whitespace-nowrap'>{data?.relationInformation.mother}</div>
+                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.mother}</div>
                                 </>
                             )}
                             {data?.relationInformation.siblings && (
@@ -111,7 +111,7 @@ export default function Details({ showMember, openDetails }: any) {
                                         {data.relationInformation.siblings
                                             .sort((a: any, b: any) => a.order - b.order)
                                             .map((sibling: { name: string, order: number }, index: number) => (
-                                                <span key={index} className='whitespace-nowrap'>
+                                                <span key={index} className={` ${index > 0 && 'pl-1'}`}>
                                                     {sibling.name}
                                                     {index < data.relationInformation.siblings.length - 1 ? ', ' : ''}
                                                 </span>
@@ -122,33 +122,25 @@ export default function Details({ showMember, openDetails }: any) {
                             {data?.relationInformation.nonDescendantRelations?.fatherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7 whitespace-nowrap'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
+                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.motherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7 whitespace-nowrap'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
+                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.siblingNames && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7 whitespace-nowrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
+                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
                                 </>
                             )}
-                            {data?.relationInformation.partners && (
+                            {data?.relationInformation.partner && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                        {data?.relationInformation.partners
-                                            .map((partner: string, index: number) => 
-                                                <span key={index} className='whitespace-nowrap'>
-                                                    {partner}
-                                                    {index < data.relationInformation.partners.length - 1 ? ', ' : ''}
-                                                </span>
-                                        )}
-                                    </div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.partner}</div>
                                 </>
                             )}
 
@@ -159,7 +151,7 @@ export default function Details({ showMember, openDetails }: any) {
                                         {data.relationInformation.children
                                             .sort((a: any, b: any) => a.order - b.order)
                                             .map((child: { name: string }, index: number) => 
-                                                <span key={index} className='whitespace-nowrap'>
+                                                <span key={index} className={` ${index > 0 && 'pl-1'}`}>
                                                     {child.name}
                                                     {index < data.relationInformation.children.length - 1 ? ', ' : ''}
                                                 </span>
@@ -174,7 +166,7 @@ export default function Details({ showMember, openDetails }: any) {
                 {(data?.contactInformation) &&
                 <>
                     <div className='flex pt-3 items-center'>
-                        <p className='font-semibold whitespace-nowrap pr-4'>Contact Information</p>
+                        <p className='font-semibold  pr-4 whitespace-nowrap'>Contact Information</p>
                         <p className='border-t border-border_color w-full'></p>
                     </div>
                     <div className='pl-1'>
@@ -199,7 +191,7 @@ export default function Details({ showMember, openDetails }: any) {
                 {(data?.personalInformation) &&
                 <>
                     <div className='flex pt-3 items-center'>
-                        <p className='font-semibold whitespace-nowrap pr-4'>Personal Information</p>
+                        <p className='font-semibold  pr-4 whitespace-nowrap'>Personal Information</p>
                         <p className='border-t border-border_color w-full'></p>
                     </div>
                     <div className='pl-1'>

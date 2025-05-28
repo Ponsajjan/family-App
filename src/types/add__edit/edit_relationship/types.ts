@@ -1,15 +1,10 @@
-interface Partners {
-    id: number | null;
-    name: string;
-}
-
-interface Children {
+interface Member {
     id: number | null;
     name: string;
     order: number;
 }
 
-interface DeleteChildren {
+interface Children {
     id: number | null;
     order: number;
 }
@@ -18,28 +13,28 @@ export interface EditRelationshipValueTypes {
     id: number | null
     name: string | null;
     gender: string | undefined;
-    partners: Partners[];
-    children: Children[];
+    partner: Member | null;
+    children: Member[];
     hasVerified: boolean;
     pendingVerification: number;
   }
 
 export interface DeleteValueTypes {
-    partnersId: Partners[] | null;
-    childrenId: DeleteChildren[] | null;
+    partnerId: number[] | null;
+    childrenId: Children[] | null;
 }
 
 export const editRelationshipDefaultFormValue: EditRelationshipValueTypes = {
     id: null,
     name: null,
     gender: undefined,
-    partners: [],
+    partner: null,
     children: [],
     hasVerified: false,
     pendingVerification: 0
 };
 
 export const editRelationshipDefaultDeleteValue: DeleteValueTypes = {
-    partnersId: [],
+    partnerId: null,
     childrenId: [],
 };

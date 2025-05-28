@@ -48,7 +48,7 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
 
   return (
     <button
-      className={`relative min-w-[150px] disabled:cursor-not-allowed disabled:opacity-45 ${type == 'solid' ? 'bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast' : 'bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color'} h-10 md:h-12 px-2 md:px-4 py-2 md:py-3 text-base md:text-lg shadow-md rounded-md font-medium whitespace-nowrap overflow-hidden flex items-center justify-center ${className}`}
+      className={`relative min-w-[150px] disabled:cursor-not-allowed disabled:opacity-45 ${type == 'solid' ? 'bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast' : 'bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color'} h-10 md:h-12 px-2 md:px-4 py-2 md:py-3 text-base md:text-lg shadow-md rounded-md font-medium  overflow-hidden flex items-center justify-center ${className}`}
       onMouseDown={startHold}
       onMouseUp={resetHold}
       onMouseLeave={resetHold}
@@ -109,7 +109,7 @@ export const HoldTextButton: React.FC<HoldButtonProps> = ({
 
   return (
     <button
-      className={`relative min-w-[53px] whitespace-nowrap overflow-hidden flex items-center justify-center ${className}`}
+      className={`relative min-w-[53px]  overflow-hidden flex items-center justify-center ${className}`}
       onMouseDown={startHold}
       onMouseUp={resetHold}
       onMouseLeave={resetHold}

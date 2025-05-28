@@ -28,7 +28,7 @@ function EditMemberForm({
         <form className="text-text_color relative" onSubmit={handleSubmit}>
             {!formData.id  && <div onClick={() => setShowList(true)} className={`absolute inset-0 z-10`}></div>}
             <div className="w-full">
-                <span className="text-sm font-medium" >Name</span>
+                <span className="text-sm font-medium">Name</span>
                 <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!formData.id  && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
                     <input
                         className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color disabled:cursor-not-allowed`}
@@ -52,7 +52,7 @@ function EditMemberForm({
                     name="gender"
                     value="Male"
                     checked={formData.gender === "Male"}
-                    onChange={allowedEdit.editGender ? () => {showWarning('gender')} : handleInputChange}
+                    onChange={handleInputChange}
                 />
                 <RadioButton
                     label="Female"

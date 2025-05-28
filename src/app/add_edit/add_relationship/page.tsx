@@ -5,7 +5,7 @@ import Link from "next/link";
 import Container from "@/components/Container";
 import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
-import { AddRelationship, BackButton, NextArrow, PrevArrow, Warning } from "@/utils/Icons";
+import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
 import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
@@ -117,16 +117,10 @@ export default function AddRelationshipDetails () {
       };
       
       const memberData = {
-        partners: (selectedMemberData.partners !== null &&  selectedMemberData.partners?.length > 0)
-          ? selectedMemberData.partners.map((partner: any) => partner.id)
-          : selectedPartnerData?.id 
-            ? [selectedPartnerData.id] 
-            : [],
+        partnerId: selectedMemberData.partner?.id ?? selectedPartnerData?.id,
         ...(isMale && { fatherOf: getOrderedChildren() }),
         ...(isFemale && { motherOf: getOrderedChildren() }),
       };
-
-      console.log("memberData", memberData)
   
       const response = await fetch(`/api/addRelationship/${selectedMemberData?.id}`, {
         method: "PUT",
@@ -170,10 +164,10 @@ export default function AddRelationshipDetails () {
   return (
     <div className="md:flex text-text_color">
       <Container className='relative'>
-        {(memberloading || patnerLoading || loading) && 
+        {(memberloading || patnerLoading || loading) &&
         <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">Loading...</p>
-        </div>}
+          </div>}
         <div className="w-full md:max-w-xl px-4 py-10 mx-auto">
           <div className="flex justify-between items-center mb-3">
             <div className="w-full flex items-center justify-between">
@@ -185,14 +179,6 @@ export default function AddRelationshipDetails () {
                 <p className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">
                   Add Relationship
                 </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color">
-                  <PrevArrow />
-                </button>
-                <button className="w-6 h-6 md:w-8 md:h-8 border border-border_color rounded-md bg-field_color">
-                  <NextArrow />
-                </button>
               </div>
             </div>
           </div>
@@ -227,7 +213,7 @@ export default function AddRelationshipDetails () {
             setSelectedValue={ handleSelectedValue } 
             openList={setShowList} 
             multiselect={'selectChildren' === showListFor} 
-            descendant={memberListConstrain?.descendant}
+            descendant={memberListConstrain?.descendant} 
           />
         </div>
       </div>

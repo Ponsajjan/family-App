@@ -4,7 +4,7 @@ import { ButtonSolid } from '../Button'
 import { AddRelationFormValuesType } from '@/types/add__edit/add_relationship/types';
 
 interface AddRelationShipFormPropType {
-    selectedMemberData: any;
+    selectedMemberData: AddRelationFormValuesType;
     selectedPartnerData: AddRelationFormValuesType;
     newChildrenData: AddRelationFormValuesType;
     showListFor: string;
@@ -69,26 +69,21 @@ function AddRelationShipForm({
         <div className="flex gap-1 items-center">
             <h3 className="text-sm">Partner</h3>
         </div>
-        
-        {(selectedMemberData?.partners != null && selectedMemberData?.partners.length > 0) ?   
-            selectedMemberData?.partners.map((partner: {id:any, name:string}) => (
-                <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
-                    <span className="py-2 w-full cursor-not-allowed">{partner?.name}</span>
-                </div>
-            ))
-            : (selectedPartnerData?.name) ? 
-            <div onClick={() => handleShowList('selectPartner')} className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
+        <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
+        {(selectedMemberData?.partner?.name)
+            ? <span className="py-2 w-full cursor-not-allowed">{selectedMemberData.partner?.name}</span>
+            : (selectedPartnerData?.name)
+            ? <>
                 <span className="py-2 w-full">{selectedPartnerData?.name}</span>
                 <span
                     onClick={() => {handleShowList('selectPartner'); setSelectedPartnerId(null)}}
                     className="border border-border_color cursor-pointer rounded-md h-fit">
                     <MinusIcon />
                 </span>
-            </div> : 
-            <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
-                <span onClick={() => handleShowList('selectPartner')} className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>
-            </div>}
-            
+                </>
+            : <span onClick={() => handleShowList('selectPartner')} className='py-2 w-full text-gray-400 cursor-pointer'>Select Partner</span>}
+        </div>
+
         {(selectedMemberData.children?.length > 0 || newChildrenData.children.length > 0 || selectedPartnerData?.children?.length > 0) &&
         <div>
             <h3 className="text-sm">Children</h3>

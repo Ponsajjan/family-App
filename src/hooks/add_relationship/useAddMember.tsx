@@ -1,5 +1,5 @@
 import { useToast } from '@/components/Toast';
-import { AddRelationMemberValue } from '@/types/add__edit/add_relationship/types';
+import { AddRelationDefaultFormValue } from '@/types/add__edit/add_relationship/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
 import { getCookie } from 'cookies-next';
@@ -10,7 +10,7 @@ interface AddMemberPropType {
 function useAddMember({selectedMemberId}: AddMemberPropType) {
     const [memberloading, setMemberloading] = useState(false);
     const [descendant, setDescendant] = useState<boolean | null>(null);
-    const [selectedMemberData, setSelectedMemberData] = useState(AddRelationMemberValue);
+    const [selectedMemberData, setSelectedMemberData] = useState(AddRelationDefaultFormValue);
     const [excludeMemberRelation, setExcludeMemberRelation] = useState<number[]>([]);
     const [pendingVerification, setPendingVerification] = useState<number>(0)
     const token = getCookie('token');
@@ -41,12 +41,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                         name:  data.name || undefined,
                         gender: data.gender || undefined,
                         verified: data.verified,
-                        partners: data.partners ? data.partners.map((partner: any) => ({
-                            id: partner.id,
-                            name: partner.name,
-                            verified: partner.verified,
-                            order: partner.order
-                        })) : [],
+                        partner: data.partner ? {id: data.partner.id, name: data.partner.name} : null,
                         children: data.childrenData ? data.childrenData : [],
                     }
 
@@ -66,7 +61,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
         } else {
             setMemberloading(false)
             setDescendant(null)
-            setSelectedMemberData(AddRelationMemberValue)
+            setSelectedMemberData(AddRelationDefaultFormValue)
             setExcludeMemberRelation([])
             setPendingVerification(0)
         }
