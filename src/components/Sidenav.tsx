@@ -1,12 +1,15 @@
 "use client";
+import { useAuth } from "@/contexts/AuthContext";
 import { BurgerMenuIcon, CalenderIcon, CloseIcon, FamilyProfessionals, Moderator, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Sidenav() {
+    const { access } = useAuth();
     const [showNav, setShowNav] = useState(false);
     const router = useRouter();
+    const moderator = usePathname().split('/')[1] === 'moderator' || access === 'moderator';
 
     const navigateTo = (link: string) => {
         router.push(link);
@@ -29,7 +32,7 @@ export default function Sidenav() {
                         <NavLink linkName="Relatives" link="relatives" onClick={() => navigateTo("/relatives")} />
                         <NavLink linkName="Relation" link="tree" onClick={() => navigateTo("/tree")} />
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/add_edit")} />
-                        <NavLink linkName="Moderator" link="moderator" onClick={() => navigateTo("/moderator")} />
+                        {moderator && <NavLink linkName="Moderator" link="moderator" onClick={() => navigateTo("/moderator")} />}
                         <span  className="border-t border-border_color pt-2 mt-6 block mx-4"></span>
                         <NavLink linkName="Terms" link="terms" onClick={() => navigateTo("/terms")} />
                     </div>

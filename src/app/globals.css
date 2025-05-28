@@ -47,6 +47,10 @@
   cursor: grab;
 }
 
+::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}
+
 svg {
   fill: rgba(var(--text_color));
 }
