@@ -109,7 +109,7 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
                   <div className='w-full flex justify-between items-center'>
                     <div>
                       <div className='font-semibold capitalize leading-5'>{item.name}</div>
-                      <div className='text-xs font-light capitalize flex items-baseline gap-2'>
+                      <div className='text-xs font-light capitalize flex items-end gap-2'>
                         <span className="leading-3">
                         {item.type === 'birthday' ? 'Born At: ' : 'Died At: '} 
                         {item.date.getFullYear() == 1600 

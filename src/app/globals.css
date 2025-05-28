@@ -232,6 +232,7 @@ input[type="radio"]:checked::after {
 .input-not-placeholder:focus,
 .input-not-placeholder:not(:placeholder-shown) {
   width: 100%;
+  cursor: text;
 }
 
 table {

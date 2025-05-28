@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
+import { NextArrow } from "@/utils/Icons";
 
 export default function Page() {
     const router = useRouter();
@@ -33,6 +34,17 @@ export default function Page() {
     return (
       <div className="w-full">
         <Topnav>
+            <div className="ml-auto mr-0 w-[170px] hidden lg:block">
+                <button 
+                    className="group flex items-center text-sm text-text_color"
+                    onClick={() => router.push("/moderator")}
+                >
+                    Preview as Moderator
+                    <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
+                        <NextArrow />
+                    </span>
+                </button>
+            </div>
         </Topnav>
         <div className='flex justify-center w-full h-[calc(100vh-3rem)] max-w-4xl mx-auto overflow-auto px-4 py-6'>            
             <form onSubmit={handleSubmit}>

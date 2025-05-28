@@ -174,8 +174,8 @@ const handleFilterChange = (value: string) => {
           <button 
             onClick={() => {setDropdownOpen(!dropdownOpen); setShowDetails(false)}}
             onBlur={() => setDropdownOpen(false)} 
-            className="py-1 px-2 border border-border_color rounded-md bg-main_background flex justify-between w-32">
-            <span>{selectedFilter}</span>
+            className="py-1 px-1 sm:px-2 border border-border_color rounded-md bg-main_background flex justify-between w-auto sm:min-w-32">
+            <span className="hidden sm:block">{selectedFilter}</span>
             <span><Filter/></span>
           </button>
           {dropdownOpen && (
