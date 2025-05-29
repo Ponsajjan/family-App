@@ -205,7 +205,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                         }
                     </div>
                 </div>
-                    <div className='ml-auto mr-0 w-fit'>{data?.generalInformation.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
+                    <div className='ml-auto mr-0 w-fit'>{data?.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
                 {(data?.relationInformation) &&
                 <>
                     <div className='flex pt-3 items-center'>
@@ -259,7 +259,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                         <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
                                 </>
                             )}
-                                                            {data?.generalInformation.descendant && !data?.relationInformation.father && !data?.relationInformation.mother && !data?.relationInformation.siblings && 
+                            {data?.descendant && !data?.relationInformation.father && !data?.relationInformation.mother && !data?.relationInformation.siblings && 
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Parents</div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>
@@ -268,22 +268,22 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                         </span>
                                     </div> 
                                 </>}
-                            {data?.generalInformation.descendant ? data?.relationInformation.partner &&
-                                    <>
-                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                        <div onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.partner}</div>
-                                    </> 
-                                    :<>
-                                        <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
-                                        <div className={`w-3/5 md:leading-7 flex flex-wrap`}>
-                                            {data?.relationInformation.partner 
-                                            ? <span onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'} hover:underline cursor-context-menu`}>{data?.relationInformation.partner}</span>
-                                            : <span className='italic'>-- Partner Unassigned --</span>}
-                                        </div>
-                                    </> 
+                            {data?.descendant ? data?.relationInformation.partner &&
+                                <>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
+                                    <div onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.partner}</div>
+                                </> 
+                                :<>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>Partner</div>
+                                    <div className={`w-3/5 md:leading-7 flex flex-wrap`}>
+                                        {data?.relationInformation.partner 
+                                        ? <span onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'} hover:underline cursor-context-menu`}>{data?.relationInformation.partner}</span>
+                                        : <span className='italic'>-- Partner Unassigned --</span>}
+                                    </div>
+                                </> 
                             }
 
-                                {data?.relationInformation?.children && (
+                            {data?.relationInformation?.children && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>

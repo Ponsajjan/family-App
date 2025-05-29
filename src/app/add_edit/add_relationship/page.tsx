@@ -74,12 +74,21 @@ export default function AddRelationshipDetails () {
   
     switch (select) {
       case 'selectMember':
+        if (id === selectedMemberId) {
+          setShowList(false);
+          return;
+        }
         setSelectedMemberId(id);
         setSelectedPartnerId(null);
+        setNewChildrenData(AddRelationDefaultFormValue)
         setShowList(false);
         break;
     
       case 'selectPartner':
+        if (id === selectedPartnerId) {
+          setShowList(false);
+          return;
+        }
         setSelectedPartnerId(id);
         setShowList(false);
         break;
