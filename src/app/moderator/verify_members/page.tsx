@@ -16,7 +16,7 @@ export default function VerifyMember() {
   const [members, setMembers] = useState<any[] | never[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsFor, setShowDetailsFor] = useState(false);
-  const [loadingList, setLoadingList] = useState(false);
+  const [loadingList, setLoadingList] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -39,20 +39,16 @@ export default function VerifyMember() {
     }));
     setSelectedFilter("All")
     setHasMore(true);
-    setMembers([]);
   }, 900);
 
   const resetPrams = () => {
     setParams((prevParams) => ({
       ...prevParams,
       search: "",
-      filter: "Unverified",
       page: 1,
     }));
     setSearchInput("");
-    setSelectedFilter("Unverified")
     setHasMore(true);
-    setMembers([]);
   }
 
   const handleMemberSearch = (input: string) => {
@@ -92,7 +88,11 @@ export default function VerifyMember() {
         }
         const { data, totalCount } = await response.json();
 
-        setMembers((prev) => [...new Set([...prev, ...data])]);
+        if (params.page === 1) {
+          setMembers(data);
+        } else {
+          setMembers((prev) => [...new Set([...prev, ...data])]);
+        }
 
         const totalPages = Math.ceil(totalCount / params.limit);
         setHasMore(params.page < totalPages);
@@ -204,61 +204,67 @@ export default function VerifyMember() {
       </Topnav>
       <div className="w-full md:flex">
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
-          {!loadingList && !members ? (
-            <p className='p-4'>No members found.</p>
-          ) : 
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
-              <div className="bg-main_background w-full sticky pt-4 top-0 z-20 flex">
-                <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members</span>
-                <span className="border-b border-border_color block w-full"></span>
-              </div>
-              <div className="pt-3">
-                {members.map((member: any) => (
-                  <div key={member.id} className="pl-4">
-                    <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
-                      <div 
-                        onClick={() => {setShowDetailsFor(member); setShowDetails(true)}} 
-                        className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
-                      >
-                        <div>
-                          <div className="flex flex-wrap gap-2">
-                            {member.gender === "Male" && <Male /> }
-                            {member.gender === "Female" && <Female />}
-                            <div
-                              className="font-semibold"
-                              dangerouslySetInnerHTML={{
-                              __html: highlightText(member.name, params.search),
-                            }}
-                            />
-                          </div>
-                          <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                              {(member.father || member.mother) ? (
-                              <>
-                                <span className="pr-1 font-semibold">Parents:</span>
-                                {member.father && <span className="pr-1">{member.father.name},</span>}
-                                {member.mother && <span className="pr-1">{member.mother.name}</span>}
-                              </>
-                              ) : member.partner ? (
+              <>
+                <div className="bg-main_background w-full sticky pt-4 top-0 z-20 flex">
+                  <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members</span>
+                  <span className="border-b border-border_color block w-full"></span>
+                </div>
+                <div className="pt-3">
+                  {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
+                  {(!loadingList && members.length > 0) &&
+                    <>
+                      {members?.map((member: any) => (
+                        <div key={member.id} className="pl-4">
+                          <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
+                            <div 
+                              onClick={() => {setShowDetailsFor(member); setShowDetails(true)}} 
+                              className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
+                            >
                               <div>
-                                <span className="pr-1 font-semibold">Partner:</span>
-                                <span className="pr-1">{member.partner.name}</span>
+                                <div className="flex flex-wrap gap-2">
+                                  {member.gender === "Male" && <Male /> }
+                                  {member.gender === "Female" && <Female />}
+                                  <div
+                                    className="font-semibold"
+                                    dangerouslySetInnerHTML={{
+                                    __html: highlightText(member.name, params.search),
+                                  }}
+                                  />
+                                </div>
+                                <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                                    {(member.father || member.mother) ? (
+                                    <>
+                                      <span className="pr-1 font-semibold">Parents:</span>
+                                      {member.father && <span className="pr-1">{member.father.name},</span>}
+                                      {member.mother && <span className="pr-1">{member.mother.name}</span>}
+                                    </>
+                                    ) : member.partner ? (
+                                    <div>
+                                      <span className="pr-1 font-semibold">Partner:</span>
+                                      <span className="pr-1">{member.partner.name}</span>
+                                    </div>
+                                    ) : 'No family relationship assigned yet'}
+                                </div>
                               </div>
-                              ) : 'No family relationship assigned yet'}
+                              {params.filter == 'All' ? member.verified && <Verified/> : ''}
+                            </div>
                           </div>
                         </div>
-                        {params.filter == 'All' ? member.verified && <Verified/> : ''}
+                      ))}
+                      <div className="h-10 px-4 py-2">
+                        {!hasMore && <p className="text-text_color">, , ,</p> }
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="h-10 px-4 py-2">
-                {loadingList && <p className="text-text_color">Loading...</p>}
-                {!loadingList && !hasMore && <p className="text-text_color">, , ,</p> }
-              </div>
+                    </>
+                  }
+                  {(!loadingList && members.length == 0) && (
+                    searchInput ? <p className='p-4 text-text_color'>No results found for '{params.search}'</p> : <p className='p-4 loading-text'>No data</p>
+                  )}
+                </div>
+              </>
             </div>
-          </div>}
+          </div>
         </div>
         <div
           onClick={() => setShowDetails(false)}
