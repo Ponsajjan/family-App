@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         partner: { select: { name: true } },
       },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: 'desc',
       },
       skip,
       take: limit,

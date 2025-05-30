@@ -4,25 +4,35 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
 import { NextArrow } from "@/utils/Icons";
+import { useAuth } from "@/contexts/AuthContext";
+import { getCookie } from "cookies-next";
+import Container from "@/components/Container";
 
 export default function Page() {
     const router = useRouter();
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
+    const token = getCookie('token');
+    const {setAccess} = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await fetch("/api/auth/login", {
+            const res = await fetch("/api/auth/moderator_login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify(form),
             });
     
             const data = await res.json();
-            if (data.token) {
-                document.cookie = `token=${data.token}; path=/`;
-                router.push("/");
+            if (data.newtoken) {
+                document.cookie = `token=${data.newtoken}; path=/`;
+                document.cookie = `access=moderator; path=/`;
+                setAccess("moderator");
+                router.push("/moderator");
             } else {
                 setError(data.error);
             }
@@ -46,15 +56,16 @@ export default function Page() {
                 </button>
             </div>
         </Topnav>
-        <div className='flex justify-center w-full h-[calc(100vh-3rem)] max-w-4xl mx-auto overflow-auto px-4 py-6'>            
-            <form onSubmit={handleSubmit}>
+        <Container>            
+            <form onSubmit={handleSubmit} className="max-w-lg px-4 pt-10 mx-auto">
                 <div className='flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2'>
                     <label className='flex items-center w-full'>
                         <input
                             onChange={(e) => {setForm({ ...form, password: e.target.value }); setError("")}}
                             required
                             placeholder='hello world!'
-                            className={`p-3 outline-none text-text_color focus:border-border_active text-sm h-full w-full bg-transparent disabled:cursor-not-allowed`}
+                            autoFocus
+                            className={`py-3 px-1 outline-none text-text_color focus:border-border_active text-sm h-full w-full bg-transparent disabled:cursor-not-allowed`}
                         />
                     </label>
                     <button type='submit' className="py-1">
@@ -63,9 +74,9 @@ export default function Page() {
                     </svg>
                     </button>
                 </div>
+                {error && <p className='text-text_color text-sm pl-1 pt-1'>{error}</p>}
             </form>
-            {error && <p className='text-text_color text-sm bottom-0 left-2'>{error}</p>}
-        </div>
+        </Container>
       </div>
     )
 }

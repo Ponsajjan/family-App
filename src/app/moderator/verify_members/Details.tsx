@@ -74,8 +74,8 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
 
             // Handle 401 Unauthorized
             if (response.status === 401) {
-                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                router.push('/login');
+                router.push('/terms/login');
+                toast?.show("Unauthorized access. Please log in.", "error", 5000);
                 return;
             }
             // Handle API response
@@ -144,8 +144,8 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
 
             // Handle 401 Unauthorized
             if (response.status === 401) {
-                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                router.push('/login');
+                router.push('/terms/login');
+                toast?.show("Unauthorized access. Please log in.", "error", 5000);
                 return;
             }
             // Handle API response
@@ -171,7 +171,6 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     
     return (
         <Container className='text-text_color py-6 px-4 relative bg-main_background'>
-            <div className='w-full max-w-[580px] mx-auto'>
             <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
             {loadingDetails ? <Loading />
             : <>
@@ -229,14 +228,12 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                             {data?.relationInformation.siblings && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                        <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                         {data?.relationInformation.siblings?.sort((a: any, b: any) => a.order - b.order)?.map((sibling: { name: string, verified: boolean }, index: number) => (
-                                            <>
-                                                <span onClick={() => handleMemberSearch(sibling.name)} key={index} className={`${sibling.verified ? 'text-text_color': 'text-text_color/80 underline decoration-wavy'} hover:underline cursor-context-menu`} >
+                                            <span key={index} onClick={() => handleMemberSearch(sibling.name)} className={`${sibling.verified ? 'text-text_color': 'text-text_color/80 underline decoration-wavy'} hover:underline cursor-context-menu`} >
                                                 {sibling.name}
-                                                </span>
-                                                {index < data.relationInformation.siblings.length - 1 && ', ' }
-                                            </>
+                                                {index < data.relationInformation.siblings.length - 1 && ',' }&nbsp;
+                                            </span>
                                         ))}
                                     </div>
                                 </>
@@ -288,9 +285,9 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Children</div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                     {data.relationInformation.children?.sort((a: any, b: any) => a.order - b.order)?.map((child: { name: string, verified: boolean }, index: number) => (
-                                            <span key={index} onClick={() => handleMemberSearch(child.name)} className={` hover:underline cursor-context-menu ${child.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
+                                        <span key={index} onClick={() => handleMemberSearch(child.name)} className={` hover:underline cursor-context-menu ${child.verified ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>
                                             {child.name}
-                                            {index < data.relationInformation.children.length - 1 && ", "}
+                                            {index < data.relationInformation.children.length - 1 && ","}&nbsp;
                                         </span>
                                     ))}
                                     </div>
@@ -353,7 +350,6 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     <HoldButton disabled={deleted} type='outline' buttonText='Delete Member' onClick={() => handleDelete(data?.generalInformation.id)} />
                 </div>
             </>}
-            </div>
         </Container>
     );
 }

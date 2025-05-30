@@ -119,6 +119,10 @@ export async function PUT(request: Request) {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
 
+    if (decoded.userType !== "moderator") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     if (!forDescendanceOf) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
@@ -215,6 +219,9 @@ export async function DELETE(request: Request) {
   
     try {
       const decoded = await verifyToken(token);
+      if (decoded.userType !== "moderator") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
       const forDescendanceOf = decoded.forDescendanceOf;
   
       if (!forDescendanceOf) {

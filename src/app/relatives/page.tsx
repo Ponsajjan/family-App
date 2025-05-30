@@ -140,63 +140,59 @@ export default function Relatives() {
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
-              {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
-              {(!loadingList && members.length > 0) &&
-                <>
-                  {members.map((member: any) => (
-                    member.gender === "Letter" ?
-                    <div key={member.id} className="flex text-text_color items-center px-[10px] md:pt-1 bg-main_background sticky top-0 z-10">
-                      <span className="font-semibold pr-1">{member.name}</span>
-                      <span className="border-t border-border_color block w-full"></span>
-                    </div> :
-                    <div key={member.id} className="pl-4">
-                      <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
-                        <div 
-                          onClick={() => {setShowDetails(true); setShowMember(member.id)}}
-                          className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
-                        >
+              {members?.map((member: any) => (
+                member.gender === "Letter" ?
+                <div key={member.id} className="flex text-text_color items-center px-[10px] md:pt-1 bg-main_background sticky top-0 z-10">
+                  <span className="font-semibold pr-1">{member.name}</span>
+                  <span className="border-t border-border_color block w-full"></span>
+                </div> :
+                <div key={member.id} className="pl-4">
+                  <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
+                    <div 
+                      onClick={() => {setShowDetails(true); setShowMember(member.id)}}
+                      className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
+                    >
+                      <div>
+                        <div className="flex gap-2">
                           <div>
-                            <div className="flex gap-2">
-                              <div>
-                                {member.gender === "Male" && <Male /> }
-                                {member.gender === "Female" && <Female />}
-                              </div>
-                              <div
-                                className="font-semibold"
-                                dangerouslySetInnerHTML={{
-                                __html: highlightText(member.name, params.search),
-                              }}
-                              />
-                            </div>
-                            <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                                {(member.father || member.mother) ? (
-                                <>
-                                  <span className="pr-0.5 font-semibold">Parents:</span>
-                                  {member.father && <span className="pr-0.5">{member.father.name},</span>}
-                                  {member.mother && <span>{member.mother.name}</span>}
-                                </>
-                                ) : member.partner ? (
-                                <div>
-                                  <span className="pr-0.5 font-semibold">Partner:</span>
-                                  <span className="pr-0.5">{member.partner.name}</span>
-                                </div>
-                                ) : 'No family relationship assigned yet'}
-                            </div>
+                            {member.gender === "Male" && <Male /> }
+                            {member.gender === "Female" && <Female />}
                           </div>
-                          {member.phoneNumber && (
-                          <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${member.phoneNumber}`}>
-                            <Call />
-                          </Link>
-                          )}
+                          <div
+                            className="font-semibold"
+                            dangerouslySetInnerHTML={{
+                              __html: highlightText(member.name, params.search),
+                            }}
+                          />
+                        </div>
+                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                            {(member.father || member.mother) ? (
+                            <>
+                              <span className="pr-0.5 font-semibold">Parents:</span>
+                              {member.father && <span className="pr-0.5">{member.father.name},</span>}
+                              {member.mother && <span>{member.mother.name}</span>}
+                            </>
+                            ) : member.partner ? (
+                            <div>
+                              <span className="pr-0.5 font-semibold">Partner:</span>
+                              <span className="pr-0.5">{member.partner.name}</span>
+                            </div>
+                            ) : 'No family relationship assigned yet'}
                         </div>
                       </div>
+                      {member.phoneNumber && (
+                      <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${member.phoneNumber}`}>
+                        <Call />
+                      </Link>
+                      )}
                     </div>
-                  ))}
-                  <div className="h-10 px-4 py-2">
-                    {!hasMore && <p className="text-text_color">, , ,</p> }
                   </div>
-                </>
-              }
+                </div>
+              ))}
+              <div className="h-10 px-4 py-2">
+                {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
+                {!hasMore && <p className="text-text_color">, , ,</p> }
+              </div>
               {(!loadingList && members.length === 0) && 
                 <p className="p-4 text-text_color">No results found for '{params.search}'</p>
               }

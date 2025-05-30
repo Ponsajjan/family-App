@@ -4,6 +4,7 @@ import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import { Approved, CloseIcon, NavIconVerified, Rejected } from '@/utils/Icons';
 import { getCookie } from 'cookies-next';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 const ChangeRequestView = ({ 
@@ -21,6 +22,7 @@ const ChangeRequestView = ({
   const [requestStatus, setRequestStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [error, setError] = useState<string | null>(null);
   const token = getCookie('token');
+  const router = useRouter();
   const toast = useToast();
 
   // Process request removal and move to next
@@ -124,6 +126,12 @@ const ChangeRequestView = ({
         },
         body: JSON.stringify(data.submitData),
       });
+
+      if (response.status === 401) {
+        router.push('/terms/login');
+        toast?.show("Unauthorized access. Please log in.", "error", 5000);
+        return;
+      }
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -140,9 +148,9 @@ const ChangeRequestView = ({
     } catch (error: any) {
       console.error("error", error);
       toast?.show(error.message || "Error handling verification", "error", 5000);
-      setDisableButton(false);
     } finally {
       setLoading(false);
+      setDisableButton(false);
     }
   };
 
@@ -158,6 +166,12 @@ const ChangeRequestView = ({
           'Authorization': `Bearer ${token}` 
         },
       });
+
+      if (response.status === 401) {
+        router.push('/terms/login');
+        toast?.show("Unauthorized access. Please log in.", "error", 5000);
+        return;
+      }
       
       if (!response.ok) {
         const errorData = await response.json();

@@ -66,7 +66,6 @@ export default function MemberList({
   const [searchInput, setSearchInput] = useState('');
   const [loadingList, setLoadingList] = useState(false);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
-  const [switchingList, setSwitchingList] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const token = getCookie('token');
   const router = useRouter(); 
@@ -83,8 +82,6 @@ export default function MemberList({
       page: 1,
     }));
     setHasMore(true);
-    setSwitchingList(true);
-    setMembers([]);
   }, 900);
 
   const handleAssemblySearch = (input: string) => {
@@ -102,7 +99,6 @@ export default function MemberList({
   const selectedValues = getSelectedValues[keyMap[forType]] || [];
 
   useMemo(() => {
-    setMembers([]);
     setParams((prevParams) => ({
       ...prevParams,
       search: '',
@@ -110,7 +106,6 @@ export default function MemberList({
     }));
     setSearchInput('');
     setHasMore(true);
-    setSwitchingList(true);
   }, [forType, showCousin]);
 
   useEffect(() => {
@@ -170,14 +165,17 @@ export default function MemberList({
         }
 
         const { data, totalCount } = await response.json();
-        setMembers((prev) => [...new Set([...prev, ...data])]);
+        if (params.page === 1) {
+          setMembers(data);
+        } else {
+          setMembers((prev) => [...new Set([...prev, ...data])]);
+        }
         const totalPages = Math.ceil(totalCount / params.limit);
         setHasMore(params.page < totalPages);
       } catch (error: any) {
         setError(error.message || 'Failed to fetch members. Please try again later.');
         toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
       } finally {
-        setSwitchingList(false);
         setLoadingList(false);
         isFetching = false;
       }
@@ -248,11 +246,11 @@ export default function MemberList({
           <div className="relative flex gap-2">
             <Input
               placeholder={ 
-                forType === ForType.SelectMember
-                  ? 'Select Member'
-                  : forType === ForType.SelectPartner
+                forType === ForType.SelectPartner
                   ? 'Select partner'
-                  : 'Select Children'
+                  : forType === ForType.SelectChildren
+                  ? 'Select Children'
+                  : 'Select Member'
               }
               className="pl-9"
               value={searchInput}
@@ -297,11 +295,7 @@ export default function MemberList({
             </label>
           </div>
         )}
-        {switchingList ? (
-          <Loading />
-        ) : !loadingList && !members ? (
-          <p className="p-4">No members found.</p>
-        ) : members.length > 0 ? (
+        {members.length > 0 ? 
           <>
             {members.map((member) =>
               member.gender === 'Letter' ? (
@@ -354,14 +348,13 @@ export default function MemberList({
               )
             )}
             <div className="h-10 px-4 py-2">
-              {loadingList && <p className="text-text_color">Loading....</p>}
+              {loadingList && <p className="py-2 px-4 text-text_color">Loading....</p>}
               {!loadingList && !hasMore && <p>, , ,</p>}
             </div>
           </>
-        ) : error ? (
-          <div className="p-6 text-center">{error}</div>
-        ) : <div>{renderNoMembersMessage()}</div>
-        }
+        : loadingList ? <p className="py-2 px-4 text-text_color">Loading....</p>
+        : error ? <div className="p-6 text-center">{error}</div>
+        : <div>{renderNoMembersMessage()}</div>}
       </div>
 
       {multiselect && <ButtonSolid buttonText={selectedValues.length <= 0 ? 'Close' : 'Submit'} onClick={() => openList((prev:any) => !prev)} className={`w-full absolute bottom-0 left-0 right-0 z-10 rounded-none overflow-hidden mx-auto`} />}

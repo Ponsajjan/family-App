@@ -107,50 +107,46 @@ export default function NewMembers() {
         <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto mt-4'>
-              {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
-              {(!loadingList && changeList.length > 0) &&
-                <>
-                  {changeList?.map((member: any) => (
-                    <div key={member.id} className="pl-4">
-                      <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
-                        <div 
-                          onClick={() => handleShowDetails(member.pendingVerification, member.id)} 
-                          className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
-                        >
-                          <div>
-                            <div className="flex flex-wrap gap-2">
-                              {member.gender === "Male" && <Male /> }
-                              {member.gender === "Female" && <Female />}
-                              <div className='font-semibold'>{member.name}</div>
+              {changeList?.map((member: any) => (
+                <div key={member.id} className="pl-4">
+                  <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
+                    <div 
+                      onClick={() => handleShowDetails(member.pendingVerification, member.id)} 
+                      className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
+                    >
+                      <div>
+                        <div className="flex flex-wrap gap-2">
+                          {member.gender === "Male" && <Male /> }
+                          {member.gender === "Female" && <Female />}
+                          <div className='font-semibold'>{member.name}</div>
+                        </div>
+                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                            {(member.father || member.mother) ? (
+                            <>
+                              <span className="pr-1 font-semibold">Parents:</span>
+                              {member.father && <span className="pr-1">{member.father.name},</span>}
+                              {member.mother && <span className="pr-1">{member.mother.name}</span>}
+                            </>
+                            ) : member.partner ? (
+                            <div>
+                              <span className="pr-1 font-semibold">Partner:</span>
+                              <span className="pr-1">{member.partner.name}</span>
                             </div>
-                            <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                                {(member.father || member.mother) ? (
-                                <>
-                                  <span className="pr-1 font-semibold">Parents:</span>
-                                  {member.father && <span className="pr-1">{member.father.name},</span>}
-                                  {member.mother && <span className="pr-1">{member.mother.name}</span>}
-                                </>
-                                ) : member.partner ? (
-                                <div>
-                                  <span className="pr-1 font-semibold">Partner:</span>
-                                  <span className="pr-1">{member.partner.name}</span>
-                                </div>
-                                ) : 'No family relationship assigned yet'}
-                            </div>
-                          </div>
-                          <div className='pl-3 border-l border-dashed border-border_color min-w-10 text-center'>
-                            {member.pendingVerification.length}
-                          </div>
+                            ) : 'No family relationship assigned yet'}
                         </div>
                       </div>
+                      <div className='pl-3 border-l border-dashed border-border_color min-w-10 text-center'>
+                        {member.pendingVerification.length}
+                      </div>
                     </div>
-                  ))}
-                  <div className="h-10 px-4 py-2">
-                    {!hasMore && <p className="text-text_color">, , ,</p> }
                   </div>
-                </>
-              }
-              {(!loadingList && changeList.length == 0) && 
+                </div>
+              ))}
+              <div className="h-10 px-4 py-2">
+                {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
+                {!hasMore && <p className="text-text_color">, , ,</p> }
+              </div>
+              {(!loadingList && changeList.length === 0) && 
                 <p className='p-4 loading-text'>No changes to verify</p>
               }
             </div>

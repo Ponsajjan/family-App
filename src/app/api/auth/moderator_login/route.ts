@@ -1,28 +1,37 @@
 import { NextResponse } from "next/server";
-import { generateToken } from "@/utils/auth";
+import { generateToken, verifyToken } from "@/utils/auth";
 import prisma from "@/db/db";
 
 // this api takes in token finds authuntication using unique password then checks value with moderator password
 
 export async function POST(request: Request) {
   try {
-    const { password } = await request.json(); 
+    const { password } = await request.json();
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1];
     
-    // Try finding the password in the database
-    let login = await prisma.auth.findUnique({ where: { password } });
-
-    // If no match is found in DB, check the environment variable
-    if (!login && password === process.env.SUPER_ADMIN_PASSWORD) {
-      login = { 
-        id:108,
-        forDescendanceOf: "superAdmin",
-        mainMemberId: -1,
-        moderatorPassword: "hi",
-        password: process.env.SUPER_ADMIN_PASSWORD || 'trust me, there is a password',
-        createdAt: new Date("2025-05-03T12:46:17.077Z"),
-        updatedAt: new Date("2025-05-03T12:46:17.077Z")
-      };
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const decoded = await verifyToken(token);
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+    if (!password) {
+      return NextResponse.json(
+        { success: false, error: "Password is required" },
+        { status: 400 }
+      );
+    }
+    // Try finding the password in the database
+    const login = await prisma.auth.findUnique({ 
+      where: { 
+        moderatorPassword: password,
+        forDescendanceOf: forDescendanceOf,
+      }, 
+    });
 
     if (!login) {
       return NextResponse.json(
@@ -32,13 +41,13 @@ export async function POST(request: Request) {
     }
 
     // Generate token
-    const token = await generateToken({
+    const newtoken = await generateToken({
       forDescendanceOf: login.forDescendanceOf,
       memberId: login.mainMemberId,
-      userType: login.forDescendanceOf === "superAdmin" ? "superAdmin" : "member",
+      userType: "moderator",
     });
 
-    return NextResponse.json({ message: "Login successful", token });
+    return NextResponse.json({ message: "Login successful", newtoken });
 
   } catch (error) {
     console.error("Error logging in:", error);

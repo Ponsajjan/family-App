@@ -7,6 +7,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   access: string | null;
+  setAccess: (access: string | null) => void;
   login: (token: string, access: string) => void;
   logout: () => void;
 }
@@ -50,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     token,
     isAuthenticated,
     access,
+    setAccess,
     login,
     logout,
   };

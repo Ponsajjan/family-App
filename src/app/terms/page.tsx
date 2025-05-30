@@ -105,7 +105,7 @@ export default function Terms() {
               </h2>
               <ul className="list-disc list-inside space-y-2">
                 <li>Ensure family descendants are accurately recorded</li>
-                <li>Add family relationships ( Partner | Children ) if any.</li>
+                <li>Add family relationships ( Partner | Children ) if any</li>
               </ul>
               <p className="mt-4 italic opacity-65">
                 Note: Member information can be locked to maintain data integrity. For locked members, changes will require moderator approval or contact
