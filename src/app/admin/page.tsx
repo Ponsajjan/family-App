@@ -30,7 +30,7 @@ export default function ExpandableTable() {
         const result = await response.json();
         setData(result);
       } catch (error: any) {
-        toast?.show(error.message || 'Error fetching data', "error", 5000);
+        toast?.show(error.error || 'Error fetching data', "error", 5000);
       } finally {
         setLoading(false)
       }
@@ -105,7 +105,7 @@ export default function ExpandableTable() {
       setEditingModerator(null);
   
     } catch (error: any) {
-      toast?.show(error.message || "Failed to add moderator", "error", 5000);
+      toast?.show(error.error || "Failed to add moderator", "error", 5000);
     }
   };
 
@@ -152,7 +152,7 @@ export default function ExpandableTable() {
       setNewModerator({ name: "", contactNumber: "" });
   
     } catch (error: any) {
-      toast?.show(error.message || "Failed to add moderator", "error", 5000);
+      toast?.show(error.error || "Failed to add moderator", "error", 5000);
     }
   };
   
@@ -184,7 +184,7 @@ export default function ExpandableTable() {
       // Update the state with the new data
       setData(updatedData);
     } catch (error: any) {
-      toast?.show(error.message || "Failed to delete member", "error", 5000);
+      toast?.show(error.error || "Failed to delete member", "error", 5000);
     } finally {
       setDeleting(false);
     }
@@ -223,7 +223,7 @@ export default function ExpandableTable() {
       // Update the state with the new data
       setData(updatedData);
     } catch (error: any) {
-      toast?.show(error.message || "Failed to delete member", "error", 5000);
+      toast?.show(error.error || "Failed to delete member", "error", 5000);
     } finally {
       setDeleting(false);
     }

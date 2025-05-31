@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import Topnav from "@/components/Topnav"
 import { LinkButtonOutline } from "../../components/Button"
+import { useToast } from '@/components/Toast'
 
 export default function AdminDashboard() {
+    const toast = useToast()
     const [unverifiedCount, setUnverifiedCount] = useState<number | null>(null)
     const [pendingRequests, setPendingRequests] = useState<number | null>(null)
 
@@ -15,7 +17,8 @@ export default function AdminDashboard() {
                 const data = await res.json()
                 setUnverifiedCount(data.unverifiedMembers)
                 setPendingRequests(data.pendingRequests)
-            } catch (error) {
+            } catch (error: any) {
+                toast?.show(error.error || "Failed to fetch stats", 'error', 5000)
                 console.error("Failed to fetch stats:", error)
             }
         }

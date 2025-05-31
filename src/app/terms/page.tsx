@@ -46,7 +46,7 @@ export default function Terms() {
           setModeratorList(data.moderators)
           
         } catch (error: any) {
-          toast?.show(error.message || 'Failed to fetch page data', 'error', 5000);
+          toast?.show(error.error || 'Failed to fetch page data', 'error', 5000);
         } finally {
           setLoading(false)
         }
@@ -80,7 +80,7 @@ export default function Terms() {
           </h1>
 
           <p className="text-lg text-center mb-3">
-            This app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances.
+            This web app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances.
           </p>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">

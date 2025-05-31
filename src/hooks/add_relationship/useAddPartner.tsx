@@ -57,7 +57,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                     setExcludePartnerRelation(data.excludeIds);
 
                 } catch (error: any) {
-                    toast?.show(error.message || "Error fetching member details", "error", 5000)
+                    toast?.show(error.error || "Error fetching member details", "error", 5000)
                     router.push('/add_edit');
                 } finally {
                     setPartnerLoading(false)

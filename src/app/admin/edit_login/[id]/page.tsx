@@ -68,7 +68,7 @@ export default function Page() {
         });
       } catch (error:any) {
         console.error("Error fetching member data:", error);
-        toast?.show(error.message || "Failed to fetch member data", "error", 5000);
+        toast?.show(error.error || "Failed to fetch member data", "error", 5000);
       }
     };
 
@@ -144,7 +144,7 @@ export default function Page() {
       toast?.show(result.message, "success", 5000); 
     } catch (error: any) {
       console.error("Error submitting form:", error);
-      toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
+      toast?.show(error.error || "An error occurred. Please try again.", "error", 5000);
     } finally {
       router.push("/admin")
     }

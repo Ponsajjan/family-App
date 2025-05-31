@@ -57,7 +57,7 @@ export default function EditMemberDetails () {
           setAllowedEdit(data.allowEdit)
           setErrors(EditMemberDefaultFormErrorValue);
         } catch (error: any) {
-          toast?.show(error.message || "Failed to fetch member", "error", 5000);
+          toast?.show(error.error || "Failed to fetch member", "error", 5000);
         } finally {
           setLoading(false)
         }
@@ -136,7 +136,7 @@ export default function EditMemberDetails () {
       setFormData(EditMemberDefaultFormValue);
       setErrors(EditMemberDefaultFormErrorValue);
     } catch (error: any) {
-      toast?.show(error.message || "Failed to update member", "error", 5000);
+      toast?.show(error.error || "Failed to update member", "error", 5000);
     } finally {
       setSubmitting(false);
     }

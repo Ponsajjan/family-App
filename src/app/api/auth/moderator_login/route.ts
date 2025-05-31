@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     }
     if (!password) {
       return NextResponse.json(
-        { success: false, error: "Password is required" },
+        { error: "Password is required" },
         { status: 400 }
       );
     }
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
     if (!login) {
       return NextResponse.json(
-        { success: false, error: "No match found" },
+        { error: "No match found" },
         { status: 403 }
       );
     }
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     return NextResponse.json(
-      { success: false, error: "Failed to log in" },
+      { error: "Failed to login" },
       { status: 500 }
     );
   }

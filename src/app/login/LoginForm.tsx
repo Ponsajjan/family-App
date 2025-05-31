@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCookie } from "cookies-next";
 import { login } from './actions';
+import { set } from "date-fns";
 
 export default function LoginForm() {
     const router = useRouter();
@@ -17,6 +18,11 @@ export default function LoginForm() {
         }
     }, [router, token]);
 
+    const handelInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+        setError("");
+    };
+
     async function handleSubmit(formData: FormData) {
         try {
             const result = await login(formData);
@@ -26,6 +32,9 @@ export default function LoginForm() {
                 router.push("/");
             } else {
                 setError(result.error || "Login failed");
+                if (result.error === "Invalid credential") {
+                    setForm({ ...form, password: "" });
+                }
             }
         } catch (error: any) {
             setError(error.error);
@@ -105,10 +114,13 @@ export default function LoginForm() {
             </div>
             <div className="w-full max-w-80 relative pb-6">
                 <form action={handleSubmit}>
-                <div className="flex h-12 border border-border_color bg-field_color rounded-md overflow-hidden px-2">
+                <div className={`flex h-12 border border-border_color ${error ? 'passwordError' : ''} bg-field_color rounded-md overflow-hidden px-2`}>
                     <label className="flex items-center w-full">
                     <input
                         name="password"
+                        onChange={(e) => handelInputChange(e)}
+                        value={form.password || ""}
+                        
                         required
                         autoFocus
                         placeholder="hello world !"

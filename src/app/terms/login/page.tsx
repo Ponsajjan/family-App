@@ -37,7 +37,7 @@ export default function Page() {
                 setError(data.error);
             }
         } catch (error: any) {
-            console.error(error.error);
+            setError(error.error);
         }
     };
 

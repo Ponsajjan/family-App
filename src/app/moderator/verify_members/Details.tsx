@@ -50,7 +50,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                 setData(member.data);
             } catch (err:any) {
                 console.error('Error fetching data:', err);
-                setError(err instanceof Error ? err.message : 'Unknown error occurred');
+                setError(err.error || 'Unknown error occurred');
             } finally {
                 setLoadingDetails(false)
             }
@@ -75,7 +75,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             // Handle 401 Unauthorized
             if (response.status === 401) {
                 router.push('/terms/login');
-                toast?.show("Unauthorized access. Please log in.", "error", 5000);
+                toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }
             // Handle API response
@@ -126,7 +126,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     
         } catch (error: any) {
             console.error("Error verifying member:", error);
-            toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
+            toast?.show(error.error || "An error occurred. Please try again.", "error", 5000);
         }
     };
     
@@ -145,7 +145,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             // Handle 401 Unauthorized
             if (response.status === 401) {
                 router.push('/terms/login');
-                toast?.show("Unauthorized access. Please log in.", "error", 5000);
+                toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }
             // Handle API response
@@ -162,7 +162,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             setDeleted(true);
         } catch (error: any) {
             console.error("Error submitting form:", error);
-            toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
+            toast?.show(error.error || "An error occurred. Please try again.", "error", 5000);
         };
     }
 

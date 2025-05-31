@@ -1,10 +1,11 @@
-
 import Topnav from "@/components/Topnav";
 import FetchFamilyTree from "./FetchFamilyTree";
 import DragScroll from "@/components/DragScroll";
 import { cookies } from 'next/headers';
 
 export const dynamic = "force-dynamic"
+
+export const revalidate = 600;
 
 export default async function FamilyTreePage() {
   const cookieStore = await cookies();
@@ -16,7 +17,7 @@ export default async function FamilyTreePage() {
     return (
       <div className="w-full">
         <Topnav />
-        <div className="text-center text-text_color m-6">Unauthorized. Please log in.</div>
+        <div className="text-center text-text_color m-6">Unauthorized. Please login.</div>
       </div>);
   }
 

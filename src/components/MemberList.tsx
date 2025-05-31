@@ -84,7 +84,7 @@ export default function MemberList({
     setHasMore(true);
   }, 900);
 
-  const handleAssemblySearch = (input: string) => {
+  const handleMemberSearch = (input: string) => {
     setSearchInput(input);
     handleSetSearchFilter(input);
   };
@@ -105,6 +105,7 @@ export default function MemberList({
       page: 1,
     }));
     setSearchInput('');
+    setMembers([]);
     setHasMore(true);
   }, [forType, showCousin]);
 
@@ -173,8 +174,8 @@ export default function MemberList({
         const totalPages = Math.ceil(totalCount / params.limit);
         setHasMore(params.page < totalPages);
       } catch (error: any) {
-        setError(error.message || 'Failed to fetch members. Please try again later.');
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+        setError(error.error || 'Failed to fetch members. Please try again later.');
+        toast?.show(error.error || 'Failed to fetch members', 'error', 5000);
       } finally {
         setLoadingList(false);
         isFetching = false;
@@ -254,7 +255,7 @@ export default function MemberList({
               }
               className="pl-9"
               value={searchInput}
-              onChange={(e) => handleAssemblySearch(e.target.value)}
+              onChange={(e) => handleMemberSearch(e.target.value)}
               type="text"
             />
             <span className="absolute left-2 top-1/2 transform -translate-y-1/2">

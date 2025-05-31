@@ -30,7 +30,7 @@ export async function login(formData: FormData) {
         if (attempts >= ATTEMPT_LIMIT && now - lastAttempt < DEBOUNCE_MS) {
             return {
                 success: false,
-                error: 'Wrong credential.',
+                error: 'Invalid credential',
             };
         }
 
@@ -70,7 +70,7 @@ export async function login(formData: FormData) {
             });
             return {
                 success: false,
-                error: 'Wrong credential.'
+                error: 'Invalid credential'
             };
         }
 

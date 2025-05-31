@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     }
 
     if (!id) {
-      return NextResponse.json({ error: "Member ID is required and should be a valid number." });
+      return NextResponse.json({ error: "Member ID is required and should be a valid number." }, { status: 404 });
     }
 
     try {
@@ -128,7 +128,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ data });
     } catch (error) {
       console.error(error);
-      return NextResponse.json({ error: "Failed to fetch data" });
+      return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
     }
 }
 

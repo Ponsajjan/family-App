@@ -86,9 +86,9 @@ const ChangeRequestView = ({
         
         const result = await response.json();
         setData(result.data);
-      } catch (err) {
+      } catch (err:any) {
         console.error('Error fetching data:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error occurred');
+        setError(err.error || 'Unknown error occurred');
       } finally {
         setLoading(false);
       }
@@ -129,7 +129,7 @@ const ChangeRequestView = ({
 
       if (response.status === 401) {
         router.push('/terms/login');
-        toast?.show("Unauthorized access. Please log in.", "error", 5000);
+        toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
       }
       
@@ -147,7 +147,7 @@ const ChangeRequestView = ({
       
     } catch (error: any) {
       console.error("error", error);
-      toast?.show(error.message || "Error handling verification", "error", 5000);
+      toast?.show(error.error || "Error handling verification", "error", 5000);
     } finally {
       setLoading(false);
       setDisableButton(false);
@@ -169,7 +169,7 @@ const ChangeRequestView = ({
 
       if (response.status === 401) {
         router.push('/terms/login');
-        toast?.show("Unauthorized access. Please log in.", "error", 5000);
+        toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
       }
       
@@ -187,7 +187,7 @@ const ChangeRequestView = ({
       
     } catch (error: any) {
       console.error("error", error);
-      toast?.show(error.message || "Error handling verification", "error", 5000);
+      toast?.show(error.error || "Error handling verification", "error", 5000);
       setDisableButton(false);
     } finally {
       setLoading(false);

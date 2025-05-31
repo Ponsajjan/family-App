@@ -91,7 +91,7 @@ export default function Page() {
       setFormData(NewLoginDefaultFormValue);
     } catch (error: any) {
       console.error("Error submitting form:", error);
-      toast?.show( error.message || "An error occurred. Please try again.", "error", 5000);
+      toast?.show( error.error || "An error occurred. Please try again.", "error", 5000);
     }
   };
 

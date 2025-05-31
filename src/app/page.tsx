@@ -137,7 +137,7 @@ export default function Home() {
         setDateList(datesList);
 
       } catch (error: any) {
-        toast?.show(error.message || "Failed to fetch event dates.", "error", 5000);
+        toast?.show(error.error || "Failed to fetch event dates.", "error", 5000);
       } finally {
         setLoading(false);
       }

@@ -167,7 +167,7 @@ export default function EditRelationshipDetails() {
       setNoChanges(true);
     } catch (error: any) {
       console.error("Error updating member:", error);
-      toast?.show(error.message || "Failed to update member", "error", 5000);
+      toast?.show(error.error || "Failed to update member", "error", 5000);
     } finally {
       setSubmitting(false);
     }
