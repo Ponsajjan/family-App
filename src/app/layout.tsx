@@ -1,6 +1,6 @@
 "use client"
 
-import { Inter } from "next/font/google";
+import Inter from "next/font/local";
 import Sidenav from "@/components/Sidenav";
 import "./globals.css";
 import ToastProvider from "@/components/Toast";
@@ -8,7 +8,7 @@ import ToastProvider from "@/components/Toast";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/contexts/AuthContext";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ src: "../../public/fonts/InterVariable.woff2" });
 
 export default function RootLayout({
   children,
