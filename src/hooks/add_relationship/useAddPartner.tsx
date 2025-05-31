@@ -2,7 +2,7 @@ import { useToast } from '@/components/Toast';
 import { AddRelationDefaultFormValue } from '@/types/add__edit/add_relationship/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
-import { getCookie } from 'cookies-next';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AddPartnerPropType {
     selectedPartnerId: number | null | undefined;
@@ -13,7 +13,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
     const [patnerLoading, setPartnerLoading] = useState(false);
     const [selectedPartnerData, setSelectedPartnerData] = useState<any>([]);
     const [excludePartnerRelation, setExcludePartnerRelation] = useState<number[]>([]);
-    const token = getCookie('token');
+    const {token} = useAuth();
     const router = useRouter(); 
     const toast = useToast();
 

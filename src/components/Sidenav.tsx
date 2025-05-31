@@ -30,7 +30,7 @@ export default function Sidenav() {
                     <div>
                         <NavLink linkName="Calender" link="" onClick={() => navigateTo("/")} />
                         <NavLink linkName="Relatives" link="relatives" onClick={() => navigateTo("/relatives")} />
-                        <NavLink linkName="Relation" link="tree" onClick={() => navigateTo("/tree")} />
+                        <NavLink linkName="Relations" link="tree" onClick={() => navigateTo("/tree")} />
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/add_edit")} />
                         {moderator && <NavLink linkName="Moderator" link="moderator" onClick={() => navigateTo("/moderator")} />}
                         <span  className="border-t border-border_color pt-2 mt-6 block mx-4"></span>
@@ -53,7 +53,7 @@ export function NavLink({ link, linkName, onClick }: { link: string, linkName: s
             <p className={`group-hover:invert ${pathName.split('/')[1] === link ? "invert" : " "}`}>
                 {linkName === 'Calender' && <CalenderIcon />}
                 {linkName === 'Relatives' && <RelativesIcon />}
-                {linkName === 'Relation' && <TreeIcon />}
+                {linkName === 'Relations' && <TreeIcon />}
                 {linkName === 'Add/Edit' && <FamilyProfessionals />}
                 {linkName === 'Moderator' && <Moderator />}
                 {linkName === 'Terms' && <Terms />}

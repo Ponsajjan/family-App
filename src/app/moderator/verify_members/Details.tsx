@@ -4,8 +4,8 @@ import Container from '@/components/Container';
 import { HoldButton } from '@/components/HoldButton';
 import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { CloseIcon, Condolences, Female2, Info, Male2, Verified } from '@/utils/Icons';
-import { getCookie } from 'cookies-next';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -13,7 +13,7 @@ import React, { useEffect, useState } from 'react';
 export default function NewMemberDetails({ showDetailsFor, setShowDetails, handleMemberSearch, setMembers, members, selectedFilter }: any) {
     const toast = useToast();
     const router = useRouter();
-    const token = getCookie('token');
+    const {token, logout} = useAuth();
     const [data, setData] = useState<any>(null);
     const [loadingDetails, setLoadingDetails] = useState(true);
     const [deleted, setDeleted] = useState(false);
@@ -36,8 +36,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                 );
                 // Handle 401 Unauthorized
                 if (response.status === 401) {
-                    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-                    router.push('/login');
+                    logout();
                     return;
                 }
                 if (!response.ok) {

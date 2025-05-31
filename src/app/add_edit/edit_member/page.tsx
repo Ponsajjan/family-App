@@ -10,8 +10,7 @@ import { useToast } from "@/components/Toast";
 import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue, EditMemberDefaultFormValue, EditMemberFormErrorTypes, EditMemberFormValueTypes } from "@/types/add__edit/edit_member/types";
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
-import { getCookie } from 'cookies-next';
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function EditMemberDetails () {
   const toast = useToast();
@@ -22,8 +21,7 @@ export default function EditMemberDetails () {
   const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
-  const token = getCookie('token');
-  const router = useRouter(); 
+  const {token, logout} = useAuth(); 
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -46,8 +44,7 @@ export default function EditMemberDetails () {
           );
           // Handle 401 Unauthorized
           if (response.status === 401) {
-            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            router.push('/login');
+            logout();
             return;
           }
           if (!response.ok) throw new Error('Failed to fetch member details');
@@ -65,7 +62,7 @@ export default function EditMemberDetails () {
   
       fetchMember()
     }
-  }, [formData.id, toast, router, token]);
+  }, [formData.id, toast, token]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (loading) return

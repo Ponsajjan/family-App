@@ -2,7 +2,7 @@ import { useToast } from '@/components/Toast';
 import { AddRelationDefaultFormValue } from '@/types/add__edit/add_relationship/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
-import { getCookie } from 'cookies-next';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AddMemberPropType {
     selectedMemberId: number | null | undefined;
@@ -13,7 +13,7 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
     const [selectedMemberData, setSelectedMemberData] = useState(AddRelationDefaultFormValue);
     const [excludeMemberRelation, setExcludeMemberRelation] = useState<number[]>([]);
     const [pendingVerification, setPendingVerification] = useState<number>(0)
-    const token = getCookie('token');
+    const {token} = useAuth();
     const router = useRouter(); 
     const toast = useToast();
 

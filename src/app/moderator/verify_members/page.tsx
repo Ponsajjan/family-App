@@ -7,8 +7,7 @@ import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import NewMemberDetails from "./Details";
-import { getCookie } from 'cookies-next';
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function VerifyMember() {
   const toast = useToast();
@@ -21,8 +20,7 @@ export default function VerifyMember() {
   const [hasMore, setHasMore] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('Unverified');
-  const token = getCookie('token');
-  const router = useRouter();
+  const { token, logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
@@ -79,8 +77,7 @@ export default function VerifyMember() {
 
         // Handle 401 Unauthorized
         if (response.status === 401) {
-          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          router.push('/login');
+          logout();
           return;
         }
         if (!response.ok) {
@@ -126,7 +123,7 @@ export default function VerifyMember() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, token, router]);
+  }, [params, hasMore, toast, token]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

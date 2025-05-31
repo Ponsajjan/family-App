@@ -1,7 +1,6 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
 import prisma from "@/db/db";
 import { generateToken } from '@/utils/auth';
 

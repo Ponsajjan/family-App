@@ -7,10 +7,10 @@ import { ButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
 import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
 import { useToast } from "@/components/Toast";
-import { useRouter } from 'next/navigation';
 import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
 import EditRelationShipForm from "@/components/forms/EditRelationForm";
-import { getCookie } from 'cookies-next';
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function EditRelationshipDetails() {
   const toast = useToast();
@@ -22,8 +22,8 @@ export default function EditRelationshipDetails() {
   const [showList, setShowList] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [resetValue, setResetValue] = useState<any>({});
-  const token = getCookie('token');
-  const router = useRouter(); 
+  const {token, logout} = useAuth();
+  const router = useRouter();
 
   const handleShowList = () => {
     setShowList(true);
@@ -45,8 +45,7 @@ export default function EditRelationshipDetails() {
           );
           // Handle 401 Unauthorized
           if (response.status === 401) {
-            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            router.push('/login');
+            logout();
             return;
           }
           if (!response.ok) throw new Error('Failed to fetch member details');

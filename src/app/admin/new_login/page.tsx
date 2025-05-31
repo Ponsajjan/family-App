@@ -8,16 +8,14 @@ import Container from '@/components/Container';
 import { validateNewLoginForm } from '@/utils/admin/new_login/validateNewLoginForm';
 import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorTypes, NewLoginFormValueTypes } from '@/types/admin/new_login/types';
 import { useToast } from '@/components/Toast';
-import { useRouter } from 'next/navigation';
-import { getCookie } from 'cookies-next';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Page() {
   const toast = useToast();
-  const router = useRouter();
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
-  const token = getCookie('token');
-
+  const { token, logout } = useAuth();
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -77,8 +75,7 @@ export default function Page() {
 
       // Handle 401 Unauthorized
       if (response.status === 401) {
-        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        router.push('/login');
+        logout();
         return;
       }
       // Handle API response

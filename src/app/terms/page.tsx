@@ -5,18 +5,16 @@ import Topnav from '@/components/Topnav'
 import { Community, Logout } from '@/utils/Icons'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { getCookie } from 'cookies-next';
 import { useToast } from '@/components/Toast'
-import { useRouter } from 'next/navigation'
 import Loading from '@/components/Loading'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Terms() {
   const toast = useToast();
   const[loading, setLoading] = useState(true)
   const[head, setHead] = useState('')
   const[moderatorList, setModeratorList] = useState([])
-  const token = getCookie('token');
-  const router = useRouter(); 
+  const {token, logout} = useAuth(); 
 
     useEffect(() => {
       async function fetchMembers() {
@@ -33,8 +31,7 @@ export default function Terms() {
           );
           // Handle 401 Unauthorized
           if (response.status === 401) {
-            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            router.push('/login');
+            logout();
             return;
           }
   
@@ -53,21 +50,7 @@ export default function Terms() {
       }
   
       fetchMembers();
-    }, [router, token, toast]);
-
-  const logout = async () => {
-    try {
-      const response = await fetch('/api/logout', { method: 'GET' });
-  
-      if (response.ok) {
-        window.location.href = '/login';
-      } else {
-        console.error("Logout failed");
-      }
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
-  };
+    }, [token, toast]);
 
   return (
     <div className='flex flex-col w-full text-text_color'>

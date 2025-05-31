@@ -4,9 +4,8 @@ import { Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
-import { getCookie } from "cookies-next";
-import { useRouter } from "next/navigation";
 import Details from './Details';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function NewMembers() {
   const toast = useToast();
@@ -18,8 +17,7 @@ export default function NewMembers() {
   const [showDetailsFor, setShowDetailsFor] = useState([]);
   const [currentDetailIndex, setCurrentDetailIndex] = useState<number>(0);
   const [memberId, setMemberId] = useState<number | null>(null)
-  const token = getCookie('token');
-  const router = useRouter(); 
+  const {token, logout} = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
@@ -47,8 +45,7 @@ export default function NewMembers() {
         );
         // Handle 401 Unauthorized
         if (response.status === 401) {
-          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          router.push('/login');
+          logout();
           return;
         }
         if (!response.ok) {
@@ -93,7 +90,7 @@ export default function NewMembers() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, token, router]);
+  }, [params, hasMore, toast, token]);
 
   const handleShowDetails = (value: any, id:number) => {
     setShowDetails(true);

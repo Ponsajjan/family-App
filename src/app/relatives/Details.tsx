@@ -4,10 +4,10 @@ import { CloseIcon, Condolences, Female2, Male2, Verified } from '@/utils/Icons'
 import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import Loading from '@/components/Loading';
-import { getCookie } from 'cookies-next';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Details({ showMember, openDetails }: any) {
-      const token = getCookie('token');
+      const {token} = useAuth();
       const [data, setData] = useState<any>(null);
       const [loadingDetails, setLoadingDetails] = useState(true);
       const [error, setError] = useState<string | null>(null);

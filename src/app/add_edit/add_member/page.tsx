@@ -8,16 +8,14 @@ import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue, AddMemberFormVal
 import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateAddMemberForm";
 import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
-import { getCookie } from 'cookies-next';
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AddMemberDetails () {
   const toast = useToast();
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<AddMemberFormValueTypes>(AddMemberDefaultFormValue);
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
-  const token = getCookie('token');
-  const router = useRouter(); 
+  const {token, logout} = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (loading) return
@@ -79,8 +77,7 @@ export default function AddMemberDetails () {
       const result = await response.json();
       // Handle 401 Unauthorized
       if (response.status === 401) {
-        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        router.push('/login');
+        logout();
         return;
       }
       if (!response.ok) {

@@ -2,13 +2,14 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getCookie, deleteCookie } from 'cookies-next';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   access: string | null;
   setAccess: (access: string | null) => void;
-  login: (token: string, access: string) => void;
+  storeLoginValues: (token: string, access: string) => void;
   logout: () => void;
 }
 
@@ -18,6 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [access, setAccess] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const initializeAuth = () => {
@@ -33,9 +35,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  const login = (newToken: string, newAccess: string) => {
+  const storeLoginValues = (newToken: string, newAccess: string) => {
     setToken(newToken);
     setAccess(newAccess);
+    document.cookie = `token=${newToken}; path=/; secure; sameSite=strict`;
+    document.cookie = `access=${newAccess}; path=/; secure; sameSite=strict`;
   };
 
   const logout = () => {
@@ -43,6 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAccess(null);
     deleteCookie('token');
     deleteCookie('access');
+    router.push('/login');
   };
 
   const isAuthenticated = !!token;
@@ -52,7 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated,
     access,
     setAccess,
-    login,
+    storeLoginValues,
     logout,
   };
 

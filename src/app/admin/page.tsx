@@ -1,24 +1,21 @@
 'use client'
 
-import { ButtonOutline, ButtonSolid } from "@/components/Button";
 import Container from "@/components/Container";
 import { HoldTextButton } from "@/components/HoldButton";
 import Input from "@/components/Input";
 import { useToast } from "@/components/Toast";
-import { getCookie } from "cookies-next";
+import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
 export default function ExpandableTable() {
   const toast = useToast();
-  const token = getCookie('token');
+  const {token, logout} = useAuth();
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null);
   const [data, setData] = useState([]);
   const [editModerator, setEditModerator] = useState({ name: "", contactNumber: "" });
   const [newModerator, setNewModerator] = useState({ name: "", contactNumber: "" });
-  const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true)
 
@@ -75,8 +72,7 @@ export default function ExpandableTable() {
       });
       // Handle 401 Unauthorized
       if (response.status === 401) {
-        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        router.push('/login');
+        logout();
         return;
       }
   

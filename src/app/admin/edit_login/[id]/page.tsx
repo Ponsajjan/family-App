@@ -9,13 +9,13 @@ import { validateNewLoginForm } from '@/utils/admin/new_login/validateNewLoginFo
 import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorTypes, NewLoginFormValueTypes } from '@/types/admin/new_login/types';
 import { useToast } from '@/components/Toast';
 import { useParams, useRouter } from 'next/navigation';
-import { getCookie } from 'cookies-next';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Page() {
   const toast = useToast();
   const params = useParams();
   const router = useRouter();
-  const token = getCookie('token');
+  const {token, logout} = useAuth();
   const memberId = params.id;
 
   const [validToken, setValidToken] = useState(true);
@@ -37,8 +37,7 @@ export default function Page() {
         const edit_member = result.data
         // Handle 401 Unauthorized
         if (response.status === 401) {
-          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          router.push('/login');
+          logout();
           return;
         }
         if (!response.ok) {

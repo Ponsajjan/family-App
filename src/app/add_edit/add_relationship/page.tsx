@@ -11,8 +11,7 @@ import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
 import AddRelationShipForm from "@/components/forms/AddRelationForm";
 import { useToast } from "@/components/Toast";
-import { getCookie } from 'cookies-next';
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function AddRelationshipDetails () {
   const toast = useToast();
@@ -22,8 +21,7 @@ export default function AddRelationshipDetails () {
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
-  const token = getCookie('token');
-  const router = useRouter(); 
+  const {token, logout} = useAuth();
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
     excludeId: [],
@@ -141,8 +139,7 @@ export default function AddRelationshipDetails () {
       });
       // Handle 401 Unauthorized
       if (response.status === 401) {
-        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        router.push('/login');
+        logout();
         return;
       }
       if (!response.ok) {

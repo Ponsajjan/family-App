@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCookie } from "cookies-next";
 import { login } from './actions';
-import { set } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginForm() {
     const router = useRouter();
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
-    const token = getCookie('token');
+    const {token, storeLoginValues} = useAuth();
 
     useEffect(() => {
         if (token) {
@@ -26,9 +25,8 @@ export default function LoginForm() {
     async function handleSubmit(formData: FormData) {
         try {
             const result = await login(formData);
-            if (result.success) {
-                document.cookie = `token=${result.token}; path=/; secure; sameSite=strict`;
-                document.cookie = `access=${result.userType}; path=/; secure; sameSite=strict`;
+            if (result.success && result.token) {
+                storeLoginValues(result.token, result.userType);
                 router.push("/");
             } else {
                 setError(result.error || "Login failed");

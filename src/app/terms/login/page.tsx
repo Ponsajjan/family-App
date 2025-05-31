@@ -5,15 +5,13 @@ import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
 import { NextArrow } from "@/utils/Icons";
 import { useAuth } from "@/contexts/AuthContext";
-import { getCookie } from "cookies-next";
 import Container from "@/components/Container";
 
 export default function Page() {
     const router = useRouter();
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
-    const token = getCookie('token');
-    const {setAccess} = useAuth();
+    const {token, setAccess} = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

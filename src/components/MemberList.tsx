@@ -5,12 +5,10 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
-import Loading from './Loading';
 import { useToast } from '@/components/Toast';
 import { useDebounce } from '@/utils/debounce';
-import { getCookie } from 'cookies-next';
-import { useRouter } from 'next/navigation';
 import Container from './Container';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface EachMember {
   id: number;
@@ -67,8 +65,7 @@ export default function MemberList({
   const [loadingList, setLoadingList] = useState(false);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const token = getCookie('token');
-  const router = useRouter(); 
+  const { token, logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
@@ -156,8 +153,7 @@ export default function MemberList({
         );
         // Handle 401 Unauthorized
         if (response.status === 401) {
-          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-          router.push('/login');
+          logout();
           return;
         }
 
@@ -206,7 +202,7 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [router, token, params, hasMore, toast, descendant, excludeId, gender]);
+  }, [token, params, hasMore, toast, descendant, excludeId, gender]);
 
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
     setSelectedValue(item, id, select, verified);

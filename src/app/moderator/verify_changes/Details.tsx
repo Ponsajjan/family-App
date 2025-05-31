@@ -2,8 +2,8 @@ import Container from '@/components/Container';
 import { HoldButton } from '@/components/HoldButton';
 import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { Approved, CloseIcon, NavIconVerified, Rejected } from '@/utils/Icons';
-import { getCookie } from 'cookies-next';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -21,7 +21,7 @@ const ChangeRequestView = ({
   const [disableButton, setDisableButton] = useState(false);
   const [requestStatus, setRequestStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [error, setError] = useState<string | null>(null);
-  const token = getCookie('token');
+  const {token} = useAuth();
   const router = useRouter();
   const toast = useToast();
 
