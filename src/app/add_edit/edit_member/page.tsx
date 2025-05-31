@@ -62,7 +62,7 @@ export default function EditMemberDetails () {
   
       fetchMember()
     }
-  }, [formData.id, toast, token]);
+  }, [formData.id, toast, token, logout]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (loading) return

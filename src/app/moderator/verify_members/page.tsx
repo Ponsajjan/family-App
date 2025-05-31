@@ -123,7 +123,7 @@ export default function VerifyMember() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, token]);
+  }, [params, hasMore, toast, token, logout]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;
@@ -251,7 +251,7 @@ export default function VerifyMember() {
                   {!hasMore && <p className="text-text_color">, , ,</p> }
                 </div>
                 {(!loadingList && members.length == 0) && (
-                  searchInput ? <p className='p-4 text-text_color'>No results found for '{params.search}'</p> : <p className='p-4 loading-text'>No data</p>
+                  searchInput ? <p className='p-4 text-text_color'>No results found for &lsquo;{params.search}&lsquo;</p> : <p className='p-4 loading-text'>No data</p>
                 )}
               </div>
             </div>

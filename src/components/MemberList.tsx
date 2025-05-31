@@ -1,7 +1,7 @@
 'use client';
 
 import { Female, FilterClose, FilterSelect, Male, SearchIcon } from '@/utils/Icons';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
@@ -58,7 +58,6 @@ export default function MemberList({
 }: MemberListProps) {
   const toast = useToast();
   const [members, setMembers] = useState<Member[]>([]);
-  const [showCousin, setShowCousin] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState('');
@@ -70,6 +69,8 @@ export default function MemberList({
     page: 1,
     limit: 30,
     search: '',
+    type: 'selectMember',
+    showCousin: false
   });
 
   const handleSetSearchFilter = useDebounce((value: string) => {
@@ -80,6 +81,16 @@ export default function MemberList({
     }));
     setHasMore(true);
   }, 900);
+
+  const handleShowCousin = () => {
+    setMembers([])
+    setParams((prevParams) => ({
+      ...prevParams,
+      showCousin: !prevParams.showCousin,
+      page: 1,
+    }));
+    setHasMore(true);
+  }
 
   const handleMemberSearch = (input: string) => {
     setSearchInput(input);
@@ -95,37 +106,36 @@ export default function MemberList({
 
   const selectedValues = getSelectedValues[keyMap[forType]] || [];
 
-  useMemo(() => {
+  function getFiltersFor(forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship', gender: string | null): string[] {
+    switch (forType) {
+      case ForType.SelectMember:
+        return ['All Members'];
+      case ForType.SelectPartner:
+        return [gender === 'Male' ? 'Female' : 'Male', 'Partner Unassigned'];
+      case ForType.SelectChildren:
+        return ['Descendant', 'Parents Unassigned'];
+      case ForType.EditRelationship:
+        return ['Partner Assigned', 'Children Assigned'];
+      default:
+        return ['All'];
+    }
+  }
+
+  useEffect(() => {
     setParams((prevParams) => ({
       ...prevParams,
       search: '',
+      type: forType,
+      showCousin: false,
       page: 1,
     }));
     setSearchInput('');
     setMembers([]);
     setHasMore(true);
-  }, [forType, showCousin]);
+    setAppliedFilters(getFiltersFor(forType, gender));
+  }, [forType, gender]);
 
   useEffect(() => {
-    function setFiltersUsed(forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship') {
-      switch (forType) {
-        case ForType.SelectMember:
-          setAppliedFilters(['All Members']);
-          break;
-        case ForType.SelectPartner:
-          setAppliedFilters([gender === 'Male' ? 'Female' : 'Male', 'Partner Unassigned']);
-          break;
-        case ForType.SelectChildren:
-          setAppliedFilters(['Descendant', 'Parents Unassigned']);
-          break;
-        case ForType.EditRelationship:
-          setAppliedFilters(['Partner Assigned', 'Children Assigned']);
-          break;
-        default:
-          setAppliedFilters(['All']);
-          break;
-      }
-    }
 
     let isFetching = false;
 
@@ -141,7 +151,7 @@ export default function MemberList({
         }
         const excludeIdSet = [...new Set(excludeId)];
         const response = await fetch(
-          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${forType}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${showCousin}`,
+          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${params.showCousin}`,
           { 
             method: 'GET',
             headers: { 
@@ -178,7 +188,6 @@ export default function MemberList({
       }
     }
 
-    setFiltersUsed(forType);
     fetchMembers();
 
     const handleScroll = () => {
@@ -202,7 +211,7 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [token, params, hasMore, toast, descendant, excludeId, gender]);
+  }, [token, params, hasMore, toast, descendant, excludeId, gender, logout]);
 
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
     setSelectedValue(item, id, select, verified);
@@ -224,7 +233,7 @@ export default function MemberList({
       case ForType.SelectChildren:
         return <p className="text-center pt-10 pb-4 px-2">No family descendant with parents unassigned</p>;
       case ForType.SelectPartner:
-        return showCousin ? (
+        return params.showCousin ? (
           <p className="text-center pt-10 pb-4 px-2">No family members with partner unassigned</p>
         ) : (
           <p className="text-center pt-10 pb-4 px-2">No member with partner unassigned</p>
@@ -282,8 +291,8 @@ export default function MemberList({
               <input
                 className="sr-only peer"
                 type="checkbox"
-                checked={showCousin}
-                onChange={() => setShowCousin((prev) => !prev)}
+                checked={params.showCousin}
+                onChange={handleShowCousin}
               />
               <span className="absolute right-[5px] z-10">
                 <FilterSelect />

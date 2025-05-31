@@ -50,7 +50,7 @@ export default function Terms() {
       }
   
       fetchMembers();
-    }, [token, toast]);
+    }, [token, toast, logout]);
 
   return (
     <div className='flex flex-col w-full text-text_color'>

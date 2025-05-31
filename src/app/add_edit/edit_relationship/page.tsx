@@ -70,7 +70,7 @@ export default function EditRelationshipDetails() {
 
       fetchMembers();
     }
-  }, [formData.id, toast, router, token]);
+  }, [formData.id, toast, router, token, logout]);
 
   const handleRemoveChildrenValue = (id: number) => {
     setNoChanges(false);

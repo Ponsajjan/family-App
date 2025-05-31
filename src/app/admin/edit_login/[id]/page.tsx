@@ -17,8 +17,6 @@ export default function Page() {
   const router = useRouter();
   const {token, logout} = useAuth();
   const memberId = params.id;
-
-  const [validToken, setValidToken] = useState(true);
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
 
@@ -74,7 +72,7 @@ export default function Page() {
     if (memberId) {
       fetchMemberData();
     }
-  }, [memberId, toast, router, token]);
+  }, [memberId, toast, router, token, logout]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -149,7 +147,7 @@ export default function Page() {
     }
   };
 
-  if (validToken) {
+  if (token) {
     return (
       <Container>
         <div className='w-full max-w-3xl p-4 mx-auto'>

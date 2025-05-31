@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Wait until auth state is initialized before rendering children
   if (!isInitialized) {
-    return null; // or a loading spinner
+    return null;
   }
 
   return (
