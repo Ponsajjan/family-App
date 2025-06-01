@@ -61,7 +61,7 @@ export default function EditRelationshipDetails() {
           setHasPatner(data.partner?.id);
           setNoChanges(true);
         } catch (error: any) {
-          toast?.show(error.error || "Error fetching member details", "error", 5000);
+          toast?.show(error.message || "Error fetching member details", "error", 5000);
           router.push('/add_edit');
         } finally {
           setLoading(false);
@@ -131,6 +131,7 @@ export default function EditRelationshipDetails() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (noChanges) {
+      toast?.show("No changes to update", "error", 5000);
       return;
     }
 
@@ -166,7 +167,7 @@ export default function EditRelationshipDetails() {
       setNoChanges(true);
     } catch (error: any) {
       console.error("Error updating member:", error);
-      toast?.show(error.error || "Failed to update member", "error", 5000);
+      toast?.show(error.message || "Failed to update member", "error", 5000);
     } finally {
       setSubmitting(false);
     }

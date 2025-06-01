@@ -46,7 +46,7 @@ export default function Terms() {
         setModeratorList(data.moderators)
         
       } catch (error: any) {
-        toast?.show(error.error || 'Failed to fetch page data', 'error', 5000);
+        toast?.show(error.message || 'Failed to fetch page data', 'error', 5000);
       } finally {
         setLoading(false)
       }

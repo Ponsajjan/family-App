@@ -189,8 +189,8 @@ export default function MemberList({
         const totalPages = Math.ceil(totalCount / params.limit);
         setHasMore(params.page < totalPages);
       } catch (error: any) {
-        setError(error.error || 'Failed to fetch members. Please try again later.');
-        toast?.show(error.error || 'Failed to fetch members', 'error', 5000);
+        setError(error.message || 'Failed to fetch members. Please try again later.');
+        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
       } finally {
         setLoadingList(false);
         isFetching = false;

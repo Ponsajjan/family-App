@@ -98,6 +98,7 @@ export async function GET(request: Request) {
         siblings: member.nonDescendantRelation?.[0]?.siblingNames,
       },
       allowEdit: {
+        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
         editDescendant: member.fatherId || member.motherId,
       },
     };
@@ -262,7 +263,7 @@ export async function PUT(request: Request, context: any) {
     // If no fields are changed, return early
     if (Object.keys(filteredUpdateData).length === 0) {
       return NextResponse.json(
-        { error: "No changes detected." },
+        { error: "No changes to update." },
         { status: 400 }
       );
     }
@@ -309,7 +310,7 @@ export async function PUT(request: Request, context: any) {
 
       return NextResponse.json({
         success: true,
-        message: "No changes detected",
+        message: "No changes to update",
       });
     } 
     // If the member is not verified, proceed with the update logic

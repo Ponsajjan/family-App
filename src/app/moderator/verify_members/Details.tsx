@@ -125,7 +125,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
     
         } catch (error: any) {
             console.error("Error verifying member:", error);
-            toast?.show(error.error || "An error occurred. Please try again.", "error", 5000);
+            toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
         }
     };
     
@@ -161,7 +161,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             setDeleted(true);
         } catch (error: any) {
             console.error("Error submitting form:", error);
-            toast?.show(error.error || "An error occurred. Please try again.", "error", 5000);
+            toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
         };
     }
 

@@ -15,6 +15,7 @@ interface AddRelationShipFormPropType {
     handleSubmit: any;
     showList: boolean;
     submitting?: boolean;
+    error: string | null;
 }
 
 function AddRelationShipForm({
@@ -28,7 +29,8 @@ function AddRelationShipForm({
     handleSelectedValue,
     handleSubmit,
     showList,
-    submitting = false
+    submitting = false,
+    error
 }: AddRelationShipFormPropType) {
 
     const dragItem = useRef<number>(0);
@@ -68,6 +70,7 @@ function AddRelationShipForm({
 
         <div className="flex gap-1 items-center">
             <h3 className="text-sm">Partner</h3>
+            {error && <p className="text-sm text-blue-500">{error}</p>}
         </div>
         <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
         {(selectedMemberData?.partner?.name)
@@ -103,7 +106,7 @@ function AddRelationShipForm({
             </>
             <>
                 {newChildrenData?.children.map((item: {id:any, name:string, verified:boolean}, index) => (
-                <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-grab`} 
+                <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-[10px] ${newChildrenData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} `} 
                     draggable={true}
                     onDragStart={() => handleDragStart(index)}
                     onDragEnter={() => handleDragEnter(index)}
@@ -120,10 +123,11 @@ function AddRelationShipForm({
                 )}
             </>
         </div>}
+        {(selectedMemberData.partner?.name || selectedPartnerData?.name) && 
         <div onClick={() => handleShowList('selectChildren')} className={`flex items-center bg-field_color cursor-pointer ${(showListFor === 'selectChildren' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit mb-2`}>
             <span className="pr-2">Add Children</span>
             <span className="w-4 h-4"><PlusIcon /></span>
-        </div>
+        </div>}
 
         {
             (selectedMemberData.verified || 

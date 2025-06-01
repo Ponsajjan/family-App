@@ -52,7 +52,7 @@ function EditMemberForm({
                     name="gender"
                     value="Male"
                     checked={formData.gender === "Male"}
-                    onChange={handleInputChange}
+                    onChange={allowedEdit.editGender ? () => {showWarning('gender')} : handleInputChange}
                 />
                 <RadioButton
                     label="Female"

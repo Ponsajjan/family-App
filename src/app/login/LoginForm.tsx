@@ -35,7 +35,7 @@ export default function LoginForm() {
                 }
             }
         } catch (error: any) {
-            setError(error.error);
+            setError(error.message);
         }
     }
     if (!token) {

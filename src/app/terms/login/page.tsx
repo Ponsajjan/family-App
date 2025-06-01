@@ -33,7 +33,7 @@ export default function Page() {
                 setError(data.error);
             }
         } catch (error: any) {
-            setError(error.error);
+            setError(error.message);
         }
     };
 

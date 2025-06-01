@@ -18,6 +18,7 @@ export default function AddRelationshipDetails () {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>();
   const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
@@ -87,6 +88,7 @@ export default function AddRelationshipDetails () {
           setShowList(false);
           return;
         }
+        setError(null);
         setSelectedPartnerId(id);
         setShowList(false);
         break;
@@ -99,6 +101,11 @@ export default function AddRelationshipDetails () {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (selectedPartnerData.id === undefined && selectedMemberData.partner === null) { // No partner selected
+      setError('Select partner');
+      return
+    }
 
     if (!selectedPartnerData.id && newChildrenData.children?.length === 0) { // No changes made
       toast?.show("No new relationship added", "error", 5000)
@@ -160,7 +167,7 @@ export default function AddRelationshipDetails () {
       setSelectedPartnerId(null);
       setNewChildrenData(AddRelationDefaultFormValue);
     } catch (error: any) {
-      toast?.show(error.error || "Failed to update member", "error", 5000);
+      toast?.show(error.message || "Failed to update member", "error", 5000);
     } finally {
       setLoading(false);
     }
@@ -201,6 +208,7 @@ export default function AddRelationshipDetails () {
             handleSubmit={handleSubmit}
             submitting={loading}
             showList={showList}
+            error={error}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>

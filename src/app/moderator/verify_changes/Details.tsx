@@ -147,7 +147,7 @@ const ChangeRequestView = ({
       
     } catch (error: any) {
       console.error("error", error);
-      toast?.show(error.error || "Error handling verification", "error", 5000);
+      toast?.show(error.message || "Error handling verification", "error", 5000);
     } finally {
       setLoading(false);
       setDisableButton(false);
@@ -187,7 +187,7 @@ const ChangeRequestView = ({
       
     } catch (error: any) {
       console.error("error", error);
-      toast?.show(error.error || "Error handling verification", "error", 5000);
+      toast?.show(error.message || "Error handling verification", "error", 5000);
       setDisableButton(false);
     } finally {
       setLoading(false);

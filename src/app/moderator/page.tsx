@@ -18,7 +18,7 @@ export default function AdminDashboard() {
                 setUnverifiedCount(data.unverifiedMembers)
                 setPendingRequests(data.pendingRequests)
             } catch (error: any) {
-                toast?.show(error.error || "Failed to fetch stats", 'error', 5000)
+                toast?.show(error.message || "Failed to fetch stats", 'error', 5000)
                 console.error("Failed to fetch stats:", error)
             }
         }
