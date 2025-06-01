@@ -63,15 +63,13 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
         <ToastContext.Provider value={contextValue}>
             {children}
             <div
-                className="absolute top-24 left-1/2 transform -translate-x-1/2 flex flex-col mx-auto items-center justify-center space-y-1 z-[104] w-full px-4"
-                aria-live="polite"
+                className="absolute top-24 left-1/2 transform -translate-x-1/2 flex flex-col mx-auto items-center justify-center space-y-1 z-[104] w-full px-4 pointer-events-none"
             >
                 {toasts.map(({ id, component, type }) => (
                     <div
                         key={id}
                         role="alert"
-                        aria-live="assertive"
-                        className="toast_in delay-100 transition-all duration-300 ease-in-out w-full md:min-w-60 max-w-96 bg-field_color relative p-2 border border-border_active overflow-hidden rounded-md"
+                        className="toast_in delay-100 transition-all duration-300 ease-in-out w-full md:min-w-60 max-w-96 bg-field_color relative p-2 border border-border_active overflow-hidden rounded-md pointer-events-auto"
                     >
                         <div className="flex justify-between gap-2">
                             {toastIcons[type]}

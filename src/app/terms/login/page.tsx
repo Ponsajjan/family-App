@@ -11,7 +11,7 @@ export default function Page() {
     const router = useRouter();
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
-    const {token, setAccess} = useAuth();
+    const {token, storeLoginValues} = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,9 +27,7 @@ export default function Page() {
     
             const data = await res.json();
             if (data.newtoken) {
-                document.cookie = `token=${data.newtoken}; path=/`;
-                document.cookie = `access=moderator; path=/`;
-                setAccess("moderator");
+                storeLoginValues(data.newtoken, data.userType);
                 router.push("/moderator");
             } else {
                 setError(data.error);

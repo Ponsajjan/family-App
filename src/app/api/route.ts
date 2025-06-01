@@ -3,8 +3,6 @@ import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
 
-let memberListCurrentLetter = "";
-
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const searchQuery = searchParams.get("search") || "";
@@ -12,8 +10,9 @@ export async function GET(request: NextRequest) {
   const gender = searchParams.get("gender");
   const descendant = searchParams.get("descendant");
   const showCousin = searchParams.get("showCousin") === "true"; // Parse to boolean
-  const page = parseInt(searchParams.get("page") || "1", 10); // Current page
-  const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
+  const page = parseInt(searchParams.get("page") || "1"); // Current page
+  const limit = parseInt(searchParams.get("limit") || "50"); // Page size
+  const lastLetterId = searchParams.get("lastLetterId") || "";
   const authHeader = request.headers.get("Authorization");
   const token = authHeader?.split(" ")[1];
 
@@ -23,8 +22,12 @@ export async function GET(request: NextRequest) {
   // Calculate skip for pagination
   const skip = (page - 1) * limit;
 
+  let memberListCurrentLetter = "";
+
   if (page === 1) {
     memberListCurrentLetter = "";
+  } else {
+    memberListCurrentLetter = lastLetterId
   }
   // Parse excludeId to a number array
   const excludeIdParam = searchParams.get("excludeId");

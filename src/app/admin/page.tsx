@@ -23,7 +23,18 @@ export default function ExpandableTable() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/admin');
+        const response = await fetch('/api/admin', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          }
+        });
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          logout();
+          return;
+        }
         const result = await response.json();
         setData(result);
       } catch (error: any) {
@@ -34,7 +45,7 @@ export default function ExpandableTable() {
     };
 
     fetchData();
-  }, [toast]);
+  }, [toast, token, logout]);
 
   const toggleRow = (index: number) => {
     setEditingModerator(null);
@@ -63,6 +74,7 @@ export default function ExpandableTable() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
           moderatorName: editModerator.name.trim(),
@@ -126,6 +138,7 @@ export default function ExpandableTable() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({
           moderatorName: newModerator.name.trim(),
@@ -141,13 +154,15 @@ export default function ExpandableTable() {
   
       const result = await response.json();
       toast?.show(result.message, "success", 5000);
+      const newModeratorValues = result.moderator
       const updatedData:any = [...data];
 
-      updatedData[rowIndex].moderators.push({ ...{ name: newModerator.name.trim(), contactNumber: newModerator.contactNumber.trim() } });
+      updatedData[rowIndex].moderators.push({ ...{id: newModeratorValues.id, name: newModeratorValues.moderatorName.trim(), contactNumber: newModeratorValues.moderatorContact.trim() } });
       setData(updatedData);
       setNewModerator({ name: "", contactNumber: "" });
   
     } catch (error: any) {
+      console.log('error', error)
       toast?.show(error.error || "Failed to add moderator", "error", 5000);
     }
   };

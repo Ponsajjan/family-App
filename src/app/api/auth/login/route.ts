@@ -36,10 +36,10 @@ export async function POST(request: Request) {
     if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
       login = {
         id: -108, // Avoid hardcoding; consider generating a unique ID
-        forDescendanceOf: "superAdmin",
+        forDescendanceOf: "parents",
         mainMemberId: null, // Avoid hardcoding; consider a better default
         password: process.env.SUPER_ADMIN_PASSWORD,
-        moderatorName: "superAdmin",
+        moderatorName: "Admin",
         moderatorContact: "N/A",
         moderatorPassword: "N/A",
       };
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       forDescendanceOf: login.forDescendanceOf,
       memberId: login.mainMemberId,
     });
-    const userType = login.forDescendanceOf === "superAdmin" ? "Admin" : "member";
+    const userType = login.moderatorName === "Admin" ? "Admin" : "member";
 
     return NextResponse.json({ success: true, message: "Login successful", token, userType});
   } catch (error) {

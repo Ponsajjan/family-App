@@ -11,9 +11,9 @@ export async function POST(request: Request) {
   }
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const userType = decoded.userType;
 
-    if (!forDescendanceOf) {
+    if (userType !== "Admin") {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const formData = await request.json();
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       // Step 1: Create the Auth entry first (without mainMemberId)
       const authEntry = await prisma.auth.create({
         data: {
-          forDescendanceOf: member.descendantOf, // Use the descendantOf from the member object
+          forDescendanceOf: member.descendantOf,
           moderatorPassword: formData.moderatorPassword,
           password: formData.memberPassword,
           mainMemberId: null, // Initially set to null

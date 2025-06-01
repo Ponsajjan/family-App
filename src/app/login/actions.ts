@@ -50,10 +50,10 @@ export async function login(formData: FormData) {
         if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
             login = {
                 id: -108,
-                forDescendanceOf: "superAdmin",
+                forDescendanceOf: "parents",
                 mainMemberId: null,
                 password: process.env.SUPER_ADMIN_PASSWORD,
-                moderatorName: "superAdmin",
+                moderatorName: "Admin",
                 moderatorContact: "N/A",
                 moderatorPassword: "N/A",
             };
@@ -76,8 +76,9 @@ export async function login(formData: FormData) {
         const token = await generateToken({
             forDescendanceOf: login.forDescendanceOf,
             memberId: login.mainMemberId,
+            userType: login.moderatorName === "Admin" ? "Admin" : "member"
         });
-        const userType = login.forDescendanceOf === "superAdmin" ? "Admin" : "member";
+        const userType = login.moderatorName === "Admin" ? "Admin" : "member";
 
         return {
             success: true,

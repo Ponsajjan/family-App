@@ -12,9 +12,9 @@ export async function GET(request: Request) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const userType = decoded.userType;
 
-    if (!forDescendanceOf) {
+    if (userType !== "Admin") {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const url = new URL(request.url);
@@ -111,9 +111,9 @@ export async function PUT(request: Request) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const userType = decoded.userType;
 
-    if (!forDescendanceOf) {
+    if (userType !== "Admin") {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const formData = await request.json();
@@ -223,9 +223,9 @@ export async function DELETE(request: Request) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const userType = decoded.userType;
 
-    if (!forDescendanceOf) {
+    if (userType !== "Admin") {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 

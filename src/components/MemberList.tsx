@@ -25,7 +25,6 @@ interface Member {
   partners?: string[] | [];
   birthYear?: number;
   parentNames?: string;
-  phoneNumber?: string;
 }
 
 enum ForType {
@@ -65,11 +64,12 @@ export default function MemberList({
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const { token, logout } = useAuth();
+  const [lastLetterId, setLastLetterId] = useState('')
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
     search: '',
-    type: 'selectMember',
+    type: forType,
     showCousin: false
   });
 
@@ -151,7 +151,7 @@ export default function MemberList({
         }
         const excludeIdSet = [...new Set(excludeId)];
         const response = await fetch(
-          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${params.showCousin}`,
+          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${params.showCousin}&lastLetterId=${lastLetterId}`,
           { 
             method: 'GET',
             headers: { 
@@ -172,6 +172,15 @@ export default function MemberList({
         }
 
         const { data, totalCount } = await response.json();
+        // Filter and find the last letter ID
+        const letterIds = data
+          .filter((member: Member) => typeof member.id === 'string' && isNaN(Number(member.id)))
+          .map((member: Member) => member.id);
+        
+        const lastLetter = letterIds[letterIds.length - 1] || null;
+        if (lastLetter && params.page != 0) {
+          setLastLetterId(lastLetter);
+        }
         if (params.page === 1) {
           setMembers(data);
         } else {
@@ -211,7 +220,7 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [token, params, hasMore, toast, descendant, excludeId, gender, logout]);
+  }, [token, params, hasMore, toast, descendant, excludeId, gender, lastLetterId, logout]);
 
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
     setSelectedValue(item, id, select, verified);
@@ -302,63 +311,63 @@ export default function MemberList({
           </div>
         )}
         {members.length > 0 ? 
-          <>
-            {members.map((member) =>
-              member.gender === 'Letter' ? (
-                <div key={member.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10">
-                  <span className="font-semibold pr-1">{member.name}</span>
-                  <span className="border-t border-border_color block w-full"></span>
-                </div>
-              ) : (
-                <div key={member.id} onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified)} className="pl-4">
-                  <div className="border-l border-border_color py-1 pl-4 pr-3">
-                    <div className="cursor-pointer px-3 py-2 flex items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
-                      {multiselect && (
-                        <div className="pr-3 border-r border-border_color mr-2">
-                          <Checkbox checked={selectedValues.some((value: EachMember) => value.id === member.id)} readOnly />
+        <>
+          {members.map((member) =>
+            member.gender === 'Letter' ? (
+              <div key={member.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10">
+                <span className="font-semibold pr-1">{member.name}</span>
+                <span className="border-t border-border_color block w-full"></span>
+              </div>
+            ) : (
+              <div key={member.id} onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified)} className="pl-4">
+                <div className="border-l border-border_color py-1 pl-4 pr-3">
+                  <div className="cursor-pointer px-3 py-2 flex items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
+                    {multiselect && (
+                      <div className="pr-3 border-r border-border_color mr-2">
+                        <Checkbox checked={selectedValues.some((value: EachMember) => value.id === member.id)} readOnly />
+                      </div>
+                    )}
+                    <div>
+                      <div className="flex gap-2">
+                        <div>
+                          {member.gender === 'Male' && <Male />}
+                          {member.gender === 'Female' && <Female />}
                         </div>
-                      )}
-                      <div>
-                        <div className="flex gap-2">
+                        <div
+                          className="font-semibold"
+                          dangerouslySetInnerHTML={{
+                            __html: highlightSearchText(member.name, params.search),
+                          }}
+                        />
+                      </div>
+                      <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                        {member.father || member.mother ? (
+                          <>
+                            <span className="pr-1 font-semibold">Parents: </span>
+                            {member.father && <span className="pr-1">{member.father.name},</span>}
+                            {member.mother && <span className="pr-1">{member.mother.name}</span>}
+                          </>
+                        ) : (member.partners && member.partners?.length > 0) ? (
                           <div>
-                            {member.gender === 'Male' && <Male />}
-                            {member.gender === 'Female' && <Female />}
+                            <span className="pr-1 font-semibold">Partner: </span>
+                            <span className="pr-1">{member.partners[0]}</span>
                           </div>
-                          <div
-                            className="font-semibold"
-                            dangerouslySetInnerHTML={{
-                              __html: highlightSearchText(member.name, params.search),
-                            }}
-                          />
-                        </div>
-                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                          {member.father || member.mother ? (
-                            <>
-                              <span className="pr-1 font-semibold">Parents: </span>
-                              {member.father && <span className="pr-1">{member.father.name},</span>}
-                              {member.mother && <span className="pr-1">{member.mother.name}</span>}
-                            </>
-                          ) : (member.partners && member.partners?.length > 0) ? (
-                            <div>
-                              <span className="pr-1 font-semibold">Partner: </span>
-                              <span className="pr-1">{member.partners[0]}</span>
-                            </div>
-                          ) : (
-                            'No family relationship assigned yet'
-                          )}
-                        </div>
+                        ) : (
+                          'No family relationship assigned yet'
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
-              )
-            )}
-            <div className="h-10 px-4 py-2">
-              {loadingList && <p className="py-2 px-4 text-text_color">Loading....</p>}
-              {!loadingList && !hasMore && <p>, , ,</p>}
-            </div>
-          </>
-        : loadingList ? <p className="py-2 px-4 text-text_color">Loading....</p>
+              </div>
+            )
+          )}
+          <div className="h-10 px-4 py-2">
+            {loadingList && <p className="py-2 px-4 text-text_color">Loading...</p>}
+            {!loadingList && !hasMore && <p>, , ,</p>}
+          </div>
+        </>
+        : loadingList ? <p className="py-4 text-center text-text_color loading-text">Loading....</p>
         : error ? <div className="p-6 text-center">{error}</div>
         : <div>{renderNoMembersMessage()}</div>}
       </div>

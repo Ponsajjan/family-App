@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/db/db';
+import { verifyToken } from '@/utils/auth';
 
 interface AuthEntry {
   id: number;
@@ -31,8 +32,22 @@ interface FormattedAuthEntry {
   }[];
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
+    // Verify the token
+    const decoded = await verifyToken(token);
+    const userType = decoded.userType;
+
+    // Check if the token is valid for Admin
+    if (userType !== "Admin") {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+    
     // Fetch all auth entries with their moderator lists
     const authEntries: AuthEntry[] = await prisma.auth.findMany({
       include: {

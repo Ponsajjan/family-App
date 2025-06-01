@@ -3,15 +3,13 @@ import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
 
-let currentLetter = "";
-
 export async function GET(request: NextRequest) {
   // Extract search parameters
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get("page") || "1", 10); // Current page
   const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
   const searchQuery = searchParams.get("search") || ""; // Search term
-
+  const lastLetterId = searchParams.get("lastLetterId") || "";
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
   
@@ -29,8 +27,12 @@ export async function GET(request: NextRequest) {
     // Calculate skip for pagination
     const skip = (page - 1) * limit;
 
+    let currentLetter = "";
+
     if (page === 1) {
       currentLetter = "";
+    } else {
+      currentLetter = lastLetterId
     }
 
     // Fetch paginated data from Prisma

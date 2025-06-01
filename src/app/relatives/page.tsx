@@ -10,6 +10,24 @@ import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import { useAuth } from "@/contexts/AuthContext";
 
+interface EachMember {
+  id: number;
+  name: string;
+}
+interface Member {
+  id: number;
+  name: string;
+  gender: 'Male' | 'Female' | 'Letter';
+  verified: boolean;
+  father: EachMember | null;
+  mother: EachMember | null;
+  children: EachMember[];
+  partners?: string[] | [];
+  birthYear?: number;
+  parentNames?: string;
+  phoneNumber?: string;
+}
+
 export default function Relatives() {
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
@@ -20,6 +38,7 @@ export default function Relatives() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const {token, logout} = useAuth();
+  const [lastLetterId, setLastLetterId] = useState('')
   const [params, setParams] = useState({
     page: 1,
     limit: 30,
@@ -49,7 +68,7 @@ export default function Relatives() {
         setLoadingList(true);
         isFetching = true;
 
-        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
+        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&lastLetterId=${lastLetterId}`,
           {
             method: 'GET',
             headers: { 
@@ -68,6 +87,15 @@ export default function Relatives() {
           throw new Error('Network response was not ok');
         }
         const { data, totalCount } = await response.json();
+                // Filter and find the last letter ID
+        const letterIds = data
+          .filter((member: Member) => typeof member.id === 'string' && isNaN(Number(member.id)))
+          .map((member: Member) => member.id);
+        
+        const lastLetter = letterIds[letterIds.length - 1] || null;
+        if (lastLetter && params.page != 0) {
+          setLastLetterId(lastLetter);
+        }
         if (params.page === 1) {
           setMembers(data);
         } else {
@@ -106,7 +134,7 @@ export default function Relatives() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, token, logout]);
+  }, [params, hasMore, toast, token, lastLetterId, logout]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

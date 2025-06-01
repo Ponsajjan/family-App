@@ -27,7 +27,7 @@ export default function Home() {
   const month = calendarDate.getMonth();
   const [selectedDate, setSelectedDate] = useState('')
   const [eventForDate, setEventForDate] = useState([])
-  const {token, logout} = useAuth();
+  const {token, logout, isAuthenticated} = useAuth();
 
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year:number, month:number) {
@@ -94,6 +94,9 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
     async function fetchEventDates() {
       try {
         const response = await fetch(`/api/calendar/${month + 1}`, {
@@ -138,7 +141,7 @@ export default function Home() {
     }
 
     fetchEventDates();
-  }, [month, toast, token, logout]);
+  }, [isAuthenticated, month, toast, token, logout]);
 
   return (
     <div className="w-full">

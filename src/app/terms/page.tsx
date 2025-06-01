@@ -14,43 +14,46 @@ export default function Terms() {
   const[loading, setLoading] = useState(true)
   const[head, setHead] = useState('')
   const[moderatorList, setModeratorList] = useState([])
-  const {token, logout} = useAuth(); 
+  const {token, logout, isAuthenticated} = useAuth(); 
 
-    useEffect(() => {
-      async function fetchMembers() {
-        try {
-          setLoading(true)
-          const response = await fetch(`/api/terms`,
-            {
-              method: 'GET',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
-              },
-            }
-          );
-          // Handle 401 Unauthorized
-          if (response.status === 401) {
-            logout();
-            return;
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+    async function fetchMembers() {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/terms`,
+          {
+            method: 'GET',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
           }
-  
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const data = await response.json();
-          setHead(data.member['name'])
-          setModeratorList(data.moderators)
-          
-        } catch (error: any) {
-          toast?.show(error.error || 'Failed to fetch page data', 'error', 5000);
-        } finally {
-          setLoading(false)
+        );
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          logout();
+          return;
         }
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setHead(data.member['name'])
+        setModeratorList(data.moderators)
+        
+      } catch (error: any) {
+        toast?.show(error.error || 'Failed to fetch page data', 'error', 5000);
+      } finally {
+        setLoading(false)
       }
-  
-      fetchMembers();
-    }, [token, toast, logout]);
+    }
+
+    fetchMembers();
+  }, [isAuthenticated, token, toast, logout]);
 
   return (
     <div className='flex flex-col w-full text-text_color'>
