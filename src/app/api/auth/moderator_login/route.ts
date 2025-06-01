@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
     if (!login) {
       return NextResponse.json(
-        { error: "No match found" },
+        { error: "Invalid credential" },
         { status: 403 }
       );
     }
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       userType: "moderator",
     });
 
-    return NextResponse.json({ message: "Login successful", newtoken });
+    return NextResponse.json({ message: "Login successful", newtoken, accessType: "moderator" }, { status: 200 });
 
   } catch (error) {
     console.error("Error logging in:", error);

@@ -10,7 +10,7 @@ import React, { useState, useEffect } from "react";
 
 export default function ExpandableTable() {
   const toast = useToast();
-  const {token, logout} = useAuth();
+  const {token, logout, isAuthenticated} = useAuth();
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null);
   const [data, setData] = useState([]);
@@ -20,6 +20,9 @@ export default function ExpandableTable() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
     const fetchData = async () => {
       try {
         setLoading(true)
