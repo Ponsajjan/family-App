@@ -20,8 +20,8 @@ if (!JWT_SECRET) {
 
 export const generateToken = async (payload: object): Promise<string> => {
   return new Promise((resolve, reject) => {
-    jwt.sign(payload, JWT_SECRET, { expiresIn: "2d" }, (err, token) => {
-      if (err) reject(err);
+    jwt.sign(payload, JWT_SECRET, { expiresIn: "2d" }, (error, token) => {
+      if (error) reject(error);
       else resolve(token as string);
     });
   });
@@ -29,8 +29,8 @@ export const generateToken = async (payload: object): Promise<string> => {
 
 export const verifyToken = async (token: string): Promise<any> => {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
-      if (err) reject(err);
+    jwt.verify(token, JWT_SECRET, (error, decoded) => {
+      if (error) reject(error);
       else resolve(decoded);
     });
   });

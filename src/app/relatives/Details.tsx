@@ -35,9 +35,9 @@ export default function Details({ showMember, openDetails }: any) {
       
             const { data } = await response.json();
             setData(data);
-          } catch (err: any) {
-            console.error('Error fetching data:', err);
-            setError(err.error || 'Unknown error occurred');
+          } catch (error: any) {
+            console.error('Error fetching data:', error);
+            setError(error.message || 'Unknown error occurred');
           } finally {
             setLoadingDetails(false);
           }

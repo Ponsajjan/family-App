@@ -47,9 +47,9 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                 const member = await response.json();
         
                 setData(member.data);
-            } catch (err:any) {
-                console.error('Error fetching data:', err);
-                setError(err.error || 'Unknown error occurred');
+            } catch (error:any) {
+                console.error('Error fetching data:', error);
+                setError(error.message || 'Unknown error occurred');
             } finally {
                 setLoadingDetails(false)
             }
