@@ -36,6 +36,7 @@ export const verifyToken = async (token: string): Promise<any> => {
   });
 };
 
+
 export async function updateToken(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
 
@@ -44,32 +45,33 @@ export async function updateToken(request: NextRequest) {
   }
 
   try {
-    const decoded = await verifyToken(token);
-    if (!decoded) {
-      return null;
+    // Decode token without verifying to read exp
+    const decoded: any = jwt.decode(token);
+
+    if (!decoded || !decoded.exp) {
+      throw new Error("Invalid token payload");
     }
 
-    // Check if the token is close to expiring (e.g., within 5 minutes)
-    const expirationTime = decoded.exp * 1000; // Convert to milliseconds
-    const currentTime = Date.now();
-    const bufferTime = 12 * 60 * 60 * 1000; // 12 hours buffer time
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    const expirationTime = decoded.exp;
+    const bufferTime = 6 * 30 * 24 * 60 * 60; // ~6 months in seconds
 
-    if (expirationTime - currentTime < bufferTime) {
-      // Call the /api/login endpoint to refresh the token
-      await fetch(new URL("/api/login", request.url).toString(), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ password: decoded.password }), // Pass the password from the decoded token
-      });
-    } else {
-      console.error("Failed to refresh token:");
-    }
+    // if (expirationTime - currentTime < bufferTime) {
+    //   const newToken = generateToken({ ...decoded });
 
-    return token; // Return the existing token if it's not close to expiring
+    //   const token_response = response.cookies.set("token", newToken, {
+    //     httpOnly: true,
+    //     secure: true,
+    //     sameSite: "lax",
+    //     path: "/",
+    //   });
+
+    //   return token_response;
+    // }
   } catch (error) {
     console.error("Error updating token:", error);
     return null;
   }
+
+  return null;
 }

@@ -48,7 +48,7 @@ export default function ExpandableTable() {
     };
 
     fetchData();
-  }, [toast, token, logout]);
+  }, [toast, token, logout, isAuthenticated]);
 
   const toggleRow = (index: number) => {
     setEditingModerator(null);

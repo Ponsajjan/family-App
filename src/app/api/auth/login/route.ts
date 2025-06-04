@@ -56,7 +56,9 @@ export async function POST(request: Request) {
     const token = await generateToken({
       forDescendanceOf: login.forDescendanceOf,
       memberId: login.mainMemberId,
+      userType: login.moderatorName === "Admin" ? "Admin" : "member",
     });
+
     const userType = login.moderatorName === "Admin" ? "Admin" : "member";
 
     return NextResponse.json({ success: true, message: "Login successful", token, userType});

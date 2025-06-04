@@ -3,78 +3,109 @@ import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
 
+interface Member {
+  id: string | number;
+  name: string;
+  gender: string;
+  phoneNumber: string | null;
+  father: { name: string } | null;
+  mother: { name: string } | null;
+  partner: { name: string } | null;
+}
+
+interface LetterHeader {
+  id: string;
+  name: string;
+  gender: "Letter";
+  phoneNumber: null;
+  father: null;
+  mother: null;
+  partner: null;
+}
+
 export async function GET(request: NextRequest) {
-  // Extract search parameters
+  // Extract and validate parameters
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") || "1", 10); // Current page
-  const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
-  const searchQuery = searchParams.get("search") || ""; // Search term
-  const lastLetterId = searchParams.get("lastLetterId") || "";
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50", 10)));
+  const searchQuery = searchParams.get("search")?.trim() || "";
+
+  // Authentication
   const authHeader = request.headers.get('Authorization');
   const token = authHeader?.split(' ')[1];
   
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  try{
+
+  try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    // Calculate skip for pagination
-    const skip = (page - 1) * limit;
+    // Calculate skip with one extra item for letter detection
+    const baseSkip = (page - 1) * limit;
+    const skip = page === 1 ? baseSkip : baseSkip - 1;
 
-    let currentLetter = "";
+    // Fetch data with one extra item when needed
+    const take = page === 1 ? limit : limit + 1;
 
-    if (page === 1) {
-      currentLetter = "";
-    } else {
-      currentLetter = lastLetterId
-    }
-
-    // Fetch paginated data from Prisma
-    const memberList = await prisma.member.findMany({
+    const members = await prisma.member.findMany({
       where: {
         descendantOf: forDescendanceOf,
-        name: {
-          contains: searchQuery,
-          // mode: "insensitive", // PostgreSQL-specific support in Prisma
-        },
+        ...(searchQuery && {
+          name: {
+            contains: searchQuery,
+            // mode: "insensitive",
+          },
+        }),
       },
       select: {
         id: true,
         name: true,
         gender: true,
         phoneNumber: true,
-        verified: true,
         father: { select: { name: true } },
         mother: { select: { name: true } },
         partner: { select: { name: true } },
       },
       orderBy: { name: "asc" },
       skip,
-      take: limit,
+      take,
     });
 
     // Total count for pagination
     const totalCount = await prisma.member.count({
       where: {
-        name: { contains: searchQuery },
+        descendantOf: forDescendanceOf,
+        ...(searchQuery && {
+          name: {
+            contains: searchQuery,
+          },
+        }),
       },
     });
 
-    // Add starting letter headers to the paginated data
-    const groupedData:any = [];
+    // Process the data to add letter headers
+    const groupedData: Array<Member | LetterHeader> = [];
+    let previousFirstLetter = '';
 
-    memberList.forEach((member) => {
+    // For pages after the first, we need to check against the previous item
+    if (page > 1 && members.length > 0) {
+      const previousItem = members.shift(); // Remove the extra item
+      previousFirstLetter = previousItem!.name.charAt(0).toUpperCase();
+    }
+
+    members.forEach((member, index) => {
       const firstLetter = member.name.charAt(0).toUpperCase();
 
-      // If this is a new starting letter, add a header entry
-      if (firstLetter !== currentLetter) {
-        currentLetter = firstLetter;
+      // Add letter header if:
+      // - It's the first item on the first page, or
+      // - The letter changed from the previous member
+      if ((page === 1 && index === 0) || (firstLetter !== previousFirstLetter)) {
         groupedData.push({
           id: firstLetter,
           name: firstLetter,
@@ -84,25 +115,26 @@ export async function GET(request: NextRequest) {
           mother: null,
           partner: null,
         });
+        previousFirstLetter = firstLetter;
       }
 
-      // Add the current member to the grouped data
       groupedData.push(member);
     });
 
-    // Return paginated data with headers
     return NextResponse.json({
       data: groupedData,
-      totalCount,
+      totalCount: totalCount + 1,
     });
   } catch (error) {
     console.error("Error fetching members:", error);
-    // Handle token verification errors
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    
+    if (error instanceof Error) {
+      if (error.name === 'JsonWebTokenError') {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ error: "Error fetching members" }, { status: 500 });
+    
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
-
-

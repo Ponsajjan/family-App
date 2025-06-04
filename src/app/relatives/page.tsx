@@ -38,10 +38,9 @@ export default function Relatives() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const {token, logout} = useAuth();
-  const [lastLetterId, setLastLetterId] = useState('')
   const [params, setParams] = useState({
     page: 1,
-    limit: 30,
+    limit: 25,
     search: "",
   });
 
@@ -68,7 +67,7 @@ export default function Relatives() {
         setLoadingList(true);
         isFetching = true;
 
-        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&lastLetterId=${lastLetterId}`,
+        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
           {
             method: 'GET',
             headers: { 
@@ -87,15 +86,6 @@ export default function Relatives() {
           throw new Error('Network response was not ok');
         }
         const { data, totalCount } = await response.json();
-                // Filter and find the last letter ID
-        const letterIds = data
-          .filter((member: Member) => typeof member.id === 'string' && isNaN(Number(member.id)))
-          .map((member: Member) => member.id);
-        
-        const lastLetter = letterIds[letterIds.length - 1] || null;
-        if (lastLetter && params.page != 0) {
-          setLastLetterId(lastLetter);
-        }
         if (params.page === 1) {
           setMembers(data);
         } else {
@@ -118,8 +108,7 @@ export default function Relatives() {
       if (
         containerRef.current &&
         containerRef.current.scrollTop + containerRef.current.clientHeight >= containerRef.current.scrollHeight - 4 &&
-        hasMore &&
-        !isFetching
+        hasMore && !isFetching
       ) {
         setParams((prevParams) => ({
           ...prevParams,
@@ -134,8 +123,9 @@ export default function Relatives() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, token, lastLetterId, logout]);
-
+  }, [params, hasMore, toast, token, logout]);
+  // Do not add letterId in dependency for list to work properly
+  
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;
     const regex = new RegExp(`(${searchText})`, 'gi');

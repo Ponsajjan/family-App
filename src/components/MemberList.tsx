@@ -64,10 +64,9 @@ export default function MemberList({
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const { token, logout } = useAuth();
-  const [lastLetterId, setLastLetterId] = useState('')
   const [params, setParams] = useState({
     page: 1,
-    limit: 30,
+    limit: 5,
     search: '',
     type: forType,
     showCousin: false
@@ -151,7 +150,7 @@ export default function MemberList({
         }
         const excludeIdSet = [...new Set(excludeId)];
         const response = await fetch(
-          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${params.showCousin}&lastLetterId=${lastLetterId}`,
+          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${params.showCousin}`,
           { 
             method: 'GET',
             headers: { 
@@ -172,15 +171,7 @@ export default function MemberList({
         }
 
         const { data, totalCount } = await response.json();
-        // Filter and find the last letter ID
-        const letterIds = data
-          .filter((member: Member) => typeof member.id === 'string' && isNaN(Number(member.id)))
-          .map((member: Member) => member.id);
-        
-        const lastLetter = letterIds[letterIds.length - 1] || null;
-        if (lastLetter && params.page != 0) {
-          setLastLetterId(lastLetter);
-        }
+
         if (params.page === 1) {
           setMembers(data);
         } else {
@@ -220,8 +211,9 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [token, params, hasMore, toast, descendant, excludeId, gender, lastLetterId, logout]);
-
+  }, [token, params, hasMore, toast, descendant, excludeId, gender, logout]);
+  // Do not add letterId in dependency for list to work properly
+  
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
     setSelectedValue(item, id, select, verified);
   };

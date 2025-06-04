@@ -79,7 +79,7 @@ export default function Terms() {
               <li>Their partner ( Husband or Wife )</li>
             </ul>
             <p className="mt-4 italic opacity-65">
-             Note: Extended family members (such as in-laws) are excluded to maintain simplicity and ensure that each member remains relevant to each other.
+             Note: Extended family members ( such as in-laws ) are excluded to maintain simplicity and ensure that each member remains relevant to each other.
             </p>
           </div>
 
@@ -92,10 +92,10 @@ export default function Terms() {
               <ul className="list-disc list-inside space-y-2">
                 <li>Ensure family descendants are accurately recorded</li>
                 <li>Add family relationships ( Partner | Children ) if any</li>
+                <li>Only verified members will be visible in relations chart</li>
               </ul>
               <p className="mt-4 italic opacity-65">
-                Note: Member information can be locked to maintain data integrity. For locked members, changes will require moderator approval or contact
-                the moderator directly.
+                Note: Member information can be locked to maintain data integrity. For locked ( verified ) members, changes will require moderator approval to reflect.
               </p>
             </div>
           </div>

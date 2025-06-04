@@ -36,7 +36,6 @@ export default function CalendarMonthlyData(props: CalendarMonthlyDataProps) {
     data?.forEach((member:any) => {
       const categorizeEvent = (date:any, type:any) => {
         if (date && date.getMonth() === month) {
-            console.log('data', new Date(year, month), today, date)
           const eventDay = date.getDate();   
           // Calculate the current week's start (Monday) and end (Sunday)
           const currentDayOfWeek = today.getDay(); // 0 (Sunday) to 6 (Saturday)

@@ -3,9 +3,30 @@ import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
 
+interface Member {
+  id: number;
+  name: string;
+  gender: string;
+  verified?: boolean | null;
+  birthYear?: number | null;
+  father?: { name: string } | null;
+  mother?: { name: string } | null;
+  partner?: { name: string } | null;
+}
+
+interface LetterHeader {
+  id: string;
+  name: string;
+  gender: "Letter";
+  father: null;
+  mother: null;
+  partner: null;
+}
+
 export async function GET(request: NextRequest) {
+  // Extract and validate parameters
   const { searchParams } = new URL(request.url);
-  const searchQuery = searchParams.get("search") || "";
+  const searchQuery = searchParams.get("search")?.trim() || "";
   const forType = searchParams.get("for");
   const gender = searchParams.get("gender");
   const descendant = searchParams.get("descendant");
@@ -13,22 +34,15 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1"); // Current page
   const limit = parseInt(searchParams.get("limit") || "50"); // Page size
   const lastLetterId = searchParams.get("lastLetterId") || "";
+  
+  // Authentication
   const authHeader = request.headers.get("Authorization");
   const token = authHeader?.split(" ")[1];
 
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  // Calculate skip for pagination
-  const skip = (page - 1) * limit;
 
-  let memberListCurrentLetter = "";
-
-  if (page === 1) {
-    memberListCurrentLetter = "";
-  } else {
-    memberListCurrentLetter = lastLetterId
-  }
   // Parse excludeId to a number array
   const excludeIdParam = searchParams.get("excludeId");
   const excludeId = excludeIdParam
@@ -39,27 +53,38 @@ export async function GET(request: NextRequest) {
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
-    const mainMemberId = decoded.memberId
+    const mainMemberId = decoded.memberId;
+
     if (!forDescendanceOf || !mainMemberId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
-    let memberList: any[] = [];
-    const groupedData:any = [];
+
+    // Calculate skip with one extra item for letter detection
+    const baseSkip = (page - 1) * limit;
+    const skip = page === 1 ? baseSkip : baseSkip - 1;
+    const take = page === 1 ? limit : limit + 1;
 
     // Calculate current year minus 18
     const currentYear = new Date().getFullYear();
     const yearThreshold = currentYear - 18;
 
+    let memberList: Member[] = [];
+    const groupedData: Array<Member | LetterHeader> = [];
+
+    // Common where clause for all queries
+    const baseWhere = {
+      name: searchQuery ? {
+        contains: searchQuery 
+        // mode: "insensitive", // PostgreSQL-specific support in Prisma
+      } : undefined,
+      descendantOf: forDescendanceOf,
+    };
+
     switch (forType) {
       case "selectMember":
-        groupedData.length = 0; // Clear the grouped data
         memberList = await prisma.member.findMany({
           where: {
-            name: {
-              contains: searchQuery,
-              // mode: "insensitive", // PostgreSQL-specific support in Prisma
-            },
-            descendantOf: forDescendanceOf
+            ...baseWhere,
           },
           select: {
             id: true,
@@ -71,23 +96,18 @@ export async function GET(request: NextRequest) {
           },
           orderBy: { name: "asc" },
           skip,
-          take: limit,
+          take,
         });
         break;
 
       case "selectPartner":
-        groupedData.length = 0; // Clear the grouped data
         memberList = await prisma.member.findMany({
           where: {
-            name: {
-              contains: searchQuery,
-              // mode: "insensitive", // PostgreSQL-specific support in Prisma
-            },
-            descendantOf: forDescendanceOf,
+            ...baseWhere,
             gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
             partnerId: null,
             id: { notIn: excludeId },
-            descendant: descendant == 'true' ? showCousin : true,
+            descendant: descendant === 'true' ? showCousin : true,
             AND: {
               OR: [
                 { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
@@ -105,19 +125,14 @@ export async function GET(request: NextRequest) {
           },
           orderBy: { name: "asc" },
           skip,
-          take: limit,
+          take,
         });
         break;
 
       case "selectChildren":
-        groupedData.length = 0; // Clear the grouped data
         memberList = await prisma.member.findMany({
           where: {
-            name: {
-              contains: searchQuery,
-              // mode: "insensitive", // PostgreSQL-specific support in Prisma
-            },
-            descendantOf: forDescendanceOf,
+            ...baseWhere,
             id: { notIn: [...excludeId, mainMemberId] },
             fatherId: null,
             motherId: null,
@@ -133,19 +148,14 @@ export async function GET(request: NextRequest) {
           },
           orderBy: { name: "asc" },
           skip,
-          take: limit,
+          take,
         });
         break;
 
       case "editRelationship":
-        groupedData.length = 0; // Clear the grouped data
         memberList = await prisma.member.findMany({
           where: {
-            name: {
-              contains: searchQuery,
-              // mode: "insensitive", // PostgreSQL-specific support in Prisma
-            },
-            descendantOf: forDescendanceOf,
+            ...baseWhere,
             OR: [
               { fatherOf: { some: {} } },
               { motherOf: { some: {} } },
@@ -161,58 +171,89 @@ export async function GET(request: NextRequest) {
           },
           orderBy: { name: "asc" },
           skip,
-          take: limit,
+          take,
         });
         break;
 
       default:
-        console.warn("Invalid 'forType' parameter:", forType);
         return NextResponse.json(
           { error: `'${forType}' is not a valid 'for' parameter` },
           { status: 400 }
         );
     }
 
-    // Total count for pagination
-    const totalCount = await prisma.member.count({
-      where: {
-        name: { contains: searchQuery },
-      },
-    });
+    // Total count with the same filters
+    const countWhere = {
+      ...baseWhere,
+      ...(forType === "selectPartner" && {
+        gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
+        partnerId: null,
+        id: { notIn: excludeId },
+        descendant: descendant === 'true' ? showCousin : undefined,
+        AND: {
+          OR: [
+            { birthYear: { lt: yearThreshold } },
+            { birthYear: null },
+          ],
+        }
+      }),
+      ...(forType === "selectChildren" && {
+        id: { notIn: [...excludeId, mainMemberId] },
+        fatherId: null,
+        motherId: null,
+        descendant: true,
+      }),
+      ...(forType === "editRelationship" && {
+        OR: [
+          { fatherOf: { some: {} } },
+          { motherOf: { some: {} } },
+          { partnerId: { not: null } },
+        ],
+      }),
+    };
 
-    // Add starting letter headers to the paginated data
+    const totalCount = await prisma.member.count({ where: countWhere });
+
+    // Process the data to add letter headers
+    let previousFirstLetter = lastLetterId;
+
+    // For pages after the first, we need to check against the previous item
+    if (page > 1 && memberList.length > 0) {
+      const previousItem = memberList.shift(); // Remove the extra item
+      previousFirstLetter = previousItem!.name.charAt(0).toUpperCase();
+    }
+
     memberList.forEach((member) => {
       const firstLetter = member.name.charAt(0).toUpperCase();
 
-      // If this is a new starting letter, add a header entry
-      if (firstLetter !== memberListCurrentLetter) {
-        memberListCurrentLetter = firstLetter;
+      // Add letter header if the letter changed
+      if (firstLetter !== previousFirstLetter) {
         groupedData.push({
           id: firstLetter,
           name: firstLetter,
           gender: "Letter",
-          phoneNumber: null,
           father: null,
           mother: null,
           partner: null,
         });
+        previousFirstLetter = firstLetter;
       }
 
-      // Add the current member to the grouped data
       groupedData.push(member);
     });
 
-    // Return paginated data with headers
     return NextResponse.json({
       data: groupedData,
-      totalCount,
+      totalCount: totalCount + 1,
     });
   } catch (error) {
     console.error("Error fetching memberList:", error);
-    // Handle token verification errors
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (error instanceof Error) {
+      if (error.name === 'JsonWebTokenError') {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ error: "Error fetching memberList" }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
