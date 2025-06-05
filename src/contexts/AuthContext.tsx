@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getCookie, deleteCookie } from 'cookies-next';
 import { useRouter } from 'next/navigation';
+import { updateToken } from '@/utils/auth';
 
 interface AuthContextType {
   token: string | null;
@@ -22,11 +23,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       const storedToken = getCookie('token') as string | null;
       const storedAccess = getCookie('access') as string | null;
       
-      if (storedToken) setToken(storedToken);
+      if (storedToken) {
+        setToken(storedToken);
+        // Check if the token is close to expiring and refresh it if necessary
+        await updateToken(storedToken)
+      }
       if (storedAccess) setAccess(storedAccess);
       
       setIsInitialized(true);

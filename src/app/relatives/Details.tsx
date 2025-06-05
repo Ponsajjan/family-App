@@ -111,7 +111,7 @@ export default function Details({ showMember, openDetails }: any) {
                                         {data.relationInformation.siblings
                                             .sort((a: any, b: any) => a.order - b.order)
                                             .map((sibling: { name: string, order: number }, index: number) => (
-                                                <span key={index} className={` ${index > 0 && 'pl-1'}`}>
+                                                <span key={index}>
                                                     {sibling.name}
                                                     {index < data.relationInformation.siblings.length - 1 && ','}&nbsp;
                                                 </span>
@@ -151,7 +151,7 @@ export default function Details({ showMember, openDetails }: any) {
                                         {data.relationInformation.children
                                             .sort((a: any, b: any) => a.order - b.order)
                                             .map((child: { name: string }, index: number) => 
-                                                <span key={index} className={` ${index > 0 && 'pl-1'}`}>
+                                                <span key={index}>
                                                     {child.name}
                                                     {index < data.relationInformation.children.length - 1 && ','}&nbsp;
                                                 </span>

@@ -1,7 +1,7 @@
 'use server'
 // import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -20,7 +20,7 @@ if (!JWT_SECRET) {
 
 export const generateToken = async (payload: object): Promise<string> => {
   return new Promise((resolve, reject) => {
-    jwt.sign(payload, JWT_SECRET, { expiresIn: "2d" }, (error, token) => {
+    jwt.sign(payload, JWT_SECRET, { expiresIn: "180d" }, (error, token) => {
       if (error) reject(error);
       else resolve(token as string);
     });
@@ -36,38 +36,33 @@ export const verifyToken = async (token: string): Promise<any> => {
   });
 };
 
-
-export async function updateToken(request: NextRequest) {
-  const token = request.cookies.get("token")?.value;
-
-  if (!token) {
-    return null;
-  }
+export async function updateToken(token: string) {
+  const response = NextResponse.next();
 
   try {
-    // Decode token without verifying to read exp
     const decoded: any = jwt.decode(token);
 
-    if (!decoded || !decoded.exp) {
-      throw new Error("Invalid token payload");
+    if (!decoded || !decoded.exp) throw new Error("Invalid token payload");
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    const expirationTime = decoded.exp;
+    const bufferTime = 90 * 24 * 60 * 60;
+    if (expirationTime < currentTime) {
+      // Token expired, clear cookie
+      response.cookies.set("token", "", { maxAge: 0 });
+    } else if (expirationTime - currentTime < bufferTime) {
+      // Token is about to expire, renew it
+      const { iat, exp, ...safePayload } = decoded;
+      const newToken = await generateToken(safePayload);
+
+      response.cookies.set("token", newToken, {
+        httpOnly: true,
+        secure: true,
+        path: "/",
+        maxAge: 180 * 24 * 60 * 60, // 2 days
+      });
     }
 
-    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-    const expirationTime = decoded.exp;
-    const bufferTime = 6 * 30 * 24 * 60 * 60; // ~6 months in seconds
-
-    // if (expirationTime - currentTime < bufferTime) {
-    //   const newToken = generateToken({ ...decoded });
-
-    //   const token_response = response.cookies.set("token", newToken, {
-    //     httpOnly: true,
-    //     secure: true,
-    //     sameSite: "lax",
-    //     path: "/",
-    //   });
-
-    //   return token_response;
-    // }
   } catch (error) {
     console.error("Error updating token:", error);
     return null;
