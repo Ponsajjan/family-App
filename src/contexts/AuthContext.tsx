@@ -43,8 +43,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const storeLoginValues = (newToken: string, newAccess: string) => {
     setToken(newToken);
     setAccess(newAccess);
-    document.cookie = `token=${newToken}; path=/; secure; sameSite=strict`;
-    document.cookie = `access=${newAccess}; path=/; secure; sameSite=strict`;
+    const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
+    document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
+    document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
   };
 
   const logout = () => {

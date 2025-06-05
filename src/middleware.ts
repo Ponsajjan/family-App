@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { useAuth } from "./contexts/AuthContext";
 
 export async function middleware(request: NextRequest) {
-  const {token, access} = useAuth();
+  const token = request.cookies.get("token")?.value;
+  const access = request.cookies.get("access")?.value;
   const pathname = request.nextUrl.pathname;
 
   // If no token, redirect to login
