@@ -16,8 +16,8 @@ export default function Home() {
   const toast = useToast();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const [calendarDate, setCalendarDate] = useState(new Date());
-  const [eventDates, setEventDates] = useState([]);
-  const [dateList, setDateList] = useState<number[]>([]);
+  const [eventDatesValue, setEventDatesValue] = useState<any>([]);
+  const [datesList, setDatesList] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
   const current_date = parseInt(moment().format("D"), 10);
@@ -26,7 +26,7 @@ export default function Home() {
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth();
   const [selectedDate, setSelectedDate] = useState('')
-  const [eventForDate, setEventForDate] = useState([])
+  const [eventForDate, setEventForDate] = useState<any>([])
   const {token, logout, isAuthenticated} = useAuth();
 
   // Helper functions for first/last day of the month
@@ -52,29 +52,50 @@ export default function Home() {
   }
 
   const showEventForDate = (date: number) => {
-    if (!dateList?.includes(date)) {
-      return
+    if (!datesList.includes(date)) {
+      return;
     }
+    
+    console.log('TimeZone toLocaleDateString', new Date().toLocaleDateString("en-IN", {timeZone: "Asia/Kolkata",}).split('/')[0])
 
-    setSelectedDate(new Date(year, month, date).toISOString());
+    const selectedDate = new Date(year, month, date).toISOString();
+    setSelectedDate(selectedDate);
 
-    const filtered = eventDates.filter((item: any) => {
-      return Object.keys(item).some((key) => {
-        if (key.endsWith("day")) {
-          try {
-            const itemDate = new Date(item[key]);
-            return itemDate.getDate() === date;
-          } catch (error) {
-            return false; // Skip invalid date fields
-          }
-        }
+    const {
+      pastEvents = [],
+      todayEvents = [],
+      tomorrowEvents = [],
+      thisWeekEvents = [],
+      upcomingEvents = [],
+      selectedMonthEvents = [],
+    } = eventDatesValue;
+
+    // Combine all events from different categories
+    const allEvents = [
+      ...pastEvents,
+      ...todayEvents,
+      ...tomorrowEvents,
+      ...thisWeekEvents,
+      ...upcomingEvents,
+      ...selectedMonthEvents
+    ];
+
+    // Filter events for the selected date
+    const filtered = allEvents.filter((event) => {
+      try {
+        const eventDate = new Date(event.date);
+        return (
+          eventDate.getDate() === date &&
+          eventDate.getMonth() === month
+        );
+      } catch (error) {
         return false;
-      });
+      }
     });
+
     setEventForDate(filtered);
- 
-    setShowPopup(true)
-  }
+    setShowPopup(true);
+  };
 
   // Handlers for previous/next month navigation
   function getPreviousMonth() {
@@ -99,7 +120,7 @@ export default function Home() {
     }
     async function fetchEventDates() {
       try {
-        const response = await fetch(`/api/calendar/${month + 1}`, {
+        const response = await fetch(`/api/calendar/${month + 1}/${year}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -116,22 +137,10 @@ export default function Home() {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
-        const { eventDates = [] } = await response.json();
-        setEventDates(eventDates);
+        const {eventDates, datesList} = await response.json();
+        setEventDatesValue(eventDates);
 
-        // Process data to create a list of event dates (day only)
-        const datesList = eventDates.flatMap((member: any) => {
-          const events = [];
-          if (member.birthday) {
-            events.push(new Date(member.birthday).getDate());
-          }
-          if (member.deathday && member.hasDate) {
-            events.push(new Date(member.deathday).getDate());
-          }
-          return events;
-        });
-
-        setDateList(datesList);
+        setDatesList(datesList);
 
       } catch (error: any) {
         toast?.show(error.message || "Failed to fetch event dates.", "error", 5000);
@@ -186,9 +195,9 @@ export default function Home() {
                     style={{ viewTransitionName: `item${date}` }}
                     className={`date-cell ${
                       (current_date == date && current_month == month + 1 && current_year == year) ? "bg-accent_color text-accent_contrast" : ""
-                    } ${dateList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
+                    } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
                   >
-                    {dateList?.includes(date) && !loading && <p className={`${current_month == month + 1 && current_date == date ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
+                    {datesList?.includes(date) && !loading && <p className={`${current_month == month + 1 && current_date == date ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
                     <p className={`absolute p-0.5`}>{date}</p>
                   </div>
                 );
@@ -218,8 +227,8 @@ export default function Home() {
         <div className="w-full lg:max-w-[580px] mx-auto">
           {/* <Suspense fallback={<p className="text-center pt-4">Loading calendar details...</ p>}> */}
             {loading ? <Loading /> :
-            eventDates?.length > 0 
-            ? <CalendarMonthlyData data={eventDates} month={month} year={year} /> 
+            datesList?.length > 0 
+            ? <CalendarMonthlyData eventDatesValue={eventDatesValue} /> 
             : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
           {/* </Suspense> */}
         </div>

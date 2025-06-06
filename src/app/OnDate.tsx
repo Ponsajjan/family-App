@@ -3,8 +3,8 @@ import { format, differenceInYears } from 'date-fns';
 
 interface Event {
     name: string;
-    birthday?: string;
-    deathday?: string;
+    type: 'birthday' | 'deathday';
+    date: Date;
 }
 
 interface CategorizedEvent extends Event {
@@ -26,8 +26,8 @@ function OnDate({ events, selectedDate }: { events: Event[], selectedDate: any }
                 age: year === 1600 ? 'n/a' : differenceInYears(selectedDate, date),
             });
         };
-        if (member.birthday) addEvent(new Date(member.birthday), 'birthday');
-        if (member.deathday) addEvent(new Date(member.deathday), 'deathday');
+        if (member.type == 'birthday') addEvent(new Date(member.date), 'birthday');
+        if (member.type == 'deathday') addEvent(new Date(member.date), 'deathday');
         return result;
     }) || [];
 
