@@ -95,13 +95,13 @@ export default function Details({ showMember, openDetails }: any) {
                             {data?.relationInformation.father && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.father}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.father}</div>
                                 </>
                             )}
                             {data?.relationInformation.mother && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.mother}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.mother}</div>
                                 </>
                             )}
                             {data?.relationInformation.siblings && (
@@ -122,19 +122,19 @@ export default function Details({ showMember, openDetails }: any) {
                             {data?.relationInformation.nonDescendantRelations?.fatherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Father</div>
-                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.motherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Mother</div>
-                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.siblingNames && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>Siblings</div>
-                                    <div className='w-3/5 md:leading-7 '>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
+                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
                                 </>
                             )}
                             {data?.relationInformation.partner && (

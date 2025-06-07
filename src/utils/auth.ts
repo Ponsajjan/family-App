@@ -59,7 +59,7 @@ export async function updateToken(token: string) {
         httpOnly: true,
         secure: true,
         path: "/",
-        maxAge: 180 * 24 * 60 * 60, // 2 days
+        maxAge: 180 * 24 * 60 * 60,
       });
     }
 

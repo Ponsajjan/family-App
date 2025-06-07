@@ -78,14 +78,30 @@ export async function GET(request: Request) {
                 const eventDate = toIST(new Date(member.birthYear || 1600, member.birthMonth - 1, date));
                 
                 categorizedEvents.datesList.add(date);
-                categorizeEvent({
+                
+                // Calculate age based on the year parameter for selectedMonthEvents
+                const ageForSelectedMonth = member.birthYear ? year - member.birthYear : 'n/a';
+                const ageForCurrentEvents = member.birthYear ? currentYear - member.birthYear : 'n/a';
+                
+                const event = {
                     id: member.id,
                     name: member.name,
                     date: eventDate.toISOString(),
                     type: 'birthday',
                     hasDate: member.birthDate !== null,
-                    age: member.birthYear ? today.getFullYear() - member.birthYear : 'n/a'
-                }, categorizedEvents, month, year, todayDate, currentMonth, currentYear);
+                    age: ageForCurrentEvents // Default age for current month events
+                };
+
+                categorizeEvent(
+                    event,
+                    categorizedEvents, 
+                    month, 
+                    year, 
+                    todayDate, 
+                    currentMonth, 
+                    currentYear,
+                    ageForSelectedMonth
+                );
             }
 
             // Process deathday with IST
@@ -94,14 +110,30 @@ export async function GET(request: Request) {
                 const eventDate = toIST(new Date(member.deathYear || 1600, member.deathMonth - 1, date));
                 
                 categorizedEvents.datesList.add(date);
-                categorizeEvent({
+                
+                // Calculate age based on the year parameter for selectedMonthEvents
+                const ageForSelectedMonth = member.deathYear ? year - member.deathYear : 'n/a';
+                const ageForCurrentEvents = member.deathYear ? currentYear - member.deathYear : 'n/a';
+                
+                const event = {
                     id: member.id,
                     name: member.name,
                     date: eventDate.toISOString(),
                     type: 'deathday',
                     hasDate: member.deathDate !== null,
-                    age: member.deathYear ? today.getFullYear() - member.deathYear : 'n/a'
-                }, categorizedEvents, month, year, todayDate, currentMonth, currentYear);
+                    age: ageForCurrentEvents // Default age for current month events
+                };
+
+                categorizeEvent(
+                    event,
+                    categorizedEvents, 
+                    month, 
+                    year, 
+                    todayDate, 
+                    currentMonth, 
+                    currentYear,
+                    ageForSelectedMonth
+                );
             }
         });
 
@@ -119,13 +151,13 @@ export async function GET(request: Request) {
             if (error.name === 'JsonWebTokenError') {
                 return NextResponse.json({ error: "Invalid token" }, { status: 401 });
             }
-                return NextResponse.json({ error: error.message }, { status: 500 });
-            }
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
         return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
     }
 }
 
-// Helper function to categorize events with IST
+// Updated helper function with ageForSelectedMonth parameter
 function categorizeEvent(
     event: any,
     categories: any,
@@ -133,7 +165,8 @@ function categorizeEvent(
     year: number,
     todayDate: number,
     currentMonth: number,
-    currentYear: number
+    currentYear: number,
+    ageForSelectedMonth: number | 'n/a'
 ) {
     const eventDate = toIST(new Date(event.date));
     const eventDay = eventDate.getDate();
@@ -155,6 +188,10 @@ function categorizeEvent(
             categories.upcomingEvents.push(event);
         }
     } else {
-        categories.selectedMonthEvents.push(event);
+        // For selected month events, use the age calculated based on the year parameter
+        categories.selectedMonthEvents.push({
+            ...event,
+            age: ageForSelectedMonth
+        });
     }
 }

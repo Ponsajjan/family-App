@@ -19,20 +19,21 @@ interface CalendarMonthlyDataProps {
     thisWeekEvents: CalendarMonthlyEvent[];
     upcomingEvents: CalendarMonthlyEvent[];
     selectedMonthEvents: CalendarMonthlyEvent[];
-    month: number;
-    year: number;
+    datesList: number[];
   }
+  month: number;
+  year: number;
 }
 
-export default function CalendarMonthlyData({ eventDatesValue }: any) {
+export default function CalendarMonthlyData({ eventDatesValue, month, year }: CalendarMonthlyDataProps) {
   // Destructure all values from eventDatesValue
-
   const {
     pastEvents = [],
     todayEvents = [],
     tomorrowEvents = [],
     thisWeekEvents = [],
     upcomingEvents = [],
+    selectedMonthEvents = [],
   } = eventDatesValue;
   
   const toIST = (date: Date | string) => {
@@ -110,7 +111,7 @@ export default function CalendarMonthlyData({ eventDatesValue }: any) {
       {renderEventList(thisWeekEvents, "Later This Week")}
       {renderEventList(upcomingEvents, "Later This Month")}
       {renderEventList(pastEvents, "Earlier This Month")}
-      
+      {renderEventList(selectedMonthEvents, `${format(new Date(year, month), 'MMMM yyyy')}`)}
     </Container>
   );
 }

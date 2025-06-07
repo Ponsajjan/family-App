@@ -66,7 +66,7 @@ export default function Terms() {
           </h1>
 
           <p className="text-lg text-center mb-3">
-            This web app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances.
+            This web app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances
           </p>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
@@ -79,7 +79,7 @@ export default function Terms() {
               <li>Their partner ( Husband or Wife )</li>
             </ul>
             <p className="mt-4 italic opacity-65">
-             Note: Extended family members ( such as in-laws ) are excluded to maintain simplicity and ensure that each member remains relevant to each other.
+              Note: Extended family members (such as in-laws) are excluded to maintain simplicity and ensure that each listed member is directly relevant
             </p>
           </div>
 
@@ -91,11 +91,11 @@ export default function Terms() {
               </h2>
               <ul className="list-disc list-inside space-y-2">
                 <li>Ensure family descendants are accurately recorded</li>
-                <li>Add family relationships ( Partner | Children ) if any</li>
-                <li>Only verified members will be visible in relations chart</li>
+                <li>Add family relationships ( Partner | Children ) if applicable</li>
+                <li>New members remain hidden from the relationship chart until they are verified</li>
               </ul>
               <p className="mt-4 italic opacity-65">
-                Note: Member information can be locked to maintain data integrity. For locked ( verified ) members, changes will require moderator approval to reflect.
+                Note: Verified member information is locked to preserve data integrity. Any updates to verified members require moderator approval
               </p>
             </div>
           </div>

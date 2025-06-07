@@ -85,8 +85,6 @@ export async function GET(request: Request) {
       moderator_password: authEntry.moderatorPassword,
     };
 
-    console.log("Member data fetched successfully:", responseData);
-
     // Return the response
     return NextResponse.json({
       success: true,
