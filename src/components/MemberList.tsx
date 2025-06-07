@@ -66,7 +66,7 @@ export default function MemberList({
   const { token, logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
-    limit: 5,
+    limit: 25,
     search: '',
     type: forType,
     showCousin: false

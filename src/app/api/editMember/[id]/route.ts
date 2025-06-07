@@ -119,7 +119,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request, context: any) {
+export async function PUT(request: Request) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const authHeader = request.headers.get('Authorization');
@@ -364,7 +364,7 @@ export async function PUT(request: Request, context: any) {
         { status: 404 }
       );
     }
-    
+
     if (error instanceof Error) {
       if (error.name === 'JsonWebTokenError') {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
