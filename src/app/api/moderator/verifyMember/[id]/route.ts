@@ -269,6 +269,12 @@ export async function PATCH(request: Request) {
     });
   } catch (error) {
     console.error("Error updating member:", error);
+    if (error instanceof Error) {
+      if (error.name === 'JsonWebTokenError') {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json(
       { error: "Failed to update member." },
       { status: 500 }

@@ -33,12 +33,13 @@ export default function CalendarMonthlyData({ eventDatesValue }: any) {
     tomorrowEvents = [],
     thisWeekEvents = [],
     upcomingEvents = [],
-    selectedMonthEvents = [],
-    month,
-    year
   } = eventDatesValue;
   
-  const currentYear = new Date().getFullYear();
+  const toIST = (date: Date | string) => {
+    const d = new Date(date);
+    return new Date(d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  };
+  const currentYear = toIST(new Date()).getFullYear();
 
   const renderEventList = (events: CalendarMonthlyEvent[], title: string) => {
     if (!events?.length) return null;
@@ -51,7 +52,7 @@ export default function CalendarMonthlyData({ eventDatesValue }: any) {
         </div>
         <div className="pl-5 md:pl-4 pb-1">
           {events.map((item, index) => {
-            const date = new Date(item.date);
+            const date = toIST(new Date(item.date));
             return (
               <div key={`${item.id}-${index}`} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3">
                 <div className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]">

@@ -65,7 +65,14 @@ export async function GET(request: NextRequest) {
     const take = page === 1 ? limit : limit + 1;
 
     // Calculate current year minus 18
-    const currentYear = new Date().getFullYear();
+    const getCurrentISTYear = () => {
+      return new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+      });
+    };
+
+    const currentYear = parseInt(getCurrentISTYear(), 10);
     const yearThreshold = currentYear - 18;
 
     let memberList: Member[] = [];

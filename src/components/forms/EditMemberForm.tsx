@@ -21,6 +21,15 @@ function EditMemberForm({
         toast?.show(`Can not change ${input} for this member`, "warning", 5000);
     }
 
+    const getCurrentISTYear = () => {
+      return new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+      });
+    };
+
+    const currentYear = parseInt(getCurrentISTYear(), 10);
+
     // show and hide death details fields based on checkbox
     const showDeathDetails = formData.deceased ? "peer-checked:block" : "hidden";
 
@@ -90,7 +99,7 @@ function EditMemberForm({
                         placeholder="YYYY(Opt)"
                         name="birth_year"
                         min="1600"
-                        max={new Date().getFullYear()}
+                        max={currentYear}
                         value={formData.birth_year || ''}
                         onChange={handleInputChange}
                     />
@@ -139,7 +148,7 @@ function EditMemberForm({
                             placeholder="YYYY"
                             name="death_year"
                             min="1600"
-                            max={new Date().getFullYear()}
+                            max={currentYear}
                             value={formData.death_year || ''}
                             onChange={handleInputChange}
                         />

@@ -13,7 +13,15 @@ interface AddMemberFormProps {
 }
 
 function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, loading }: AddMemberFormProps) {
-    const showDeathDetails = formData?.deceased ? "peer-checked:block" : "hidden"; 
+    const showDeathDetails = formData?.deceased ? "peer-checked:block" : "hidden";
+    const getCurrentISTYear = () => {
+      return new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+      });
+    };
+
+    const currentYear = parseInt(getCurrentISTYear(), 10);
     return (
         <form className="text-text_color" onSubmit={handleFormSubmit}>
             <Input
@@ -79,7 +87,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                     placeholder="YYYY(Opt)"
                     name="birth_year"
                     min="1600"
-                    max={new Date().getFullYear()}
+                    max={currentYear}
                     maxLength={4}
                     label=""
                     value={formData.birth_year || ''}
@@ -139,7 +147,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                         placeholder="YYYY"
                         name="death_year"
                         min="1600"
-                        max={new Date().getFullYear()}
+                        max={currentYear}
                         maxLength={4}
                         label=""
                         value={formData.death_year || ''}

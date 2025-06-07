@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
+// Helper function to convert any date to IST
+const toIST = (date: Date | string) => {
+    const d = new Date(date);
+    return new Date(d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+};
+
 export async function GET(request: Request) {
     const authHeader = request.headers.get('Authorization');
     const token = authHeader?.split(' ')[1];
@@ -49,8 +55,8 @@ export async function GET(request: Request) {
             },
         });
 
-        // Process events
-        const today = new Date();
+        // Process events with IST
+        const today = toIST(new Date());
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
         const todayDate = today.getDate();
@@ -66,10 +72,10 @@ export async function GET(request: Request) {
         };
 
         members.forEach(member => {
-            // Process birthday
+            // Process birthday with IST
             if (member.birthMonth === month) {
-                const date = member.birthDate || 1; // Default to 1st if no date
-                const eventDate = new Date(member.birthYear || 1600, member.birthMonth - 1, date);
+                const date = member.birthDate || 1;
+                const eventDate = toIST(new Date(member.birthYear || 1600, member.birthMonth - 1, date));
                 
                 categorizedEvents.datesList.add(date);
                 categorizeEvent({
@@ -82,10 +88,10 @@ export async function GET(request: Request) {
                 }, categorizedEvents, month, year, todayDate, currentMonth, currentYear);
             }
 
-            // Process deathday
+            // Process deathday with IST
             if (member.deathMonth === month) {
-                const date = member.deathDate || 1; // Default to 1st if no date
-                const eventDate = new Date(member.deathYear || 1600, member.deathMonth - 1, date);
+                const date = member.deathDate || 1;
+                const eventDate = toIST(new Date(member.deathYear || 1600, member.deathMonth - 1, date));
                 
                 categorizedEvents.datesList.add(date);
                 categorizeEvent({
@@ -109,11 +115,17 @@ export async function GET(request: Request) {
 
     } catch (error) {
         console.error('API error:', error);
+        if (error instanceof Error) {
+            if (error.name === 'JsonWebTokenError') {
+                return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+            }
+                return NextResponse.json({ error: error.message }, { status: 500 });
+            }
         return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
     }
 }
 
-// Helper function to categorize events
+// Helper function to categorize events with IST
 function categorizeEvent(
     event: any,
     categories: any,
@@ -123,11 +135,11 @@ function categorizeEvent(
     currentMonth: number,
     currentYear: number
 ) {
-    const eventDate = new Date(event.date);
+    const eventDate = toIST(new Date(event.date));
     const eventDay = eventDate.getDate();
 
     if (currentMonth === month && currentYear === year) {
-        const currentDayOfWeek = new Date().getDay();
+        const currentDayOfWeek = toIST(new Date()).getDay();
         const weekStartDate = todayDate - (currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1);
         const weekEndDate = weekStartDate + 6;
 

@@ -94,6 +94,12 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Error fetching member data:", error);
+    if (error instanceof Error) {
+      if (error.name === 'JsonWebTokenError') {
+        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      }
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     return NextResponse.json(
       { success: false, error: "Failed to fetch member data" },
       { status: 500 }

@@ -25,7 +25,7 @@ export async function GET(request: Request) {
           return NextResponse.json({ error: "Invalid token" }, { status: 401 });
       }
 
-    const fetchedData = await prisma.member.findUnique({
+      const fetchedData = await prisma.member.findUnique({
         where: {
           id: id,
         descendantOf: forDescendanceOf
@@ -128,6 +128,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ data });
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        if (error.name === 'JsonWebTokenError') {
+          return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        }
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
       return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
     }
 }

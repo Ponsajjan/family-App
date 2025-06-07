@@ -3,7 +3,7 @@
 import Topnav from "@/components/Topnav";
 import { CloseIcon } from "@/utils/Icons";
 import React, { useEffect, useState } from "react";
-import moment from "moment";
+import moment from "moment-timezone"; // Changed from moment to moment-timezone
 import CalendarMonthlyData from "./CalendarMonthlyData";
 import Container from "@/components/Container";
 import Loading from "@/components/Loading";
@@ -12,31 +12,45 @@ import { format } from 'date-fns';
 import { useToast } from '@/components/Toast';
 import { useAuth } from "@/contexts/AuthContext";
 
+// Helper function to get current date in IST
+const getCurrentIndiaDate = () => {
+  return new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+};
+
 export default function Home() {
   const toast = useToast();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const [calendarDate, setCalendarDate] = useState(new Date());
+  const currentIndiaDate = getCurrentIndiaDate();
+  const [calendarDate, setCalendarDate] = useState(currentIndiaDate);
   const [eventDatesValue, setEventDatesValue] = useState<any>([]);
   const [datesList, setDatesList] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
-  const current_date = parseInt(moment().format("D"), 10);
-  const current_month = parseInt(moment().format("M"), 10);
-  const current_year = parseInt(moment().format("YYYY"), 10);
+  
+  // Get current date parts in IST
+  const current_date = currentIndiaDate.getDate();
+  const current_month = currentIndiaDate.getMonth() + 1; // Months are 0-indexed
+  const current_year = currentIndiaDate.getFullYear();
+  
   const year = calendarDate.getFullYear();
-  const month = calendarDate.getMonth();
-  const [selectedDate, setSelectedDate] = useState('')
-  const [eventForDate, setEventForDate] = useState<any>([])
+  const month = calendarDate.getMonth(); // 0-indexed
+  
+  const [selectedDate, setSelectedDate] = useState('');
+  const [eventForDate, setEventForDate] = useState<any>([]);
   const {token, logout, isAuthenticated} = useAuth();
 
   // Helper functions for first/last day of the month
-  function getFirstDayOfMonth(year:number, month:number) {
+  function getFirstDayOfMonth(year: number, month: number) {
     const selectMonth = new Date(year, month, 1);
-    return selectMonth.getDay() === 0 ? 6 : selectMonth.getDay() - 1;
+    // Convert to IST to get correct day
+    const istDay = new Date(selectMonth.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})).getDay();
+    return istDay === 0 ? 6 : istDay - 1;
   }
 
-  function getLastDayOfMonth(year:number, month:number) {
-    return new Date(year, month + 1, 0);
+  function getLastDayOfMonth(year: number, month: number) {
+    const lastDay = new Date(year, month + 1, 0);
+    // Convert to IST
+    return new Date(lastDay.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
   }
 
   const firstDayOfMonth = getFirstDayOfMonth(year, month);
@@ -56,10 +70,10 @@ export default function Home() {
       return;
     }
     
-    console.log('TimeZone toLocaleDateString', new Date().toLocaleDateString("en-IN", {timeZone: "Asia/Kolkata",}).split('/')[0])
-
-    const selectedDate = new Date(year, month, date).toISOString();
-    setSelectedDate(selectedDate);
+    // Create date in IST
+    const selectedDate = new Date(year, month, date);
+    const istDate = new Date(selectedDate.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+    setSelectedDate(istDate.toISOString());
 
     const {
       pastEvents = [],
@@ -84,9 +98,10 @@ export default function Home() {
     const filtered = allEvents.filter((event) => {
       try {
         const eventDate = new Date(event.date);
+        const istEventDate = new Date(eventDate.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
         return (
-          eventDate.getDate() === date &&
-          eventDate.getMonth() === month
+          istEventDate.getDate() === date &&
+          istEventDate.getMonth() === month
         );
       } catch (error) {
         return false;
@@ -99,19 +114,19 @@ export default function Home() {
 
   // Handlers for previous/next month navigation
   function getPreviousMonth() {
-    setLoading(true)
-    setShowPopup(false)
+    setLoading(true);
+    setShowPopup(false);
     const previousMonth = new Date(calendarDate);
     previousMonth.setMonth(previousMonth.getMonth() - 1);
-    setCalendarDate(previousMonth);
+    setCalendarDate(new Date(previousMonth.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})));
   }
 
   function getNextMonth() {
-    setLoading(true)
-    setShowPopup(false)
+    setLoading(true);
+    setShowPopup(false);
     const nextMonth = new Date(calendarDate);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
-    setCalendarDate(nextMonth);
+    setCalendarDate(new Date(nextMonth.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})));
   }
 
   useEffect(() => {
@@ -120,6 +135,7 @@ export default function Home() {
     }
     async function fetchEventDates() {
       try {
+        // Use month+1 since the API expects 1-12 but Date uses 0-11
         const response = await fetch(`/api/calendar/${month + 1}/${year}`, {
           method: 'GET',
           headers: {
@@ -139,7 +155,6 @@ export default function Home() {
 
         const {eventDates, datesList} = await response.json();
         setEventDatesValue(eventDates);
-
         setDatesList(datesList);
 
       } catch (error: any) {
@@ -150,7 +165,7 @@ export default function Home() {
     }
 
     fetchEventDates();
-  }, [isAuthenticated, month, toast, token, logout]);
+  }, [isAuthenticated, month, year, toast, token, logout]);
 
   return (
     <div className="w-full">
@@ -165,8 +180,12 @@ export default function Home() {
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
                 
                 <div className="flex items-end">
-                  <p className="font-medium text-xl pr-2">{moment(calendarDate).format("MMMM")}</p>
-                  <p className="font-medium text-base">{moment(calendarDate).format("YYYY")}</p>
+                  <p className="font-medium text-xl pr-2">
+                    {moment(calendarDate).tz("Asia/Kolkata").format("MMMM")}
+                  </p>
+                  <p className="font-medium text-base">
+                    {moment(calendarDate).tz("Asia/Kolkata").format("YYYY")}
+                  </p>
                 </div>
                 
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getNextMonth}>{">"}</div>
@@ -194,10 +213,10 @@ export default function Home() {
                     onClick={() => showEventForDate(date)}
                     style={{ viewTransitionName: `item${date}` }}
                     className={`date-cell ${
-                      (current_date == date && current_month == month + 1 && current_year == year) ? "bg-accent_color text-accent_contrast" : ""
+                      (current_date === date && current_month === month + 1 && current_year === year) ? "bg-accent_color text-accent_contrast" : ""
                     } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
                   >
-                    {datesList?.includes(date) && !loading && <p className={`${current_month == month + 1 && current_date == date ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
+                    {datesList?.includes(date) && !loading && <p className={`${current_month === month + 1 && current_date === date ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
                     <p className={`absolute p-0.5`}>{date}</p>
                   </div>
                 );
@@ -213,24 +232,25 @@ export default function Home() {
             <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[60vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
-                {showPopup && <p className="text-xl font-semibold text-text_color">{format(selectedDate, 'd MMM yyyy')}<span className="font-normal pl-2">({format(new Date(selectedDate).toISOString(), 'EEEE')})</span></p>}
+                {showPopup && <p className="text-xl font-semibold text-text_color">
+                  {format(new Date(selectedDate), 'd MMM yyyy')}
+                  <span className="font-normal pl-2">
+                    ({format(new Date(selectedDate), 'EEEE')})
+                  </span>
+                </p>}
                 <span onClick={() => setShowPopup(false)} className="hidden md:block border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
               </div>
-              <div className={`p-4 h-auto ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
+              <div className={`p-4 min-h-[100px] ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
                 <OnDate events={eventForDate} selectedDate={selectedDate} />
               </div>
             </div>
           </div>
-
-
         </Container>
         <div className="w-full lg:max-w-[580px] mx-auto">
-          {/* <Suspense fallback={<p className="text-center pt-4">Loading calendar details...</ p>}> */}
-            {loading ? <Loading /> :
-            datesList?.length > 0 
-            ? <CalendarMonthlyData eventDatesValue={eventDatesValue} /> 
-            : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
-          {/* </Suspense> */}
+          {loading ? <Loading /> :
+          datesList?.length > 0 
+          ? <CalendarMonthlyData eventDatesValue={eventDatesValue} /> 
+          : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
         </div>
       </div>
     </div>
