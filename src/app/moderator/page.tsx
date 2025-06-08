@@ -4,16 +4,26 @@ import { useEffect, useState } from 'react'
 import Topnav from "@/components/Topnav"
 import { LinkButtonOutline } from "../../components/Button"
 import { useToast } from '@/components/Toast'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function AdminDashboard() {
     const toast = useToast()
+    const {token} = useAuth(); 
     const [unverifiedCount, setUnverifiedCount] = useState<number | null>(null)
     const [pendingRequests, setPendingRequests] = useState<number | null>(null)
 
     useEffect(() => {
         async function fetchStats() {
             try {
-                const res = await fetch('/api/moderator')
+                const res = await fetch('/api/moderator',
+                    {
+                        method: 'GET',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}` 
+                        },
+                    }
+                )
                 const data = await res.json()
                 setUnverifiedCount(data.unverifiedMembers)
                 setPendingRequests(data.pendingRequests)
