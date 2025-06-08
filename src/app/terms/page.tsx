@@ -79,7 +79,7 @@ export default function Terms() {
               <li>Their partner ( Husband or Wife )</li>
             </ul>
             <p className="mt-4 italic opacity-65">
-              Note: Extended family members (such as in-laws) are excluded to maintain simplicity and ensure that each listed member is directly relevant
+              Note: Extended family members (in-laws) are excluded to maintain simplicity and ensure that each listed member is directly relevant
             </p>
           </div>
 
@@ -92,7 +92,7 @@ export default function Terms() {
               <ul className="list-disc list-inside space-y-2">
                 <li>Ensure family descendants are accurately recorded</li>
                 <li>Add family relationships ( Partner | Children ) if applicable</li>
-                <li>New members remain hidden from the relationship chart until they are verified</li>
+                <li>New members remain hidden from the relations chart until they are verified</li>
               </ul>
               <p className="mt-4 italic opacity-65">
                 Note: Verified member information is locked to preserve data integrity. Any updates to verified members require a moderator approval
@@ -101,7 +101,9 @@ export default function Terms() {
           </div>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-4">
-            <h2 className="text-xl font-semibold mb-4">Moderator:</h2>
+            <div className="text-xl font-semibold mb-4">
+              {(moderatorList.length > 1) ? 'Moderators:' : 'Moderator:'}
+            </div>
             <ul>
               {moderatorList.map((member:any, index:number) => (
                 <li key={index} className='flex items-baseline justify-between mb-1'>

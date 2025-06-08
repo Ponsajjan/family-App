@@ -1,0 +1,71 @@
+import { displayValue, formatFieldName, normalizeValue } from "./utils";
+import { NextResponse } from "next/server";
+
+interface ChildRelation {
+  id: number;
+  order: number;
+}
+
+// GET request handler for Edit Member
+export async function handleEditMemberCase(member: any, changeData: any) {
+  const formData = {
+    name: member.name,
+    gender: member.gender,
+    birthDate: member.birthDate?.toString().padStart(2, '0') ?? null,
+    birthMonth: member.birthMonth?.toString().padStart(2, '0') ?? null,
+    birthYear: member.birthYear?.toString() ?? null,
+    deceased: member.deceased,
+    deathDate: member.deathDate?.toString().padStart(2, '0') ?? null,
+    deathMonth: member.deathMonth?.toString().padStart(2, '0') ?? null,
+    deathYear: member.deathYear?.toString() ?? null,
+    phoneNumber: member.phoneNumber,
+    occupation: member.occupation,
+    education: member.education,
+    address: member.address,
+    descendant: member.descendant ? 'Yes' : 'No',
+    father: member.nonDescendantRelation?.[0]?.fatherName,
+    mother: member.nonDescendantRelation?.[0]?.motherName,
+    siblings: member.nonDescendantRelation?.[0]?.siblingNames,
+  };
+
+  let changeDetails:any = {};
+  try {
+    changeDetails = JSON.parse(changeData?.details || '{}');
+  } catch (e) {
+    console.error('Error parsing change details:', e);
+  }
+
+  const changesJsx = Object.entries(formData).map(([key, value]) => {
+    const newValue = changeDetails[key] ?? value;
+    const hasChanged = normalizeValue(value, key) !== normalizeValue(newValue, key);
+
+    return `
+      <div class="flex" key="${key}">
+        <div class="font-semibold min-w-[150px]">
+            <div class="flex">
+                <span class="whitespace-nowrap">${formatFieldName(key)}</span>
+                <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>
+            </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-1">
+          ${hasChanged ? `<p class="line-through">${displayValue(value, key)}</p>` : ''}
+          <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue, key)}</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return NextResponse.json({ 
+    data: {
+      submitData: {
+        memberId: changeData.memberId,
+        type: changeData.type,
+        formData: { ...formData, ...changeDetails },
+      },
+      htmlContent: `<div class="space-y-2 bg-main_background text-text_color">
+        <div class="italic mb-4">---- ${changeData.type} ----</div>
+        ${changesJsx}
+      </div>`
+    },
+  });
+}

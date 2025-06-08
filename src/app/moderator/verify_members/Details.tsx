@@ -214,27 +214,33 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                         <div className='flex flex-wrap border-l border-border_color pl-2'>
                             {data?.relationInformation.father && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Father</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Father</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div onClick={() => handleMemberSearch(data?.relationInformation.father)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_father ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.father}</div>
                                 </>
                             )}
                             {data?.relationInformation.mother && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Mother</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Mother</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div onClick={() => handleMemberSearch(data?.relationInformation.mother)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_mother ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.mother}</div>
                                 </>
                             )}
                             {data?.relationInformation.siblings && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Siblings</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Siblings</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                         {data?.relationInformation.siblings?.sort((a: any, b: any) => a.order - b.order)?.map((sibling: { name: string, verified: boolean }, index: number) => (
@@ -248,36 +254,44 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                             )}
                             {data?.relationInformation.nonDescendantRelations?.fatherName && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Father</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Father</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.motherName && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Mother</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Mother</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
                                 </>
                             )}
                             {data?.relationInformation.nonDescendantRelations?.siblingNames && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Siblings</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Siblings</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
                                 </>
                             )}
                             {data?.descendant && !data?.relationInformation.father && !data?.relationInformation.mother && !data?.relationInformation.siblings && 
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Parents</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Parents</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                         <span className={``}>
@@ -287,16 +301,20 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                 </>}
                             {data?.descendant ? data?.relationInformation.partner &&
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Partner</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Partner</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div onClick={() => handleMemberSearch(data?.relationInformation.partner)} className={`w-3/5 md:leading-7 hover:underline cursor-context-menu ${data?.relationInformation.v_partner ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.partner}</div>
                                 </> 
                                 :<>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Partner</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Partner</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className={`w-3/5 md:leading-7 flex flex-wrap`}>
                                         {data?.relationInformation.partner 
@@ -308,9 +326,11 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
 
                             {data?.relationInformation?.children && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Children</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Children</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>
                                     {data.relationInformation.children?.sort((a: any, b: any) => a.order - b.order)?.map((child: { name: string, verified: boolean }, index: number) => (
@@ -336,18 +356,22 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                         <div className='flex flex-wrap mb-1 border-l border-border_color pl-2'>
                             {data?.contactInformation.phoneNumber && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span className='whitespace-nowrap'>Phone no.</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span className='whitespace-nowrap'>Phone no.</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.phoneNumber}</div>
                                 </>
                             )}
                             {data?.contactInformation.address && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Location</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Location</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.address}</div>
                                 </>
@@ -367,18 +391,22 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                         <div className='flex flex-wrap pb-1 border-l border-border_color pl-2'>
                             {data?.personalInformation.occupation && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Occupation</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Occupation</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.occupation}</div>
                                 </>
                             )}
                             {data?.personalInformation.education && (
                                 <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize flex'>
-                                        <span>Education</span>
-                                        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>Education</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.education}</div>
                                 </>
