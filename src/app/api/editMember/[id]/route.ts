@@ -257,9 +257,8 @@ export async function PUT(request: Request) {
       descendant: updatedData.descendant,
     };
 
-    // Filter out unchanged fields by comparing with existing member data
+    // Filter out unchanged fields
     const filteredUpdateData: Record<string, any> = {};
-    
     Object.entries(memberUpdateData).forEach(([key, value]) => {
       if (JSON.stringify(value) !== JSON.stringify(member[key as keyof typeof member])) {
         filteredUpdateData[key] = value;
@@ -267,19 +266,19 @@ export async function PUT(request: Request) {
     });
 
     // If no fields are changed, return early
-    if (Object.keys(filteredUpdateData).length === 0) {
+    if (Object.keys(filteredUpdateData).length === 0 && !(updatedData.descendant === true && member.nonDescendantRelation?.[0])) {
       return NextResponse.json(
         { error: "No changes to update." },
         { status: 400 }
       );
     }
+
     // Check if the member is verified
     if (member.verified) {
-
-      // Check for non-descendant relation changes
+      // Check for non-descendant relation changes (only if descendant is false)
       let nonDescendantChanges: Record<string, any> = {};
       if (updatedData.descendant === false) {
-        const currentNonDescendant = member.nonDescendantRelation?.[0]; // Access first element of array
+        const currentNonDescendant = member.nonDescendantRelation?.[0];
         
         if (updatedData.father !== undefined && updatedData.father !== currentNonDescendant?.fatherName) {
           nonDescendantChanges.father = updatedData.father || null;
@@ -292,11 +291,20 @@ export async function PUT(request: Request) {
         }
       }
 
+      // If descendant is true, ensure we remove non-descendant relations
+      if (updatedData.descendant === true && member.nonDescendantRelation?.[0]) {
+        nonDescendantChanges = {
+          father: '',
+          mother: '',
+          siblings: '',
+        };
+      }
+
       // If there are any changes (either member data or non-descendant relations)
       if (Object.keys(filteredUpdateData).length > 0 || Object.keys(nonDescendantChanges).length > 0) {
         const requestDetails = {
           ...(Object.keys(filteredUpdateData).length > 0 && { ...filteredUpdateData }),
-          ...(Object.keys(nonDescendantChanges).length > 0 && { ...nonDescendantChanges })
+          ...(Object.keys(nonDescendantChanges).length > 0 && { ...nonDescendantChanges }),
         };
 
         await prisma.requestDetails.create({
@@ -319,13 +327,15 @@ export async function PUT(request: Request) {
         message: "No changes to update",
       });
     } 
-    // If the member is not verified, proceed with the update logic
+
+    // Non-verified member update logic
     try {
       await prisma.member.update({
         where: { id: memberId },
-        data: memberUpdateData,
+        data: filteredUpdateData,
       });
-  
+
+      // Handle non-descendant relations
       if (updatedData.descendant === false && (updatedData.father || updatedData.mother || updatedData.siblings)) {
         await prisma.nonDescendantRelation.upsert({
           where: { memberId: memberId },
@@ -341,8 +351,13 @@ export async function PUT(request: Request) {
             siblingNames: updatedData.siblings || null,
           },
         });
+      } else if (updatedData.descendant === true) {
+        // Remove non-descendant relations if descendant is true
+        await prisma.nonDescendantRelation.deleteMany({
+          where: { memberId: memberId },
+        });
       }
-  
+
       return NextResponse.json({
         success: true,
         message: "Member updated successfully",

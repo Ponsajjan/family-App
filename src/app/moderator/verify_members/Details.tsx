@@ -234,24 +234,20 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                     <div onClick={() => handleMemberSearch(data?.relationInformation.mother)} className={`w-3/5 md:leading-7 flex flex-wrap hover:underline cursor-context-menu ${data?.relationInformation.v_mother ? 'text-text_color': 'text-text_color/70 underline decoration-wavy'}`}>{data?.relationInformation.mother}</div>
                                 </>
                             )}
-                            {data?.relationInformation.siblings && (
+                            {data?.descendant && !data?.relationInformation.father && !data?.relationInformation.mother && !data?.relationInformation.siblings && 
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>
                                         <div className='flex'>
-                                            <span>Siblings</span>
+                                            <span>Parents</span>
                                             <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
                                         </div>
                                     </div>
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                        {data?.relationInformation.siblings?.sort((a: any, b: any) => a.order - b.order)?.map((sibling: { name: string, verified: boolean }, index: number) => (
-                                            <span key={index} onClick={() => handleMemberSearch(sibling.name)} className={`${sibling.verified ? 'text-text_color': 'text-text_color/80 underline decoration-wavy'} hover:underline cursor-context-menu`} >
-                                                {sibling.name}
-                                                {index < data.relationInformation.siblings.length - 1 && ',' }&nbsp;
-                                            </span>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
+                                        <span className={``}>
+                                            <span className='italic'>-- Parents Unassigned --</span>
+                                        </span>
+                                    </div> 
+                                </>}
                             {data?.relationInformation.nonDescendantRelations?.fatherName && (
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>
@@ -274,31 +270,6 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                     <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
                                 </>
                             )}
-                            {data?.relationInformation.nonDescendantRelations?.siblingNames && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
-                                        <div className='flex'>
-                                            <span>Siblings</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
-                                </>
-                            )}
-                            {data?.descendant && !data?.relationInformation.father && !data?.relationInformation.mother && !data?.relationInformation.siblings && 
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
-                                        <div className='flex'>
-                                            <span>Parents</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                        <span className={``}>
-                                            <span className='italic'>-- Parents Unassigned --</span>
-                                        </span>
-                                    </div> 
-                                </>}
                             {data?.descendant ? data?.relationInformation.partner &&
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>
@@ -328,7 +299,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                 <>
                                     <div className='w-2/5 md:leading-7 font-medium capitalize'>
                                         <div className='flex'>
-                                            <span>Children</span>
+                                            <span>{data.relationInformation.children.length > 1 ? 'Childrens' : 'Children'}</span>
                                             <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
                                         </div>
                                     </div>
@@ -342,6 +313,38 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                                     </div>
                                 </>
                             )}
+
+                            {data?.relationInformation.siblings && (
+                                <>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>{data?.relationInformation.siblings.length > 1 ? 'Siblings' : 'Sibling' }</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
+                                    </div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
+                                        {data?.relationInformation.siblings?.sort((a: any, b: any) => a.order - b.order)?.map((sibling: { name: string, verified: boolean }, index: number) => (
+                                            <span key={index} onClick={() => handleMemberSearch(sibling.name)} className={`${sibling.verified ? 'text-text_color': 'text-text_color/80 underline decoration-wavy'} hover:underline cursor-context-menu`} >
+                                                {sibling.name}
+                                                {index < data.relationInformation.siblings.length - 1 && ',' }&nbsp;
+                                            </span>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+
+                            {data?.relationInformation.nonDescendantRelations?.siblingNames && (
+                                <>
+                                    <div className='w-2/5 md:leading-7 font-medium capitalize'>
+                                        <div className='flex'>
+                                            <span>{data?.relationInformation.nonDescendantRelations?.siblingNames.split(',').length > 1 ? 'Siblings' : 'Sibling'}</span>
+                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+                                        </div>
+                                    </div>
+                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
+                                </>
+                            )}
+
                         </div>
                     </div>
                 </>}

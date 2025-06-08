@@ -1,4 +1,3 @@
-
 interface MemberUpdateData {
   name: string;
   gender?: string;
@@ -25,7 +24,6 @@ interface RequestData {
   type: "Edit Member" | "Add Relationship" | "Edit Relationship";
 }
 
-// PUT request handler
 export const handleEditMember = async (data: RequestData, tx: any) => {
   const formData = data.formData as MemberUpdateData;
   const deceased = formData.deceased === true;
@@ -44,18 +42,23 @@ export const handleEditMember = async (data: RequestData, tx: any) => {
     occupation: formData.occupation || null,
     education: formData.education || null,
     address: formData.address || null,
-    descendant: formData.descendant == 'Yes',
+    descendant: formData.descendant,
   };
 
+  // Update member data
   await tx.member.update({
     where: { id: data.memberId },
     data: memberUpdateData,
   });
 
-  if (
-    formData.descendant === 'No' &&
-    (formData.father || formData.mother || formData.siblings)
-  ) {
+  // Handle non-descendant relations
+  if (formData.descendant) {
+    // If member is now a descendant, remove any existing non-descendant relations
+    await tx.nonDescendantRelation.deleteMany({
+      where: { memberId: data.memberId },
+    });
+  } else if (formData.father || formData.mother || formData.siblings) {
+    // If member is non-descendant and has family data, upsert the relation
     await tx.nonDescendantRelation.upsert({
       where: { memberId: data.memberId },
       update: {

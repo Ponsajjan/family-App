@@ -211,18 +211,18 @@ function EditMemberForm({
                     <div>
                         <Input
                         showOptional={true}
-                        name="mother"
-                        label="Mother"
-                        value={formData.mother || ''}
+                        name="father"
+                        label="Father"
+                        value={formData.father || ''}
                         onChange={handleInputChange}
                         />
                     </div>
                     <div>
                         <Input
                         showOptional={true}
-                        name="father"
-                        label="Father"
-                        value={formData.father || ''}
+                        name="mother"
+                        label="Mother"
+                        value={formData.mother || ''}
                         onChange={handleInputChange}
                         />
                     </div>
