@@ -115,7 +115,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
       
       <div class="flex">
         <div class="font-semibold min-w-[100px]">
-            <div>
+            <div class="flex">
                 <span>Member</span>
                 <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>
             </div>
@@ -126,7 +126,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
       ${changeDetails.partner ? `
         <div class="flex">
           <div class="font-semibold min-w-[100px]">
-            <div>
+            <div class="flex">
                 <span>Partner</span>
                 <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>
             </div>
