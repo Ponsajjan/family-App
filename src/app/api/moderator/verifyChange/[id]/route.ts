@@ -327,9 +327,7 @@ interface EditRelationshipDetails {
 
 // GET request handler for Edit Member
 async function handleEditMemberCase(member: any, changeData: any) {
-  const isDescendant = !!member.descendant;
-
-  const formData: any = {
+  const formData = {
     name: member.name,
     gender: member.gender,
     birthDate: member.birthDate?.toString().padStart(2, '0') ?? null,
@@ -343,17 +341,13 @@ async function handleEditMemberCase(member: any, changeData: any) {
     occupation: member.occupation,
     education: member.education,
     address: member.address,
-    descendant: isDescendant ? 'Yes' : 'No',
+    descendant: member.descendant ? 'Yes' : 'No',
+    father: member.nonDescendantRelation?.[0]?.fatherName,
+    mother: member.nonDescendantRelation?.[0]?.motherName,
+    siblings: member.nonDescendantRelation?.[0]?.siblingNames,
   };
 
-  // Add non-descendant relation fields only if not a descendant
-  if (!isDescendant) {
-    formData.father = member.nonDescendantRelation?.[0]?.fatherName;
-    formData.mother = member.nonDescendantRelation?.[0]?.motherName;
-    formData.siblings = member.nonDescendantRelation?.[0]?.siblingNames;
-  }
-
-  let changeDetails: any = {};
+  let changeDetails:any = {};
   try {
     changeDetails = JSON.parse(changeData?.details || '{}');
   } catch (e) {
@@ -389,7 +383,6 @@ async function handleEditMemberCase(member: any, changeData: any) {
     },
   });
 }
-
 
 // GET request handler for Add Relationship
 async function handleAddRelationshipCase(member: any, changeData: any) {
