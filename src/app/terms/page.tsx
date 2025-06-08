@@ -95,7 +95,7 @@ export default function Terms() {
                 <li>New members remain hidden from the relationship chart until they are verified</li>
               </ul>
               <p className="mt-4 italic opacity-65">
-                Note: Verified member information is locked to preserve data integrity. Any updates to verified members require moderator approval
+                Note: Verified member information is locked to preserve data integrity. Any updates to verified members require a moderator approval
               </p>
             </div>
           </div>

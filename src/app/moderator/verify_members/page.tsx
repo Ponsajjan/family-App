@@ -23,7 +23,7 @@ export default function VerifyMember() {
   const { token, logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
-    limit: 30,
+    limit: 25,
     search: "",
     filter: "Unverified"
   });

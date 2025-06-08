@@ -20,7 +20,7 @@ export default function NewMembers() {
   const {token, logout} = useAuth();
   const [params, setParams] = useState({
     page: 1,
-    limit: 30,
+    limit: 25,
   });
 
 
