@@ -94,7 +94,10 @@ const ChangeRequestView = ({
       }
     };
 
-    fetchData();
+    if (showDetailsFor) {
+      fetchData();
+    }
+    
   }, [showDetailsFor, currentDetailIndex, token, memberId, setChangeList, setCurrentDetailIndex]);
 
   const handleNext = () => {

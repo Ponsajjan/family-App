@@ -1,284 +1,128 @@
 'use client'
 import Container from '@/components/Container';
 import { CloseIcon, Condolences, Female2, Male2, Verified } from '@/utils/Icons';
-import { format } from 'date-fns';
 import React, { useEffect, useState } from 'react';
 import Loading from '@/components/Loading';
 import { useAuth } from '@/contexts/AuthContext';
+import { DateInfo, InformationSection, MemberItem } from '../../components/MemberDetailsComponents';
 
 export default function Details({ showMember, openDetails }: any) {
-      const {token} = useAuth();
-      const [data, setData] = useState<any>(null);
-      const [loadingDetails, setLoadingDetails] = useState(true);
-      const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
+  const [data, setData] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-      useEffect(() => {
-        const fetchMemberDetails = async () => {
-          if (!showMember) return;
-          
-          try {
-            setError(null)
-            setLoadingDetails(true);
-            const response = await fetch(`/api/relatives/${showMember}`, {
-              method: 'GET',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
-              },
-              cache: 'no-store',
-            });
+  useEffect(() => {
+    const fetchMemberDetails = async () => {
+      if (!showMember) return;
       
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to update member");
-              }
-      
-            const { data } = await response.json();
-            setData(data);
-          } catch (error: any) {
-            console.error('Error fetching data:', error);
-            setError(error.message || 'Unknown error occurred');
-          } finally {
-            setLoadingDetails(false);
-          }
-        };
-      
+      try {
+        setError(null);
+        setLoadingDetails(true);
+        const response = await fetch(`/api/relatives/${showMember}`, {
+          headers: { 
+            'Authorization': `Bearer ${token}` 
+          },
+        });
+  
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to update member");
+        }
+        const { data } = await response.json();
+        setData(data);
+      } catch (error: any) {
+        setError(error.message || 'Error fetching data');
+      } finally {
+        setLoadingDetails(false);
+      }
+    };
+  
+    if (showMember) {
         fetchMemberDetails();
-      }, [showMember, token]);
+    }
+  }, [showMember, token]);
 
-      if (error) return <div className='p-4'>Error: {error}</div>;
-      if (!data && !loadingDetails) return <div className='p-4 loading-text'>No data found</div>;
+  if (error) return <div className='p-4'>Error: {error}</div>;
+  if (!data && !loadingDetails) return <div className='p-4 loading-text'>No data found</div>;
 
-    return (
-        <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
-            <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'><CloseIcon /></div>
-            {loadingDetails ? <Loading />
-            : <>
-                <div className='flex gap-2 items-center w-full pb-3'>
-                    <div className='border border-border_color p-2 rounded-md relative'>
-                        {data?.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
-                        {data?.generalInformation.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
-                    </div>
-                    <div className='w-full'>
-                        <p className='text-lg font-semibold flex items-center'>
-                            <span>{data?.generalInformation.name || 'Name Unavailable'}</span>
-                            {data?.generalInformation.verified && <span className='pl-2'><Verified /></span>}
-                        </p>
+  return (
+    <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
+      <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
+        <CloseIcon />
+      </div>
 
-                        {data?.generalInformation.birthDate && data?.generalInformation.birthMonth && (
-                            <div className='flex items-baseline gap-1 text-sm'>
-                                <p>Born At :</p>
-                                <p>{`${data?.generalInformation.birthDate} ${format(`${data?.generalInformation.birthMonth}`, 'MMM')} ${data?.generalInformation.birthYear ? data.generalInformation.birthYear : ''}`}</p>
-                            </div>
-                        )}
+      {loadingDetails ? <Loading /> : (
+        <>
+          {/* Header Section */}
+          <div className='flex gap-2 items-center w-full pb-3'>
+            <div className='border border-border_color p-2 rounded-md relative'>
+              {data.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
+              {data.generalInformation.deceased && (
+                <span className='absolute -bottom-2 -right-2'><Condolences /></span>
+              )}
+            </div>
+            <div className='w-full'>
+              <div className='text-lg font-semibold flex items-center'>
+                <span>{data.generalInformation.name || 'Name Unavailable'}</span>
+                {data.generalInformation.verified && <span className='pl-2'><Verified /></span>}
+              </div>
 
-                        {data?.generalInformation.deceased ?
-                            data?.generalInformation.deathMonth && data?.generalInformation.deathYear 
-                            ?  <div className='flex items-baseline gap-1 text-sm'>
-                                    <p>Died At :</p>
-                                    <p>{`${data?.generalInformation.deathDate ? data?.generalInformation.deathDate : ''} ${format(`${data?.generalInformation.deathMonth}`, 'MMM')} ${data?.generalInformation.deathYear}`}</p>
-                                </div>
-                            : <p className='text-sm'>Deceased</p>
-                            : ''
-                        }
-                    </div>
-                </div>
+              <DateInfo 
+                prefix="Born At"
+                date={data.generalInformation.birthDate}
+                month={data.generalInformation.birthMonth}
+                year={data.generalInformation.birthYear}
+              />
 
-                {(data?.relationInformation) &&
-                <>
-                    <div className='flex pt-3 items-center'>
-                        <p className='font-semibold  pr-4 whitespace-nowrap'>Relation Information</p>
-                        <p className='border-t border-border_color w-full'></p>
-                    </div>
-                    <div className='pl-1'>
-                        <div className='flex flex-wrap border-l border-border_color pl-2'>
-                            {data?.relationInformation.father && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>Father</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.father}</div>
-                                </>
-                            )}
-                            {data?.relationInformation.mother && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>Mother</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.mother}</div>
-                                </>
-                            )}
+              {data.generalInformation.deceased && (
+                <DateInfo 
+                  prefix="Died At"
+                  date={data.generalInformation.deathDate}
+                  month={data.generalInformation.deathMonth}
+                  year={data.generalInformation.deathYear}
+                  fallback="Deceased"
+                />
+              )}
+            </div>
+          </div>
 
-                            {data?.relationInformation.nonDescendantRelations?.fatherName && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>Father</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.fatherName}</div>
-                                </>
-                            )}
+          {/* Relation Information */}
+          {data.relationInformation && (
+            <InformationSection title="Relation Information">
+              <MemberItem label="Father" value={data.relationInformation.father} />
+              <MemberItem label="Mother" value={data.relationInformation.mother} />
+              <MemberItem label="Partner" value={data.relationInformation.partner} />
+              <MemberItem 
+                label={data.relationInformation.children?.length > 1 ? 'Children' : 'Child'} 
+                value={data.relationInformation.children} 
+                isList 
+              />
+              <MemberItem 
+                label={data.relationInformation.siblings?.length > 1 ? 'Siblings' : 'Sibling'} 
+                value={data.relationInformation.siblings} 
+                isList 
+              />
+            </InformationSection>
+          )}
 
-                            {data?.relationInformation.nonDescendantRelations?.motherName && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>Mother</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.motherName}</div>
-                                </>
-                            )}
+          {/* Contact Information */}
+          {data.contactInformation && (
+            <InformationSection title="Contact Information">
+              <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
+              <MemberItem label="Location" value={data.contactInformation.address} />
+            </InformationSection>
+          )}
 
-                            {data?.relationInformation.partner && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>Partner</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.partner}</div>
-                                </>
-                            )}
-
-                            {data?.relationInformation.children && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>{data.relationInformation.children.length > 1 ? 'Childrens' : 'Children'}</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                        {data.relationInformation.children
-                                            .sort((a: any, b: any) => a.order - b.order)
-                                            .map((child: { name: string }, index: number) => 
-                                                <span key={index}>
-                                                    {child.name}
-                                                    {index < data.relationInformation.children.length - 1 && ','}&nbsp;
-                                                </span>
-                                            )
-                                        }
-                                    </div>
-                                </>
-                            )}
-
-                                                        {data?.relationInformation.siblings && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>{data?.relationInformation.siblings.length > 1 ? 'Siblings' : 'Sibling' }</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>
-                                        {data.relationInformation.siblings
-                                            .sort((a: any, b: any) => a.order - b.order)
-                                            .map((sibling: { name: string, order: number }, index: number) => (
-                                                <span key={index}>
-                                                    {sibling.name}
-                                                    {index < data.relationInformation.siblings.length - 1 && ','}&nbsp;
-                                                </span>
-                                            ))}
-                                    </div>
-                                </>
-                            )}
-
-                            {data?.relationInformation.nonDescendantRelations?.siblingNames && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>{data?.relationInformation.nonDescendantRelations?.siblingNames.split(',').length > 1 ? 'Siblings' : 'Sibling'}</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7'>{data?.relationInformation.nonDescendantRelations?.siblingNames}</div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </>}
-
-                {(data?.contactInformation) &&
-                <>
-                    <div className='flex pt-3 items-center'>
-                        <p className='font-semibold  pr-4 whitespace-nowrap'>Contact Information</p>
-                        <p className='border-t border-border_color w-full'></p>
-                    </div>
-                    <div className='pl-1'>
-                        <div className='flex flex-wrap mb-1 border-l border-border_color pl-2'>
-                            {data?.contactInformation.phoneNumber && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span className='whitespace-nowrap'>Phone no.</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.phoneNumber}</div>
-                                </>
-                            )}
-                            {data?.contactInformation.address && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>Location</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.contactInformation.address}</div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </>
-                }
-
-                {(data?.personalInformation) &&
-                <>
-                    <div className='flex pt-3 items-center'>
-                        <p className='font-semibold  pr-4 whitespace-nowrap'>Personal Information</p>
-                        <p className='border-t border-border_color w-full'></p>
-                    </div>
-                    <div className='pl-1'>
-                        <div className='flex flex-wrap pb-1 border-l border-border_color pl-2'>
-                            {data?.personalInformation.occupation && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>Occupation</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.occupation}</div>
-                                </>
-                            )}
-                            {data?.personalInformation.education && (
-                                <>
-                                    <div className='w-2/5 md:leading-7 font-medium'>
-                                        <div className='flex'>
-                                            <span>Education</span>
-                                            <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
-                                        </div>
-                                    </div>
-                                    <div className='w-3/5 md:leading-7 flex flex-wrap'>{data?.personalInformation.education}</div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </>}
-            </>
-            }
-        </Container>
-    );
+          {/* Personal Information */}
+          {data.personalInformation && (
+            <InformationSection title="Personal Information">
+              <MemberItem label="Occupation" value={data.personalInformation.occupation} />
+              <MemberItem label="Education" value={data.personalInformation.education} />
+            </InformationSection>
+          )}
+        </>
+      )}
+    </Container>
+  );
 }

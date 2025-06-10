@@ -136,6 +136,13 @@ export async function GET(request: Request) {
                 );
             }
         });
+        
+        // Add event to pastEvents and sort in descending order
+        categorizedEvents.pastEvents.sort((a: any, b: any) => {
+            const dateA = new Date(a.date).getDate();
+            const dateB = new Date(b.date).getDate();
+            return dateB - dateA; // Descending order
+        });
 
         // Convert Set to sorted array
         const datesList = Array.from(categorizedEvents.datesList).sort((a, b) => a - b);
