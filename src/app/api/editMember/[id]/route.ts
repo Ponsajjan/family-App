@@ -22,6 +22,7 @@ export async function GET(request: Request) {
   try {
     const decoded = await verifyToken(token);
     const forDescendanceOf = decoded.forDescendanceOf;
+    const mainMemberId = decoded.memberId;
 
     if (!forDescendanceOf) {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
@@ -102,7 +103,7 @@ export async function GET(request: Request) {
       },
       allowEdit: {
         editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
-        editDescendant: member.fatherId || member.motherId,
+        editDescendant: member.fatherId || member.motherId || member.id == mainMemberId,
       },
     };
 
@@ -268,8 +269,33 @@ export async function PUT(request: Request) {
       }
     });
 
+    // Check for non-descendant relation changes (only if descendant is false)
+    let nonDescendantChanges: Record<string, any> = {};
+    if (updatedData.descendant === false) {
+      const currentNonDescendant = member.nonDescendantRelation?.[0];
+      
+      if (updatedData.father !== undefined && updatedData.father !== currentNonDescendant?.fatherName) {
+        nonDescendantChanges.father = updatedData.father || null;
+      }
+      if (updatedData.mother !== undefined && updatedData.mother !== currentNonDescendant?.motherName) {
+        nonDescendantChanges.mother = updatedData.mother || null;
+      }
+      if (updatedData.siblings !== undefined && JSON.stringify(updatedData.siblings) !== JSON.stringify(currentNonDescendant?.siblingNames)) {
+        nonDescendantChanges.siblings = updatedData.siblings || null;
+      }
+    }
+
+    // If descendant is true, ensure we remove non-descendant relations
+    if (updatedData.descendant === true && member.nonDescendantRelation?.[0]) {
+      nonDescendantChanges = {
+        father: '',
+        mother: '',
+        siblings: '',
+      };
+    }
+
     // If no fields are changed, return early
-    if (Object.keys(filteredUpdateData).length === 0 && !(updatedData.descendant === true && member.nonDescendantRelation?.[0])) {
+    if (Object.keys(filteredUpdateData).length === 0 && Object.keys(nonDescendantChanges).length === 0) {
       return NextResponse.json(
         { error: "No changes to update." },
         { status: 400 }
@@ -278,30 +304,6 @@ export async function PUT(request: Request) {
 
     // Check if the member is verified
     if (member.verified) {
-      // Check for non-descendant relation changes (only if descendant is false)
-      let nonDescendantChanges: Record<string, any> = {};
-      if (updatedData.descendant === false) {
-        const currentNonDescendant = member.nonDescendantRelation?.[0];
-        
-        if (updatedData.father !== undefined && updatedData.father !== currentNonDescendant?.fatherName) {
-          nonDescendantChanges.father = updatedData.father || null;
-        }
-        if (updatedData.mother !== undefined && updatedData.mother !== currentNonDescendant?.motherName) {
-          nonDescendantChanges.mother = updatedData.mother || null;
-        }
-        if (updatedData.siblings !== undefined && JSON.stringify(updatedData.siblings) !== JSON.stringify(currentNonDescendant?.siblingNames)) {
-          nonDescendantChanges.siblings = updatedData.siblings || null;
-        }
-      }
-
-      // If descendant is true, ensure we remove non-descendant relations
-      if (updatedData.descendant === true && member.nonDescendantRelation?.[0]) {
-        nonDescendantChanges = {
-          father: '',
-          mother: '',
-          siblings: '',
-        };
-      }
 
       // If there are any changes (either member data or non-descendant relations)
       if (Object.keys(filteredUpdateData).length > 0 || Object.keys(nonDescendantChanges).length > 0) {

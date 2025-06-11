@@ -7,7 +7,6 @@ import { DateInfo, InformationSection, MemberItem, MemberItemVerify, MemberListI
 import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { CloseIcon, Condolences, Female2, Info, Male2, Verified } from '@/utils/Icons';
-import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
@@ -232,7 +231,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     {data?.descendant && !(data?.relationInformation.mother || data?.relationInformation.mother) && (
                         <MemberItemVerify 
                             label="Parents"
-                            name="-- Parents Unassigned --"
+                            name="-- Unassigned --"
                             isCustom
                         />
                     )}
@@ -265,7 +264,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     {!data?.descendant && !data?.relationInformation.partner && (
                         <MemberItemVerify 
                             label="Partner"
-                            name="-- Partner Unassigned --"
+                            name="-- Unassigned --"
                             isCustom
                         />
                     )}
