@@ -92,8 +92,8 @@ export default function Details({ showMember, openDetails }: any) {
             <InformationSection title="Relation Information">
               <MemberItem label="Father" value={data.relationInformation.father} />
               <MemberItem label="Mother" value={data.relationInformation.mother} />
-              <MemberItem label="Father" value={data.relationInformation.nonDescendantRelations.fatherName} />
-              <MemberItem label="Mother" value={data.relationInformation.nonDescendantRelations.motherName} />
+              <MemberItem label="Father" value={data.relationInformation.nonDescendantRelations?.fatherName} />
+              <MemberItem label="Mother" value={data.relationInformation.nonDescendantRelations?.motherName} />
               <MemberItem label="Partner" value={data.relationInformation.partner} />
               <MemberItem 
                 label={data.relationInformation.children?.length > 1 ? 'Children' : 'Child'} 
@@ -106,8 +106,8 @@ export default function Details({ showMember, openDetails }: any) {
                 isList 
               />
               <MemberItem 
-                label={data.relationInformation.nonDescendantRelations.siblingNames.length > 1 ? 'Siblings' : 'Sibling'}
-                value={data.relationInformation.nonDescendantRelations.siblingNames} 
+                label={data.relationInformation.nonDescendantRelations?.siblingNames.length > 1 ? 'Siblings' : 'Sibling'}
+                value={data.relationInformation.nonDescendantRelations?.siblingNames} 
               />
             </InformationSection>
           )}

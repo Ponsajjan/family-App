@@ -22,7 +22,7 @@ interface Member {
   father: EachMember | null;
   mother: EachMember | null;
   children: EachMember[];
-  partners?: string[] | [];
+  partner?: {name: string} | null;
   birthYear?: number;
   parentNames?: string;
 }
@@ -63,6 +63,7 @@ export default function MemberList({
   const [loadingList, setLoadingList] = useState(false);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  const [mainMemberID, setMainMemberID] = useState(-1);
   const { token, logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
@@ -170,8 +171,9 @@ export default function MemberList({
           throw new Error('Network response was not ok');
         }
 
-        const { data, totalCount } = await response.json();
+        const { data, totalCount, mainMemberId } = await response.json();
 
+        setMainMemberID(mainMemberId)
         if (params.page === 1) {
           setMembers(data);
         } else {
@@ -333,20 +335,22 @@ export default function MemberList({
                         />
                       </div>
                       <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                        {member.father || member.mother ? (
+                        {member.id == mainMemberID ?
+                          <span className='font-semibold'>Main Member</span>
+                        : (member.father || member.mother ? (
                           <>
                             <span className="pr-1 font-semibold">Parents: </span>
                             {member.father && <span className="pr-1">{member.father.name},</span>}
                             {member.mother && <span className="pr-1">{member.mother.name}</span>}
                           </>
-                        ) : (member.partners && member.partners?.length > 0) ? (
+                        ) : (member.partner) ? (
                           <div>
                             <span className="pr-1 font-semibold">Partner: </span>
-                            <span className="pr-1">{member.partners[0]}</span>
+                            <span className="pr-1">{member.partner.name}</span>
                           </div>
                         ) : (
                           'No family relationship assigned yet'
-                        )}
+                        ))}
                       </div>
                     </div>
                   </div>

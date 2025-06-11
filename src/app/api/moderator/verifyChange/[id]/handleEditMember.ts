@@ -1,11 +1,6 @@
 import { displayValue, formatFieldName, normalizeValue } from "./utils";
 import { NextResponse } from "next/server";
 
-interface ChildRelation {
-  id: number;
-  order: number;
-}
-
 // GET request handler for Edit Member
 export async function handleEditMemberCase(member: any, changeData: any) {
   const formData = {
@@ -18,10 +13,10 @@ export async function handleEditMemberCase(member: any, changeData: any) {
     deathDate: member.deathDate?.toString().padStart(2, '0') ?? null,
     deathMonth: member.deathMonth?.toString().padStart(2, '0') ?? null,
     deathYear: member.deathYear?.toString() ?? null,
-    phoneNumber: member.phoneNumber,
-    occupation: member.occupation,
-    education: member.education,
-    address: member.address,
+    phoneNumber: member.phoneNumber || null,
+    occupation: member.occupation || null,
+    education: member.education || null,
+    address: member.address || null,
     descendant: member.descendant ? 'Yes' : 'No',
     father: member.nonDescendantRelation?.[0]?.fatherName,
     mother: member.nonDescendantRelation?.[0]?.motherName,

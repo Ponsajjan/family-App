@@ -22,7 +22,7 @@ interface Member {
   father: EachMember | null;
   mother: EachMember | null;
   children: EachMember[];
-  partners?: string[] | [];
+  partner?: {name: string} | null;
   birthYear?: number;
   parentNames?: string;
   phoneNumber?: string;
@@ -31,7 +31,7 @@ interface Member {
 export default function Relatives() {
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
-  const [members, setMembers] = useState<any[] | never[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [showMember, setShowMember] = useState<number | null>(null);
   const [loadingList, setLoadingList] = useState(true);

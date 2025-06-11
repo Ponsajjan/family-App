@@ -38,7 +38,7 @@ export const handleEditMember = async (data: RequestData, tx: any) => {
     deathDate: deceased && formData.deathDate ? parseInt(formData.deathDate) : null,
     deathMonth: deceased && formData.deathMonth ? parseInt(formData.deathMonth) : null,
     deathYear: deceased && formData.deathYear ? parseInt(formData.deathYear) : null,
-    phoneNumber: formData.phoneNumber,
+    phoneNumber: formData.phoneNumber || null,
     occupation: formData.occupation || null,
     education: formData.education || null,
     address: formData.address || null,

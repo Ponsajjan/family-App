@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     };
 
     const currentYear = parseInt(getCurrentISTYear(), 10);
-    const yearThreshold = currentYear - 18;
+    const yearThreshold = currentYear - 10;
 
     let memberList: Member[] = [];
     const groupedData: Array<Member | LetterHeader> = [];
@@ -92,6 +92,12 @@ export async function GET(request: NextRequest) {
         memberList = await prisma.member.findMany({
           where: {
             ...baseWhere,
+            AND: {
+              OR: [
+                { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
+                { birthYear: null },
+              ],
+            }
           },
           select: {
             id: true,
@@ -174,6 +180,8 @@ export async function GET(request: NextRequest) {
             name: true,
             gender: true,
             birthYear: true,
+            father: { select: { name: true } },
+            mother: { select: { name: true } },
             partner: { select: { name: true } },
           },
           orderBy: { name: "asc" },
@@ -192,6 +200,13 @@ export async function GET(request: NextRequest) {
     // Total count with the same filters
     const countWhere = {
       ...baseWhere,
+      ...(forType === "selectMember" && {
+      AND: {
+        OR: [
+          { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
+          { birthYear: null },
+        ],
+      }}),
       ...(forType === "selectPartner" && {
         gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
         partnerId: null,
@@ -252,6 +267,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       data: groupedData,
       totalCount: totalCount + 1,
+      mainMemberId: mainMemberId
     });
   } catch (error) {
     console.error("Error fetching memberList:", error);
