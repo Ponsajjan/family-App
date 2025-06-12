@@ -9,6 +9,7 @@ import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateAddM
 import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMainMemberContext } from "../layout";
 
 export default function AddMemberDetails () {
   const toast = useToast();
@@ -16,6 +17,7 @@ export default function AddMemberDetails () {
   const [formData, setFormData] = useState<AddMemberFormValueTypes>(AddMemberDefaultFormValue);
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
   const {token, logout} = useAuth();
+  const {head} = useMainMemberContext();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (loading) return
@@ -113,6 +115,7 @@ export default function AddMemberDetails () {
           errors={errors}
           handleInputChange={handleInputChange}
           handleFormSubmit={handleFormSubmit}
+          head={head}
         />
       </div>
     </Container>

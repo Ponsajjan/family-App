@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     };
 
     const currentYear = parseInt(getCurrentISTYear(), 10);
-    const yearThreshold = currentYear - 10;
+    const yearThreshold = currentYear - 18;
 
     let memberList: Member[] = [];
     const groupedData: Array<Member | LetterHeader> = [];

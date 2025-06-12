@@ -11,6 +11,7 @@ import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue,
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMainMemberContext } from "../layout";
 
 export default function EditMemberDetails () {
   const toast = useToast();
@@ -21,7 +22,8 @@ export default function EditMemberDetails () {
   const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
-  const {token, logout} = useAuth(); 
+  const {token, logout} = useAuth();
+  const {head} = useMainMemberContext()
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -168,6 +170,7 @@ export default function EditMemberDetails () {
             errors={errors}
             allowedEdit={allowedEdit}
             submitting={submitting}
+            head={head}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>

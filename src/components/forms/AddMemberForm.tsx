@@ -10,9 +10,10 @@ interface AddMemberFormProps {
     handleFormSubmit: (e: React.FormEvent) => void;
     errors: AddMemberFormErrorTypes;
     loading: boolean;
+    head: string | null;
 }
 
-function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, loading }: AddMemberFormProps) {
+function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, loading, head }: AddMemberFormProps) {
     const showDeathDetails = formData?.deceased ? "peer-checked:block" : "hidden";
     const getCurrentISTYear = () => {
       return new Date().toLocaleString("en-US", {
@@ -198,7 +199,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 onChange={handleInputChange}
             />
             <div className="flex justify-start items-center gap-2">
-                <p className="text-sm font-medium">Family descendant:</p>
+                <p className="text-sm font-medium">{head ? `${head}` : 'Family'} descendant:</p>
                 {["Yes", "No"].map((option) => (
                         <RadioButton
                         key={option}

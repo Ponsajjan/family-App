@@ -13,7 +13,8 @@ function EditMemberForm({
         handleInputChange,
         errors,
         allowedEdit,
-        submitting
+        submitting,
+        head
     }: any) {
 
     const toast = useToast();
@@ -193,7 +194,7 @@ function EditMemberForm({
                 onChange={handleInputChange}
             />
             <div className="flex justify-start items-center gap-2">
-                <p className="text-sm font-medium">Family descendant: </p>
+                <p className="text-sm font-medium">{head ? `${head}` : 'Family'} descendant:</p>
                 {["Yes", "No"].map((option) => (
                 <RadioButton
                     key={option}
