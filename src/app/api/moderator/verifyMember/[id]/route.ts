@@ -78,11 +78,11 @@ export async function GET(request: Request) {
           deathMonth: true,
           deathYear: true,
           descendant: true,
-          father: { select: { id: true, name: true } },
-          mother: { select: { id: true, name: true } },
-          partner: { select: { name: true } },
-          fatherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
-          motherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
+          father: { select: { id: true, name: true, verified: true } },
+          mother: { select: { id: true, name: true, verified: true } },
+          partner: { select: { name: true, verified: true } },
+          fatherOf: { select: { name: true, order: true, verified: true }, orderBy: { order: 'asc' } },
+          motherOf: { select: { name: true, order: true, verified: true }, orderBy: { order: 'asc' } },
           nonDescendantRelation: {
             select: { fatherName: true, motherName: true, siblingNames: true }
           },
@@ -98,7 +98,7 @@ export async function GET(request: Request) {
           id: { not: id },
           descendantOf: forDescendanceOf
         },
-        select: { name: true, order: true },
+        select: { name: true, order: true, verified: true },
         distinct: ['name'] // Ensure unique siblings
       })
     ]);
