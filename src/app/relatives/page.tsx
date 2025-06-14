@@ -158,7 +158,7 @@ export default function Relatives() {
               {members?.map((member: any) => (
                 member.gender === "Letter" ?
                 <div key={member.id} className="flex text-text_color items-center px-[10px] md:pt-1 bg-main_background sticky top-0 z-10">
-                  <span className="font-semibold pr-1">{member.name}</span>
+                  <span className="font-medium md:font-semibold pr-1">{member.name}</span>
                   <span className="border-t border-border_color block w-full"></span>
                 </div> :
                 <div key={member.id} className="pl-4">
@@ -174,7 +174,7 @@ export default function Relatives() {
                             {member.gender === "Female" && <Female />}
                           </div>
                           <div
-                            className="font-semibold"
+                            className="font-medium md:font-semibold"
                             dangerouslySetInnerHTML={{
                               __html: highlightText(member.name, params.search),
                             }}
@@ -183,13 +183,13 @@ export default function Relatives() {
                         <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
                             {(member.father || member.mother) ? (
                             <>
-                              <span className="pr-0.5 font-semibold">Parents:</span>
+                              <span className="pr-0.5 font-medium md:font-semibold">Parents:</span>
                               {member.father && <span className="pr-0.5">{member.father.name},</span>}
                               {member.mother && <span>{member.mother.name}</span>}
                             </>
                             ) : member.partner ? (
                             <div>
-                              <span className="pr-0.5 font-semibold">Partner:</span>
+                              <span className="pr-0.5 font-medium md:font-semibold">Partner:</span>
                               <span className="pr-0.5">{member.partner.name}</span>
                             </div>
                             ) : 'No family relationship assigned yet'}

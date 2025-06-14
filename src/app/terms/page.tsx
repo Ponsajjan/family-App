@@ -61,16 +61,16 @@ export default function Terms() {
       <Container>
         {loading ? <Loading /> :
         <div className="max-w-4xl mx-auto px-4 py-10">
-          <h1 className="text-2xl md:text-3xl font-bold text-center mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-center mb-1 sm:mb-4">
             {head} Family, Birthdays & Remembrances
           </h1>
 
-          <p className="text-lg text-center mb-3">
+          <p className="text-sm sm:text-lg text-center mb-3">
             This web app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances
           </p>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
-            <h2 className="text-xl flex items-center font-semibold mb-4">
+            <h2 className="text-xl flex items-center font-medium md:font-semibold mb-4">
               <span className="inline-block mr-2"><Community /></span>
               <span className="inline-block">Access is limited to:</span>
             </h2>
@@ -85,7 +85,7 @@ export default function Terms() {
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg mb-6">
             <div className='p-4'>
-              <h2 className="text-xl flex items-center font-semibold mb-4">
+              <h2 className="text-xl flex items-center font-medium md:font-semibold mb-4">
                 <span className="inline-block mr-2"><Community /></span>
                 <span className="inline-block">Guidelines:</span>
               </h2>
@@ -101,7 +101,7 @@ export default function Terms() {
           </div>
 
           <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-4">
-            <div className="text-xl font-semibold mb-4">
+            <div className="text-xl font-medium md:font-semibold mb-4">
               {(moderatorList.length > 1) ? 'Moderators:' : 'Moderator:'}
             </div>
             <ul>

@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 interface CalendarMonthlyEvent {
   id: string;
   name: string;
-  date: string;
+  date: Date;
   type: 'birthday' | 'deathday';
   hasDate: boolean;
   age: number | string;
@@ -40,7 +40,6 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
     const d = new Date(date);
     return new Date(d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
   };
-  const currentYear = toIST(new Date()).getFullYear();
 
   const renderEventList = (events: CalendarMonthlyEvent[], title: string) => {
     if (!events?.length) return null;
@@ -48,7 +47,7 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
     return (
       <div className="w-full">
         <div className="flex text-text_color items-center px-3 py-1 bg-main_background sticky top-12 md:top-0 z-10">
-          <span className="font-medium pr-2 whitespace-nowrap">{title}</span>
+          <span className="md:font-medium pr-2 whitespace-nowrap">{title}</span>
           <span className="border-t border-border_color block w-full"></span>
         </div>
         <div className="pl-5 md:pl-4 pb-1">
@@ -75,7 +74,7 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
                   )}
                   <div className='w-full flex justify-between items-center'>
                     <div>
-                      <div className='font-semibold capitalize leading-5'>{item.name}</div>
+                      <div className='font-medium md:font-semibold capitalize leading-5'>{item.name}</div>
                       <div className='text-xs font-light capitalize flex items-end gap-2'>
                         <span className="leading-3">
                           {item.type === 'birthday' ? 'Born At: ' : 'Died At: '} 
@@ -88,7 +87,7 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
                         {item.hasDate && (item.type === 'birthday' ? <Birthday2 /> : <Deathday2 />)}
                       </div>
                     </div>
-                    {(item.age === 'n/a' || date.getFullYear() === currentYear) ? null : (
+                    {item.age !== 'n/a' && (
                       <p className="font-light border-l border-dashed border-border_color min-w-10 text-center text-sm px-0.5">
                         {item.age}
                       </p>

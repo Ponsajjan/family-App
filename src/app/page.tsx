@@ -17,12 +17,31 @@ const getCurrentIndiaDate = () => {
   return new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
 };
 
+interface CalendarMonthlyEvent {
+  id: string;
+  name: string;
+  date: Date;
+  type: 'birthday' | 'deathday';
+  hasDate: boolean;
+  age: number | string;
+}
+
+interface EventDatesValue {
+  pastEvents: CalendarMonthlyEvent[];
+  todayEvents: CalendarMonthlyEvent[];
+  tomorrowEvents: CalendarMonthlyEvent[];
+  thisWeekEvents: CalendarMonthlyEvent[];
+  upcomingEvents: CalendarMonthlyEvent[];
+  selectedMonthEvents: CalendarMonthlyEvent[];
+  datesList: number[];
+}
+
 export default function Home() {
   const toast = useToast();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentIndiaDate = getCurrentIndiaDate();
   const [calendarDate, setCalendarDate] = useState(currentIndiaDate);
-  const [eventDatesValue, setEventDatesValue] = useState<any>([]);
+  const [eventDatesValue, setEventDatesValue] = useState<EventDatesValue | any>({});
   const [datesList, setDatesList] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
@@ -36,21 +55,19 @@ export default function Home() {
   const month = calendarDate.getMonth(); // 0-indexed
   
   const [selectedDate, setSelectedDate] = useState('');
-  const [eventForDate, setEventForDate] = useState<any>([]);
+  const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
   const {token, logout, isAuthenticated} = useAuth();
 
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year: number, month: number) {
     const selectMonth = new Date(year, month, 1);
-    // Convert to IST to get correct day
-    const istDay = new Date(selectMonth.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})).getDay();
+    const istDay = new Date(selectMonth).getDay();
     return istDay === 0 ? 6 : istDay - 1;
   }
 
   function getLastDayOfMonth(year: number, month: number) {
     const lastDay = new Date(year, month + 1, 0);
-    // Convert to IST
-    return new Date(lastDay.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+    return new Date(lastDay);
   }
 
   const firstDayOfMonth = getFirstDayOfMonth(year, month);
@@ -60,9 +77,9 @@ export default function Home() {
   let emptyCellsCount;
     
   if (emptyCells < 7) {
-      emptyCellsCount = emptyCells;
+    emptyCellsCount = emptyCells;
   } else {
-      emptyCellsCount = 0;
+    emptyCellsCount = 0;
   }
 
   const showEventForDate = (date: number) => {
@@ -72,8 +89,7 @@ export default function Home() {
     
     // Create date in IST
     const selectedDateIST = new Date(year, month, date);
-    const istDate = new Date(selectedDateIST.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
-    setSelectedDate(istDate.toISOString());
+    setSelectedDate(selectedDateIST.toISOString());
 
     const {
       pastEvents = [],
@@ -98,10 +114,9 @@ export default function Home() {
     const filtered = allEvents.filter((event) => {
       try {
         const eventDate = new Date(event.date);
-        const istEventDate = new Date(eventDate.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
         return (
-          istEventDate.getDate() === date &&
-          istEventDate.getMonth() === month
+          eventDate.getDate() === date &&
+          eventDate.getMonth() === month
         );
       } catch (error) {
         return false;
@@ -118,7 +133,7 @@ export default function Home() {
     setShowPopup(false);
     const previousMonth = new Date(calendarDate);
     previousMonth.setMonth(previousMonth.getMonth() - 1);
-    setCalendarDate(new Date(previousMonth.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})));
+    setCalendarDate(new Date(previousMonth));
   }
 
   function getNextMonth() {
@@ -126,7 +141,7 @@ export default function Home() {
     setShowPopup(false);
     const nextMonth = new Date(calendarDate);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
-    setCalendarDate(new Date(nextMonth.toLocaleString("en-US", {timeZone: "Asia/Kolkata"})));
+    setCalendarDate(new Date(nextMonth));
   }
 
   useEffect(() => {
@@ -193,7 +208,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-7 cursor-default text-text_color bg-field_color border-l border-border_color text-sm">
               {daysOfWeek.map((day) => (
-                <div key={day} className="py-1 font-medium text-center border-r border-b border-border_color">{day}</div>
+                <div key={day} className="py-1 md:font-medium text-center border-r border-b border-border_color">{day}</div>
               ))}
 
               {/* Render Empty Cells Before 1st of Month */}
@@ -233,7 +248,7 @@ export default function Home() {
             <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[60vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
-                {showPopup && <p className="text-xl font-semibold text-text_color">
+                {showPopup && <p className="text-xl font-medium md:font-semibold text-text_color">
                   {format(new Date(selectedDate), 'd MMM yyyy')}
                   <span className="font-normal pl-2">
                     ({format(new Date(selectedDate), 'EEEE')})
@@ -242,7 +257,7 @@ export default function Home() {
                 <span onClick={() => setShowPopup(false)} className="hidden md:block border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
               </div>
               <div className={`p-4 min-h-[100px] ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
-                <OnDate events={eventForDate} selectedDate={selectedDate} />
+                <OnDate events={eventForDate} />
               </div>
             </div>
           </div>

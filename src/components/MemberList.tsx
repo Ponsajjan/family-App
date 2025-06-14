@@ -309,7 +309,7 @@ export default function MemberList({
           {members.map((member) =>
             member.gender === 'Letter' ? (
               <div key={member.id} className="flex text-text_color items-center px-3 bg-main_background sticky top-0 z-10">
-                <span className="font-semibold pr-1">{member.name}</span>
+                <span className="font-medium md:font-semibold pr-1">{member.name}</span>
                 <span className="border-t border-border_color block w-full"></span>
               </div>
             ) : (
@@ -328,7 +328,7 @@ export default function MemberList({
                           {member.gender === 'Female' && <Female />}
                         </div>
                         <div
-                          className="font-semibold"
+                          className="font-medium md:font-semibold"
                           dangerouslySetInnerHTML={{
                             __html: highlightSearchText(member.name, params.search),
                           }}
@@ -336,16 +336,16 @@ export default function MemberList({
                       </div>
                       <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
                         {member.id == mainMemberID ?
-                          <span className='font-semibold'>Main Member</span>
+                          <span className='font-medium md:font-semibold'>Main Member</span>
                         : (member.father || member.mother ? (
                           <>
-                            <span className="pr-1 font-semibold">Parents: </span>
+                            <span className="pr-1 font-medium md:font-semibold">Parents: </span>
                             {member.father && <span className="pr-1">{member.father.name},</span>}
                             {member.mother && <span className="pr-1">{member.mother.name}</span>}
                           </>
                         ) : (member.partner) ? (
                           <div>
-                            <span className="pr-1 font-semibold">Partner: </span>
+                            <span className="pr-1 font-medium md:font-semibold">Partner: </span>
                             <span className="pr-1">{member.partner.name}</span>
                           </div>
                         ) : (

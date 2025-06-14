@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
+interface CalendarMonthlyEvent {
+  id: string;
+  name: string;
+  date: Date;
+  type: 'birthday' | 'deathday';
+  hasDate: boolean;
+  age: number | string;
+}
+
 // Helper function to convert any date to IST
 const toIST = (date: Date | string) => {
     const d = new Date(date);
@@ -61,27 +70,26 @@ export async function GET(request: Request) {
         const currentYear = today.getFullYear();
         const todayDate = today.getDate();
 
-        const categorizedEvents = {
-            pastEvents: [] as any[],
-            todayEvents: [] as any[],
-            tomorrowEvents: [] as any[],
-            thisWeekEvents: [] as any[],
-            upcomingEvents: [] as any[],
-            selectedMonthEvents: [] as any[],
+        const categorise = {
+            pastEvents: [] as CalendarMonthlyEvent[],
+            todayEvents: [] as CalendarMonthlyEvent[],
+            tomorrowEvents: [] as CalendarMonthlyEvent[],
+            thisWeekEvents: [] as CalendarMonthlyEvent[],
+            upcomingEvents: [] as CalendarMonthlyEvent[],
+            selectedMonthEvents: [] as CalendarMonthlyEvent[],
             datesList: new Set<number>()
         };
 
         members.forEach(member => {
-            // Process birthday with IST
             if (member.birthMonth === month) {
                 const date = member.birthDate || 1;
                 const eventDate = toIST(new Date(member.birthYear || 1600, member.birthMonth - 1, date));
                 
-                categorizedEvents.datesList.add(date);
+                categorise.datesList.add(date);
                 
                 // Calculate age based on the year parameter for selectedMonthEvents
-                const ageForSelectedMonth = member.birthYear ? year - member.birthYear : 'n/a';
-                const ageForCurrentEvents = member.birthYear ? currentYear - member.birthYear : 'n/a';
+                const ageForSelectedMonth = member.birthYear ? member.birthYear >= year ? 'n/a' : year - member.birthYear : 'n/a';
+                const ageForCurrentEvents = member.birthYear ? member.birthYear == currentYear ? 'n/a' : currentYear - member.birthYear : 'n/a';
                 
                 const event = {
                     id: member.id,
@@ -94,7 +102,7 @@ export async function GET(request: Request) {
 
                 categorizeEvent(
                     event,
-                    categorizedEvents, 
+                    categorise, 
                     month, 
                     year, 
                     todayDate, 
@@ -109,11 +117,11 @@ export async function GET(request: Request) {
                 const date = member.deathDate || 1;
                 const eventDate = toIST(new Date(member.deathYear || 1600, member.deathMonth - 1, date));
                 
-                categorizedEvents.datesList.add(date);
+                categorise.datesList.add(date);
                 
                 // Calculate age based on the year parameter for selectedMonthEvents
-                const ageForSelectedMonth = member.deathYear ? year - member.deathYear : 'n/a';
-                const ageForCurrentEvents = member.deathYear ? currentYear - member.deathYear : 'n/a';
+                const ageForSelectedMonth = member.deathYear ? member.deathYear >= year ? 'n/a' : year - member.deathYear : 'n/a';
+                const ageForCurrentEvents = member.deathYear ? member.deathYear == currentYear ? 'n/a' : currentYear - member.deathYear : 'n/a';
                 
                 const event = {
                     id: member.id,
@@ -126,7 +134,7 @@ export async function GET(request: Request) {
 
                 categorizeEvent(
                     event,
-                    categorizedEvents, 
+                    categorise, 
                     month, 
                     year, 
                     todayDate, 
@@ -136,20 +144,17 @@ export async function GET(request: Request) {
                 );
             }
         });
-        
-        // Add event to pastEvents and sort in descending order
-        categorizedEvents.pastEvents.sort((a: any, b: any) => {
-            const dateA = new Date(a.date).getDate();
-            const dateB = new Date(b.date).getDate();
-            return dateB - dateA; // Descending order
-        });
 
-        // Convert Set to sorted array
-        const datesList = Array.from(categorizedEvents.datesList).sort((a, b) => a - b);
+        categorise.pastEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(b.date).getDate() - new Date(a.date).getDate());
+        categorise.todayEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
+        categorise.tomorrowEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
+        categorise.thisWeekEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
+        categorise.upcomingEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
+        categorise.selectedMonthEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
 
         return NextResponse.json({
-            eventDates: {...categorizedEvents},
-            datesList
+            eventDates: {...categorise},
+            datesList: Array.from(categorise.datesList)
         });
 
     } catch (error) {
