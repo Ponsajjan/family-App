@@ -73,7 +73,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
-    // Combine fatherOf and motherOf children
+    // Get children values
     const children = member.fatherOf.length > 0 ? member.fatherOf : member.motherOf.length > 0 ? member.motherOf : [];
 
     // Sort children by order
@@ -95,7 +95,7 @@ export async function GET(request: Request) {
       partner: member.partner,
       children: children,
       pendingVerification: member.pendingVerification?.length,
-      hasVerified, // Add hasVerified to the response
+      hasVerified,
     };
 
     return NextResponse.json({ data });
@@ -134,11 +134,6 @@ export async function PUT(request: Request) {
     }
 
     const { deleteData, hasPartner, childrenOrder } = await request.json();
-
-    // Validate request body
-    if (!deleteData || Object.keys(deleteData).length === 0) {
-      return NextResponse.json({ error: "No data provided for update" }, { status: 400 });
-    }
 
     // Check if any of the members are verified
     const member = await prisma.member.findUnique({
@@ -206,12 +201,10 @@ export async function PUT(request: Request) {
 
     // Handle partner removal
     if (deleteData.partnerId) {
-      const partnerIdToRemove = deleteData.partnerId;
-
       updatePromises.push(
         prisma.$transaction([
           prisma.member.update({
-            where: { id: partnerIdToRemove },
+            where: { id: deleteData.partnerId },
             data: { partnerId: null },
           }),
           prisma.member.update({
@@ -223,7 +216,7 @@ export async function PUT(request: Request) {
     }
 
     // Handle children relations removal
-    if (deleteData.childrenId && Array.isArray(deleteData.childrenId)) {
+    if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
       const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
 
       // Update the member's fatherOf and motherOf relationships (remove child from member)
@@ -244,7 +237,7 @@ export async function PUT(request: Request) {
       );
 
       // Update the partner's fatherOf and motherOf relationships (remove child from partner)
-      if (hasPartner !== null && hasPartner !== undefined && !deleteData.partnerId) {
+      if (hasPartner && !deleteData.partnerId) {
         updatePromises.push(
           prisma.member.update({
             where: { id: hasPartner },

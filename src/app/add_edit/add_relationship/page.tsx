@@ -57,7 +57,7 @@ export default function AddRelationshipDetails () {
     const updateData = (prev: any) => {
       if (Array.isArray(prev['children'])) {
         const exists = prev['children'].some((entry) => entry.id === id);
-          if (exists) {
+        if (exists) {
           return {
             ...prev,
             ['children']: prev['children'].filter((entry) => entry.id !== id),

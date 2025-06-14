@@ -91,12 +91,6 @@ export default function EditRelationshipDetails() {
           };
         }
       }
-
-      // If not an array, initialize with the first object
-      return {
-        ...prev,
-        ['children']: { id },
-      };
     });
   };
 
@@ -130,10 +124,10 @@ export default function EditRelationshipDetails() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (noChanges) {
-      toast?.show("No changes to update", "error", 5000);
-      return;
-    }
+    // if (noChanges) {
+    //   toast?.show("No changes to update", "error", 5000);
+    //   return;
+    // }
 
     try {
       setSubmitting(true);

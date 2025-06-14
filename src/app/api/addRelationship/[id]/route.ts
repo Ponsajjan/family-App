@@ -182,11 +182,21 @@ export async function PUT(request: Request) {
     });
 
     const currentMember = await prisma.member.findUnique({
-      where: { id: memberId, descendantOf: forDescendanceOf },
-      select: { fatherOf: { select: { id: true } }, motherOf: { select: { id: true } }, partnerId: true }
+      where: { 
+        id: memberId, 
+        descendantOf: forDescendanceOf 
+      },
+      select: { 
+        fatherOf: { select: { id: true } }, 
+        motherOf: { select: { id: true } }, 
+        partnerId: true }
     });
 
     if (!currentMember) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    
+    if (!currentMember.partnerId && !updatedData.partnerId) {
+      return NextResponse.json({ error: "Partner not defined" }, { status: 400 })
+    }
 
     // Handle Verified Relationships
     if (verifiedMembers.length > 0) {
