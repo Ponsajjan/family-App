@@ -10,7 +10,7 @@ import React, { useState, useEffect } from "react";
 
 export default function ExpandableTable() {
   const toast = useToast();
-  const {token, logout, isAuthenticated} = useAuth();
+  const {logout, isAuthenticated} = useAuth();
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null);
   const [data, setData] = useState([]);
@@ -29,8 +29,7 @@ export default function ExpandableTable() {
         const response = await fetch('/api/admin', {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
+            'Content-Type': 'application/json'
           }
         });
         // Handle 401 Unauthorized
@@ -48,7 +47,7 @@ export default function ExpandableTable() {
     };
 
     fetchData();
-  }, [toast, token, logout, isAuthenticated]);
+  }, [toast, logout, isAuthenticated]);
 
   const toggleRow = (index: number) => {
     setEditingModerator(null);
@@ -76,8 +75,7 @@ export default function ExpandableTable() {
       const response = await fetch(`/api/admin/moderator/${moderatorId}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Content-Type": 'application/json'
         },
         body: JSON.stringify({
           moderatorName: editModerator.name.trim(),
@@ -140,8 +138,7 @@ export default function ExpandableTable() {
       const response = await fetch(`/api/admin/moderator`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Content-Type": 'application/json'
         },
         body: JSON.stringify({
           moderatorName: newModerator.name.trim(),
@@ -176,8 +173,7 @@ export default function ExpandableTable() {
       const response = await fetch(`/api/admin/moderator/${id}`, {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Content-Type": 'application/json'
         },
       });
   
@@ -216,8 +212,7 @@ export default function ExpandableTable() {
       const response = await fetch(`/api/admin/edit_login/${id}`, {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          "Content-Type": 'application/json'
         },
       });
   

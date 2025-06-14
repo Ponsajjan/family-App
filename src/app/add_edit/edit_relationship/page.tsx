@@ -22,7 +22,7 @@ export default function EditRelationshipDetails() {
   const [showList, setShowList] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [resetValue, setResetValue] = useState<any>({});
-  const {token, logout} = useAuth();
+  const {logout} = useAuth();
   const router = useRouter();
 
   const handleShowList = () => {
@@ -38,8 +38,7 @@ export default function EditRelationshipDetails() {
             {
               method: 'GET',
               headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
+                'Content-Type': 'application/json'
               },
             }
           );
@@ -70,7 +69,7 @@ export default function EditRelationshipDetails() {
 
       fetchMembers();
     }
-  }, [formData.id, toast, router, token, logout]);
+  }, [formData.id, toast, router, logout]);
 
   const handleRemoveChildrenValue = (id: number) => {
     setNoChanges(false);
@@ -134,8 +133,7 @@ export default function EditRelationshipDetails() {
       const response = await fetch(`/api/editRelationship/${formData.id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
-          'Authorization': `Bearer ${token}` 
+          "Content-Type": 'application/json'
         },
         body: JSON.stringify({ 
           deleteData: deleteData, 

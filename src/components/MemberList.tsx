@@ -64,7 +64,7 @@ export default function MemberList({
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [mainMemberID, setMainMemberID] = useState(-1);
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 25,
@@ -155,8 +155,7 @@ export default function MemberList({
           { 
             method: 'GET',
             headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}` 
+              'Content-Type': 'application/json'
             },
             cache: 'no-store',
           }
@@ -213,7 +212,7 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [token, params, hasMore, toast, descendant, excludeId, gender, logout]);
+  }, [params, hasMore, toast, descendant, excludeId, gender, logout]);
   // Do not add letterId in dependency for list to work properly
   
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {

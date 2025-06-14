@@ -1,12 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '');
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
+  const token = request.cookies.get("token")?.value;
   
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -123,11 +122,10 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
+  const token = request.cookies.get("token")?.value;
   
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

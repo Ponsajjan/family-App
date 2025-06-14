@@ -2,7 +2,6 @@
 
 import { useToast } from "@/components/Toast";
 import Topnav from "@/components/Topnav";
-import { useAuth } from "@/contexts/AuthContext";
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface mainValueType {
@@ -13,7 +12,6 @@ const MainMemberContext = createContext<mainValueType>({head: ''})
 export const useMainMemberContext = () => useContext(MainMemberContext);
 
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
-  const {token} = useAuth();
   const toast = useToast();
   const [head, setHead] = useState('')
 
@@ -25,8 +23,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
           {
             method: 'GET',
             headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}` 
+              'Content-Type': 'application/json'
             },
           }
         );
@@ -42,7 +39,7 @@ export default function RootLayout({children}: Readonly<{children: React.ReactNo
     }
 
     fetchHeadMembers();
-  }, [token, toast]);
+  }, [toast]);
 
   const contextValue: mainValueType = {
     head,

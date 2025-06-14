@@ -16,7 +16,7 @@ export default function AddMemberDetails () {
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<AddMemberFormValueTypes>(AddMemberDefaultFormValue);
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
-  const {token, logout} = useAuth();
+  const {logout} = useAuth();
   const {head} = useMainMemberContext();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,8 +70,7 @@ export default function AddMemberDetails () {
       const response = await fetch("/api/addMember", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          'Authorization': `Bearer ${token}` 
+          "Content-Type": 'application/json'
         },
         body: JSON.stringify(memberData),
       });

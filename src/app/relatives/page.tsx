@@ -37,7 +37,7 @@ export default function Relatives() {
   const [loadingList, setLoadingList] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const {token, logout} = useAuth();
+  const {logout} = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 25,
@@ -71,8 +71,7 @@ export default function Relatives() {
           {
             method: 'GET',
             headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}` 
+              'Content-Type': 'application/json'
             },
           }
         );
@@ -123,7 +122,7 @@ export default function Relatives() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, token, logout]);
+  }, [params, hasMore, toast, logout]);
   
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

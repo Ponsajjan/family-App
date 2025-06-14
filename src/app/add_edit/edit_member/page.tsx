@@ -22,7 +22,7 @@ export default function EditMemberDetails () {
   const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
-  const {token, logout} = useAuth();
+  const {logout} = useAuth();
   const {head} = useMainMemberContext()
 
   const handleSelectedValue = (name: string, id: number) => {
@@ -39,8 +39,7 @@ export default function EditMemberDetails () {
             {
               method: 'GET',
               headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
+                'Content-Type': 'application/json'
               },
             }
           );
@@ -64,7 +63,7 @@ export default function EditMemberDetails () {
   
       fetchMember()
     }
-  }, [formData.id, toast, token, logout]);
+  }, [formData.id, toast, logout]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (loading) return
@@ -120,8 +119,7 @@ export default function EditMemberDetails () {
       const response = await fetch(`/api/editMember/${formData.id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
-          'Authorization': `Bearer ${token}` 
+          "Content-Type": 'application/json'
         },
         body: JSON.stringify(memberData),
       });

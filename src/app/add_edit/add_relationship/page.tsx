@@ -22,7 +22,7 @@ export default function AddRelationshipDetails () {
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
-  const {token, logout} = useAuth();
+  const {logout} = useAuth();
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
     excludeId: [],
@@ -139,8 +139,7 @@ export default function AddRelationshipDetails () {
       const response = await fetch(`/api/addRelationship/${selectedMemberData?.id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
-          'Authorization': `Bearer ${token}` 
+          "Content-Type": 'application/json'
         },
         body: JSON.stringify(memberData),
       });

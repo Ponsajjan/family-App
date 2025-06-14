@@ -10,9 +10,7 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "50", 10); // Page size
   const searchQuery = searchParams.get("search") || ""; // Search term
   const filterQuery = searchParams.get("filter") || "";
-
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
+  const token = request.cookies.get("token")?.value;
   
   if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

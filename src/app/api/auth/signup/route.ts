@@ -1,7 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { verifyToken } from "@/utils/auth";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const token = request.cookies.get("token")?.value;
+
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const decoded = await verifyToken(token);
+  const userType = decoded.userType;
+
+  if (userType !== 'Admin') {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+  }
   try {
     const formData = await request.json(); 
     const deceased = formData.deceased === true;

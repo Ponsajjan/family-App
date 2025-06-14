@@ -14,7 +14,7 @@ export default function Page() {
   const toast = useToast();
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -66,8 +66,7 @@ export default function Page() {
       const response = await fetch('/api/admin/create_login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(newLoginDetails),
       });

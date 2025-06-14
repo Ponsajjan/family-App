@@ -11,7 +11,7 @@ export default function Page() {
     const router = useRouter();
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
-    const {token, storeLoginValues} = useAuth();
+    const {storeLoginValues} = useAuth();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,8 +19,7 @@ export default function Page() {
             const res = await fetch("/api/auth/moderator_login", {
                 method: "POST",
                 headers: { 
-                    "Content-Type": "application/json",
-                    'Authorization': `Bearer ${token}`
+                    "Content-Type": 'application/json'
                 },
                 body: JSON.stringify(form),
             });

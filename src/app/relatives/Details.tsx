@@ -3,11 +3,9 @@ import Container from '@/components/Container';
 import { CloseIcon, Condolences, Female2, Male2, Verified } from '@/utils/Icons';
 import React, { useEffect, useState } from 'react';
 import Loading from '@/components/Loading';
-import { useAuth } from '@/contexts/AuthContext';
 import { DateInfo, InformationSection, MemberItem } from '../../components/MemberDetailsComponents';
 
 export default function Details({ showMember, openDetails }: any) {
-  const { token } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +19,7 @@ export default function Details({ showMember, openDetails }: any) {
         setLoadingDetails(true);
         const response = await fetch(`/api/relatives/${showMember}`, {
           headers: { 
-            'Authorization': `Bearer ${token}` 
+            'Content-Type': 'application/json'
           },
         });
   
@@ -41,7 +39,7 @@ export default function Details({ showMember, openDetails }: any) {
     if (showMember) {
         fetchMemberDetails();
     }
-  }, [showMember, token]);
+  }, [showMember]);
 
   if (error) return <div className='p-4'>Error: {error}</div>;
   if (!data && !loadingDetails) return <div className='p-4 loading-text'>No data found</div>;

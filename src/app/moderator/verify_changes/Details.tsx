@@ -2,7 +2,6 @@ import Container from '@/components/Container';
 import { HoldButton } from '@/components/HoldButton';
 import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
-import { useAuth } from '@/contexts/AuthContext';
 import { Approved, CloseIcon, NavIconVerified, Rejected } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -21,7 +20,6 @@ const ChangeRequestView = ({
   const [disableButton, setDisableButton] = useState(false);
   const [requestStatus, setRequestStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [error, setError] = useState<string | null>(null);
-  const {token} = useAuth();
   const router = useRouter();
   const toast = useToast();
 
@@ -74,8 +72,7 @@ const ChangeRequestView = ({
         const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[validIndex].id}`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
+            'Content-Type': 'application/json'
           },
         });
         
@@ -98,7 +95,7 @@ const ChangeRequestView = ({
       fetchData();
     }
     
-  }, [showDetailsFor, currentDetailIndex, token, memberId, setChangeList, setCurrentDetailIndex]);
+  }, [showDetailsFor, currentDetailIndex, memberId, setChangeList, setCurrentDetailIndex]);
 
   const handleNext = () => {
     if (showDetailsFor && currentDetailIndex < showDetailsFor.length - 1) {
@@ -124,8 +121,7 @@ const ChangeRequestView = ({
       const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(data.submitData),
       });
@@ -165,8 +161,7 @@ const ChangeRequestView = ({
       const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Content-Type': 'application/json'
         },
       });
 

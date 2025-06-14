@@ -2,7 +2,6 @@ import { useToast } from '@/components/Toast';
 import { AddRelationDefaultFormValue } from '@/types/add__edit/add_relationship/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
-import { useAuth } from '@/contexts/AuthContext';
 
 interface AddPartnerPropType {
     selectedPartnerId: number | null | undefined;
@@ -13,7 +12,6 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
     const [patnerLoading, setPartnerLoading] = useState(false);
     const [selectedPartnerData, setSelectedPartnerData] = useState<any>([]);
     const [excludePartnerRelation, setExcludePartnerRelation] = useState<number[]>([]);
-    const {token} = useAuth();
     const router = useRouter(); 
     const toast = useToast();
 
@@ -26,8 +24,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                         {
                             method: 'GET',
                             headers: { 
-                              'Content-Type': 'application/json',
-                              'Authorization': `Bearer ${token}` 
+                              'Content-Type': 'application/json'
                             },
                         }
                     );
@@ -71,7 +68,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
             setExcludePartnerRelation([]);
         }
 
-    }, [selectedPartnerId, router, selectedMemberData.children, toast, token]);
+    }, [selectedPartnerId, router, selectedMemberData.children, toast]);
     return {
         patnerLoading,
         selectedPartnerData,

@@ -10,8 +10,7 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50", 10)));
 
   // Authentication
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
+  const token = request.cookies.get("token")?.value;
   
   if (!token) {
     return NextResponse.json(

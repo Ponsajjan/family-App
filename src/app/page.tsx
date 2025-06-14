@@ -56,7 +56,7 @@ export default function Home() {
   
   const [selectedDate, setSelectedDate] = useState('');
   const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
-  const {token, logout, isAuthenticated} = useAuth();
+  const {logout, isAuthenticated} = useAuth();
 
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year: number, month: number) {
@@ -154,8 +154,7 @@ export default function Home() {
         const response = await fetch(`/api/calendar/${month + 1}/${year}`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
         // Handle 401 Unauthorized
@@ -180,7 +179,7 @@ export default function Home() {
     }
 
     fetchEventDates();
-  }, [isAuthenticated, month, year, toast, token, logout]);
+  }, [isAuthenticated, month, year, toast, logout]);
 
   return (
     <div className="w-full">

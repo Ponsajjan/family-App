@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { handleEditRelationship } from "./applyHandleEditRelationship";
@@ -14,12 +14,11 @@ interface RequestData {
   type: "Edit Member" | "Add Relationship" | "Edit Relationship";
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const requestId = parseInt(url.pathname.split('/').pop() || '');
-    const authHeader = request.headers.get('Authorization');
-    const token = authHeader?.split(' ')[1];
+    const token = request.cookies.get("token")?.value;
 
     // Validation checks
     if (!token) {
@@ -116,11 +115,10 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   const url = new URL(request.url);
   const requestId = parseInt(url.pathname.split('/').pop() || '', 10);
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
+  const token = request.cookies.get("token")?.value;
   
   // Initial validation
   if (!token) {
@@ -178,7 +176,7 @@ export async function PUT(request: Request) {
 
     // Process request in transaction
     const result = await prisma.$transaction(async (tx) => {
-      const handlers = {
+      const handlers: Record<string, any> = {
         "Edit Member": handleEditMember,
         "Add Relationship": handleAddRelationship,
         "Edit Relationship": handleEditRelationship
@@ -221,11 +219,10 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
     const url = new URL(request.url);
     const editDataId = parseInt(url.pathname.split('/').pop() || '', 10);
-    const authHeader = request.headers.get('Authorization');
-    const token = authHeader?.split(' ')[1];
+    const token = request.cookies.get("token")?.value;
     
     if (!token) {
       return NextResponse.json(

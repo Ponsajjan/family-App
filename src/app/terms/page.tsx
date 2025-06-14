@@ -7,19 +7,16 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/Toast'
 import Loading from '@/components/Loading'
-import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 export default function Terms() {
   const toast = useToast();
   const[loading, setLoading] = useState(true)
   const[head, setHead] = useState('')
   const[moderatorList, setModeratorList] = useState([])
-  const {token, logout, isAuthenticated} = useAuth(); 
+  const router = useRouter(); 
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      return;
-    }
     async function fetchMembers() {
       try {
         setLoading(true)
@@ -27,14 +24,14 @@ export default function Terms() {
           {
             method: 'GET',
             headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}` 
+              'Content-Type': 'application/json'
             },
           }
         );
         // Handle 401 Unauthorized
         if (response.status === 401) {
-          logout();
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          router.push('/login');
           return;
         }
 
@@ -53,7 +50,21 @@ export default function Terms() {
     }
 
     fetchMembers();
-  }, [isAuthenticated, token, toast, logout]);
+  }, [toast]);
+
+    const logout = async () => {
+    try {
+      const response = await fetch('/api/logout', { method: 'GET' });
+  
+      if (response.ok) {
+        window.location.href = '/login';
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
   return (
     <div className='flex flex-col w-full text-text_color'>

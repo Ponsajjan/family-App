@@ -13,7 +13,7 @@ import React, { useEffect, useState } from 'react';
 export default function NewMemberDetails({ showDetailsFor, setShowDetails, handleMemberSearch, setMembers, members, selectedFilter }: any) {
     const toast = useToast();
     const router = useRouter();
-    const {token, logout} = useAuth();
+    const {logout} = useAuth();
     const [data, setData] = useState<any>(null);
     const [loadingDetails, setLoadingDetails] = useState(true);
     const [deleted, setDeleted] = useState(false);
@@ -29,8 +29,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                     {
                     method: 'GET',
                     headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` 
+                        'Content-Type': 'application/json'
                     },
                     }
                 );
@@ -59,7 +58,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             fetchMembers();
         }
 
-    }, [toast, showDetailsFor, token, router, logout]);
+    }, [toast, showDetailsFor, router, logout]);
 
 
     const handleVerification = async (memberId: number) => {
@@ -67,8 +66,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             const response = await fetch(`/api/moderator/verifyMember/${memberId}`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
+                    'Content-Type': 'application/json'
                 },
             });
             const result = await response.json();
@@ -137,8 +135,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             const response = await fetch(`/api/moderator/verifyMember/${memberId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
+                    'Content-Type': 'application/json'
                 },
             });
             const result = await response.json();

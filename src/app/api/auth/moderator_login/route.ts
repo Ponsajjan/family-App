@@ -1,14 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { generateToken, verifyToken } from "@/utils/auth";
 import prisma from "@/db/db";
 
 // this api takes in token finds authuntication using unique password then checks value with moderator password
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json();
-    const authHeader = request.headers.get('Authorization');
-    const token = authHeader?.split(' ')[1];
+    const token = request.cookies.get("token")?.value;
     
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

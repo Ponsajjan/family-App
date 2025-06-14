@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/db/db';
 import { verifyToken } from '@/utils/auth';
 
@@ -32,9 +32,8 @@ interface FormattedAuthEntry {
   }[];
 }
 
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
+export async function GET(request: NextRequest) {
+  const token = request.cookies.get("token")?.value;
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

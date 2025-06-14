@@ -17,7 +17,7 @@ export default function NewMembers() {
   const [showDetailsFor, setShowDetailsFor] = useState([]);
   const [currentDetailIndex, setCurrentDetailIndex] = useState<number>(0);
   const [memberId, setMemberId] = useState<number | null>(null)
-  const {token, logout} = useAuth();
+  const {logout} = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 25,
@@ -37,8 +37,7 @@ export default function NewMembers() {
           {
             method: 'GET',
             headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}` 
+              'Content-Type': 'application/json'
             },
             cache: 'no-store',
           }
@@ -90,7 +89,7 @@ export default function NewMembers() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, token, logout]);
+  }, [params, hasMore, toast, logout]);
 
   const handleShowDetails = (value: any, id:number) => {
     setShowDetails(true);
