@@ -201,7 +201,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
             <div className="flex justify-start items-center gap-2">
                 <p className="text-sm font-medium">{head ? `${head}` : 'Family'} descendant:</p>
                 {["Yes", "No"].map((option) => (
-                        <RadioButton
+                    <RadioButton
                         key={option}
                         label={option}
                         name="descendant"

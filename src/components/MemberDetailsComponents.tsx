@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 
+// Relatives Member Details Components
 export const InformationSection = ({ 
   title, 
   children 
@@ -66,6 +67,7 @@ export const MemberItem = ({ label, value, isList = false }: {
   );
 };
 
+// Verify Member Details Components
 export const MemberItemVerify = ({ 
   label, 
   name, 

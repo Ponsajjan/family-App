@@ -124,7 +124,6 @@ export default function Relatives() {
       container?.removeEventListener('scroll', handleScroll);
     };
   }, [params, hasMore, toast, token, logout]);
-  // Do not add letterId in dependency for list to work properly
   
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

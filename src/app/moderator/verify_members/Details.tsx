@@ -198,16 +198,16 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
 
                         {data.generalInformation.deceased && (
                             <DateInfo 
-                            prefix="Died At"
-                            date={data.generalInformation.deathDate}
-                            month={data.generalInformation.deathMonth}
-                            year={data.generalInformation.deathYear}
-                            fallback="Deceased"
+                                prefix="Died At"
+                                date={data.generalInformation.deathDate}
+                                month={data.generalInformation.deathMonth}
+                                year={data.generalInformation.deathYear}
+                                fallback="Deceased"
                             />
                         )}
                     </div>
                 </div>
-                    <div className='ml-auto mr-0 w-fit'>{data?.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
+                <div className='ml-auto mr-0 w-fit'>{data?.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
                 {(data?.relationInformation) &&
                 <InformationSection title="Relation Information">
                     {data?.relationInformation.father && (
@@ -228,7 +228,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                         />
                     )}
 
-                    {data?.descendant && !(data?.relationInformation.mother || data?.relationInformation.mother) && (
+                    {data?.descendant && !(data?.relationInformation.father || data?.relationInformation.mother) && (
                         <MemberItemVerify 
                             label="Parents"
                             name="-- Unassigned --"
@@ -257,7 +257,6 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                             name={data?.relationInformation.partner}
                             isVerified={data?.relationInformation.v_partner}
                             onClick={data?.relationInformation.partner ? () => handleMemberSearch(data?.relationInformation.partner!) : undefined}
-                            isCustom={!data?.relationInformation.partner}
                         />
                     )}
 
