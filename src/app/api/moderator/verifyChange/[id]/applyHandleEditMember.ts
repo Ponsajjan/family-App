@@ -21,7 +21,7 @@ interface MemberUpdateData {
 interface RequestData {
   formData: any;
   memberId: number;
-  type: "Edit Member" | "Add Relationship" | "Edit Relationship";
+  type: "Edit Member";
 }
 
 export const handleEditMember = async (data: RequestData, tx: any) => {

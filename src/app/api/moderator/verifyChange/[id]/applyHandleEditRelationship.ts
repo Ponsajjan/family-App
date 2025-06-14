@@ -1,7 +1,7 @@
 interface RequestData {
   formData: any;
   memberId: number;
-  type: "Edit Member" | "Add Relationship" | "Edit Relationship";
+  type: "Edit Relationship";
 }
 
 // PUT request handler
@@ -36,7 +36,7 @@ export const handleEditRelationship = async (data: RequestData, tx: any) => {
       })
     );
 
-    if (data.formData.hasPartner) {
+    if (data.formData.hasPartner && !data.formData.deleteData?.partnerId) {
       updatePromises.push(
         tx.member.update({
           where: { id: data.formData.hasPartner },
