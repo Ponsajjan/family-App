@@ -2,6 +2,8 @@ import Topnav from "@/components/Topnav";
 import FetchFamilyTree from "./FetchFamilyTree";
 import DragScroll from "@/components/DragScroll";
 import { cookies } from 'next/headers';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const dynamic = "force-dynamic"
 

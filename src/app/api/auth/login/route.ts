@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { generateToken } from "@/utils/auth";
 import prisma from "@/db/db";
+import dotenv from 'dotenv';
+dotenv.config();
 
 interface LoginRequestBody {
   password: string;

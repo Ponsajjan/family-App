@@ -1,4 +1,6 @@
 import Calender from "./Calender";
+import dotenv from 'dotenv';
+dotenv.config();
 
 const page = () => {
     return (
@@ -13,16 +15,16 @@ export default page;
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export const metadata = {
-    title: "Family App",
+    title: "Family Calender",
     description:
-        "Family digital Hub Shared Calender For Birthdays & Remembrances",
+        "Shared Family Calender For Birthdays & Remembrances",
     openGraph: {
-        title: "Family App | Birthdays & Remembrances Calender",
+        title: "Family Calender | Birthday & Remembrance Calender",
         description:
-            "Family digital Hub Shared Calender For Birthdays & Remembrances",
+            "Shared Family Calender For Birthdays & Remembrances",
         url: `${baseUrl}`,
         type: "website",
-        images: [{url:`${baseUrl}/native.jpg`, alt: 'Stitchflow SaaS Management Platform'}],
+        images: [{url:`${baseUrl}/native.jpg`, alt: 'Birthday & Remembrance Calender'}],
     },
     alternates: {
         canonical: `${baseUrl}`,
