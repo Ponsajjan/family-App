@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/contexts/ToastContext';
 import { useDebounce } from '@/utils/debounce';
 import Container from './Container';
 import { useAuth } from '@/contexts/AuthContext';

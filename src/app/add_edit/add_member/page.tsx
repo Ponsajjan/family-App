@@ -6,10 +6,10 @@ import { AddMember, BackButton } from "@/utils/Icons";
 import Container from "@/components/Container";
 import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue, AddMemberFormValueTypes, AddMemberFormErrorTypes } from "@/types/add__edit/add_member/types";
 import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateAddMemberForm";
-import { useToast } from "@/components/Toast";
+import { useToast } from "@/contexts/ToastContext";
 import AddMemberForm from "@/components/forms/AddMemberForm";
+import { useMemberHeadContext } from "@/contexts/HeadContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMainMemberContext } from "../layout";
 
 export default function AddMemberDetails () {
   const toast = useToast();
@@ -17,7 +17,7 @@ export default function AddMemberDetails () {
   const [formData, setFormData] = useState<AddMemberFormValueTypes>(AddMemberDefaultFormValue);
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
   const {logout} = useAuth();
-  const {head} = useMainMemberContext();
+  const {head} = useMemberHeadContext();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (loading) return

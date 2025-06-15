@@ -67,7 +67,7 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
                     </div>
                   ) : (
                     <div className="w-14 ml-2 mr-3">
-                      <div className="flex justify-center items-center">          
+                      <div className={`flex justify-center ${title === "Earlier This Month" ? 'opacity-60' : ''} items-center`}>          
                         <Deathday />
                       </div>
                     </div>

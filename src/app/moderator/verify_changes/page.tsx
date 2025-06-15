@@ -2,7 +2,7 @@
 
 import { Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/contexts/ToastContext';
 import Topnav from "@/components/Topnav";
 import Details from './Details';
 import { useAuth } from '@/contexts/AuthContext';

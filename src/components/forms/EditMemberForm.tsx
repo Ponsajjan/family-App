@@ -4,7 +4,7 @@ import React from 'react'
 import Input from '@/components/Input'
 import { ButtonSolid } from '@/components/Button'
 import RadioButton from "@/components/RadioButton";
-import { useToast } from '../Toast';
+import { useToast } from '../../contexts/ToastContext';
 
 function EditMemberForm({
         handleSubmit,

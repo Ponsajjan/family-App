@@ -3,7 +3,7 @@
 import Inter from "next/font/local";
 import Sidenav from "@/components/Sidenav";
 import "./globals.css";
-import ToastProvider from "@/components/Toast";
+import ToastProvider from "@/contexts/ToastContext";
 // import { ThemeProvider } from "@/contexts/ThemeContext";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/contexts/AuthContext";

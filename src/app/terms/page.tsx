@@ -5,7 +5,7 @@ import Topnav from '@/components/Topnav'
 import { Community, Logout } from '@/utils/Icons'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { useToast } from '@/components/Toast'
+import { useToast } from '@/contexts/ToastContext'
 import Loading from '@/components/Loading'
 import { useRouter } from 'next/navigation'
 
@@ -50,9 +50,9 @@ export default function Terms() {
     }
 
     fetchMembers();
-  }, [toast]);
+  }, [router, toast]);
 
-    const logout = async () => {
+  const logout = async () => {
     try {
       const response = await fetch('/api/logout', { method: 'GET' });
   

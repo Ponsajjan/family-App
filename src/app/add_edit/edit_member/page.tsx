@@ -6,12 +6,12 @@ import Container from "@/components/Container";
 import { LinkButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
 import { BackButton, EditMember, Warning } from "@/utils/Icons";
-import { useToast } from "@/components/Toast";
+import { useToast } from "@/contexts/ToastContext";
 import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue, EditMemberDefaultFormValue, EditMemberFormErrorTypes, EditMemberFormValueTypes } from "@/types/add__edit/edit_member/types";
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMainMemberContext } from "../layout";
+import { useMemberHeadContext } from "@/contexts/HeadContext";
 
 export default function EditMemberDetails () {
   const toast = useToast();
@@ -23,7 +23,7 @@ export default function EditMemberDetails () {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
   const {logout} = useAuth();
-  const {head} = useMainMemberContext()
+  const {head} = useMemberHeadContext()
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));

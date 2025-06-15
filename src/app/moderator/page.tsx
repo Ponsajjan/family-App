@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Topnav from "@/components/Topnav"
 import { LinkButtonOutline } from "../../components/Button"
-import { useToast } from '@/components/Toast'
+import { useToast } from '@/contexts/ToastContext'
 
 export default function AdminDashboard() {
     const toast = useToast()

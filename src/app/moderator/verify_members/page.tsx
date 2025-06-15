@@ -3,7 +3,7 @@
 import { CloseIcon, Filter, SearchIcon, Verified } from "@/utils/Icons";
 import { Female, Male } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react'
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/contexts/ToastContext';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import NewMemberDetails from "./Details";

@@ -7,7 +7,7 @@ import { useState } from 'react';
 import Container from '@/components/Container';
 import { validateNewLoginForm } from '@/utils/admin/new_login/validateNewLoginForm';
 import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorTypes, NewLoginFormValueTypes } from '@/types/admin/new_login/types';
-import { useToast } from '@/components/Toast';
+import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Page() {
@@ -79,14 +79,12 @@ export default function Page() {
       }
       // Handle API response
       if (!response.ok) {
-        toast?.show(result.error || "Something went wrong", "error", 5000);
         throw new Error(result.error || "Something went wrong");
         // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
       }
       toast?.show(result.message, "success", 5000);
       setFormData(NewLoginDefaultFormValue);
     } catch (error: any) {
-      console.error("Error submitting form:", error);
       toast?.show( error.message || "An error occurred. Please try again.", "error", 5000);
     }
   };
