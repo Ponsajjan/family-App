@@ -1,7 +1,7 @@
 'use client'
 
 import AdminSidenav from '@/components/AdminSidenav';
-import ToastProvider from '@/contexts/ToastContext';
+import ToastProvider from '@/components/Toast';
 import Topnav from '@/components/Topnav';
 import { Logout } from '@/utils/Icons';
 import React from 'react'

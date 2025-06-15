@@ -6,7 +6,7 @@ import Container from "@/components/Container";
 import { ButtonOutline } from "@/components/Button";
 import MemberList from "@/components/MemberList";
 import { AddRelationship, BackButton, Warning } from "@/utils/Icons";
-import { useToast } from "@/contexts/ToastContext";
+import { useToast } from "@/components/Toast";
 import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipDefaultFormValue, EditRelationshipValueTypes } from "@/types/add__edit/edit_relationship/types";
 import EditRelationShipForm from "@/components/forms/EditRelationForm";
 import { useAuth } from "@/contexts/AuthContext";

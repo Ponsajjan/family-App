@@ -3,7 +3,7 @@
 import Container from "@/components/Container";
 import { HoldTextButton } from "@/components/HoldButton";
 import Input from "@/components/Input";
-import { useToast } from "@/contexts/ToastContext";
+import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import React, { useState, useEffect } from "react";

@@ -10,7 +10,7 @@ import useAddMember from "@/hooks/add_relationship/useAddMember";
 import useAddPartner from "@/hooks/add_relationship/useAddPartner";
 import { AddRelationDefaultFormValue, AddRelationFormValuesType, memberListConstrainType } from "@/types/add__edit/add_relationship/types";
 import AddRelationShipForm from "@/components/forms/AddRelationForm";
-import { useToast } from "@/contexts/ToastContext";
+import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function AddRelationshipDetails () {

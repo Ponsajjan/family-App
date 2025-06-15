@@ -5,7 +5,7 @@ import Topnav from '@/components/Topnav'
 import { Community, Logout } from '@/utils/Icons'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { useToast } from '@/contexts/ToastContext'
+import { useToast } from '@/components/Toast'
 import Loading from '@/components/Loading'
 import { useRouter } from 'next/navigation'
 

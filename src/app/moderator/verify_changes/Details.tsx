@@ -1,7 +1,7 @@
 import Container from '@/components/Container';
 import { HoldButton } from '@/components/HoldButton';
 import Loading from '@/components/Loading';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/Toast';
 import { Approved, CloseIcon, NavIconVerified, Rejected } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';

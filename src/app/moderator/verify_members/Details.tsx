@@ -4,7 +4,7 @@ import Container from '@/components/Container';
 import { HoldButton } from '@/components/HoldButton';
 import Loading from '@/components/Loading';
 import { DateInfo, InformationSection, MemberItem, MemberItemVerify, MemberListItemVerify } from '@/components/MemberDetailsComponents';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { CloseIcon, Condolences, Female2, Info, Male2, Verified } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';

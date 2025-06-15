@@ -6,7 +6,7 @@ import { AddMember, BackButton } from "@/utils/Icons";
 import Container from "@/components/Container";
 import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue, AddMemberFormValueTypes, AddMemberFormErrorTypes } from "@/types/add__edit/add_member/types";
 import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateAddMemberForm";
-import { useToast } from "@/contexts/ToastContext";
+import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
 import { useMemberHeadContext } from "@/contexts/HeadContext";
 import { useAuth } from "@/contexts/AuthContext";

@@ -1,6 +1,6 @@
 'use client'
 
-import { useToast } from "@/contexts/ToastContext";
+import { useToast } from "@/components/Toast";
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface mainValueType {

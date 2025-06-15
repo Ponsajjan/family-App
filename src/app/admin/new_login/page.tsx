@@ -7,7 +7,7 @@ import { useState } from 'react';
 import Container from '@/components/Container';
 import { validateNewLoginForm } from '@/utils/admin/new_login/validateNewLoginForm';
 import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorTypes, NewLoginFormValueTypes } from '@/types/admin/new_login/types';
-import { useToast } from '@/contexts/ToastContext';
+import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Page() {
