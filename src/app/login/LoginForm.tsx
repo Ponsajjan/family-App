@@ -26,7 +26,7 @@ export default function LoginForm() {
         try {
             const result = await login(formData);
             if (result.success && result.token) {
-                storeLoginValues(result.token, result.userType);
+                await storeLoginValues(result.token, result.userType);
                 router.push("/");
             } else {
                 setError(result.error || "Login failed");
