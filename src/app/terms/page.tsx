@@ -57,7 +57,7 @@ export default function Terms() {
       const response = await fetch('/api/logout', { method: 'GET' });
   
       if (response.ok) {
-        window.location.href = '/login';
+        router.push('/login');
       } else {
         console.error("Logout failed");
       }
