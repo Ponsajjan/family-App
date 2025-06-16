@@ -46,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
     document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
     document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
+    return
   };
 
   const logout = () => {
