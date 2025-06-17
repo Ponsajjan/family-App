@@ -14,7 +14,7 @@ export const metadata = {
         description: "Shared Family Calendar For Birthdays & Remembrances",
         url: `${baseUrl}`,
         type: "website",
-        images: [{url:`${baseUrl}/native.jpg`, alt: 'Birthday & Remembrance Calendar'}],
+        images: [{url:`${baseUrl}/family_calender.png`, alt: 'Birthday & Remembrance Calendar'}],
     },
     alternates: {
         canonical: `${baseUrl}`,
