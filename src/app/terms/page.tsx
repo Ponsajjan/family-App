@@ -71,12 +71,12 @@ export default function Terms() {
       <Topnav> </Topnav>
       <Container>
         {loading ? <Loading /> :
-        <div className="max-w-4xl mx-auto px-4 py-10">
+        <div className="max-w-4xl mx-auto p-4 md:py-10">
           <h1 className="text-2xl md:text-3xl font-bold text-center mb-1 sm:mb-4">
             {head} Family, Birthdays & Remembrances
           </h1>
 
-          <p className="text-sm sm:text-lg text-center mb-3">
+          <p className="text-base sm:text-lg text-center mb-3">
             This web app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances
           </p>
 
@@ -85,9 +85,9 @@ export default function Terms() {
               <span className="inline-block mr-2"><Community /></span>
               <span className="inline-block">Access is limited to:</span>
             </h2>
-            <ul className="list-disc list-inside space-y-2">
-              <li>Direct descendants of {head}</li>
-              <li>Their partner ( Husband or Wife )</li>
+            <ul className="list-disc list-inside space-y-2 pl-4">
+              <li className='list-outside'>Direct descendants of {head}</li>
+              <li className='list-outside'>Their partner ( Husband or Wife )</li>
             </ul>
             <p className="mt-4 italic opacity-65">
               Note: Extended family members (in-laws) are excluded to maintain simplicity and ensure that each listed member is directly relevant
@@ -100,10 +100,10 @@ export default function Terms() {
                 <span className="inline-block mr-2"><Community /></span>
                 <span className="inline-block">Guidelines:</span>
               </h2>
-              <ul className="list-disc list-inside space-y-2">
-                <li>Ensure family descendants are accurately recorded</li>
-                <li>Add family relationships ( Partner | Children ) if applicable</li>
-                <li>New members remain hidden from the relations chart until they are verified</li>
+              <ul className="list-disc list-inside space-y-2 pl-4">
+                <li className='list-outside'>Ensure family descendants are accurately recorded</li>
+                <li className='list-outside'>Add family relationships ( Partner | Children ) if applicable</li>
+                <li className='list-outside'>New members remain hidden from the relations chart until they are verified</li>
               </ul>
               <p className="mt-4 italic opacity-65">
                 Note: Verified member information is locked to preserve data integrity. Any updates to verified members require a moderator approval
