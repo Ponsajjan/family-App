@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "@/contexts/AuthContext";
-import { BurgerMenuIcon, CalenderIcon, CloseIcon, FamilyProfessionals, Moderator, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
+import { BurgerMenuIcon, CalendarIcon, CloseIcon, FamilyProfessionals, Moderator, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -28,7 +28,7 @@ export default function Sidenav() {
                 <div className="h-12 border-b border-border_color w-full bg-field_color"></div>
                 <div className={`flex-col justify-between ${showNav ? 'flex' : 'hidden xl:flex'} absolute xl:static top-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-fit md:w-40 min-h-[calc(100vh-4rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden`}>
                     <div>
-                        <NavLink linkName="Calender" link="" onClick={() => navigateTo("/")} />
+                        <NavLink linkName="Calendar" link="" onClick={() => navigateTo("/")} />
                         <NavLink linkName="Relatives" link="relatives" onClick={() => navigateTo("/relatives")} />
                         <NavLink linkName="Relations" link="tree" onClick={() => navigateTo("/tree")} />
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/add_edit")} />
@@ -51,7 +51,7 @@ export function NavLink({ link, linkName, onClick }: { link: string, linkName: s
             className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover/75 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName.split('/')[1] === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >
             <p className={`group-hover:invert ${pathName.split('/')[1] === link ? "invert" : " "}`}>
-                {linkName === 'Calender' && <CalenderIcon />}
+                {linkName === 'Calendar' && <CalendarIcon />}
                 {linkName === 'Relatives' && <RelativesIcon />}
                 {linkName === 'Relations' && <TreeIcon />}
                 {linkName === 'Add/Edit' && <FamilyProfessionals />}

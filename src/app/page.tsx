@@ -36,7 +36,7 @@ interface EventDatesValue {
   datesList: number[];
 }
 
-export default function Calender() {
+export default function Calendar() {
   const toast = useToast();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentIndiaDate = getCurrentIndiaDate();

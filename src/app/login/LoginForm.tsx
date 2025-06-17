@@ -147,6 +147,6 @@ export default function LoginForm() {
         );
     }
     return (
-        <main></main>
+        <main className="bg-main_background w-full h-screen"></main>
     )
 }

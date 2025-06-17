@@ -24,7 +24,7 @@ export default function Page() {
 
   if (hasToken) {
     return (
-      <div className='text-text_color flex justify-center items-center w-full h-screen'>
+      <div className='text-text_color flex justify-center items-center w-full h-screen bg-main_background'>
         <span>
           <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 24 24" fill="none">
             <path fillRule="evenodd" clipRule="evenodd" d="M9.29289 1.29289C9.48043 1.10536 9.73478 1 10 1H18C19.6569 1 21 2.34315 21 4V8C21 8.55228 20.5523 9 20 9C19.4477 9 19 8.55228 19 

@@ -8,8 +8,8 @@ const inter = Inter({ src: "../../public/fonts/InterVariable.woff2" });
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 const APP_NAME = "Family Calendar";
-const APP_DEFAULT_TITLE = "My Family Calendar";
-const APP_TITLE_TEMPLATE = "%s - Family Calendar";
+const APP_DEFAULT_TITLE = "Family Calendar";
+const APP_TITLE_TEMPLATE = "Family Calendar";
 const APP_DESCRIPTION = "Shared Family Calendar For Birthdays & Remembrances";
 
 export const metadata: Metadata = {
@@ -38,7 +38,23 @@ export const metadata: Metadata = {
     },
     description: APP_DESCRIPTION,
     url: `${baseUrl}`,
-    images: [{url:`${baseUrl}/family_calender.png`, alt: 'Birthday & Remembrance Calendar'}],
+    images: [
+      {
+        url: `${baseUrl}/family_calendar.jpg`,
+        width: 800,
+        height: 800,
+        alt: 'Family Calendar for Birthdays & Remembrances',
+        type: 'image/jpeg',
+      },
+    ],
+  },
+  twitter: {
+    images: [
+      {
+        url: `${baseUrl}/family_calendar.jpg`,
+        alt: 'Family Calendar for Birthdays & Remembrances',
+      },
+    ],
   },
   alternates: {
     canonical: `${baseUrl}`,

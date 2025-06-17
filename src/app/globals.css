@@ -261,20 +261,19 @@ thead, tbody, tr, th, td {
 /* From Uiverse.io by necatimertmetin */ 
 .z {
   position: absolute;
-  font-size: 32px;
   opacity: 0;
 }
 .z-1 {
-  animation: swayUpToRight 2s ease-out infinite;
+  animation: swayUpToRight 3s ease-out infinite;
 }
 .z-2 {
-  animation: swayUpToRight 2s ease-out 0.5s infinite;
+  animation: swayUpToRight 3s ease-out 0.5s infinite;
 }
 .z-3 {
-  animation: swayUpToRight 2s ease-out 1s infinite;
+  animation: swayUpToRight 3s ease-out 1s infinite;
 }
 .z-4 {
-  animation: swayUpToRight 2s ease-out 1.5s infinite;
+  animation: swayUpToRight 3s ease-out 1.5s infinite;
 }
 @keyframes swayUpToRight {
   0% {

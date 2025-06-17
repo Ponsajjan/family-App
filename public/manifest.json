@@ -1,7 +1,7 @@
 {
-    "name": "Family Calender",
-    "short_name": "Family Calender",
-    "description": "Shanmuga Nadar Family",
+    "name": "Family Calendar",
+    "short_name": "Family Calendar",
+    "description": "Shared Family Calendar For Birthdays & Remembrances",
     "icons": [
         {
           "src": "web-app-manifest-192x192.png",
@@ -23,7 +23,7 @@
           "src": "web-app-manifest-mask.png",
           "sizes": "512x512",
           "type": "image/png",
-          "purpose": "maskable"
+          "purpose": "any maskable"
         }
       ],
     "theme_color": "#FFFFFF",
