@@ -36,11 +36,6 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
     selectedMonthEvents = [],
   } = eventDatesValue;
   
-  const toIST = (date: Date | string) => {
-    const d = new Date(date);
-    return new Date(d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-  };
-
   const renderEventList = (events: CalendarMonthlyEvent[], title: string) => {
     if (!events?.length) return null;
 
@@ -52,7 +47,9 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
         </div>
         <div className="pl-5 md:pl-4 pb-1">
           {events.map((item, index) => {
-            const date = toIST(new Date(item.date));
+            const date = new Date(item.date);
+            const displayDate = new Date(year, month, date.getDate());
+            
             return (
               <div key={`${item.id}-${index}`} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3">
                 <div className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]">
@@ -60,9 +57,9 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
                     <div className={`border-t border-dashed ${title === "Earlier This Month" ? 'opacity-60' : ''} border-text_color w-14 ml-2 mr-3`}>
                       <div className="flex flex-col border border-text_color rounded-b-sm">          
                         <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
-                          {format(date, 'EEE').toUpperCase()}
+                          {format(displayDate, 'EEE').toUpperCase()}
                         </span>
-                        <span className="text-center font-semibold leading-5 py-0.5">{format(date, 'd')}</span>
+                        <span className="text-center font-semibold leading-5 py-0.5">{date.getDate()}</span>
                       </div>
                     </div>
                   ) : (
