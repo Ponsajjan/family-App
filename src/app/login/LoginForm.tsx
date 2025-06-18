@@ -27,7 +27,6 @@ export default function LoginForm() {
             const result = await login(formData);
             if (result.success && result.token) {
                 await storeLoginValues(result.token, result.userType);
-                router.push("/");
             } else {
                 setError(result.error || "Login failed");
                 if (result.error === "Invalid credential") {
@@ -147,6 +146,10 @@ export default function LoginForm() {
         );
     }
     return (
-        <main className="bg-main_background w-full h-screen"></main>
+        <main className="w-full h-screen flex justify-center items-center">
+            <div className="text-center text-text_color w-full refresh-text">
+                Try refreshing the page...
+            </div>
+        </main>
     )
 }
