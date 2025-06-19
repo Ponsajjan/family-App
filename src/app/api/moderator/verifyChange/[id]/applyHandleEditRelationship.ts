@@ -5,7 +5,7 @@ interface RequestData {
 }
 
 // PUT request handler
-export const handleEditRelationship = async (data: RequestData, tx: any) => {
+export const applyHandleEditRelationship = async (data: RequestData, tx: any) => {
   const updatePromises: Promise<any>[] = [];
 
   // Handle partner removal

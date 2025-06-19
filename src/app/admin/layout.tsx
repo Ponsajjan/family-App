@@ -4,6 +4,7 @@ import AdminSidenav from '@/components/AdminSidenav';
 import ToastProvider from '@/components/Toast';
 import Topnav from '@/components/Topnav';
 import { Logout } from '@/utils/Icons';
+import { useRouter } from 'next/navigation';
 import React from 'react'
 
 function layout({
@@ -11,13 +12,14 @@ function layout({
   }: Readonly<{
     children: React.ReactNode;
   }>) {
-
+  const router = useRouter()
+  
   const logout = async () => {
     try {
       const response = await fetch('/api/logout', { method: 'GET' });
 
       if (response.ok) {
-        window.location.href = '/login';
+        router.push('/login');
       } else {
         console.error("Logout failed");
       }

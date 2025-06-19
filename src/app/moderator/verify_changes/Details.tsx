@@ -111,7 +111,6 @@ const ChangeRequestView = ({
 
   const handleApproveChanges = async () => {
     try {
-      setLoading(true);
       setDisableButton(true);
 
       if (!data?.submitData || !showDetailsFor[currentDetailIndex]?.id) {
@@ -148,14 +147,12 @@ const ChangeRequestView = ({
       console.error("error", error);
       toast?.show(error.message || "Error handling verification", "error", 5000);
     } finally {
-      setLoading(false);
       setDisableButton(false);
     }
   };
 
   const handleRejectChanges = async () => {
     try {
-      setLoading(true);
       setDisableButton(true);
 
       const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
@@ -186,9 +183,8 @@ const ChangeRequestView = ({
     } catch (error: any) {
       console.error("error", error);
       toast?.show(error.message || "Error handling verification", "error", 5000);
-      setDisableButton(false);
     } finally {
-      setLoading(false);
+      setDisableButton(false);
     }
   };
   
@@ -240,7 +236,7 @@ const ChangeRequestView = ({
           <div className='relative'>
             {data && <div dangerouslySetInnerHTML={{ __html: data.htmlContent }} />}
             {error && <div className='p-4'>Error: {error}</div>}
-            <div className='absolute right-4 bottom-4'>
+            <div className='absolute right-4 bottom-0'>
               {requestStatus === 'approved' && <Approved />}
               {requestStatus === 'rejected' && <Rejected />}
             </div>

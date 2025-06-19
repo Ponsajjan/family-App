@@ -245,9 +245,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
             </div>
           `}
         </div>
-      ` : `
-        <div class="text-gray-500">No children relationships to display</div>
-      `}
+      ` : ''}
     </div>
   `;
 

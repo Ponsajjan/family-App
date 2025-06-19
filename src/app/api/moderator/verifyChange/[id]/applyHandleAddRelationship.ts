@@ -10,7 +10,7 @@ interface AddRelationshipDataRequetData {
 }
 
 // PUT request handler
-export const handleAddRelationship = async (data: AddRelationshipDataRequetData, tx: any) => {
+export const applyHandleAddRelationship = async (data: AddRelationshipDataRequetData, tx: any) => {
   const formData = data.formData;
   
   // Convert to Prisma's expected format

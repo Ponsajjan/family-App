@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
-import { handleEditRelationship } from "./applyHandleEditRelationship";
-import { handleAddRelationship } from "./applyHandleAddRelationship";
-import { handleEditMember } from "./applyHandleEditMember";
-import { handleEditRelationshipCase } from "./handleEditRelationship";
-import { handleAddRelationshipCase } from "./handleAddRelationship";
-import { handleEditMemberCase } from "./handleEditMember";
+import { applyHandleEditRelationship } from "./applyHandleEditRelationship";
+import { applyHandleAddRelationship } from "./applyHandleAddRelationship";
+import { applyHandleEditMember} from "./applyHandleEditMember";
+import { handleEditRelationshipCase } from "./handleEditRelationshipCase";
+import { handleAddRelationshipCase } from "./handleAddRelationshipCase";
+import { handleEditMemberCase } from "./handleEditMemberCase";
 
 interface RequestData {
   formData: any;
@@ -177,9 +177,9 @@ export async function PUT(request: NextRequest) {
     // Process request in transaction
     const result = await prisma.$transaction(async (tx) => {
       const handlers: Record<string, any> = {
-        "Edit Member": handleEditMember,
-        "Add Relationship": handleAddRelationship,
-        "Edit Relationship": handleEditRelationship
+        "Edit Member": applyHandleEditMember,
+        "Add Relationship": applyHandleAddRelationship,
+        "Edit Relationship": applyHandleEditRelationship
       };
 
       const handler = handlers[requestData.type];

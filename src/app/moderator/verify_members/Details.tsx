@@ -156,7 +156,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             const updatedData = members.filter(
                 (item: any) => item.id !== memberId
             );
-            setMembers((updatedData));
+            setMembers(updatedData);
             setDeleted(true);
         } catch (error: any) {
             console.error("Error submitting form:", error);
@@ -303,7 +303,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                 {(data?.personalInformation) &&
                 <InformationSection title="Personal Information">
                     <MemberItem label="Occupation" value={data.personalInformation.occupation} />
-                    <MemberItem label="Education" value={data.personalInformation.education} />
+                    <MemberItem label="Address" value={data.personalInformation.education} />
                 </InformationSection>}
                 <div className='flex flex-col mt-6 gap-2'>
                     <HoldButton disabled={deleted} holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />

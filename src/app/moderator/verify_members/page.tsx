@@ -14,7 +14,7 @@ export default function VerifyMember() {
   const [searchInput, setSearchInput] = useState("");
   const [members, setMembers] = useState<any[] | never[]>([]);
   const [showDetails, setShowDetails] = useState(false);
-  const [showDetailsFor, setShowDetailsFor] = useState(false);
+  const [showDetailsFor, setShowDetailsFor] = useState('');
   const [loadingList, setLoadingList] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);

@@ -114,7 +114,7 @@ export default function Details({ showMember, openDetails }: any) {
           {data.contactInformation && (
             <InformationSection title="Contact Information">
               <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
-              <MemberItem label="Location" value={data.contactInformation.address} />
+              <MemberItem label="Address" value={data.contactInformation.address} />
             </InformationSection>
           )}
 

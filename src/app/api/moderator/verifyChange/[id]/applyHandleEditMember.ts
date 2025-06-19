@@ -24,7 +24,7 @@ interface RequestData {
   type: "Edit Member";
 }
 
-export const handleEditMember = async (data: RequestData, tx: any) => {
+export const applyHandleEditMember = async (data: RequestData, tx: any) => {
   const formData = data.formData as MemberUpdateData;
   const deceased = formData.deceased === true;
 
@@ -42,7 +42,7 @@ export const handleEditMember = async (data: RequestData, tx: any) => {
     occupation: formData.occupation || null,
     education: formData.education || null,
     address: formData.address || null,
-    descendant: formData.descendant,
+    descendant: formData.descendant == 'Yes',
   };
 
   // Update member data
