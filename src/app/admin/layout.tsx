@@ -7,12 +7,12 @@ import { Logout } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import React from 'react'
 
-function layout({
+function AdminLayout({
     children,
   }: Readonly<{
     children: React.ReactNode;
   }>) {
-  const router = useRouter()
+  const router = useRouter();
   
   const logout = async () => {
     try {
@@ -46,4 +46,4 @@ function layout({
   )
 }
 
-export default layout
+export default AdminLayout
