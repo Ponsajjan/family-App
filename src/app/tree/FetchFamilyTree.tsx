@@ -22,7 +22,7 @@ const TreeNode = ({ node }: { node: any }) => {
                 <SvgArrowStraight />
               </span>
             )}
-            <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap  rounded-lg">
+            <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap whitespace-nowrap rounded-lg">
               {data.gender === "Male" && <Male />}
               {data.gender === "Female" && <Female />}
               <span className="font-medium capitalize">{data.name}</span>
