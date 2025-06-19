@@ -8,6 +8,7 @@ import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import NewMemberDetails from "./Details";
 import { useAuth } from "@/contexts/AuthContext";
+import SlidePanel from "@/components/SlidePanel";
 
 export default function VerifyMember() {
   const toast = useToast();
@@ -256,13 +257,9 @@ export default function VerifyMember() {
             </div>
           </div>
         </div>
-        <div
-          onClick={() => setShowDetails(false)}
-          className={`fixed md:hidden ${showDetails ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
-        />
-        <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showDetails ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full h-[60vh] overflow-y-auto lg:max-w-[580px] mx-auto md:h-[calc(100vh-3rem)]`}>
-          <div className={`overflow-x-hidden ${showDetails ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}><NewMemberDetails showDetailsFor={showDetailsFor} setShowDetails={setShowDetails} setParams={setParams} handleMemberSearch={handleMemberSearch} setMembers={setMembers} members={members} selectedFilter={selectedFilter}/></div>
-        </div>
+        <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
+          <NewMemberDetails showDetailsFor={showDetailsFor} setShowDetails={setShowDetails} setParams={setParams} handleMemberSearch={handleMemberSearch} setMembers={setMembers} members={members} selectedFilter={selectedFilter}/>
+        </SlidePanel>
       </div>
     </div>
   );

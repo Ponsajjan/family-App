@@ -270,9 +270,9 @@ export default function MemberList({
             </span>
           </div>
         </div>
-        <ul className="py-2 px-3 flex gap-2 flex-nowrap overflow-x-auto min-h-[42px] scroll-stable">
+        <ul className="py-2 px-3 flex gap-2 flex-nowrap overflow-x-auto scroll-stable">
           {appliedFilters?.map((item, index) => (
-            <li key={index} className="py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between">
+            <li key={index} className="py-1 pl-1 pr-4 text-xs border border-border_color bg-field_color rounded-full flex gap-1 items-center justify-between h-fit lg:h-auto">
               <FilterSelect />
               <span>{item}</span>
             </li>

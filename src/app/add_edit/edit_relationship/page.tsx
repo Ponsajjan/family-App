@@ -11,6 +11,7 @@ import { DeleteValueTypes, editRelationshipDefaultDeleteValue, editRelationshipD
 import EditRelationShipForm from "@/components/forms/EditRelationForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import SlidePanel from "@/components/SlidePanel";
 
 export default function EditRelationshipDetails() {
   const toast = useToast();
@@ -195,22 +196,16 @@ export default function EditRelationshipDetails() {
           <ButtonOutline buttonText={noChanges ? "Cancel" : "Reset Changes"} onClick={handleClose} className="hidden md:block w-full" />
         </div>
       </Container>
-      <div
-        onClick={() => setShowList(false)}
-        className={`fixed md:hidden ${showList ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] duration-500 ease-in-out`}
-      />
-      <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background ${showList ? 'md:border-l md:border-border_color z-[100] rounded-t-md md:rounded-none -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden'} transition-all duration-500 ease-in-out w-full lg:max-w-[580px] mx-auto md:h-[calc(100vh-3rem)]`}>
-        <div className={`overflow-x-hidden ${showList ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}`}>
-          <MemberList
-            forType={'editRelationship'}
-            getSelectedValues={formData}
-            setSelectedValue={handleSelectedValue}
-            openList={setShowList}
-            multiselect={false}
-            descendant={null}
-          />
-        </div>
-      </div>
+      <SlidePanel setShowDetails={setShowList} showDetails={showList} >
+        <MemberList
+          forType={'editRelationship'}
+          getSelectedValues={formData}
+          setSelectedValue={handleSelectedValue}
+          openList={setShowList}
+          multiselect={false}
+          descendant={null}
+        />
+      </SlidePanel>
     </div>
   );
 }
