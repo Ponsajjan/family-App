@@ -19,11 +19,17 @@ export default function EditCredential() {
   const memberId = params.id;
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Fetch existing member data when the component mounts
   useEffect(() => {
     const fetchMemberData = async () => {
       try {
+        if (!memberId) {
+          toast?.show("Credential dosen't exist", "error", 5000);
+          return;
+        }
+        setIsLoading(true);
         const response = await fetch(`/api/admin/edit_login/${memberId}`, {
           method: 'GET',
           headers: {
@@ -65,6 +71,8 @@ export default function EditCredential() {
       } catch (error:any) {
         console.error("Error fetching member data:", error);
         toast?.show(error.message || "Failed to fetch member data", "error", 5000);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -147,7 +155,7 @@ export default function EditCredential() {
 
   return (
     <Container>
-      <div className='w-full max-w-3xl p-4 mx-auto'>
+      <div className={`w-full max-w-3xl p-4 mx-auto ${isLoading && 'cursor-not-allowed'}`}>
         <form className="text-text_color" onSubmit={handleSubmit}>
           <p className='text-lg'>Edit Descendant Details</p>
           <Input
@@ -351,7 +359,7 @@ export default function EditCredential() {
               {errors.password}
             </p>
           )}
-          <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={"Update Credential"} />
+          <ButtonSolid type="submit" disabled={isLoading} className="w-full mt-8 mb-4" buttonText={"Update Credential"} />
           <LinkButtonOutline linkto='/admin' type="button" className="w-full" buttonText={"Cancel"} />
         </form>
       </div>

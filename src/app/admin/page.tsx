@@ -6,11 +6,13 @@ import Input from "@/components/Input";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useState, useEffect } from "react";
 
 export default function ExpandableTable() {
   const toast = useToast();
-  const {logout, isAuthenticated} = useAuth();
+  const router = useRouter();
+  const {logout, access} = useAuth();
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const [editingModerator, setEditingModerator] = useState<{ rowIndex: number; modIndex: number } | null>(null);
   const [data, setData] = useState([]);
@@ -20,7 +22,9 @@ export default function ExpandableTable() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (access !== "Admin") {
+      toast?.show("You are not authorized to view this page", "error", 5000);
+      router.push('/');
       return;
     }
     const fetchData = async () => {
@@ -47,7 +51,7 @@ export default function ExpandableTable() {
     };
 
     fetchData();
-  }, [toast, logout, isAuthenticated]);
+  }, [toast, logout, router, access]);
 
   const toggleRow = (index: number) => {
     setEditingModerator(null);

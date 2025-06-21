@@ -13,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function Page() {
   const toast = useToast();
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
+  const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
   const { logout } = useAuth();
   
@@ -42,8 +43,9 @@ export default function Page() {
     if (!formData.name || !formData.gender || !formData.member_password || !formData.moderator_password) {
       return;
     }
-
+    
     try {
+      setLoading(true);
       const newLoginDetails = {
         name: formData.name,
         gender: formData.gender,
@@ -86,6 +88,8 @@ export default function Page() {
       setFormData(NewLoginDefaultFormValue);
     } catch (error: any) {
       toast?.show( error.message || "An error occurred. Please try again.", "error", 5000);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -295,7 +299,7 @@ export default function Page() {
               {errors.password}
             </p>
           )}
-          <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={"Create Credential"} />
+          <ButtonSolid disabled={loading} type="submit" className="w-full mt-8 mb-4" buttonText={loading ? "Ceating..." : "Create Credential"} />
         </form>
       </div>
     </Container>

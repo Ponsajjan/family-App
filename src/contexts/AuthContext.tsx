@@ -23,22 +23,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      const storedToken = getCookie('token') as string | null;
-      const storedAccess = getCookie('access') as string | null;
-      
-      if (storedToken) {
-        setToken(storedToken);
-        // Check if the token is close to expiring and refresh it if necessary
-        await updateToken(storedToken)
+    // Initialize auth state on mount
+    if (!token || !access) {
+      const storedToken = getCookie('token');
+      const storedAccess = getCookie('access');
+      if (storedToken || storedAccess) {
+        setToken(storedToken as string | null);
+        setAccess(storedAccess as string | null);
       }
-      if (storedAccess) setAccess(storedAccess);
-      
       setIsInitialized(true);
-    };
-
-    initializeAuth();
-  }, []);
+    } else {
+      if (access === 'Admin') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+    }
+  }, [token, access, router]);
 
   const storeLoginValues = (newToken: string, newAccess: string) => {
     setToken(newToken);
