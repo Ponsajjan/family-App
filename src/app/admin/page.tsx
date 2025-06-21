@@ -6,7 +6,7 @@ import Input from "@/components/Input";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
 export default function ExpandableTable() {
@@ -24,7 +24,7 @@ export default function ExpandableTable() {
   useEffect(() => {
     if (access !== "Admin") {
       toast?.show("You are not authorized to view this page", "error", 5000);
-      router.push('/');
+      logout()
       return;
     }
     const fetchData = async () => {

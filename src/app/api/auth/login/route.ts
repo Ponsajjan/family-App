@@ -37,9 +37,9 @@ export async function POST(request: Request) {
     // If no match is found in DB, check the environment variable
     if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
       login = {
-        id: -108, // Avoid hardcoding; consider generating a unique ID
+        id: -108,
         forDescendanceOf: "parents",
-        mainMemberId: null, // Avoid hardcoding; consider a better default
+        mainMemberId: null,
         password: process.env.SUPER_ADMIN_PASSWORD,
         moderatorName: "Admin",
         moderatorContact: "N/A",
@@ -58,10 +58,10 @@ export async function POST(request: Request) {
     const token = await generateToken({
       forDescendanceOf: login.forDescendanceOf,
       memberId: login.mainMemberId,
-      userType: login.moderatorName === "Admin" ? "Admin" : "member",
+      userType: login.moderatorName === "Admin" ? "Admin" : "Member",
     });
 
-    const userType = login.moderatorName === "Admin" ? "Admin" : "member";
+    const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
     return NextResponse.json({ success: true, message: "Login successful", token, userType});
   } catch (error) {

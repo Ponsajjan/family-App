@@ -19,7 +19,8 @@ export default function EditCredential() {
   const memberId = params.id;
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
   // Fetch existing member data when the component mounts
   useEffect(() => {
@@ -110,6 +111,7 @@ export default function EditCredential() {
     }
 
     try {
+      setIsUpdating(true);
       const updatedMemberDetails = {
         id: formData.id, // Include the member ID for the update
         name: formData.name,
@@ -145,11 +147,12 @@ export default function EditCredential() {
         toast?.show(result.error || "Something went wrong", "error", 5000);
       }
       toast?.show(result.message, "success", 5000); 
+      router.push("/admin")
     } catch (error: any) {
       console.error("Error submitting form:", error);
       toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
     } finally {
-      router.push("/admin")
+      setIsUpdating(false);
     }
   };
 
@@ -359,7 +362,7 @@ export default function EditCredential() {
               {errors.password}
             </p>
           )}
-          <ButtonSolid type="submit" disabled={isLoading} className="w-full mt-8 mb-4" buttonText={"Update Credential"} />
+          <ButtonSolid type="submit" disabled={isLoading} className="w-full mt-8 mb-4" buttonText={isUpdating ? "Updating..." : "Update Credential"} />
           <LinkButtonOutline linkto='/admin' type="button" className="w-full" buttonText={"Cancel"} />
         </form>
       </div>
