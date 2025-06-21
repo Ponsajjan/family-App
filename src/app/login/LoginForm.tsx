@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { login } from './actions';
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const {token, storeLoginValues} = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (token) {
+            router.push('/');
+        }
+    }, [token, router]);
 
     const handelInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -25,6 +33,11 @@ export default function LoginForm() {
             const result = await login(formData);
             if (result.success && result.token) {
                 storeLoginValues(result.token, result.userType);
+                if (result.userType === 'Admin') {
+                router.push('/admin');
+                } else {
+                router.push('/');
+                }
             } else {
                 setMessage(result.error || "Login failed");
                 if (result.error === "Invalid credential") {

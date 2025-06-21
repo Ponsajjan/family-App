@@ -24,24 +24,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Initialize auth state on mount
-    if (!token || !access) {
-      const storedToken = getCookie('token');
-      const storedAccess = getCookie('access');
-      if (storedToken || storedAccess) {
-        setToken(storedToken as string | null);
-        setAccess(storedAccess as string | null);
-      }
-      setIsInitialized(true);
-    } else {
-      if (access === 'Admin') {
-        router.push('/admin');
-      } else if (access === 'Moderator') {
-        router.push('/moderator');
-      } else {
-        router.push('/');
-      }
+    const storedToken = getCookie('token');
+    const storedAccess = getCookie('access');
+    if (storedToken || storedAccess) {
+      setToken(storedToken as string | null);
+      setAccess(storedAccess as string | null);
     }
-  }, [token, access, router]);
+    setIsInitialized(true);
+
+  }, []);
 
   const storeLoginValues = (newToken: string, newAccess: string) => {
     setToken(newToken);

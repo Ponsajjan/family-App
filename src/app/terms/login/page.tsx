@@ -32,6 +32,7 @@ export default function Page() {
             const data = await res.json();
             if (data.newtoken) {
                 storeLoginValues(data.newtoken, data.userType);
+                router.push("/moderator");
             } else {
                 setError(data.error);
             }
