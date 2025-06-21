@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
     const newtoken = await generateToken({
       forDescendanceOf: login.forDescendanceOf,
       memberId: login.mainMemberId,
-      userType: "moderator",
+      userType: "Moderator",
     });
 
-    return NextResponse.json({ message: "Login successful", newtoken, accessType: "moderator" }, { status: 200 });
+    return NextResponse.json({ message: "Login successful", newtoken, userType: "Moderator" }, { status: 200 });
 
   } catch (error) {
     console.error("Error logging in:", error);

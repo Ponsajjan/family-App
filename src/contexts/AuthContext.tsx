@@ -35,6 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       if (access === 'Admin') {
         router.push('/admin');
+      } else if (access === 'Moderator') {
+        router.push('/moderator');
       } else {
         router.push('/');
       }

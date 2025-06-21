@@ -78,9 +78,9 @@ export async function login(formData: FormData) {
         const token = await generateToken({
             forDescendanceOf: login.forDescendanceOf,
             memberId: login.mainMemberId,
-            userType: login.moderatorName === "Admin" ? "Admin" : "member"
+            userType: login.moderatorName === "Admin" ? "Admin" : "Member"
         });
-        const userType = login.moderatorName === "Admin" ? "Admin" : "member";
+        const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
         return {
             success: true,

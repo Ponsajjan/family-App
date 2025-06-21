@@ -214,7 +214,7 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    if (decoded.userType !== "moderator") {
+    if (decoded.userType !== "Moderator") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const forDescendanceOf = decoded.forDescendanceOf;
@@ -287,7 +287,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    if (decoded.userType !== "moderator") {
+    if (decoded.userType !== "Moderator") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const forDescendanceOf = decoded.forDescendanceOf;
