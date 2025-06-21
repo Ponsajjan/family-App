@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         ...(filterCondition !== undefined && { verified: filterCondition }),
         name: {
           contains: searchQuery,
-          // mode: "insensitive", // PostgreSQL-specific support in Prisma
+          mode: "insensitive", // PostgreSQL-specific support in Prisma
         },
       },
       select: {
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
         ...(filterCondition !== undefined && { verified: filterCondition }),
         name: {
           contains: searchQuery,
-          // mode: "insensitive",
+          mode: "insensitive",
         },
       },
     });

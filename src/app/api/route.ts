@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
+import { Prisma } from "@prisma/client";
 
 interface Member {
   id: number;
@@ -26,7 +27,8 @@ interface LetterHeader {
 export async function GET(request: NextRequest) {
   // Extract and validate parameters
   const { searchParams } = new URL(request.url);
-  const searchQuery = searchParams.get("search")?.trim() || "";
+  const searchQueryRaw = searchParams.get("search");
+  const searchQuery = searchQueryRaw && searchQueryRaw.trim() !== "" ? searchQueryRaw.trim() : undefined;
   const forType = searchParams.get("for");
   const gender = searchParams.get("gender");
   const descendant = searchParams.get("descendant");
@@ -78,11 +80,13 @@ export async function GET(request: NextRequest) {
     const groupedData: Array<Member | LetterHeader> = [];
 
     // Common where clause for all queries
-    const baseWhere = {
-      name: searchQuery ? {
-        contains: searchQuery 
-        // mode: "insensitive", // PostgreSQL-specific support in Prisma
-      } : undefined,
+    const baseWhere: Prisma.MemberWhereInput = {
+      ...(searchQuery && {
+        name: {
+          contains: searchQuery,
+          mode: "insensitive",
+        },
+      }),
       descendantOf: forDescendanceOf,
     };
 

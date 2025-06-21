@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         ...(searchQuery && {
           name: {
             contains: searchQuery,
-            // mode: "insensitive",
+            mode: "insensitive",
           },
         }),
       },

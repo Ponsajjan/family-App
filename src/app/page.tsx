@@ -11,6 +11,7 @@ import OnDate from "./OnDate";
 import { format } from 'date-fns';
 import { useToast } from '@/components/Toast';
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 // Helper function to get current date in IST
 const getCurrentIndiaDate = () => {
@@ -38,6 +39,7 @@ interface EventDatesValue {
 
 export default function Calendar() {
   const toast = useToast();
+  const router = useRouter();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentIndiaDate = getCurrentIndiaDate();
   const [calendarDate, setCalendarDate] = useState(currentIndiaDate);
@@ -56,7 +58,7 @@ export default function Calendar() {
   
   const [selectedDate, setSelectedDate] = useState('');
   const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
-  const {logout, isAuthenticated} = useAuth();
+  const {logout, isAuthenticated, access} = useAuth();
 
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year: number, month: number) {
@@ -146,6 +148,11 @@ export default function Calendar() {
 
   useEffect(() => {
     if (!isAuthenticated) {
+      router.push('/login');
+      return
+    }
+    if (access == 'Admin') {
+      router.push('/admin');
       return;
     }
     async function fetchEventDates() {
