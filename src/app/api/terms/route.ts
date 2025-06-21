@@ -33,6 +33,10 @@ export async function GET(request: NextRequest) {
           },
         },
       },
+      cacheStrategy: { 
+        ttl: 60 * 30,
+        swr: 30
+      }, // Cache for 30 minutes
     });
 
     if (!authRecord) {

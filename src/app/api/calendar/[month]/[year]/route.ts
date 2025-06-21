@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
         const members = await prisma.member.findMany({
             where: {
                 descendantOf: forDescendanceOf,
+                verified: true,
                 OR: [
                     { birthMonth: month },
                     { deathMonth: month }
@@ -61,6 +62,10 @@ export async function GET(request: NextRequest) {
                 deathMonth: true,
                 deathYear: true,
             },
+            cacheStrategy: { 
+                ttl: 60 * 5,
+                swr: 10 
+            }, // Cache for 5 minutes
         });
 
         // Process events with IST

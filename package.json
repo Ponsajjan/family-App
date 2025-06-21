@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma generate && next build",
+    "build": "prisma generate --no-engine && next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -14,6 +14,7 @@
     "@eslint/object-schema": "^2.1.6",
     "@jridgewell/sourcemap-codec": "^1.5.0",
     "@prisma/client": "^5.22.0",
+    "@prisma/extension-accelerate": "^2.0.1",
     "bcryptjs": "^2.4.3",
     "cookies-next": "^6.0.0",
     "date-fns": "^4.1.0",

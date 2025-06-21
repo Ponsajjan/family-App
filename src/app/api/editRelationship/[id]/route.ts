@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const dbData = await prisma.member.findUnique({
+    const dbData: any = await prisma.member.findUnique({
       where: {
         id: id,
         descendantOf: forDescendanceOf
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
     const hasVerified =
       member.verified || // Check if the main member is verified
       (member.partner && member.partner.verified) || // Check if the partner is verified
-      children.some((child) => child.verified); // Check if any child is verified
+      children.some((child: any) => child.verified); // Check if any child is verified
 
     // Format the data
     const data = {

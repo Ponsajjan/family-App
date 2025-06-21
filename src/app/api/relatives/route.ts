@@ -72,6 +72,10 @@ export async function GET(request: NextRequest) {
         partner: { select: { name: true } },
       },
       orderBy: { name: "asc" },
+      cacheStrategy: { 
+        ttl: 60 * 5,
+        swr: 10, // Stale-while-revalidate for 10 seconds 
+      }, // Cache for 5 minutes
       skip,
       take,
     });
@@ -113,11 +117,11 @@ export async function GET(request: NextRequest) {
           father: null,
           mother: null,
           partner: null,
-        });
+        } as LetterHeader);
         previousFirstLetter = firstLetter;
       }
 
-      groupedData.push(member);
+      groupedData.push(member as any);
     });
 
     return NextResponse.json({

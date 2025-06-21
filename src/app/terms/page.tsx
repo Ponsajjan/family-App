@@ -103,7 +103,7 @@ export default function Terms() {
               <ul className="list-disc list-inside space-y-2 pl-4">
                 <li className='list-outside'>Ensure family descendants are accurately recorded</li>
                 <li className='list-outside'>Add family relationships ( Partner | Children ) if applicable</li>
-                <li className='list-outside'>New members remain hidden from the relations chart until they are verified</li>
+                <li className='list-outside'>New members remain hidden in Calendar and Relations chart until they are verified</li>
               </ul>
               <p className="mt-4 italic opacity-65">
                 Note: Verified member information is locked to preserve data integrity. Any updates to verified members require a moderator approval

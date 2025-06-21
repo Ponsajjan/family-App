@@ -2,10 +2,11 @@
 
 import { PrismaClient } from '@prisma/client'
 import dotenv from 'dotenv';
+import { withAccelerate } from '@prisma/extension-accelerate';
 dotenv.config();
 
 const prismaClientSingleton = () => {
-  return new PrismaClient()
+  return new PrismaClient().$extends(withAccelerate())
 }
 
 declare const globalThis: {

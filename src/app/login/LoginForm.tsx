@@ -145,7 +145,7 @@ export default function LoginForm() {
     }
     return (
         <main className="w-full h-screen flex justify-center items-center">
-            <div className="text-center text-text_color w-full refresh-text">
+            <div className="text-center text-text_color font-light w-full refresh-text">
                 Try refreshing the page...
             </div>
         </main>
