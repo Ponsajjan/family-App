@@ -151,7 +151,7 @@ export default function Relatives() {
         </div>
       </Topnav>
       <div className="w-full md:flex">
-        <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
+        <div className='h-[calc(100dvh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
               {members?.map((member: any) => (
