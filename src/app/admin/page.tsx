@@ -245,7 +245,7 @@ export default function ExpandableTable() {
   return (
     <Container>
       {deleting && <div className={`absolute inset-0 flex loading-text justify-center items-start bg-gray-50/30 z-20`}>
-        <p className="mt-20 loading-text px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">deleting...</p>
+        <p className="mt-20 loading-text px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">Deleting...</p>
       </div>}
 
       {loading

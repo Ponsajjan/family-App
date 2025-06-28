@@ -5,6 +5,7 @@ export async function GET() {
   const cookieStore = await cookies();
 
   cookieStore.delete('token');
+  cookieStore.delete('access');
 
   return NextResponse.json({ message: "Logged out successfully" });
 }

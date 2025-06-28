@@ -186,7 +186,7 @@ export default function Calendar() {
     }
 
     fetchEventDates();
-  }, [isAuthenticated, month, year, toast, logout]);
+  }, [isAuthenticated, month, year, toast, logout, access, router]);
 
   return (
     <div className="w-full">
