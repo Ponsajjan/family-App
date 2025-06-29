@@ -53,7 +53,7 @@ export default function Details({ showMember, openDetails }: any) {
       {loadingDetails ? <Loading /> : (
         <>
           {/* Header Section */}
-          <div className='flex gap-2 items-center w-full pb-3'>
+          <div className='flex gap-2 items-center w-full pb-1 md:pb-3'>
             <div className='border border-border_color p-2 rounded-md relative'>
               {data.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
               {data.generalInformation.deceased && (

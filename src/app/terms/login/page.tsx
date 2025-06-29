@@ -46,9 +46,9 @@ export default function Page() {
     return (
       <div className="w-full">
         <Topnav>
-            <div className="ml-auto mr-0 w-[170px] hidden lg:block">
+            <div className="ml-auto mr-0 w-[140px] md:w-[170px] block">
                 <button 
-                    className="group flex items-center text-sm text-text_color"
+                    className="group flex items-center text-xs md:text-sm text-text_color"
                     onClick={() => router.push("/moderator")}
                 >
                     Preview as Moderator

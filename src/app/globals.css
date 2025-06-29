@@ -1,3 +1,7 @@
+.font-inter-fallback {
+  font-family: 'Inter';
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
