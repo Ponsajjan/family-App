@@ -9,7 +9,7 @@ export default function Sidenav() {
     const { access } = useAuth();
     const [showNav, setShowNav] = useState(false);
     const router = useRouter();
-    const moderator = usePathname().split('/')[1] === 'Moderator' || access === 'Moderator';
+    const moderator = usePathname().split('/')[1] === 'moderator' || access === 'Moderator';
 
     const navigateTo = (link: string) => {
         router.push(link);
