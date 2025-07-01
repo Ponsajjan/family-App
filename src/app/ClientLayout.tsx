@@ -30,7 +30,7 @@ export default function ClientLayout({
   if (IncludeSideNavLayoutPaths.includes(pathname)) {
     return (
       <main id="MainDiv">
-        <noscript>hi hello!..</noscript>
+        <noscript>Amor fati!..</noscript>
         <AuthProvider>
           <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
             <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">

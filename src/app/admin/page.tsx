@@ -166,7 +166,6 @@ export default function ExpandableTable() {
       setNewModerator({ name: "", contactNumber: "" });
   
     } catch (error: any) {
-      console.log('error', error)
       toast?.show(error.message || "Failed to add moderator", "error", 5000);
     }
   };

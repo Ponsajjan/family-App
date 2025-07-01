@@ -10,7 +10,7 @@ export const InformationSection = ({
 }) => (
   <>
     <div className="flex pt-3 items-center">
-      <p className="font-medium md:font-semibold pr-2 md:pr-4 whitespace-nowrap">{title}</p>
+      <p className="font-semibold pr-2 md:pr-4 whitespace-nowrap">{title}</p>
       <p className="border-t border-border_color w-full"></p>
     </div>
     <div className="pl-1">
