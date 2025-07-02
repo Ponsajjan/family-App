@@ -33,7 +33,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 error={errors.name}
             />
             <div className="py-4">
-                <div className="flex gap-2">
+                <div className="flex gap-4">
                     <p className="text-sm font-medium">Gender:</p>
                     <RadioButton
                         label="Male"
@@ -198,7 +198,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 value={formData.address || ''}
                 onChange={handleInputChange}
             />
-            <div className="flex justify-start items-center gap-2">
+            <div className="flex justify-start items-center gap-4">
                 <p className="text-sm font-medium">{head ? `${head}` : 'Family'} descendant:</p>
                 {["Yes", "No"].map((option) => (
                     <RadioButton

@@ -16,14 +16,13 @@
         {
           "src": "web-app-manifest-512x512.png",
           "sizes": "512x512",
-          "type": "image/png",
-          "purpose": "any"
+          "type": "image/png"
         },
         {
           "src": "web-app-manifest-mask.png",
           "sizes": "512x512",
           "type": "image/png",
-          "purpose": "maskable"
+          "purpose": "maskable round"
         }
       ],
     "theme_color": "#FFFFFF",

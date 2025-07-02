@@ -1,0 +1,121 @@
+{
+    "name": "Family Calendar",
+    "short_name": "Family Calendar",
+    "description": "Shared Family Calendar For Birthdays & Remembrances",
+    "icons": [
+        {
+          "src": "web-app-manifest-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "web-app-manifest-384x384.png",
+          "sizes": "384x384",
+          "type": "image/png"
+        },
+        {
+          "src": "web-app-manifest-512x512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        },
+        {
+          "src": "web-app-manifest-mask.png",
+          "sizes": "512x512",
+          "type": "image/png",
+          "purpose": "maskable round "
+        }
+      ],
+    "lang": "en-US",
+    "dir": "ltr",
+    "scope": "/",
+    "id": "/",
+    "prefer_related_applications": false,
+    "related_applications": [],
+    "icons_color": "#000000",
+    "icons_maskable_color": "#FFFFFF",
+    "icons_any_purpose": "any",
+    "icons_maskable_purpose": "maskable",
+    "icons_maskable_round": "maskable round",
+    "theme_color": "#FFFFFF",
+    "background_color": "#FFFFFF",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "display_mode": "standalone",
+    "display_override_mode": "window-controls-overlay",
+    "display_mode_minimal_ui": "minimal-ui",
+    "display_mode_fullscreen": "fullscreen",
+    "display_mode_standalone": "standalone",
+    "screen_reader": {
+      "name": "Family Calendar",
+      "description": "Shared Family Calendar For Birthdays & Remembrances"
+    },
+    "splash_pages": [
+        "/splash.html"
+    ],
+    "splash_screen": {
+        "background_color": "#FFFFFF",
+        "theme_color": "#FFFFFF",
+        "image": "web-app-manifest-512x512.png",
+        "image_maskable": "web-app-manifest-mask.png",
+        "image_any_purpose": "web-app-manifest-512x512.png",
+        "image_maskable_round": "web-app-manifest-mask.png"
+    },
+    "screenshots": [
+        {
+            "src": "screenshot1.png",
+            "sizes": "1280x800",
+            "type": "image/png",
+            "label": "Screenshot 1"
+        }
+    ],
+    "custom": {
+        "custom_key": "custom_value"
+    },
+    "version": "1.0.0",
+    "author": "Ponsajjan",
+    "homepage_url": "https://family-calendar.example.com",
+    "privacy_policy_url": "https://family-calendar.example.com/privacy",
+    "terms_of_service_url": "https://family-calendar.example.com/terms",
+    "license": "MIT",
+    "keywords": [
+        "family calendar",
+        "family app"
+    ],
+    "categories": [
+        "family"
+    ],
+    "shortcuts": [
+        {
+            "name": "Add Event",
+            "short_name": "Add Event",
+            "description": "Quickly add a new event to the calendar",
+            "url": "/add-event",
+            "icons": [
+                {
+                    "src": "add-event-icon.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "View Events",
+            "short_name": "View Events",
+            "description": "View all upcoming events in the calendar",
+            "url": "/events",
+            "icons": [
+                {
+                    "src": "view-events-icon.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ],
+    "display_override": [
+        "window-controls-overlay",
+        "minimal-ui",
+        "fullscreen"
+    ]
+  }
