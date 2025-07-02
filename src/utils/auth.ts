@@ -52,6 +52,7 @@ export async function updateToken(token: string) {
     if (expirationTime < currentTime) {
       // Token expired, clear cookie
       response.cookies.set("token", "", { maxAge: 0 });
+      response.cookies.set("access", "", { maxAge: 0 });
     } else if (expirationTime - currentTime < bufferTime) {
       // Token is about to expire, renew it
       const { iat, exp, ...safePayload } = decoded;

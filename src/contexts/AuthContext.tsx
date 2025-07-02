@@ -29,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (storedToken || storedAccess) {
       setToken(storedToken as string | null);
       setAccess(storedAccess as string | null);
+      updateToken(storedToken as string)
     }
     setIsInitialized(true);
 
