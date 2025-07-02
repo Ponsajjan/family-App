@@ -172,7 +172,7 @@ export default function EditRelationshipDetails() {
         {(loading || submitting) && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">{loading ? 'Loading...' : 'Submitting...'}</p>
         </div>}
-        <div className="w-full md:max-w-xl px-4 py-6 md:py-10 mx-auto">
+        <div className="w-full md:max-w-xl px-4 py-5 md:py-10 mx-auto">
           <div className="flex items-center mb-3">
             <span className="hidden md:block"><AddRelationship /></span>
             <Link href={"/add_edit"} className="md:hidden block">

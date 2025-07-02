@@ -13,7 +13,7 @@ const Radio: React.FC<RadioProps> = ({
   ...restProps
 }) => {
   return (
-    <label className={`flex items-center space-x-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`}>
+    <label className={`flex items-center justify-center space-x-2 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`}>
       <input
         type="radio"
         disabled={disabled}
