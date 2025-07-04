@@ -42,7 +42,7 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
     return (
       <div className="w-full">
         <div className="flex text-text_color items-center px-3 py-1 bg-main_background sticky top-12 md:top-0 z-10">
-          <span className="md:font-medium pr-2 whitespace-nowrap">{title}</span>
+          <span className="font-medium pr-2 whitespace-nowrap">{title}</span>
           <span className="border-t border-border_color block w-full"></span>
         </div>
         <div className="pl-5 md:pl-4 pb-1">
