@@ -24,8 +24,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Initialize auth state on mount
-    const storedToken = getCookie('token');
-    const storedAccess = getCookie('access');
+    const storedToken = getCookie('token') || null;
+    const storedAccess = getCookie('access') || null;
     if (storedToken || storedAccess) {
       setToken(storedToken as string | null);
       setAccess(storedAccess as string | null);

@@ -180,7 +180,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                       .filter(child => changeDetails.children?.reorderedIds.includes(child.id))
                       .sort((a, b) => (a.newOrder || 0) - (b.newOrder || 0))
                       .map(child => `
-                        <div class="flex gap-1 items-center">
+                        <div class="flex gap-1 items-center flex-wrap">
                           <span>${child.newOrder}. ${child.name}</span>
                           <span class="text-blue-600 font-medium">
                             ${child.newOrder !== child.currentOrder ? `(Moved from ${child.currentOrder})` : ''}
@@ -192,7 +192,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                                       !changeDetails.children?.removedIds.includes(child.id))
                       .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
                       .map(child => `
-                        <div class="flex gap-1 items-center">
+                        <div class="flex gap-1 items-center flex-wrap">
                           <span>${child.currentOrder}. ${child.name}</span>
                         </div>
                       `).join('')}
@@ -204,7 +204,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                     .filter(child => !changeDetails.children?.removedIds.includes(child.id))
                     .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
                     .map(child => `
-                      <div class="flex gap-1 items-center">
+                      <div class="flex gap-1 items-center flex-wrap">
                         <span>${child.currentOrder}. ${child.name}</span>
                       </div>
                     `).join('')}
@@ -219,7 +219,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                       .filter(child => changeDetails.children?.removedIds.includes(child.id)).length > 0 
                       ? changeDetails.children.all
                       .filter(child => changeDetails.children?.removedIds.includes(child.id)).map((child, index) => `
-                        <div class="flex gap-1 items-center">
+                        <div class="flex gap-1 items-center flex-wrap">
                           <span>${index + 1}.</span>
                           <span class="line-through ">
                              ${child.name}
@@ -238,7 +238,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
               ${changeDetails.children.all
                 .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
                 .map(child => `
-                  <div class="flex gap-1 items-center">
+                  <div class="flex gap-1 items-center flex-wrap">
                     <span>${child.currentOrder}. ${child.name}</span>
                   </div>
                 `).join('')}

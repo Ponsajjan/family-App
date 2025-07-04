@@ -106,7 +106,7 @@ export default function Terms() {
                 <li className='list-outside'>New members remain hidden in Calendar and Relations chart until they are verified</li>
               </ul>
               <p className="mt-4 italic opacity-65">
-                Note: Verified member information is locked to preserve data integrity. Any updates to verified members require a moderator approval
+                Note: Verified member information is locked to preserve data integrity. Any updates to verified members require moderator approval
               </p>
             </div>
           </div>
