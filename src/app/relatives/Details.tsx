@@ -12,8 +12,6 @@ export default function Details({ showMember, openDetails }: any) {
 
   useEffect(() => {
     const fetchMemberDetails = async () => {
-      if (!showMember) return;
-      
       try {
         setError(null);
         setLoadingDetails(true);
@@ -24,8 +22,8 @@ export default function Details({ showMember, openDetails }: any) {
         });
   
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to update member");
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to update member");
         }
         const { data } = await response.json();
         setData(data);
@@ -37,7 +35,7 @@ export default function Details({ showMember, openDetails }: any) {
     };
   
     if (showMember) {
-        fetchMemberDetails();
+      fetchMemberDetails();
     }
   }, [showMember]);
 
