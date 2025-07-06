@@ -27,6 +27,11 @@
       ],
     "theme_color": "#FFFFFF",
     "background_color": "#FFFFFF",
+    "splash_screen": {
+      "background_color": "#FFFFFF",
+      "theme_color": "#FFFFFF",
+      "image": "web-app-manifest-512x512.png"
+    },
     "start_url": "/",
     "display": "standalone",
     "orientation": "portrait"

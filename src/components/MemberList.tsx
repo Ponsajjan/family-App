@@ -236,9 +236,9 @@ export default function MemberList({
         return <p className="text-center pt-10 pb-4 px-2">No family descendant with parents unassigned</p>;
       case ForType.SelectPartner:
         return params.showCousin ? (
-          <p className="text-center pt-10 pb-4 px-2">No family members with partner unassigned</p>
+          <p className="text-center pt-10 pb-4 px-2 loading-text">No family members with partner unassigned</p>
         ) : (
-          <p className="text-center pt-10 pb-4 px-2">No member with partner unassigned</p>
+          <p className="text-center pt-10 pb-4 px-2 loading-text">No member with partner unassigned</p>
         );
       case ForType.EditRelationship:
         return <p className="text-center pt-10 pb-4 px-2">No member with partner/children assigned</p>;
