@@ -227,11 +227,11 @@ export default function MemberList({
 
   const renderNoMembersMessage = () => {
     if (members.length === 0 && searchInput.length > 0) {
-      return <p className="text-center pt-10 pb-4 px-2">No members found for &#39;{params.search}&#39;</p>;
+      return <p className="text-center pt-10 pb-4 px-2">No member found for &#39;{params.search}&#39;</p>;
     }
     switch (forType) {
       case ForType.SelectMember:
-        return <p className="text-center pt-10 pb-4 px-2">No Members Available</p>;
+        return <p className="text-center pt-10 pb-4 px-2">No Member Available</p>;
       case ForType.SelectChildren:
         return <p className="text-center pt-10 pb-4 px-2">No family descendant with parents unassigned</p>;
       case ForType.SelectPartner:

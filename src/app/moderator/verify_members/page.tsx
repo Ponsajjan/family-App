@@ -248,11 +248,11 @@ export default function VerifyMember() {
                 ))}
                 <div className="h-10 px-4 py-2">
                   {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
+                  {(!loadingList && members.length == 0) && (
+                    searchInput ? <p className='p-4 text-text_color'>No member found for &lsquo;{params.search}&lsquo;</p> : <p className='p-4 loading-text'>No {selectedFilter} member available</p>
+                  )}
                   {!hasMore && <p className="text-text_color">, , ,</p> }
                 </div>
-                {(!loadingList && members.length == 0) && (
-                  searchInput ? <p className='p-4 text-text_color'>No results found for &lsquo;{params.search}&lsquo;</p> : <p className='p-4 loading-text'>No data</p>
-                )}
               </div>
             </div>
           </div>
