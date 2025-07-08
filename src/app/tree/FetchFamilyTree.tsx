@@ -39,7 +39,16 @@ const TreeNode = ({ node }: { node: any }) => {
 const TreeView = ({ data }: { data: any[] }) => {
   return (
     <div className="ml-20 first:ml-0">
-      <div className="border-l-2 md:border-l-2 border-text_color">
+      {/* <div className="border-l-2 md:border-l-2 border-text_color"> */}
+      <div 
+        style={{
+          borderImage: "url('/border.svg') 2",
+          borderImageRepeat: "stretch",
+          borderImageSlice: "2",
+          borderLeftStyle: "solid",
+          borderLeftWidth: "2px"
+        }}
+      >
         {data.map((node: any, index: number) => (
           <TreeNode key={index} node={node} />
         ))}
