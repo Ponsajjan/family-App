@@ -15,11 +15,18 @@ const TreeNode = ({ node }: { node: any }) => {
           >
             {index === 0 ? (
               <span className="-mt-[40px] md:-mt-[28px] block">
-                <SvgArrow />
+                {/* <SvgArrow /> */}
+                <div className="relative w-[60px] h-[55px] border-l-2 border-b-2 border-text_color rounded-bl-lg">
+                  <span className="absolute -right-0.5 bottom-0 transform translate-y-[11.5px]">&#9656;</span>
+                </div>
               </span>
             ) : (
               <span className="ml-[2px] mt-[14px] md:mt-6 block">
-                <SvgArrowStraight />
+                {/* <SvgArrowStraight /> */}
+                <div className="relative w-[60px] border-b-2 border-text_color">
+                  <span className="absolute -left-0.5 bottom-0 transform translate-y-[11.5px]">&#9666;</span>
+                  <span className="absolute -right-0.5 bottom-0 transform translate-y-[11.5px]">&#9656;</span>
+                </div>
               </span>
             )}
             <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap whitespace-nowrap rounded-lg">
