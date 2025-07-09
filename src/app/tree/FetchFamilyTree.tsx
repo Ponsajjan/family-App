@@ -1,7 +1,7 @@
 'use server'
 
 import prisma from "@/db/db";
-import { Female, Male, SvgArrow, SvgArrowStraight } from "@/utils/Icons";
+import { Female, Male } from "@/utils/Icons";
 
 // TreeNode Component
 const TreeNode = ({ node }: { node: any }) => {
@@ -16,7 +16,7 @@ const TreeNode = ({ node }: { node: any }) => {
             {index === 0 ? (
               <span className="-mt-[40px] md:-mt-[28px] block">
                 {/* <SvgArrow /> */}
-                <div className="relative w-[60px] h-[55px] first:border-l-2 border-b-2 border-text_color rounded-bl-lg">
+                <div className="relative w-[60px] h-[60px] md:h-[55px] border-l-2 border-b-2 border-text_color rounded-bl-lg">
                   <span className="absolute -right-0.5 bottom-0 transform translate-y-[11.5px]">&#9656;</span>
                 </div>
               </span>
@@ -45,13 +45,12 @@ const TreeNode = ({ node }: { node: any }) => {
 // TreeView Component
 const TreeView = ({ data }: { data: any[] }) => {
   return (
-    <div className="ml-20 first:ml-0">
-      <div className="border-l-2 border-main_background">
-        <div className="border-l-2 border-text_color">
-          {data.map((node: any, index: number) => (
-            <TreeNode key={index} node={node} />
-          ))}
-        </div>
+    <div className="flex first:-ml-20">
+      <div className="pl-20 bg-main_background z-50"/> {/* to hide left overflowing border */}
+      <div className="border-l-2 border-text_color">
+        {data.map((node: any, index: number) => (
+          <TreeNode key={index} node={node} />
+        ))}
       </div>
     </div>
   );
