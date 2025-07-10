@@ -14,20 +14,14 @@ const TreeNode = ({ node }: { node: any }) => {
             className={`flex items-start -ml-[2px] ${index === 0 ? "first:pt-0 pt-4 md:pt-6" : ""}`}
           >
             {index === 0 ? (
-              <span className="-mt-[40px] md:-mt-[28px] block">
-                {/* <SvgArrow /> */}
-                <div className="relative w-[60px] h-[60px] md:h-[55px] border-l-2 border-b-2 border-text_color rounded-bl-lg">
-                  <span className="absolute -right-0.5 bottom-0 transform translate-y-[11.5px]">&#9656;</span>
-                </div>
-              </span>
+              <div className="-mt-[34px] md:-mt-[28px] block relative w-[60px] h-[55px] border-l-2 border-b-2 border-text_color rounded-bl-lg">
+                <span className="absolute -mr-[6px] right-0 bottom-0 transform translate-y-[7px] border-[6px] border-l-black border-transparent" />
+              </div>
             ) : (
-              <span className="ml-[2px] mt-[14px] md:mt-6 block">
-                {/* <SvgArrowStraight /> */}
-                <div className="relative w-[60px] border-b-2 border-text_color">
-                  <span className="absolute -left-0.5 bottom-0 transform translate-y-[11.5px]">&#9666;</span>
-                  <span className="absolute -right-0.5 bottom-0 transform translate-y-[11.5px]">&#9656;</span>
-                </div>
-              </span>
+              <div className="ml-[2px] mt-[18px] md:mt-6 block relative w-[60px] border-b-2 border-text_color">
+                <span className="absolute -right-0 -mr-[6px] bottom-0 transform translate-y-[7px] border-[6px] border-l-black border-transparent" />
+                <span className="absolute -left-0 -ml-[6px] bottom-0 transform translate-y-[7px] border-[6px] border-r-black border-transparent" />
+              </div>
             )}
             <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap whitespace-nowrap rounded-lg">
               {data.gender === "Male" && <Male />}
@@ -45,9 +39,8 @@ const TreeNode = ({ node }: { node: any }) => {
 // TreeView Component
 const TreeView = ({ data }: { data: any[] }) => {
   return (
-    <div className="flex first:-ml-20">
-      <div className="pl-20 bg-main_background z-50"/> {/* to hide left overflowing border */}
-      <div className="border-l-2 border-text_color">
+    <div className="ml-20 first:ml-0">
+      <div className="border-l-2 md:border-l-2 border-text_color">
         {data.map((node: any, index: number) => (
           <TreeNode key={index} node={node} />
         ))}
