@@ -273,16 +273,16 @@ thead, tbody, tr, th, td {
   opacity: 0;
 }
 .z-1 {
-  animation: swayUpToRight 3s ease-out infinite;
+  animation: swayUpToRight 4s ease-out infinite;
 }
 .z-2 {
-  animation: swayUpToRight 3s ease-out 0.5s infinite;
+  animation: swayUpToRight 4s ease-out 0.5s infinite;
 }
 .z-3 {
-  animation: swayUpToRight 3s ease-out 1s infinite;
+  animation: swayUpToRight 4s ease-out 1s infinite;
 }
 .z-4 {
-  animation: swayUpToRight 3s ease-out 1.5s infinite;
+  animation: swayUpToRight 4s ease-out 1.5s infinite;
 }
 @keyframes swayUpToRight {
   0% {
@@ -292,5 +292,23 @@ thead, tbody, tr, th, td {
   100% {
     transform: translate(80px, -100px) rotate(30deg);
     opacity: 0;
+  }
+}
+
+.sleep-animation {
+  animation: sleep 4s infinite ease;
+}
+
+@keyframes sleep {
+  0% {
+    transform: rotateX(-15deg) translateY(0px);
+  }
+
+  50% {
+    transform: rotateX(-15deg) translateY(-4px);
+  }
+
+  100% {
+    transform: rotateX(-15deg) translateY(0px);
   }
 }
