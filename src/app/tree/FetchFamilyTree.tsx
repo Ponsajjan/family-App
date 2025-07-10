@@ -19,8 +19,8 @@ const TreeNode = ({ node }: { node: any }) => {
               </div>
             ) : (
               <div className="ml-[2px] mt-[18px] md:mt-6 block relative w-[60px] border-b-2 border-text_color">
-                <span className="absolute -right-0 -mr-[6px] bottom-0 transform translate-y-[7px] border-[6px] border-l-black border-transparent" />
-                <span className="absolute -left-0 -ml-[6px] bottom-0 transform translate-y-[7px] border-[6px] border-r-black border-transparent" />
+                <span className="absolute right-0 -mr-[6px] bottom-0 transform translate-y-[7px] border-[6px] border-l-black border-transparent" />
+                <span className="absolute left-0 -ml-[6px] bottom-0 transform translate-y-[7px] border-[6px] border-r-black border-transparent" />
               </div>
             )}
             <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap whitespace-nowrap rounded-lg">
@@ -40,7 +40,7 @@ const TreeNode = ({ node }: { node: any }) => {
 const TreeView = ({ data }: { data: any[] }) => {
   return (
     <div className="ml-20 first:ml-0">
-      <div className="border-l-2 md:border-l-2 border-text_color">
+      <div className="border-l-2 border-text_color">
         {data.map((node: any, index: number) => (
           <TreeNode key={index} node={node} />
         ))}
