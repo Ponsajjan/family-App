@@ -15,12 +15,12 @@ const TreeNode = ({ node }: { node: any }) => {
           >
             {index === 0 ? (
               <div className="-mt-[34px] md:-mt-[28px] block relative w-[60px] h-[55px] border-l-2 border-b-2 border-text_color rounded-bl-lg">
-                <span className="absolute -mr-[6px] right-0 bottom-0 transform translate-y-[7px] border-[6px] border-l-black border-transparent" />
+                <span className="absolute right-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-l-black border-transparent border-r-0" />
               </div>
             ) : (
               <div className="ml-[2px] mt-[18px] md:mt-6 block relative w-[60px] border-b-2 border-text_color">
-                <span className="absolute right-0 -mr-[6px] bottom-0 transform translate-y-[7px] border-[6px] border-l-black border-transparent" />
-                <span className="absolute left-0 -ml-[6px] bottom-0 transform translate-y-[7px] border-[6px] border-r-black border-transparent" />
+                <span className="absolute right-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-l-black border-transparent border-r-0" />
+                <span className="absolute left-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-r-black border-transparent border-l-0" />
               </div>
             )}
             <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap whitespace-nowrap rounded-lg">
