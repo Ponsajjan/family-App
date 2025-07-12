@@ -296,14 +296,14 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
                 {(data?.contactInformation) &&
                 <InformationSection title="Contact Information">
                     <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
-                    <MemberItem label="Location" value={data.contactInformation.address} />
+                    <MemberItem label="Address" value={data.contactInformation.address} />
                 </InformationSection>
                 }
 
                 {(data?.personalInformation) &&
                 <InformationSection title="Personal Information">
                     <MemberItem label="Occupation" value={data.personalInformation.occupation} />
-                    <MemberItem label="Address" value={data.personalInformation.education} />
+                    <MemberItem label="Education" value={data.personalInformation.education} />
                 </InformationSection>}
                 <div className='flex flex-col mt-6 gap-2'>
                     <HoldButton disabled={deleted} holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />
