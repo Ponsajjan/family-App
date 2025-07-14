@@ -176,7 +176,7 @@ export default function EditMemberDetails () {
       </Container>
       <SlidePanel setShowDetails={setShowList} showDetails={showList} >
         <MemberList 
-          forType={'selectMember'} 
+          forType={'editMember'} 
           getSelectedValues={formData} 
           setSelectedValue={handleSelectedValue} 
           openList={setShowList} 

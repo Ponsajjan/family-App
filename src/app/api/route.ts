@@ -193,6 +193,25 @@ export async function GET(request: NextRequest) {
         });
         break;
 
+      case "editMember":
+        memberList = await prisma.member.findMany({
+          where: {
+            ...baseWhere,
+          },
+          select: {
+            id: true,
+            name: true,
+            gender: true,
+            father: { select: { name: true } },
+            mother: { select: { name: true } },
+            partner: { select: { name: true } },
+          },
+          orderBy: { name: "asc" },
+          skip,
+          take,
+        });
+        break;
+
       default:
         return NextResponse.json(
           { error: `'${forType}' is not a valid 'for' parameter` },

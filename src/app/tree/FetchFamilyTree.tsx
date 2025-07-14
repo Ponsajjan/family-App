@@ -6,7 +6,7 @@ import { Female, Male } from "@/utils/Icons";
 // TreeNode Component
 const TreeNode = ({ node }: { node: any }) => {
   return (
-    <div className="bg-main_background pt-6 md:pt-7 last:-ml-[4px] last:pl-[4px]">
+    <div className="bg-main_background pt-4 md:pt-[26px] last:-ml-[3px] last:pl-[3px]">
       <div className="flex">
         {node.gen.map((data: any, index: number) => (
           <div
@@ -14,11 +14,11 @@ const TreeNode = ({ node }: { node: any }) => {
             className={`flex items-start -ml-[2px] ${index === 0 ? "first:pt-0 pt-4 md:pt-6" : ""}`}
           >
             {index === 0 ? (
-              <div className="-mt-[34px] md:-mt-[28px] block relative w-[60px] h-[55px] border-l-2 border-b-2 border-text_color rounded-bl-lg">
+              <div className="-mt-[18px] md:-mt-[28px] block relative w-[30px] md:w-[60px] h-[40px] md:h-[55px] border-l-2 border-b-2 border-text_color rounded-bl-lg">
                 <span className="absolute right-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-l-black border-main_background border-r-0" />
               </div>
             ) : (
-              <div className="ml-[2px] mt-[18px] md:mt-6 block relative w-[60px] border-b-2 border-text_color">
+              <div className="ml-[2px] mt-[18px] md:mt-6 block relative w-[30px] md:w-[60px] border-b-2 border-text_color">
                 <span className="absolute right-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-l-black border-main_background border-r-0" />
                 <span className="absolute left-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-r-black border-main_background border-l-0" />
               </div>
@@ -39,7 +39,7 @@ const TreeNode = ({ node }: { node: any }) => {
 // TreeView Component
 const TreeView = ({ data }: { data: any[] }) => {
   return (
-    <div className="ml-20 first:ml-0">
+    <div className="ml-10 md:ml-20 first:ml-0">
       <div className="border-l-2 border-text_color">
         {data.map((node: any, index: number) => (
           <TreeNode key={index} node={node} />

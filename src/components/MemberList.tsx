@@ -32,10 +32,11 @@ enum ForType {
   SelectPartner = 'selectPartner',
   SelectChildren = 'selectChildren',
   EditRelationship = 'editRelationship',
+  EditMember = 'editMember'
 }
 
 interface MemberListProps {
-  forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship';
+  forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship' | 'editMember';
   gender?: 'Male' | 'Female' | null;
   excludeId?: number[] | null;
   setSelectedValue: (item: string, id: number, select: string, verified: boolean) => void;
@@ -97,18 +98,21 @@ export default function MemberList({
     handleSetSearchFilter(input);
   };
 
-  const keyMap: { [key in ForType]: string } = {
-    [ForType.SelectMember]: 'name',
-    [ForType.SelectPartner]: 'partner',
-    [ForType.SelectChildren]: 'children',
-    [ForType.EditRelationship]: 'edit',
-  };
+  // const keyMap: { [key in ForType]: string } = {
+  //   [ForType.SelectMember]: 'name',
+  //   [ForType.SelectPartner]: 'partner',
+  //   [ForType.SelectChildren]: 'children',
+  //   [ForType.EditRelationship]: 'edit',
+  //   [ForType.EditMember]: 'name',
+  // };
 
-  const selectedValues = getSelectedValues[keyMap[forType]] || [];
+  // const selectedValues = getSelectedValues[keyMap[forType]] || [];
 
-  function getFiltersFor(forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship', gender: string | null): string[] {
+  const selectedValues = getSelectedValues['children'] || [];
+
+  function getFiltersFor(forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editMember' | 'editRelationship', gender: string | null): string[] {
     switch (forType) {
-      case ForType.SelectMember:
+      case ForType.SelectMember || ForType.EditMember:
         return ['All Members'];
       case ForType.SelectPartner:
         return [gender === 'Male' ? 'Female' : 'Male', 'Partner Unassigned'];
@@ -230,7 +234,7 @@ export default function MemberList({
       return <p className="text-center pt-10 pb-4 px-2">No member found for &#39;{params.search}&#39;</p>;
     }
     switch (forType) {
-      case ForType.SelectMember:
+      case ForType.SelectMember || ForType.EditMember:
         return <p className="text-center pt-10 pb-4 px-2">No Member Available</p>;
       case ForType.SelectChildren:
         return <p className="text-center pt-10 pb-4 px-2">No family descendant with parents unassigned</p>;
@@ -367,7 +371,7 @@ export default function MemberList({
         : <div>{renderNoMembersMessage()}</div>}
       </div>
 
-      {multiselect && <ButtonSolid buttonText={selectedValues.length <= 0 ? 'Close' : 'Submit'} onClick={() => openList((prev:any) => !prev)} className={`w-full absolute bottom-0 left-0 right-0 z-10 rounded-none overflow-hidden mx-auto`} />}
+      {multiselect && <ButtonSolid buttonText={selectedValues.length <= 0 ? 'Close' : 'Submit'} onClick={() => openList((prev:any) => !prev)} className={`w-full absolute bottom-0 left-0 right-0 z-10 rounded-none mx-auto`} />}
     </Container>
   );
 }

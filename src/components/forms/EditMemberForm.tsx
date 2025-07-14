@@ -239,7 +239,7 @@ function EditMemberForm({
                     />
                 </div>
             </div>}
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Updateing..." : "Update Details"} />
+            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Updating..." : "Update Details"} />
         </form>
     )
 }

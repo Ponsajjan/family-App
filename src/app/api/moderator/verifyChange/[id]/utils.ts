@@ -1,6 +1,8 @@
 // Utility functions
 export function normalizeValue(value: any, key: string): string {
-  if (value == null) return 'null';
+  if (value === null || value === undefined || value === '') {
+    return 'null';
+  }
   if (key === 'descendant' || key === 'deceased') {
     return (value === true || value === 'Yes') ? 'true' : 'false';
   }

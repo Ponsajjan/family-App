@@ -31,8 +31,11 @@ export async function handleEditMemberCase(member: any, changeData: any) {
   }
 
   const changesJsx = Object.entries(formData).map(([key, value]) => {
-    const newValue = changeDetails[key] ?? value;
-    const hasChanged = normalizeValue(value, key) !== normalizeValue(newValue, key);
+    const newValue = key in changeDetails ? changeDetails[key] : value;
+    const hasChanged = 
+      (value == null && newValue != null) || 
+      (value != null && newValue == null) ||
+      normalizeValue(value, key) !== normalizeValue(newValue, key);
 
     return `
       <div class="flex" key="${key}">
@@ -44,7 +47,7 @@ export async function handleEditMemberCase(member: any, changeData: any) {
         </div>
         <div class="flex flex-wrap items-center gap-1">
           ${hasChanged ? `<p class="line-through">${displayValue(value, key)}</p>` : ''}
-          <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue, key)}</p>
+          <p class="${hasChanged ? 'text-blue-600 font-medium' : ''}">${displayValue(newValue, key) == '1600' ? '' : displayValue(newValue, key)}</p>
         </div>
       </div>
     `;
