@@ -99,6 +99,7 @@ export async function GET(request: NextRequest) {
           descendantOf: forDescendanceOf
         },
         select: { name: true, order: true, verified: true },
+        orderBy: { order: 'asc' },
         distinct: ['name'] // Ensure unique siblings
       })
     ]);

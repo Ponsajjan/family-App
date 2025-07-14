@@ -98,6 +98,7 @@ export async function GET(request: NextRequest) {
           descendantOf: forDescendanceOf
         },
         select: { name: true, order: true },
+        orderBy: { order: 'asc' },
         distinct: ['name'], // Ensure unique siblings
         cacheStrategy: { 
           ttl: 60 * 5,
