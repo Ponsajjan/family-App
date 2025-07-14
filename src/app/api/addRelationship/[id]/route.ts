@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
+              verified: true,
               fatherId: true,
               motherId: true,
             },
@@ -106,7 +107,7 @@ export async function GET(request: NextRequest) {
         id: dbData.id,
         name: dbData.name,
         gender: dbData.gender,
-        verified: dbData.verified,
+        verified: dbData.verified || dbData.partner?.verified,
         descendant: dbData.descendant,
         partner: dbData.partner,
         childrenData: childrenData,
