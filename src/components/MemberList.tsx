@@ -112,7 +112,7 @@ export default function MemberList({
 
   function getFiltersFor(forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editMember' | 'editRelationship', gender: string | null): string[] {
     switch (forType) {
-      case ForType.SelectMember || ForType.EditMember:
+      case ForType.SelectMember:
         return ['All Members'];
       case ForType.SelectPartner:
         return [gender === 'Male' ? 'Female' : 'Male', 'Partner Unassigned'];
@@ -120,6 +120,8 @@ export default function MemberList({
         return ['Descendant', 'Parents Unassigned'];
       case ForType.EditRelationship:
         return ['Partner Assigned', 'Children Assigned'];
+      case ForType.EditMember:
+        return ['All Members']
       default:
         return ['All'];
     }
