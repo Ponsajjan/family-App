@@ -16,7 +16,7 @@ export default function Terms() {
   const [loading, setLoading] = useState(true);
   const [head, setHead] = useState('');
   const [moderatorList, setModeratorList] = useState([]);
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
   const router = useRouter();
 
   useEffect(() => {

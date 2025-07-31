@@ -13,7 +13,7 @@ function SwitchLoginList() {
         <div className='p-4'>
             {family.map((m_member, index) => {
                 return (
-                  <div key={index} className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2" >
+                  <div key={index} className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[40px] mb-2" >
                     <div className="w-full flex justify-between items-center">
                       <div className={`px-3 ${activeFamilyMember === m_member ? 'font-semibold text-lg' : 'font-normal text-base'}`}>{m_member}</div>
                         <ToggleSwitch 
