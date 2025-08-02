@@ -25,6 +25,7 @@ const nextConfig = {
      resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js", ".json"],
    },
  },
+ output: "standalone",
 };
 
 export default withPWA(nextConfig);
