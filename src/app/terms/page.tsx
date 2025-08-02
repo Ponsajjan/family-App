@@ -10,13 +10,16 @@ import Loading from '@/components/Loading'
 import { useRouter } from 'next/navigation'
 import SlidePanel from '@/components/SlidePanel'
 import SwitchLoginList from './SwitchLoginList'
+import LogoutList from './LogoutList'
 
 export default function Terms() {
   const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [head, setHead] = useState('');
   const [moderatorList, setModeratorList] = useState([]);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
+  const [showSidePanel, setShowSidePanel] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -55,24 +58,36 @@ export default function Terms() {
     fetchMembers();
   }, [router, toast]);
 
-  const logout = async () => {
-    try {
-      const response = await fetch('/api/logout', { method: 'GET' });
-  
-      if (response.ok) {
-        router.push('/login');
-      } else {
-        console.error("Logout failed");
-      }
-    } catch (error) {
-      console.error("Error logging out:", error);
+  const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
+    if (value === 'switchLogin') {
+      setShowSidePanel(true);
+      setShowLogin(true);
+      setShowLogout(false);
+    };
+    if (value === 'switchLogout') {
+      setShowSidePanel(true);
+      setShowLogin(false);
+      setShowLogout(true);
+    };
+    if (value === 'switchLogin' && showLogin) {
+      setShowSidePanel(false);
+      setShowLogin(false);
+      setShowLogout(false);
+      return;
+    }
+    if (value === 'switchLogout' && showLogout) {
+      setShowSidePanel(false);
+      setShowLogin(false);
+      setShowLogout(false);
+      return;
     }
   };
+
 
   return (
     <div className='flex flex-col w-full text-text_color'>
       <Topnav>
-        <div onClick={() => setShowDetails(prev => !prev)} className='ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1'>
+        <div onClick={() => handleSidePanelToggle('switchLogin')} className='ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer'>
           <SwitchLogin />
         </div>
       </Topnav>
@@ -136,12 +151,13 @@ export default function Terms() {
 
             <div className='flex justify-between'>
               <Link href="/terms/login">Login as Moderator</Link>
-              <button onClick={logout} className="px-2 flex items-center gap-2"><Logout />Logout</button>
+              <button onClick={() => handleSidePanelToggle('switchLogout')} className="px-2 flex items-center gap-2"><Logout />Logout</button>
             </div>
           </div>}
         </Container>
-        <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
-          <SwitchLoginList />
+        <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
+          {showLogin && <SwitchLoginList />}
+          {showLogout && <LogoutList />}
         </SlidePanel>
       </div>
     </div>
