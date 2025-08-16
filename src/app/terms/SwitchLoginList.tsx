@@ -1,8 +1,10 @@
 import ToggleSwitch from '@/components/ToggleSwitch';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 
 function SwitchLoginList() {
     const family = ['family 1', 'family 2', 'Work', 'in', 'Progress'];
+    const router = useRouter();
     const [activeFamilyMember, setActiveFamilyMember] = useState<string | null>('family 1');
 
     const handleToggleChange = (member: string) => {
@@ -14,14 +16,14 @@ function SwitchLoginList() {
 
     return (
       <>
-        <div className='px-4 py-2 border-b border-border_color text-text_color'>
+        <div className='flex justify-between items-center px-2 py-2 font-semibold border-b border-border_color text-text_color'>
           <span>Switch Login</span>
         </div>
         <div className='p-4'>
           {family.map((m_member, index) => {
             return (
-              <div onClick={() => handleToggleChange(m_member)} className={`${activeFamilyMember === m_member ? '' : 'py-0.5'}`} key={index}>
-                <div className={`flex items-center justify-between transform transition-all duration-200 ${activeFamilyMember === m_member ? 'font-medium text-base scale-[1.02] shadow-md min-h-[41px] ' : 'min-h-[40px] opacity-70'} bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
+              <div onClick={() => handleToggleChange(m_member)} className='py-0.5' key={index}>
+                <div className={`flex items-center justify-between transform transition-all duration-200 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
                   <div className='px-3'>{m_member}</div>
                   <ToggleSwitch 
                     isActive={activeFamilyMember === m_member}
@@ -30,7 +32,8 @@ function SwitchLoginList() {
               </div>
             );
           })}
-          <div className='flex justify-between items-center cursor-pointer mt-6 px-4 py-1 border border-border_color rounded-lg text-text_color'>
+          <span className='block border-b border-dashed pt-2 mb-2' />
+          <div onClick={() => {router.push('/terms/add_login')}} className='flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer'>
             <span>Add Login</span>
             <span className='text-xl'>+</span>
           </div>

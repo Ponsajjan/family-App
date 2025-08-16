@@ -24,7 +24,8 @@ export default function ClientLayout({
     '/moderator',
     '/moderator/verify_members',
     '/moderator/verify_changes',
-    '/terms/login'
+    '/terms/moderator_login',
+    '/terms/add_login',
   ];
 
   if (IncludeSideNavLayoutPaths.includes(pathname)) {

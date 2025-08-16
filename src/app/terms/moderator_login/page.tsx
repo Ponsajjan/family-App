@@ -58,16 +58,22 @@ export default function Page() {
                 </button>
             </div>
         </Topnav>
-        <Container>            
-            <form onSubmit={handleSubmit} className="max-w-lg px-4 pt-10 mx-auto">
-                <div className='flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2'>
-                    <label className='flex items-center w-full'>
+        <Container>
+            <form onSubmit={handleSubmit} className="max-w-lg px-4 pt-10 mx-auto">    
+                <div className='flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2 relative'>
+                    <label className='flex items-center w-full relative'>
+                        <span className={`absolute left-1 text-text_color/55 transition-all duration-200 pointer-events-none pt-0.5 ${
+                            form.password ? 'text-sm -top-px' : 'top-1/2 -translate-y-1/2'
+                        }`}>
+                            Login as moderator
+                        </span>
                         <input
                             onChange={(e) => {setForm({ ...form, password: e.target.value }); setError("")}}
                             required
-                            placeholder='hello world!'
                             autoFocus
-                            className={`py-3 px-1 outline-none text-text_color focus:border-border_active text-sm h-full w-full bg-transparent disabled:cursor-not-allowed`}
+                            placeholder="Login as moderator"
+                            value={form.password || ''}
+                            className={`px-1 outline-none text-text_color focus:border-border_active text-sm w-full bg-transparent disabled:cursor-not-allowed placeholder:text-text_color/0 placeholder-shown:mt-0 mt-4`}
                         />
                     </label>
                     <button type='submit' className="py-1" disabled={submitting}>

@@ -82,3 +82,8 @@ export const useAuth = () => {
   }
   return context;
 };
+
+  //   // Process the value: remove everything after last underscore and replace underscores with spaces
+  //   const processedValue = newDescendentFor
+  //     .substring(0, newDescendentFor.lastIndexOf("_"))
+  //     .replace(/_/g, " ");

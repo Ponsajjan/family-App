@@ -66,15 +66,15 @@ export async function GET(request: NextRequest) {
     const take = page === 1 ? limit : limit + 1;
 
     // Calculate current year minus 18
-    const getCurrentISTYear = () => {
-      return new Date().toLocaleString("en-US", {
-        timeZone: "Asia/Kolkata",
-        year: "numeric",
-      });
-    };
+    // const getCurrentISTYear = () => {
+    //   return new Date().toLocaleString("en-US", {
+    //     timeZone: "Asia/Kolkata",
+    //     year: "numeric",
+    //   });
+    // };
 
-    const currentYear = parseInt(getCurrentISTYear(), 10);
-    const yearThreshold = currentYear - 18;
+    // const currentYear = parseInt(getCurrentISTYear(), 10);
+    // const yearThreshold = currentYear - 18;
 
     let memberList: Member[] = [];
     const groupedData: Array<Member | LetterHeader> = [];
@@ -95,12 +95,12 @@ export async function GET(request: NextRequest) {
         memberList = await prisma.member.findMany({
           where: {
             ...baseWhere,
-            AND: {
-              OR: [
-                { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
-                { birthYear: null },
-              ],
-            }
+            // AND: {
+            //   OR: [
+            //     { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
+            //     { birthYear: null },
+            //   ],
+            // }
           },
           select: {
             id: true,
@@ -124,12 +124,12 @@ export async function GET(request: NextRequest) {
             partnerId: null,
             id: { notIn: excludeId },
             descendant: descendant === 'true' ? showCousin : true,
-            AND: {
-              OR: [
-                { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
-                { birthYear: null },
-              ],
-            }
+            // AND: {
+            //   OR: [
+            //     { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
+            //     { birthYear: null },
+            //   ],
+            // }
           },
           select: {
             id: true,
@@ -222,24 +222,25 @@ export async function GET(request: NextRequest) {
     // Total count with the same filters
     const countWhere = {
       ...baseWhere,
-      ...(forType === "selectMember" && {
-      AND: {
-        OR: [
-          { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
-          { birthYear: null },
-        ],
-      }}),
+      // ...(forType === "selectMember" && {
+      //   AND: {
+      //     OR: [
+      //       { birthYear: { lt: yearThreshold } }, // Birth year less than current year - 18
+      //       { birthYear: null },
+      //     ],
+      //   }
+      // }),
       ...(forType === "selectPartner" && {
         gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
         partnerId: null,
         id: { notIn: excludeId },
         descendant: descendant === 'true' ? showCousin : undefined,
-        AND: {
-          OR: [
-            { birthYear: { lt: yearThreshold } },
-            { birthYear: null },
-          ],
-        }
+        // AND: {
+        //   OR: [
+        //     { birthYear: { lt: yearThreshold } },
+        //     { birthYear: null },
+        //   ],
+        // }
       }),
       ...(forType === "selectChildren" && {
         id: { notIn: [...excludeId, mainMemberId] },
