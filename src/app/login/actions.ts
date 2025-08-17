@@ -86,7 +86,8 @@ export async function login(formData: FormData) {
             success: true,
             message: "Login successful",
             token,
-            userType
+            userType,
+            descendentOf: login.forDescendanceOf
         };
     } catch (error) {
         console.error("Error logging in:", error);

@@ -32,7 +32,7 @@ export default function LoginForm() {
             setMessage("Submitting...");
             const result = await login(formData);
             if (result.success && result.token) {
-                storeLoginValues(result.token, result.userType);
+                storeLoginValues(result.token, result.userType, result.descendentOf);
                 if (result.userType === 'Admin') {
                 router.push('/admin');
                 } else {

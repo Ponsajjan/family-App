@@ -31,7 +31,7 @@ function LogoutList() {
 
     return (
       <>
-        <div className='flex justify-between items-center px-2 py-2 font-semibold border-b border-border_color text-text_color'>
+        <div className='flex justify-between items-center px-2 pt-3 pb-2 font-semibold border-b border-border_color text-text_color'>
           <span>Logout</span>
         </div>
         <div className='p-4'>

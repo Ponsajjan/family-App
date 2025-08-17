@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       userType: "Moderator",
     });
 
-    return NextResponse.json({ message: "Login successful", newtoken, userType: "Moderator" }, { status: 200 });
+    return NextResponse.json({ message: "Login successful", newtoken, userType: "Moderator", forDescendanceOf: login.forDescendanceOf }, { status: 200 });
 
   } catch (error) {
     console.error("Error logging in:", error);

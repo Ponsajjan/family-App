@@ -150,7 +150,7 @@ export default function Terms() {
             </div>
 
             <div className='flex justify-between'>
-              <Link href="/terms/moderator_login">Switch to Moderator Account</Link>
+              <Link href="/terms/moderator_login">Login as Moderator</Link>
               <button onClick={() => handleSidePanelToggle('switchLogout')} className="px-2 flex items-center gap-2"><Logout />Logout</button>
             </div>
           </div>}
