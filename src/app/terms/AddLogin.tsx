@@ -51,7 +51,6 @@ export default function AddLogin() {
                     <input
                         onChange={(e) => {setForm({ ...form, password: e.target.value }); setError("")}}
                         required
-                        autoFocus
                         placeholder="Add login"
                         value={form.password || ''}
                         className={`px-1 outline-none text-text_color focus:border-border_active text-sm w-full bg-transparent disabled:cursor-not-allowed placeholder:text-text_color/0 placeholder-shown:mt-0 mt-4`}

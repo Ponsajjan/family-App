@@ -31,17 +31,16 @@ function LogoutList() {
 
     return (
       <>
-        <div className='flex justify-between items-center px-2 pt-3 pb-2 font-semibold border-b border-border_color text-text_color'>
+        <div className='px-2 pt-3 pb-2 font-semibold border-b border-border_color text-text_color'>
           <span>Logout</span>
         </div>
-        <div className='p-4'>
-          <div className='py-0.5'>
-            <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
-              <div>Logout</div>
-              <Logout />
-            </div>
+        <div className='px-4 pt-4 border-b border-dashed pb-2'>
+          <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
+            <div>Logout</div>
+            <Logout />
           </div>
-          <span className='block border-b border-dashed pt-2 mb-2' />
+        </div>
+        <div className='px-4 py-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
           {family.map((m_member, index) => {
             return (
               <div key={index} onClick={() => handleToggleChange(m_member)} className='py-0.5'>
@@ -50,7 +49,7 @@ function LogoutList() {
                   <CloseIcon />
                 </div>
               </div>
-              );
+            );
           })}
         </div>
       </>

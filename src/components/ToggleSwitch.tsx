@@ -10,7 +10,7 @@ function ToggleSwitch({ isActive, onChange, className }: ToggleSwitchProps) {
   return (
     <label className={`relative inline-flex items-center cursor-pointer mx-4 ${className}`}>
       <input 
-        className="sr-only peer" 
+        className="sr-only peer p-4" 
         type="checkbox"
         readOnly={onChange === undefined}
         checked={isActive}
