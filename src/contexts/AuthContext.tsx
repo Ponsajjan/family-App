@@ -10,7 +10,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   access: string | null;
   setAccess: (access: string | null) => void;
-  storeLoginValues: (token: string, access: string, descendentOf:string) => void;
+  storeLoginValues: (token: string, access: string, forDescendanceOf:string) => void;
   logout: () => void;
 }
 
@@ -35,13 +35,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   }, []);
 
-  const storeLoginValues = (newToken: string, newAccess: string, descendentOf:string) => {
+  const storeLoginValues = (newToken: string, newAccess: string, forDescendanceOf:string) => {
     setToken(newToken);
     setAccess(newAccess);
     const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
     document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
     document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
-    document.cookie = `loggedAccounts=${descendentOf}; path=/; max-age=${daysToSeconds};`;
+    document.cookie = `loggedAccounts=${forDescendanceOf}; path=/; max-age=${daysToSeconds};`;
     return
   };
 

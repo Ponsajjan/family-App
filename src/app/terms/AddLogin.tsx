@@ -28,7 +28,7 @@ export default function AddLogin() {
     
             const data = await res.json();
             if (data.newtoken) {
-                storeLoginValues(data.newtoken, data.userType, data.descendentOf);
+                storeLoginValues(data.newtoken, data.userType, data.forDescendanceOf);
                 router.push("/moderator");
             } else {
                 setError(data.error);
