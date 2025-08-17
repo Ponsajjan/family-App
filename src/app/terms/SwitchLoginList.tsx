@@ -15,10 +15,10 @@ function SwitchLoginList() {
 
     return (
       <>
-        <div className='flex justify-between items-center px-2 pt-3 pb-2 font-semibold border-b border-border_color text-text_color'>
+        <div className='flex sticky top-0 h-[45px] justify-between items-center px-2 pt-3 pb-2 font-semibold border-b border-border_color text-text_color'>
           <span>Switch Login</span>
         </div>
-        <div className='p-4'>
+        <div className='px-4 pt-4 h-[40vh] md:h-[calc(100vh-154px)] overflow-y-auto scroll-stable'>
           {family.map((m_member, index) => {
             return (
               <div onClick={() => handleToggleChange(m_member)} className='py-0.5' key={index}>
@@ -32,7 +32,9 @@ function SwitchLoginList() {
               </div>
             );
           })}
-          <span className='block border-b border-dashed pt-2 mb-2' />
+        </div>
+        <div className='px-4 pb-4'>
+          <span className='block border-t border-dashed pt-2 mt-2' />
           <AddLogin />
         </div>
       </>
