@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
           where: { id: memberId },
           select: {
             name: true,
+            descendantOf: true
           },
         },
         moderatorList: {

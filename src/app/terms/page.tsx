@@ -17,6 +17,7 @@ export default function Terms() {
   const [loading, setLoading] = useState(true);
   const [head, setHead] = useState('');
   const [moderatorList, setModeratorList] = useState([]);
+  const [descendantOf, setDescendantOf] = useState('')
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
@@ -46,6 +47,7 @@ export default function Terms() {
         }
         const data = await response.json();
         setHead(data.member['name'])
+        setDescendantOf(data.member['descendantOf'])
         setModeratorList(data.moderators)
         
       } catch (error: any) {
@@ -59,6 +61,9 @@ export default function Terms() {
   }, [router, toast]);
 
   const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
+    if(loading) {
+      return
+    }
     if (value === 'switchLogin') {
       setShowSidePanel(true);
       setShowLogin(true);
@@ -87,7 +92,7 @@ export default function Terms() {
   return (
     <div className='flex flex-col w-full text-text_color'>
       <Topnav>
-        <div onClick={() => handleSidePanelToggle('switchLogin')} className='ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer'>
+        <div onClick={() => handleSidePanelToggle('switchLogin')} className={`ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer ${loading && 'opacity-55'}`}>
           <SwitchLogin />
         </div>
       </Topnav>
@@ -156,8 +161,8 @@ export default function Terms() {
           </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-          {showLogin && <SwitchLoginList />}
-          {showLogout && <LogoutList />}
+          {showLogin && <SwitchLoginList initialActive={descendantOf} />}
+          {showLogout && <LogoutList initialActive={descendantOf} />}
         </SlidePanel>
       </div>
     </div>

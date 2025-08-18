@@ -35,14 +35,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   }, []);
 
-  const storeLoginValues = (newToken: string, newAccess: string, forDescendanceOf:string) => {
+  const storeLoginValues = (newToken: string, newAccess: string, forDescendanceOf: string) => {
     setToken(newToken);
     setAccess(newAccess);
     const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
+    
+    // Set token and access cookies
     document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
     document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
-    document.cookie = `loggedAccounts=${forDescendanceOf}; path=/; max-age=${daysToSeconds};`;
-    return
+    
+    // Get existing logged accounts
+    const existingCookie = document.cookie.split('; ')
+        .find(row => row.startsWith('loggedAccounts='));
+    
+    let accounts: string[] = [];
+    if (existingCookie) {
+        const cookieValue = existingCookie.split('=')[1];
+        try {
+            // First decode URI component, then parse JSON
+            const decodedValue = decodeURIComponent(cookieValue);
+            // Handle both array format and malformed strings
+            if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
+                accounts = JSON.parse(decodedValue);
+            } else {
+                // If it's a malformed array string, treat as single value
+                accounts = [decodedValue.replace(/^\["|"\]$/g, '')];
+            }
+        } catch (e) {
+            console.error("Error parsing loggedAccounts cookie", e);
+            accounts = [forDescendanceOf]; // Fallback to new value
+        }
+    }
+    
+    // Add new account if it doesn't exist
+    if (!accounts.includes(forDescendanceOf)) {
+        accounts.push(forDescendanceOf);
+    }
+    
+    // Update the cookie with properly formatted JSON array
+    document.cookie = `loggedAccounts=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=${daysToSeconds};`;
   };
 
   const logout = () => {
