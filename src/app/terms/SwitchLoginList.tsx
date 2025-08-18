@@ -1,11 +1,14 @@
 import ToggleSwitch from '@/components/ToggleSwitch';
 import React, { useState, useEffect } from 'react';
 import AddLogin from './AddLogin';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/Toast';
 
 function SwitchLoginList({initialActive}: any) {
     const [accounts, setAccounts] = useState<string[]>([]);
     const [activeFamily, setActiveFamily] = useState<string | null>(null);
-
+    const {storeLoginValues} = useAuth();
+    const toast = useToast();
     // Format account name: replace _ with space and capitalize each word
     const formatAccountName = (account: string) => {
         if (!account) return '';
@@ -61,12 +64,30 @@ function SwitchLoginList({initialActive}: any) {
         }
     }, []);
 
-    const handleToggleChange = (member: string) => {
-        if (activeFamily === member) {
-            return;
+const handleToggleChange = async (account: string) => {
+    if (activeFamily === account) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/auth/switchLogin", {
+            method: "POST",
+            headers: { 
+                "Content-Type": 'application/json'
+            },
+            body: JSON.stringify({ account }), // Send as object
+        });
+
+        const data = await res.json();
+        if (data.newtoken) { // Check for token instead of newtoken
+            storeLoginValues(data.newtoken, data.userType, data.forDescendanceOf);
+            setActiveFamily(account);
+        } else {
+            toast?.show(data.error || "An unexpected error occurred.", "error", 5000);
         }
-        setActiveFamily(member);
-    };
+    } catch (error: any) {
+        toast?.show(error.message || "An unexpected error occurred.", "error", 5000);
+    }
+};
 
     return (
         <>

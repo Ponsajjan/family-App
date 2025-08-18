@@ -52,7 +52,7 @@ export async function login(formData: FormData) {
         if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
             login = {
                 id: -108,
-                forDescendanceOf: "parents",
+                forDescendanceOf: "super_admin_007",
                 mainMemberId: null,
                 password: process.env.SUPER_ADMIN_PASSWORD,
                 moderatorName: "Admin",

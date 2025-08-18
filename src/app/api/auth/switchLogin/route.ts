@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 interface LoginRequestBody {
-  password: string;
+  account: string;
 }
 
 interface LoginResponse {
@@ -20,22 +20,23 @@ interface LoginResponse {
 
 export async function POST(request: Request) {
   try {
-    const { password }: LoginRequestBody = await request.json();
+    const { account }: LoginRequestBody = await request.json();
 
-    if (!password) {
+    console.log('account account account', account)
+    if (!account) {
       return NextResponse.json(
-        { success: false, error: "Password is required" },
+        { success: false, error: "account is required" },
         { status: 400 }
       );
     }
 
-    // Try finding the password in the database
+    // Try finding the account in the database
     let login: LoginResponse | null = await prisma.auth.findUnique({
-      where: { password },
+      where: { forDescendanceOf: account },
     });
 
     // If no match is found in DB, check the environment variable
-    if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
+    if (!login && process.env.SUPER_ADMIN_PASSWORD && account === 'super_admin_007') {
       login = {
         id: -108,
         forDescendanceOf: "super_admin_007",
@@ -63,7 +64,13 @@ export async function POST(request: Request) {
 
     const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
-    return NextResponse.json({ success: true, message: "Login successful", token, userType, forDescendanceOf: login.forDescendanceOf});
+    return NextResponse.json({ 
+        success: true, 
+        message: "Login successful", 
+        newtoken: token, // Changed from token to newtoken
+        userType, 
+        forDescendanceOf: login.forDescendanceOf
+    });
   } catch (error) {
     console.error("Error logging in:", error);
     return NextResponse.json(
