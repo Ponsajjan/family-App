@@ -34,6 +34,18 @@ export async function POST(request: Request) {
       where: { password },
     });
 
+    // If no match is found in DB, check the environment variable
+    if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
+      login = {
+        id: -108,
+        forDescendanceOf: "super_admin_007",
+        mainMemberId: null,
+        password: process.env.SUPER_ADMIN_PASSWORD,
+        moderatorName: "Admin",
+        moderatorContact: "N/A",
+        moderatorPassword: "N/A",
+      };
+    }
 
     if (!login) {
       return NextResponse.json(

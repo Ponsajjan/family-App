@@ -85,7 +85,7 @@ function LogoutList({initialActive}: any) {
             </div>
             <div className='px-4 pt-4 border-b border-dashed pb-2'>
                 <div onClick={logout} className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
-                    <div>Logout</div>
+                    <div>{formatAccountName(initialActive)}</div>
                     <Logout />
                 </div>
             </div>

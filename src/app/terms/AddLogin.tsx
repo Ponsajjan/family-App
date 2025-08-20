@@ -18,7 +18,7 @@ export default function AddLogin() {
                 return;
             }
             setSubmitting(true);
-            const res = await fetch("/api/auth/addlogin", {
+            const res = await fetch("/api/auth/add_login", {
                 method: "POST",
                 headers: { 
                     "Content-Type": 'application/json'
@@ -29,7 +29,7 @@ export default function AddLogin() {
             const data = await res.json();
             if (data.newtoken) {
                 storeLoginValues(data.newtoken, data.userType, data.forDescendanceOf);
-                router.push("/moderator");
+                setForm({ password: "" })
             } else {
                 setError(data.error);
             }
