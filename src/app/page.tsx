@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { useToast } from '@/components/Toast';
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import CalendarMemberDetail from "./CalendarMemberDetail";
 
 // Helper function to get current date in IST
 const getCurrentIndiaDate = () => {
@@ -58,6 +59,8 @@ export default function Calendar() {
   
   const [selectedDate, setSelectedDate] = useState('');
   const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null >(null);
+  const [showPopupFor, setShowPopupFor] = useState<'member' | 'date' | null>(null);
   const {logout, isAuthenticated, access} = useAuth();
 
   // Helper functions for first/last day of the month
@@ -124,7 +127,7 @@ export default function Calendar() {
         return false;
       }
     });
-
+    // setSelectedMemberId(null)
     setEventForDate(filtered);
     setShowPopup(true);
   };
@@ -188,6 +191,18 @@ export default function Calendar() {
     fetchEventDates();
   }, [isAuthenticated, month, year, toast, logout, access, router]);
 
+  const HandlePopupData = (event: 'member' | 'date', id: any) => {
+    if (event === 'member') {
+      setSelectedMemberId(id);
+      setShowPopupFor('member');
+    }
+    if (event === 'date') {
+      showEventForDate(id);
+      setShowPopupFor('date');
+    }
+    setShowPopup(true);
+  }
+
   return (
     <div className="w-full">
       <Topnav>
@@ -231,7 +246,7 @@ export default function Calendar() {
                 return (
                   <div
                     key={date}
-                    onClick={() => showEventForDate(date)}
+                    onClick={() => HandlePopupData('date', date)}
                     style={{ viewTransitionName: `item${date}` }}
                     className={`date-cell ${
                       (current_date === date && current_month === month + 1 && current_year === year) ? "bg-accent_color text-accent_contrast" : ""
@@ -253,17 +268,20 @@ export default function Calendar() {
             
             <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[60vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
-              <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
-                {showPopup && <p className="text-xl font-medium md:font-semibold text-text_color">
-                  {format(new Date(selectedDate), 'd MMM yyyy')}
-                  <span className="font-normal pl-2">
-                    ({format(new Date(selectedDate), 'EEEE')})
-                  </span>
-                </p>}
-                <span onClick={() => setShowPopup(false)} className="hidden md:block border border-border_color rounded-md cursor-pointer"><CloseIcon /></span>
-              </div>
-              <div className={`p-4 min-h-[100px] ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
-                <OnDate events={eventForDate} />
+              <div className="relative">
+                <span onClick={() => setShowPopup(false)} className="absolute top-4 right-4 hidden md:block border border-border_color rounded-md cursor-pointer z-10"><CloseIcon /></span>
+                {showPopupFor === 'date' && <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
+                  <p className="text-xl font-medium md:font-semibold text-text_color">
+                    {format(new Date(selectedDate), 'd MMM yyyy')}
+                    <span className="font-normal pl-2">
+                      ({format(new Date(selectedDate), 'EEEE')})
+                    </span>
+                  </p>
+                </div>}
+                <div className={`p-4 ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
+                  {showPopupFor === 'date' && <OnDate events={eventForDate} />}
+                  {showPopupFor === 'member' && <CalendarMemberDetail memberId={selectedMemberId} />}
+                </div>
               </div>
             </div>
           </div>
@@ -271,7 +289,7 @@ export default function Calendar() {
         <div className="w-full lg:max-w-[580px] mx-auto">
           {loading ? <Loading /> :
           datesList?.length > 0 
-          ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} /> 
+          ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} /> 
           : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
         </div>
       </div>

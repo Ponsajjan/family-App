@@ -111,7 +111,7 @@ const handleToggleChange = async (account: string) => {
                     );
                 })}
             </div>
-            <div className='px-4 pb-4 border-t border-dashed pt-2'>
+            <div className='px-4 pb-4 border-t border-dashed pt-2 mr-[6px]'>
                 <AddLogin />
             </div>
         </>

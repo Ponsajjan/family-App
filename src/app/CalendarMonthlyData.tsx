@@ -23,9 +23,10 @@ interface CalendarMonthlyDataProps {
   }
   month: number;
   year: number;
+  setSelectedMemberId: (event: "member" | "date", id: string | number) => void;
 }
 
-export default function CalendarMonthlyData({ eventDatesValue, month, year }: CalendarMonthlyDataProps) {
+export default function CalendarMonthlyData({ eventDatesValue, month, year, setSelectedMemberId }: CalendarMonthlyDataProps) {
   // Destructure all values from eventDatesValue
   const {
     pastEvents = [],
@@ -51,8 +52,8 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year }: Ca
             const displayDate = new Date(year, month, date.getDate());
             
             return (
-              <div key={`${item.id}-${index}`} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3">
-                <div className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]">
+              <div key={`${item.id}-${index}`} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3 cursor-pointer">
+                <div onClick={() => setSelectedMemberId('member', item.id ?? null)} className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]">
                   {item.hasDate ? (
                     <div className={`border-t border-dashed ${title === "Earlier This Month" ? 'opacity-60' : ''} border-text_color w-14 ml-2 mr-3`}>
                       <div className="flex flex-col border border-text_color rounded-b-sm">          
