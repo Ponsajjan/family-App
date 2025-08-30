@@ -4,9 +4,8 @@ import AddLogin from './AddLogin';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 
-function SwitchLoginList({initialActive}: any) {
+function SwitchLoginList({activeFamily, setActiveFamily}: any) {
     const [accounts, setAccounts] = useState<string[]>([]);
-    const [activeFamily, setActiveFamily] = useState<string | null>(null);
     const {storeLoginValues} = useAuth();
     const toast = useToast();
     // Format account name: replace _ with space and capitalize each word
@@ -35,32 +34,7 @@ function SwitchLoginList({initialActive}: any) {
         
         if (cookie) {
             const cookieValue = cookie.split('=')[1];
-            try {
-                // Decode and clean the value before parsing
-                const decodedValue = decodeURIComponent(cookieValue)
-                    .replace(/^\["?|"?\]$/g, '');
-                
-                // Split by "," and clean each item
-                const parsedAccounts = decodedValue.split('","')
-                    .map(item => item.replace(/"/g, '').trim())
-                    .filter(item => item.length > 0);
-                
-                setAccounts(parsedAccounts);
-                setActiveFamily(initialActive)
-                
-                // // Set first account as active by default if none is selected
-                // if (parsedAccounts.length > 0 && !activeFamily) {
-                //     setActiveFamily(parsedAccounts[0]);
-                // }
-            } catch (e) {
-                console.error("Error parsing loggedAccounts cookie", e);
-                // Fallback to treating the value as a single account
-                const singleAccount = decodeURIComponent(cookieValue).replace(/^\["?|"?\]$/g, '');
-                setAccounts([singleAccount]);
-                if (!activeFamily) {
-                    setActiveFamily(singleAccount);
-                }
-            }
+            setAccounts(JSON.parse(decodeURIComponent(cookieValue)));
         }
     }, []);
 

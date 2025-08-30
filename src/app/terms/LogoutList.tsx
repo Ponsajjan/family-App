@@ -2,7 +2,7 @@ import { CloseIcon, Logout } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
-function LogoutList({initialActive}: any) {
+function LogoutList({activeFamily}: any) {
     const [accounts, setAccounts] = useState<string[]>([]);
     const router = useRouter();
 
@@ -85,12 +85,12 @@ function LogoutList({initialActive}: any) {
             </div>
             <div className='px-4 pt-4 border-b border-dashed pb-2 mr-[6px]'>
                 <div onClick={logout} className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
-                    <div>{formatAccountName(initialActive)}</div>
+                    <div>{formatAccountName(activeFamily)}</div>
                     <Logout />
                 </div>
             </div>
             <div className='px-4 py-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
-              {accounts.filter(account => account !== initialActive).map((account, index) => {
+              {accounts.filter(account => account !== activeFamily).map((account, index) => {
                   const formattedName = formatAccountName(account);
                   return (
                       <div key={index} className='py-0.5'>

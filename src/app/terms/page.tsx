@@ -17,7 +17,7 @@ export default function Terms() {
   const [loading, setLoading] = useState(true);
   const [head, setHead] = useState('');
   const [moderatorList, setModeratorList] = useState([]);
-  const [descendantOf, setDescendantOf] = useState('')
+  const [activeFamily, setActiveFamily] = useState<string | null>(null);
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
@@ -47,7 +47,7 @@ export default function Terms() {
         }
         const data = await response.json();
         setHead(data.member['name'])
-        setDescendantOf(data.member['descendantOf'])
+        setActiveFamily(data.member['descendantOf'])
         setModeratorList(data.moderators)
         
       } catch (error: any) {
@@ -58,7 +58,7 @@ export default function Terms() {
     }
 
     fetchMembers();
-  }, [router, toast]);
+  }, [router, toast, activeFamily]);
 
   const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
     if(loading) {
@@ -161,8 +161,8 @@ export default function Terms() {
           </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-          {showLogin && <SwitchLoginList initialActive={descendantOf} />}
-          {showLogout && <LogoutList initialActive={descendantOf} />}
+          {showLogin && <SwitchLoginList activeFamily={activeFamily} setActiveFamily={setActiveFamily} />}
+          {showLogout && <LogoutList activeFamily={activeFamily} />}
         </SlidePanel>
       </div>
     </div>
