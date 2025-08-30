@@ -1,11 +1,8 @@
 'use client'
-import Container from '@/components/Container';
-import { CloseIcon } from '@/utils/Icons';
 import React, { useEffect, useState } from 'react';
-import Loading from '@/components/Loading';
-import MemberDetails from '@/components/MemberDetails';
+import MemberDetails from './MemberDetails';
 
-export default function Details({ showMember, openDetails }: any) {
+export default function CalendarMemberDetail({ memberId }: any) {
   const [data, setData] = useState<any>(null);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +12,7 @@ export default function Details({ showMember, openDetails }: any) {
       try {
         setError(null);
         setLoadingDetails(true);
-        const response = await fetch(`/api/relatives/${showMember}`, {
+        const response = await fetch(`/api/relatives/${memberId}`, {
           headers: { 
             'Content-Type': 'application/json'
           },
@@ -34,23 +31,19 @@ export default function Details({ showMember, openDetails }: any) {
       }
     };
   
-    if (showMember) {
+    if (memberId) {
       fetchMemberDetails();
     }
-  }, [showMember]);
+  }, [memberId]);
 
   if (error) return <div className='p-4'>Error: {error}</div>;
   if (!data && !loadingDetails) return <div className='p-4 loading-text'>No data found</div>;
 
   return (
-    <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
-      <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
-        <CloseIcon />
-      </div>
-
-      {loadingDetails ? <Loading /> : (
+    <div className='text-text_color py-2 relative bg-main_background scroll-stable'>
+        {loadingDetails ? <span>Loading...</span> : (
         <MemberDetails data={data} />
       )}
-    </Container>
+    </div>
   );
 }

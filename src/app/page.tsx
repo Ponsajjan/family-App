@@ -4,15 +4,15 @@ import Topnav from "@/components/Topnav";
 import { CloseIcon } from "@/utils/Icons";
 import React, { useEffect, useState } from "react";
 import moment from "moment-timezone"; // Changed from moment to moment-timezone
-import CalendarMonthlyData from "./CalendarMonthlyData";
+import CalendarMonthlyData from "../components/CalendarMonthlyData";
 import Container from "@/components/Container";
 import Loading from "@/components/Loading";
-import OnDate from "./OnDate";
+import OnDate from "../components/OnDate";
 import { format } from 'date-fns';
 import { useToast } from '@/components/Toast';
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import CalendarMemberDetail from "./CalendarMemberDetail";
+import CalendarMemberDetail from "../components/CalendarMemberDetail";
 
 // Helper function to get current date in IST
 const getCurrentIndiaDate = () => {
@@ -267,7 +267,7 @@ export default function Calendar() {
             </div>
             
             <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
-            <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[60vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
+            <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className="relative">
                 <span onClick={() => setShowPopup(false)} className="absolute top-4 right-4 hidden md:block border border-border_color rounded-md cursor-pointer z-10"><CloseIcon /></span>
                 {showPopupFor === 'date' && <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
