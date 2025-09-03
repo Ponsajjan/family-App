@@ -299,7 +299,7 @@ export default function Page() {
               {errors.password}
             </p>
           )}
-          <ButtonSolid disabled={loading} type="submit" className="w-full mt-8 mb-4" buttonText={loading ? "Ceating..." : "Create Credential"} />
+          <ButtonSolid disabled={loading} type="submit" className="w-full mt-8 mb-4" buttonText={loading ? "Creating..." : "Create Credential"} />
         </form>
       </div>
     </Container>

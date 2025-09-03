@@ -230,13 +230,13 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const moderator = await prisma.auth.findUnique({
+    const credential = await prisma.auth.findUnique({
       where: { id: authId },
     });
     
-    if (!moderator) {
+    if (!credential) {
       return NextResponse.json(
-        { error: "Invalid moderator. The referenced moderator does not exist." },
+        { error: "Invalid credential. The referenced moderator does not exist." },
         { status: 400 }
       );
     }
@@ -247,17 +247,17 @@ export async function DELETE(request: NextRequest) {
 
     // Return a success message
     return NextResponse.json(
-      { message: "Moderator deleted successfully." },
+      { message: "All records deleted permanently" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting moderator:", error);
+    console.error("Error deleting credential:", error);
     // Handle token verification errors
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     return NextResponse.json(
-      { error: "Failed to delete moderator." },
+      { error: "Failed to delete credential." },
       { status: 500 }
     );
   }

@@ -23,6 +23,7 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
   const startTimeRef = useRef<number | null>(null);
 
   const startHold = () => {
+    if (disabled) return;
     setIsHolding(true);
     startTimeRef.current = Date.now();
     holdTimerRef.current = window.setInterval(() => {

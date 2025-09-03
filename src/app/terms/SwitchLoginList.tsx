@@ -1,13 +1,20 @@
 import ToggleSwitch from '@/components/ToggleSwitch';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AddLogin from './AddLogin';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 
 function SwitchLoginList({activeFamily, setActiveFamily}: any) {
     const [accounts, setAccounts] = useState<string[]>([]);
+    const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const {storeLoginValues} = useAuth();
     const toast = useToast();
+    const [isHolding, setIsHolding] = useState(false);
+    const [holdProgress, setHoldProgress] = useState(0);
+    const holdTimerRef = useRef<number | null>(null);
+    const startTimeRef = useRef<number | null>(null);
+    const holdDuration = 3000; // 3 seconds
+
     // Format account name: replace _ with space and capitalize each word
     const formatAccountName = (account: string) => {
         if (!account) return '';
@@ -38,50 +45,93 @@ function SwitchLoginList({activeFamily, setActiveFamily}: any) {
         }
     }, []);
 
-const handleToggleChange = async (account: string) => {
-    if (activeFamily === account) {
-        return;
-    }
-    try {
-        const res = await fetch("/api/auth/switchLogin", {
-            method: "POST",
-            headers: { 
-                "Content-Type": 'application/json'
-            },
-            body: JSON.stringify({ account }), // Send as object
-        });
-
-        const data = await res.json();
-        if (data.newtoken) { // Check for token instead of newtoken
-            storeLoginValues(data.newtoken, data.userType, data.forDescendanceOf);
-            setActiveFamily(account);
-        } else {
-            toast?.show(data.error || "An unexpected error occurred.", "error", 5000);
+    const handleToggleChange = async (account: string) => {
+        if (activeFamily === account || switchingAccount) {
+            return;
         }
-    } catch (error: any) {
-        toast?.show(error.message || "An unexpected error occurred.", "error", 5000);
-    }
-};
+        try {
+            setSwitchingAccount(true)
+            const res = await fetch("/api/auth/switchLogin", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": 'application/json'
+                },
+                body: JSON.stringify({ account }), // Send as object
+            });
+
+            const data = await res.json();
+            if (data.newtoken) { // Check for token instead of newtoken
+                storeLoginValues(data.newtoken, data.userType, data.forDescendanceOf);
+                setActiveFamily(account);
+            } else {
+                toast?.show(data.error || "An unexpected error occurred.", "error", 5000);
+            }
+        } catch (error: any) {
+            toast?.show(error.message || "An unexpected error occurred.", "error", 5000);
+        } finally {
+            setSwitchingAccount(false);
+        }
+    };
+
+    const startHold = (account: string) => {
+        if (account === activeFamily) return;
+        setIsHolding(true);
+        startTimeRef.current = Date.now();
+        holdTimerRef.current = window.setInterval(() => {
+        const elapsedTime = Date.now() - (startTimeRef.current || 0);
+        setHoldProgress((elapsedTime / holdDuration) * 100);
+
+        if (elapsedTime >= holdDuration) {
+            clearInterval(holdTimerRef.current!);
+            handleToggleChange(account);
+            resetHold();
+        }
+        }, 10); // Update progress every 10ms
+    };
+
+    const resetHold = () => {
+        if (holdTimerRef.current) {
+        clearInterval(holdTimerRef.current);
+        }
+        setIsHolding(false);
+        setHoldProgress(0);
+        startTimeRef.current = null;
+    };
 
     return (
         <>
-            <div className='px-2 pt-3 pb-2 font-semibold border-b border-border_color text-text_color'>
-                <span>Switch Login</span>
+            <div className='relative px-2 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-start'>
+                {isHolding && (
+                    <div
+                    className="absolute inset-0 bg-blue-500 transition-all duration-100 ease-linear"
+                    style={{ width: `${holdProgress}%` }}
+                    />
+                )}
+                <div className='z-10'>{switchingAccount ? "Switching..." : "Switch Login"}</div>
             </div>
             <div className='px-4 pt-4 pb-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
                 {accounts.map((account, index) => {
                     const formattedName = formatAccountName(account);
                     return (
-                        <div key={index} className='py-0.5'>
+                        <button 
+                          key={index} 
+                          className='py-0.5 w-full'
+                          onMouseDown={() => startHold(account)}
+                          onMouseUp={resetHold}
+                          onMouseLeave={resetHold}
+                          onTouchStart={() => startHold(account)}
+                          onTouchEnd={resetHold}
+                          onTouchCancel={resetHold}
+                          disabled={account === activeFamily || switchingAccount}
+                        >
                             <div className={`flex items-center justify-between transform transition-all duration-200 min-h-[40px] bg-field_color border border-l-4 ${account === activeFamily ? 'border-gray-500 text-gray-border-gray-500' : 'border-border_color text-text_color/45'} rounded-md cursor-pointer`}>
                                 <div className='px-3'>{formattedName}</div>
                                 <ToggleSwitch 
                                     isActive={account === activeFamily}
                                     className={`${account === activeFamily ? '' : 'opacity-45'}`}
-                                    onChange={() => handleToggleChange(account)}
                                 />
                             </div>
-                        </div>
+                        </button>
                     );
                 })}
             </div>
