@@ -34,9 +34,9 @@ export default function LoginForm() {
             if (result.success && result.token) {
                 storeLoginValues(result.token, result.userType, result.forDescendanceOf);
                 if (result.userType === 'Admin') {
-                router.push('/admin');
+                    router.push('/admin');
                 } else {
-                router.push('/');
+                    router.push('/');
                 }
             } else {
                 setMessage(result.error || "Login failed");

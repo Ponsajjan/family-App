@@ -1,15 +1,11 @@
 import { CloseIcon, Logout } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function LogoutList({activeFamily}: any) {
     const [accounts, setAccounts] = useState<string[]>([]);
+    const [loggingOut, setLoggingOut] = useState<boolean>(false);
     const router = useRouter();
-    const [isHolding, setIsHolding] = useState(false);
-    const [holdProgress, setHoldProgress] = useState(0);
-    const holdTimerRef = useRef<number | null>(null);
-    const startTimeRef = useRef<number | null>(null);
-    const holdDuration = 3000; // 3 seconds
 
     // Format account name: replace _ with space, capitalize each word, and remove everything after last _
     const formatAccountName = (account: string) => {
@@ -71,6 +67,10 @@ function LogoutList({activeFamily}: any) {
 
     const logout = async () => {
         try {
+            if (loggingOut) {
+                return;
+            }
+            setLoggingOut(true);
             const response = await fetch('/api/logout', { method: 'GET' });
             if (response.ok) {
                 router.push('/login');
@@ -79,83 +79,34 @@ function LogoutList({activeFamily}: any) {
             }
         } catch (error) {
             console.error("Error logging out:", error);
+        } finally {
+            setLoggingOut(false);
         }
-    };
-
-    const startHold = (account: string) => {
-        setIsHolding(true);
-        startTimeRef.current = Date.now();
-        holdTimerRef.current = window.setInterval(() => {
-        const elapsedTime = Date.now() - (startTimeRef.current || 0);
-        setHoldProgress((elapsedTime / holdDuration) * 100);
-
-        if (elapsedTime >= holdDuration) {
-            clearInterval(holdTimerRef.current!);
-            if (account === 'logout') {
-                logout();
-            } else {
-                handleRemoveAccount(account);
-            }
-            resetHold();
-        }
-        }, 10); // Update progress every 10ms
-    };
-
-    const resetHold = () => {
-        if (holdTimerRef.current) {
-        clearInterval(holdTimerRef.current);
-        }
-        setIsHolding(false);
-        setHoldProgress(0);
-        startTimeRef.current = null;
     };
 
     return (
         <>
             <div className='relative px-2 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-start'>
-                {isHolding && (
-                    <div
-                    className="absolute inset-0 bg-blue-500 transition-all duration-100 ease-linear"
-                    style={{ width: `${holdProgress}%` }}
-                    />
-                )}
-                <div className='z-10'>Logout</div>
+                <div className='z-10'>{loggingOut ? "Logging out..." : "Logout"}</div>
             </div>
-            <button
-             className='px-4 pt-4 border-b border-dashed pb-2 mr-[6px] w-full'
-             onMouseDown={() => startHold('logout')}
-             onMouseUp={resetHold}
-             onMouseLeave={resetHold}
-             onTouchStart={() => startHold('logout')}
-             onTouchEnd={resetHold}
-             onTouchCancel={resetHold}
-            >
-                <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
+            <div className='px-4 pt-4 border-b border-dashed pb-2 mr-[6px] w-full'>
+                <div onClick={logout} className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
                     <div>{formatAccountName(activeFamily)}</div>
                     <Logout />
                 </div>
-            </button>
+            </div>
             <div className='px-4 py-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
               {accounts.filter(account => account !== activeFamily).map((account, index) => {
                   const formattedName = formatAccountName(account);
                   return (
-                      <button 
-                       key={index} 
-                       className='py-0.5 w-full'
-                       onMouseDown={() => startHold(account)}
-                       onMouseUp={resetHold}
-                       onMouseLeave={resetHold}
-                       onTouchStart={() => startHold(account)}
-                       onTouchEnd={resetHold}
-                       onTouchCancel={resetHold}
-                     >
-                          <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
-                              <div>{formattedName}</div>
-                              <div className="hover:text-accent_color">
-                                  <CloseIcon />
-                              </div>
-                          </div>
-                      </button>
+                    <div key={index} className='py-0.5 w-full'>
+                        <div onClick={() => handleRemoveAccount(account)} className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
+                            <div>{formattedName}</div>
+                            <div className="hover:text-accent_color">
+                                <CloseIcon />
+                            </div>
+                        </div>
+                    </div>
                   );
               })}
             </div>
