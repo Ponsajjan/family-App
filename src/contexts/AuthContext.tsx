@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     // Add new account if it doesn't exist
-    if (!accounts.includes(forDescendanceOf)) {
+    if (!accounts.includes(forDescendanceOf) && (newAccess !== "Admin")) {
         accounts.push(forDescendanceOf);
     }
     

@@ -13,6 +13,7 @@ function SwitchLoginList({activeFamily, setActiveFamily}: any) {
     const [holdProgress, setHoldProgress] = useState(0);
     const holdTimerRef = useRef<number | null>(null);
     const startTimeRef = useRef<number | null>(null);
+    const [refreshList, setRefreshList] = useState<boolean>(false);
     const holdDuration = 3000; // 3 seconds
 
     // Format account name: replace _ with space and capitalize each word
@@ -43,7 +44,7 @@ function SwitchLoginList({activeFamily, setActiveFamily}: any) {
             const cookieValue = cookie.split('=')[1];
             setAccounts(JSON.parse(decodeURIComponent(cookieValue)));
         }
-    }, []);
+    }, [refreshList]);
 
     const handleToggleChange = async (account: string) => {
         if (activeFamily === account || switchingAccount) {
@@ -136,7 +137,7 @@ function SwitchLoginList({activeFamily, setActiveFamily}: any) {
                 })}
             </div>
             <div className='px-4 pb-4 border-t border-dashed pt-2 mr-[6px]'>
-                <AddLogin />
+                <AddLogin refreshList setRefreshList={setRefreshList} />
             </div>
         </>
     )

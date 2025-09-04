@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function AddLogin() {
+export default function AddLogin({refreshList, setRefreshList} : {refreshList: boolean, setRefreshList: (refreshList: boolean) => void})  {
     const router = useRouter();
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
@@ -27,9 +27,10 @@ export default function AddLogin() {
             });
     
             const data = await res.json();
-            if (data.newtoken) {
-                storeLoginValues(data.newtoken, data.userType, data.forDescendanceOf);
+            if (data.token && data.userType !== 'Admin') {
+                storeLoginValues(data.token, data.userType, data.forDescendanceOf);
                 setForm({ password: "" })
+                setRefreshList(!refreshList);
             } else {
                 setError(data.error);
             }

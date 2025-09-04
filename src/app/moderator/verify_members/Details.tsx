@@ -73,7 +73,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
 
             // Handle 401 Unauthorized
             if (response.status === 401) {
-                router.push('/terms/login');
+                router.push('terms/moderator_login');
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }
@@ -142,7 +142,7 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
 
             // Handle 401 Unauthorized
             if (response.status === 401) {
-                router.push('/terms/login');
+                router.push('terms/moderator_login');
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }
