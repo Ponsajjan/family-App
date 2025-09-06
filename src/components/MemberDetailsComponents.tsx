@@ -42,7 +42,6 @@ export const MemberItem = ({ label, value, isList = false }: {
   isList?: boolean 
 }) => {
   if (!value || (Array.isArray(value) && value.length === 0)) return null;
-  console.log(value)
 
   return (
     <>

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 
-function SwitchLoginList({activeFamily, setActiveFamily}: any) {
+function SwitchLoginList({activeFamily, setActiveFamily, setRefetch}: any) {
     const [accounts, setAccounts] = useState<string[]>([]);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const [form, setForm] = useState({ password: "" });
@@ -59,6 +59,7 @@ function SwitchLoginList({activeFamily, setActiveFamily}: any) {
             if (data.newtoken) { // Check for token instead of newtoken
                 storeLoginValues(data.newtoken, data.userType, data.forDescendanceOf);
                 setActiveFamily(account);
+                setRefetch((prev: boolean) => !prev);
             } else {
                 toast?.show(data.error || "An unexpected error occurred.", "error", 5000);
             }

@@ -22,7 +22,6 @@ export async function POST(request: Request) {
   try {
     const { account }: LoginRequestBody = await request.json();
 
-    console.log('account account account', account)
     if (!account) {
       return NextResponse.json(
         { success: false, error: "account is required" },

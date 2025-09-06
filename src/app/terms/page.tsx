@@ -21,6 +21,7 @@ export default function Terms() {
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
+  const [refetch, setRefetch] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function Terms() {
     }
 
     fetchMembers();
-  }, [router, toast, activeFamily]);
+  }, [router, toast, refetch]);
 
   const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
     if(loading) {
@@ -161,7 +162,7 @@ export default function Terms() {
           </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-          {showLogin && <SwitchLoginList activeFamily={activeFamily} setActiveFamily={setActiveFamily} />}
+          {showLogin && <SwitchLoginList activeFamily={activeFamily} setActiveFamily={setActiveFamily} setRefetch={setRefetch} />}
           {showLogout && <LogoutList activeFamily={activeFamily} />}
         </SlidePanel>
       </div>
