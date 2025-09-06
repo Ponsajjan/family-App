@@ -68,12 +68,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     // Add new account if it doesn't exist
-    if (!accounts.includes(forDescendanceOf) && (newAccess !== "Admin")) {
+    if (!accounts.includes(forDescendanceOf)) {
         accounts.push(forDescendanceOf);
     }
     
     // Update the cookie with properly formatted JSON array
     document.cookie = `loggedAccounts=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=${daysToSeconds};`;
+
+    if (newAccess === 'Moderator') {
+      router.push('/moderator');
+    } else if (newAccess === 'Admin') {
+      router.push('/admin');
+    } else if (newAccess === 'Member') {
+      router.push('/terms');
+    }
   };
 
   const logout = () => {

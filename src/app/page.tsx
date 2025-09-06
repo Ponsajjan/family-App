@@ -191,16 +191,18 @@ export default function Calendar() {
     fetchEventDates();
   }, [isAuthenticated, month, year, toast, logout, access, router]);
 
-  const HandlePopupData = (event: 'member' | 'date', id: any) => {
+  const HandlePopupData = (event: 'member' | 'date', data: any) => {
     if (event === 'member') {
-      setSelectedMemberId(id);
+      setSelectedMemberId(data);
       setShowPopupFor('member');
+      setShowPopup(true);
     }
-    if (event === 'date') {
-      showEventForDate(id);
+    if (event === 'date' && datesList?.includes(data)) {
+      showEventForDate(data);
       setShowPopupFor('date');
+      setShowPopup(true);
     }
-    setShowPopup(true);
+    return
   }
 
   return (

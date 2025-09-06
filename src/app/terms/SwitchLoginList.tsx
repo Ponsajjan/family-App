@@ -69,7 +69,7 @@ function SwitchLoginList({activeFamily, setActiveFamily}: any) {
         }
     };
 
-        const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             if (!form.password) {
@@ -88,11 +88,6 @@ function SwitchLoginList({activeFamily, setActiveFamily}: any) {
             if (data.token) {
                 if (accounts.includes(data.forDescendanceOf)) {
                     setError("Account already exists.");
-                    setSwitchingAccount(false);
-                    return;
-                }
-                if (data.userType === "Admin") {
-                    setError("Cannot add Admin account.");
                     setSwitchingAccount(false);
                     return;
                 }

@@ -100,9 +100,9 @@ function LogoutList({activeFamily}: any) {
                   const formattedName = formatAccountName(account);
                   return (
                     <div key={index} className='py-0.5 w-full'>
-                        <div onClick={() => handleRemoveAccount(account)} className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
+                        <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
                             <div>{formattedName}</div>
-                            <div className="hover:text-accent_color">
+                            <div onClick={() => handleRemoveAccount(account)} className="hover:text-accent_color">
                                 <CloseIcon />
                             </div>
                         </div>

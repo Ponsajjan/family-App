@@ -12,12 +12,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // If user is Admin but not on an admin route, redirect to admin
-  if (access === "Admin" && !pathname.startsWith("/admin")) {
+  if (token && access === "Admin" && !pathname.startsWith("/admin")) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
   // If user is not Admin but trying to access admin, redirect to home
-  if (access !== "Admin" && pathname.startsWith("/admin")) {
+  if (token && access !== "Admin" && pathname.startsWith("/admin")) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
