@@ -220,44 +220,44 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
 
     return (
         <Container className="p-4 text-text_color">
-            <h2 className="text-2xl font-bold mb-3">{selectedMember.credential}</h2>
+            <h2 className="text-2xl font-bold mb-2">{selectedMember.credential}</h2>
             
-            <div className="space-y-3 pl-4 border-l-4 border-text_color/30 mb-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                        <span className="font-medium">Member Password:</span>
-                        <span className="ml-2">{selectedMember.memberPassword}</span>
+            <div className="pl-4 border-l-4 border-text_color/30 mb-4">
+                <div className="flex items-center flex-wrap w-full">
+                    <div className="font-medium">Member Password:</div>
+                    <div className="flex-1 flex items-center justify-between">
+                        <div className="ml-2">{selectedMember.memberPassword}</div>
+                        <div 
+                            onClick={() => copyToClipboard(selectedMember.memberPassword, "Member password")}
+                            className="p-1 hover:bg-field_color rounded-md transition-colors"
+                            title="Copy member password"
+                        >
+                            <CopyLink />
+                        </div>
                     </div>
-                    <button 
-                        onClick={() => copyToClipboard(selectedMember.memberPassword, "Member password")}
-                        className="p-1 hover:bg-field_color rounded-md transition-colors"
-                        title="Copy member password"
-                    >
-                    <CopyLink />
-                    </button>
                 </div>
-                <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                        <span className="font-medium">Moderator Password:</span>
-                        <span className="ml-2">{selectedMember.moderatorPassword}</span>
+                <div className="flex items-center flex-wrap w-full">
+                    <div className="font-medium">Moderator Password:</div>
+                    <div className="flex-1 flex items-center justify-between">
+                        <div className="ml-2">{selectedMember.moderatorPassword}</div>
+                        <div 
+                            onClick={() => copyToClipboard(selectedMember.moderatorPassword, "Moderator password")}
+                            className="p-1 hover:bg-field_color rounded-md transition-colors"
+                            title="Copy moderator password"
+                        >
+                            <CopyLink />
+                        </div>
                     </div>
-                    <button 
-                        onClick={() => copyToClipboard(selectedMember.moderatorPassword, "Moderator password")}
-                        className="p-1 hover:bg-field_color rounded-md transition-colors"
-                        title="Copy moderator password"
-                    >
-                    <CopyLink />
-                    </button>
                 </div>
             </div>
 
-            <div className="border border-border_color rounded-lg p-4">
-                <h3 className="font-semibold text-lg mb-3">
+            <div className="border border-border_color rounded-lg p-4 pt-2">
+                <h3 className="font-semibold text-lg mb-1">
                     Moderators
                 </h3>
                 <div className="space-y-3">
                     {moderators.map((moderator, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 border border-border_color rounded-md">
+                        <div key={index} className="flex items-center justify-between px-3 py-2 border border-border_color rounded-md">
                             {editingModerator.index === index ? (
                                 <div className="flex-1">
                                     <input
@@ -323,7 +323,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                         <p className="text-text_color/60 text-center py-4">No moderators assigned</p>
                     )}
                     {addingModerator ? (
-                        <div className="p-3 border border-border_color rounded-md">
+                        <div className="px-3 py-2 border border-border_color rounded-md">
                             <input
                                 type="text"
                                 value={newModerator.moderatorName}
@@ -361,7 +361,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                         <button 
                             onClick={() => setAddingModerator(true)}
                             disabled={loading}
-                            className="w-full p-3 border border-border_color rounded-md text-center hover:bg-gray-100 disabled:opacity-50"
+                            className="w-full py-2 border border-border_color rounded-md text-center hover:bg-gray-100 disabled:opacity-50"
                         >
                             Add Moderator +
                         </button>
