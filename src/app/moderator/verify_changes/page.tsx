@@ -114,7 +114,7 @@ export default function NewMembers() {
               <div className='pt-3'>
                 {changeList?.map((member: any) => (
                   <div key={member.id} className="pl-4">
-                    <div className="border-l border-border_color md:pt-2 pl-4 pr-3">
+                    <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
                       <div 
                         onClick={() => handleShowDetails(member.pendingVerification, member.id)} 
                         className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"

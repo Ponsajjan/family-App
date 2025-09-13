@@ -161,7 +161,7 @@ export default function Relatives() {
                   <span className="border-t border-border_color block w-full"></span>
                 </div> :
                 <div key={member.id} className="pl-4">
-                  <div className="border-l border-border_color md:pt-2 pl-4 pr-3">
+                  <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
                     <div 
                       onClick={() => {setShowDetails(true); setShowMember(member.id)}}
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
