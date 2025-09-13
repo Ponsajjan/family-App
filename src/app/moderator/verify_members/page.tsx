@@ -210,7 +210,7 @@ export default function VerifyMember() {
               <div className="pt-3">
                 {members?.map((member: any) => (
                   <div key={member.id} className="pl-4">
-                    <div className="border-l border-border_color md:pt-2 py-1 pl-4 pr-3">
+                    <div className="border-l border-border_color md:pt-2 pl-4 pr-3">
                       <div 
                         onClick={() => {setShowDetailsFor(member); setShowDetails(true)}} 
                         className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
