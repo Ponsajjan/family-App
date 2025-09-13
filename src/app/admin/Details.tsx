@@ -24,7 +24,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
         setModerators(selectedMember.moderators)
     }, [selectedMember])
     const copyToClipboard = (text: string, type: string) => {
-        const copyText = `Website: www.test.com\nCredential for: ${selectedMember.credential} family calendar \n${type}: ${text}`;
+        const copyText = `Website: ${process.env.NEXT_PUBLIC_BASE_URL} \nCredential for: ${selectedMember.credential} family calendar \n${type}: ${text}`;
         
         navigator.clipboard.writeText(copyText).then(() => {
             toast?.show(`${type} copied to clipboard!`, "success", 2000);
