@@ -159,14 +159,14 @@ export default function Relatives() {
             <div className='max-w-xl mx-auto'>
               {data?.map((row: AuthEntry, rowIndex: number) => (
                 <div key={row.id || rowIndex} className="pl-4">
-                  <div className="md:pt-2 py-1 ">
+                  <div className="py-0.5 ">
                     <div 
                       onClick={() => handleShowDetails(row)}
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color hover:bg-field_color/80 transition-colors"
                     >
                       <div className="w-full">
                         <div
-                          className="font-medium text-lg"
+                          className="md:font-medium md:text-lg"
                           dangerouslySetInnerHTML={{
                             __html: highlightText(row.credential, params.search),
                           }}
