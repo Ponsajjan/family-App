@@ -1,4 +1,4 @@
-import { NewLoginFormErrorTypes, NewLoginFormValueTypes } from "@/types/admin/new_login/types";
+import { NewLoginFormErrorTypes, NewLoginFormValueTypes } from "@/types/admin/types";
 import validator from "validator";
 
 export const validateNewLoginForm = (formData:NewLoginFormValueTypes) => {

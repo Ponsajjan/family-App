@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       const fetchedData = await prisma.member.findUnique({
         where: {
           id: id,
-        descendantOf: forDescendanceOf
+          descendantOf: forDescendanceOf
         },
         select: {
           id: true,

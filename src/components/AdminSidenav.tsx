@@ -1,5 +1,5 @@
 "use client";
-import { BurgerMenuIcon, CloseIcon, Login, LoginList } from "@/utils/Icons";
+import { BurgerMenuIcon, CloseIcon, Login, LoginList, Logout } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,6 +11,20 @@ export default function AdminSidenav() {
     const navigateTo = (link: string) => {
         router.push(link);
         setShowNav(false);
+    };
+  
+    const logout = async () => {
+        try {
+        const response = await fetch('/api/logout', { method: 'GET' });
+
+        if (response.ok) {
+            router.push('/login');
+        } else {
+            console.error("Logout failed");
+        }
+        } catch (error) {
+        console.error("Error logging out:", error);
+        }
     };
 
     return (
@@ -28,6 +42,10 @@ export default function AdminSidenav() {
                         <AdminNavLink linkName="Login List" link="/admin" onClick={() => navigateTo("/admin")} />
                         <AdminNavLink linkName="New Login" link="/admin/new_login" onClick={() => navigateTo("/admin/new_login")} />
                     </div>
+                    <button onClick={logout} className="py-2 flex gap-2 items-center justify-center">
+                        <Logout />
+                        <span>Logout</span>
+                    </button>
                 </div>
             </nav>
         </>

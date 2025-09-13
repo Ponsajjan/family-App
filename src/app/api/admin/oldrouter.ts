@@ -2,11 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/db/db';
 import { verifyToken } from '@/utils/auth';
 
+interface AuthEntry {
+  id: number;
+  mainMemberId: number | null;
+  password: string;
+  moderatorPassword: string;
+  moderatorList: {
+    id: number;
+    moderatorName: string;
+    moderatorContact: string;
+  }[];
+}
+
+interface Member {
+  id: number;
+  name: string;
+}
+
 interface FormattedAuthEntry {
   id: number;
   mainMemberId: number | null;
   descendantOf: string;
-  credential: string;
   memberPassword: string;
   moderatorPassword: string;
   moderators: {
@@ -31,48 +47,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     
-    // Get query parameters
-    const { searchParams } = new URL(request.url);
-    const searchTerm = searchParams.get('search')?.trim() || '';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const skip = (page - 1) * limit;
-
-    // Build where clause for search
-    const whereClause = searchTerm ? {
-      forDescendanceOf: {
-        contains: searchTerm,
-        mode: 'insensitive' as const,
-      }
-    } : {};
-
-    // Fetch total count for pagination
-    const totalCount = await prisma.auth.count({
-      where: whereClause,
-    });
-
-    // Fetch paginated auth entries with their moderator lists
-    const authEntries: any[] = await prisma.auth.findMany({
-      where: whereClause,
+    // Fetch all auth entries with their moderator lists
+    const authEntries: AuthEntry[] = await prisma.auth.findMany({
       include: {
         moderatorList: true,
       },
-      skip,
-      take: limit,
-      orderBy: {
-        id: 'asc', // You can change this to any field you want to sort by
-      },
     });
 
+    // Extract mainMemberIds, filtering out null values
     const mainMemberIds = authEntries
       .map((auth) => auth.mainMemberId)
-      .filter((id): id is number => id !== null);
+      .filter((id): id is number => id !== null); // Ensure only non-null IDs are included
 
-    // Fetch all main member names in a single query
-    const mainMembers = await prisma.member.findMany({
+    // Fetch main member names in a single query
+    const mainMembers: Member[] = await prisma.member.findMany({
       where: {
         id: {
-          in: mainMemberIds.length > 0 ? mainMemberIds : undefined,
+          in: mainMemberIds.length > 0 ? mainMemberIds : undefined, // Avoid querying if no IDs are present
         },
       },
       select: {
@@ -81,21 +72,25 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Create a map of mainMemberId to member name for quick lookup
     const mainMemberMap = new Map(
-      mainMembers.map((member) => [member.id, member])
+      mainMembers.map((member) => [member.id, member.name])
     );
+
+    // Format the response
     const formattedResponse: FormattedAuthEntry[] = authEntries.map((auth) => {
-    
-      const mainMember = auth.mainMemberId ? mainMemberMap.get(auth.mainMemberId) : null;
-      
+      const descendantOfName =
+        auth.mainMemberId !== null
+          ? mainMemberMap.get(auth.mainMemberId) || 'Unknown' // Fallback if member not found
+          : 'Unknown'; // Handle null mainMemberId
+
       return {
         id: auth.id,
         mainMemberId: auth.mainMemberId,
-        descendantOf: auth.forDescendanceOf,
-        credential: mainMember?.name || 'Unknown',
+        descendantOf: descendantOfName,
         memberPassword: auth.password,
         moderatorPassword: auth.moderatorPassword,
-        moderators: auth.moderatorList.map((moderator:{id:number, moderatorName: string, moderatorContact: string}) => ({
+        moderators: auth.moderatorList.map((moderator) => ({
           id: moderator.id,
           name: moderator.moderatorName,
           contactNumber: moderator.moderatorContact,
@@ -103,18 +98,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Return response with pagination metadata
-    return NextResponse.json({
-      data: formattedResponse,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(totalCount / limit),
-        totalItems: totalCount,
-        itemsPerPage: limit,
-        hasNext: page < Math.ceil(totalCount / limit),
-        hasPrev: page > 1,
-      }
-    }, { status: 200 });
+    return NextResponse.json(formattedResponse, { status: 200 });
   } catch (error) {
     console.error('Error fetching auth entries:', error);
     // Handle token verification errors
