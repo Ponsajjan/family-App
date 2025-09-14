@@ -89,10 +89,10 @@ function LogoutList({activeFamily}: any) {
             <div className='relative px-2 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-start'>
                 <div className='z-10'>{loggingOut ? "Logging out..." : "Logout"}</div>
             </div>
-            <div className='px-4 pt-4 border-b border-dashed pb-2 mr-[6px] w-full'>
+            <div className='pl-4 pt-4 border-b border-dashed pb-2 pr-[22px] w-full'>
                 <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
                     <div>{formatAccountName(activeFamily)}</div>
-                    <span onClick={logout}>
+                    <span onClick={logout} className='border-l border-border_color pl-3'>
                         <Logout />
                     </span>
                 </div>
@@ -104,7 +104,7 @@ function LogoutList({activeFamily}: any) {
                     <div key={index} className='py-0.5 w-full'>
                         <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
                             <div>{formattedName}</div>
-                            <span onClick={() => handleRemoveAccount(account)} className="hover:text-accent_color">
+                            <span onClick={() => handleRemoveAccount(account)} className="hover:text-accent_color border-l border-border_color pl-3">
                                 <CloseIcon />
                             </span>
                         </div>
