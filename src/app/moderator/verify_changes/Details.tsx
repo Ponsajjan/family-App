@@ -126,7 +126,7 @@ const ChangeRequestView = ({
       });
 
       if (response.status === 401) {
-        router.push('terms/moderator_login');
+        router.push('/terms/moderator_login');
         toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
       }
@@ -163,7 +163,7 @@ const ChangeRequestView = ({
       });
 
       if (response.status === 401) {
-        router.push('terms/moderator_login');
+        router.push('/terms/moderator_login');
         toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
       }
