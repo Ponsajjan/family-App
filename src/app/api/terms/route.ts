@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const authRecord = await prisma.auth.findUnique({
       where: { forDescendanceOf },
       select: {
+        password: true,
         members: {
           where: { id: memberId },
           select: {
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      cacheStrategy: { 
+      cacheStrategy: {
         ttl: 60 * 30,
         swr: 30
       }, // Cache for 30 minutes
@@ -55,6 +56,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       member: mainMember, // The main member associated with the auth record
       moderators: authRecord.moderatorList, // List of moderators,
+      password: authRecord.password,
     });
   } catch (error) {
     console.error("Error fetching member data:", error);
