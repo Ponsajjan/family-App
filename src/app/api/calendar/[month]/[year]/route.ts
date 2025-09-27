@@ -3,12 +3,12 @@ import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
 interface CalendarMonthlyEvent {
-  id: string;
-  name: string;
-  date: Date;
-  type: 'birthday' | 'deathday';
-  hasDate: boolean;
-  age: number | string;
+    id: string;
+    name: string;
+    date: Date;
+    type: 'birthday' | 'deathday';
+    hasDate: boolean;
+    age: number | string;
 }
 
 // Helper function to convert any date to IST
@@ -62,10 +62,10 @@ export async function GET(request: NextRequest) {
                 deathMonth: true,
                 deathYear: true,
             },
-            cacheStrategy: { 
-                ttl: 60 * 5,
-                swr: 10 
-            }, // Cache for 5 minutes
+            cacheStrategy: {
+                ttl: 60 * 30,
+                swr: 10
+            }, // Cache for 30 minutes
         });
 
         // Process events with IST
@@ -88,13 +88,13 @@ export async function GET(request: NextRequest) {
             if (member.birthMonth === month) {
                 const date = member.birthDate || 1;
                 const eventDate = toIST(new Date(member.birthYear || 1600, member.birthMonth - 1, date));
-                
+
                 categorise.datesList.add(date);
-                
+
                 // Calculate age based on the year parameter for selectedMonthEvents
                 const ageForSelectedMonth = member.birthYear ? member.birthYear >= year ? 'n/a' : year - member.birthYear : 'n/a';
                 const ageForCurrentEvents = member.birthYear ? member.birthYear == currentYear ? 'n/a' : currentYear - member.birthYear : 'n/a';
-                
+
                 const event = {
                     id: member.id,
                     name: member.name,
@@ -106,11 +106,11 @@ export async function GET(request: NextRequest) {
 
                 categorizeEvent(
                     event,
-                    categorise, 
-                    month, 
-                    year, 
-                    todayDate, 
-                    currentMonth, 
+                    categorise,
+                    month,
+                    year,
+                    todayDate,
+                    currentMonth,
                     currentYear,
                     ageForSelectedMonth
                 );
@@ -120,13 +120,13 @@ export async function GET(request: NextRequest) {
             if (member.deathMonth === month) {
                 const date = member.deathDate || 1;
                 const eventDate = toIST(new Date(member.deathYear || 1600, member.deathMonth - 1, date));
-                
+
                 categorise.datesList.add(date);
-                
+
                 // Calculate age based on the year parameter for selectedMonthEvents
                 const ageForSelectedMonth = member.deathYear ? member.deathYear >= year ? 'n/a' : year - member.deathYear : 'n/a';
                 const ageForCurrentEvents = member.deathYear ? member.deathYear == currentYear ? 'n/a' : currentYear - member.deathYear : 'n/a';
-                
+
                 const event = {
                     id: member.id,
                     name: member.name,
@@ -138,11 +138,11 @@ export async function GET(request: NextRequest) {
 
                 categorizeEvent(
                     event,
-                    categorise, 
-                    month, 
-                    year, 
-                    todayDate, 
-                    currentMonth, 
+                    categorise,
+                    month,
+                    year,
+                    todayDate,
+                    currentMonth,
                     currentYear,
                     ageForSelectedMonth
                 );
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
         categorise.selectedMonthEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
 
         return NextResponse.json({
-            eventDates: {...categorise},
+            eventDates: { ...categorise },
             datesList: Array.from(categorise.datesList)
         });
 

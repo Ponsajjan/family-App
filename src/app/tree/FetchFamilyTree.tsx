@@ -68,10 +68,10 @@ async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
           motherOf: { select: { id: true, name: true, gender: true, order: true } },
           partner: { select: { id: true, name: true, gender: true } },
         },
-        cacheStrategy: { 
-          ttl: 60 * 5,
+        cacheStrategy: {
+          ttl: 60 * 30,
           swr: 30
-        }, // Cache for 10 minutes
+        }, // Cache for 30 minutes
       });
     } catch (error) {
       console.error("Error fetching members:", error);

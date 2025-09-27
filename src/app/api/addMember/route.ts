@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
   const formData = await request.json();
   const deceased = formData.deceased === true;
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
     const forDescendanceOf = decoded.forDescendanceOf;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     // Utility function to capitalize words
     const capitalizeWords = (name: string) => {
@@ -79,6 +80,8 @@ export async function POST(request: NextRequest) {
 
       return { member: newMember, nonDescendantRelatives };
     });
+
+    revalidatePath('/api/relatives');
 
     return NextResponse.json({
       success: true,

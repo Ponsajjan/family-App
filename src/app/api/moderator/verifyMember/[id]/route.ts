@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
+import { revalidatePath } from "next/cache";
 
 interface MemberResponse {
   generalInformation: {
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '');
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (isNaN(id)) return NextResponse.json({ error: "Invalid Member ID" }, { status: 400 });
 
@@ -155,30 +156,30 @@ function buildGeneralInfo(member: any) {
 }
 
 function buildRelationInfo(member: any, siblings: any[]) {
-  const hasRelations = member.father || member.mother || member.partner || 
-                     member.fatherOf.length > 0 || member.motherOf.length > 0 || 
-                     siblings.length > 0 || member.nonDescendantRelation[0];
+  const hasRelations = member.father || member.mother || member.partner ||
+    member.fatherOf.length > 0 || member.motherOf.length > 0 ||
+    siblings.length > 0 || member.nonDescendantRelation[0];
   if (!hasRelations) return undefined;
 
   return {
-    ...(member.father && { 
+    ...(member.father && {
       father: member.father.name,
-      v_father: member.father.verified 
+      v_father: member.father.verified
     }),
-    ...(member.mother && { 
+    ...(member.mother && {
       mother: member.mother.name,
-      v_mother: member.mother.verified 
+      v_mother: member.mother.verified
     }),
-    ...(member.partner && { 
+    ...(member.partner && {
       partner: member.partner.name,
-      v_partner: member.partner.verified 
+      v_partner: member.partner.verified
     }),
-    ...((member.fatherOf.length > 0 || member.motherOf.length > 0) && { 
-      children: [...member.fatherOf, ...member.motherOf] 
+    ...((member.fatherOf.length > 0 || member.motherOf.length > 0) && {
+      children: [...member.fatherOf, ...member.motherOf]
     }),
     ...(siblings.length > 0 && { siblings }),
-    ...(member.nonDescendantRelation[0] && { 
-      nonDescendantRelations: member.nonDescendantRelation[0] 
+    ...(member.nonDescendantRelation[0] && {
+      nonDescendantRelations: member.nonDescendantRelation[0]
     })
   };
 }
@@ -201,7 +202,7 @@ export async function PATCH(request: NextRequest) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -230,9 +231,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     const member = await prisma.member.findUnique({
-      where: { 
+      where: {
         id: memberId,
-        descendantOf: forDescendanceOf 
+        descendantOf: forDescendanceOf
       },
       select: {
         verified: true
@@ -248,10 +249,15 @@ export async function PATCH(request: NextRequest) {
 
     const updatedMember = await prisma.member.update({
       where: { id: memberId },
-      data: { 
+      data: {
         verified: !(member.verified)
       },
     });
+
+    revalidatePath('/api/relatives');
+    revalidatePath('/api/calendar/[month]/[year]');
+    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/tree');
 
     return NextResponse.json({
       success: true,
@@ -277,9 +283,9 @@ export async function DELETE(request: NextRequest) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (isNaN(memberId)) {
@@ -295,7 +301,7 @@ export async function DELETE(request: NextRequest) {
     const mainMemberId = decoded.memberId
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     if (memberId == mainMemberId) {
@@ -304,7 +310,7 @@ export async function DELETE(request: NextRequest) {
 
     // Fetch the member with their relationships
     const member = await prisma.member.findUnique({
-      where: { 
+      where: {
         id: memberId,
         descendantOf: forDescendanceOf
       },
@@ -333,6 +339,11 @@ export async function DELETE(request: NextRequest) {
         where: { id: memberId },
       });
     });
+
+    revalidatePath('/api/relatives');
+    revalidatePath('/api/calendar/[month]/[year]');
+    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/tree');
 
     return NextResponse.json({
       success: true,

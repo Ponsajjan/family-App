@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
+import { revalidatePath } from 'next/cache'
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '');
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -24,11 +25,11 @@ export async function GET(request: NextRequest) {
     const mainMemberId = decoded.memberId;
 
     if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const member = await prisma.member.findUnique({
-      where: { 
+      where: {
         id: id,
         descendantOf: forDescendanceOf
       },
@@ -126,7 +127,7 @@ export async function PUT(request: NextRequest) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -156,9 +157,9 @@ export async function PUT(request: NextRequest) {
     }
 
     const member = await prisma.member.findUnique({
-      where: { 
+      where: {
         id: memberId,
-        descendantOf: forDescendanceOf 
+        descendantOf: forDescendanceOf
       },
       select: {
         id: true,
@@ -271,7 +272,7 @@ export async function PUT(request: NextRequest) {
     let nonDescendantChanges: Record<string, any> = {};
     if (updatedData.descendant === false) {
       const currentNonDescendant = member.nonDescendantRelation?.[0];
-      
+
       if (updatedData.father !== undefined && updatedData.father !== currentNonDescendant?.fatherName) {
         nonDescendantChanges.father = updatedData.father || null;
       }
@@ -329,7 +330,7 @@ export async function PUT(request: NextRequest) {
         success: true,
         message: "No changes to update",
       });
-    } 
+    }
 
     // Non-verified member update logic
     try {
@@ -360,6 +361,11 @@ export async function PUT(request: NextRequest) {
           where: { memberId: memberId },
         });
       }
+
+      revalidatePath('/api/relatives');
+      revalidatePath('/api/calendar/[month]/[year]');
+      revalidatePath('/api/relatives/[id]');
+      revalidatePath('/tree');
 
       return NextResponse.json({
         success: true,

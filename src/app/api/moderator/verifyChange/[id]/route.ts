@@ -3,10 +3,11 @@ import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { applyHandleEditRelationship } from "./applyHandleEditRelationship";
 import { applyHandleAddRelationship } from "./applyHandleAddRelationship";
-import { applyHandleEditMember} from "./applyHandleEditMember";
+import { applyHandleEditMember } from "./applyHandleEditMember";
 import { handleEditRelationshipCase } from "./handleEditRelationshipCase";
 import { handleAddRelationshipCase } from "./handleAddRelationshipCase";
 import { handleEditMemberCase } from "./handleEditMemberCase";
+import { revalidatePath } from "next/cache";
 
 interface RequestData {
   formData: any;
@@ -119,7 +120,7 @@ export async function PUT(request: NextRequest) {
   const url = new URL(request.url);
   const requestId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
-  
+
   // Initial validation
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -154,9 +155,9 @@ export async function PUT(request: NextRequest) {
 
     // Verify member exists and belongs to the lineage
     const member = await prisma.member.findUnique({
-      where: { 
+      where: {
         id: requestData.memberId,
-        descendantOf: forDescendanceOf 
+        descendantOf: forDescendanceOf
       },
       select: { id: true, verified: true },
     });
@@ -166,8 +167,8 @@ export async function PUT(request: NextRequest) {
     }
 
     // Prevent self-referential relationships
-    if ('partnerId' in requestData.formData && 
-        requestData.formData.partnerId === requestData.memberId) {
+    if ('partnerId' in requestData.formData &&
+      requestData.formData.partnerId === requestData.memberId) {
       return NextResponse.json(
         { error: "Cannot set self as partner" },
         { status: 400 }
@@ -186,12 +187,17 @@ export async function PUT(request: NextRequest) {
       if (!handler) throw new Error("Invalid operation type");
 
       const result = await handler(requestData, tx);
-      
+
       // Delete the request after successful processing
       await tx.requestDetails.delete({ where: { id: requestId } });
-      
+
       return result;
     });
+
+    revalidatePath('/api/relatives');
+    revalidatePath('/api/calendar/[month]/[year]');
+    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/tree');
 
     return NextResponse.json(result);
 
@@ -220,88 +226,93 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-    const url = new URL(request.url);
-    const editDataId = parseInt(url.pathname.split('/').pop() || '', 10);
-    const token = request.cookies.get("token")?.value;
-    
-    if (!token) {
+  const url = new URL(request.url);
+  const editDataId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const token = request.cookies.get("token")?.value;
+
+  if (!token) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  if (isNaN(editDataId)) {
+    return NextResponse.json(
+      { error: "Invalid request ID" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const decoded = await verifyToken(token);
+    if (decoded.userType !== "Moderator") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const forDescendanceOf = decoded.forDescendanceOf;
+
+    if (!forDescendanceOf) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Invalid token" },
         { status: 401 }
       );
     }
-  
-    if (isNaN(editDataId)) {
+
+    // Fetch the request with their relationships
+    const requestData = await prisma.requestDetails.findUnique({
+      where: {
+        id: editDataId,
+        descendantOf: forDescendanceOf
+      },
+      select: {
+        type: true
+      },
+    });
+
+    // If the request doesn't exist, return an error
+    if (!requestData) {
       return NextResponse.json(
-        { error: "Invalid request ID" },
-        { status: 400 }
+        { error: "Request not found" },
+        { status: 404 }
       );
     }
-  
-    try {
-      const decoded = await verifyToken(token);
-      if (decoded.userType !== "Moderator") {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      const forDescendanceOf = decoded.forDescendanceOf;
-  
-      if (!forDescendanceOf) {
-        return NextResponse.json(
-          { error: "Invalid token" },
-          { status: 401 }
-        );
-      }
-  
-      // Fetch the request with their relationships
-      const requestData = await prisma.requestDetails.findUnique({
-        where: { 
-          id: editDataId,
-          descendantOf: forDescendanceOf
-        },
-        select: {
-          type: true
-        },
-      });
-  
-      // If the request doesn't exist, return an error
-      if (!requestData) {
-        return NextResponse.json(
-          { error: "Request not found" },
-          { status: 404 }
-        );
-      }
-  
-      // Delete the request details
-      await prisma.requestDetails.delete({
-        where: { id: editDataId },
-      });
-  
-      return NextResponse.json({
-        success: true,
-        message: `Rejected ${requestData.type}`,
-      });
-    } catch (error: any) {
-      console.error("Error deleting request:", error);
-  
-      // Handle token verification errors
-      if (error instanceof Error && error.name === 'JsonWebTokenError') {
-        return NextResponse.json(
-          { error: "Invalid token" },
-          { status: 401 }
-        );
-      }
-  
-      if (error.code === "P2025") {
-        // Prisma-specific error for "Record not found"
-        return NextResponse.json(
-          { error: "Request not found" },
-          { status: 404 }
-        );
-      }
-  
+
+    // Delete the request details
+    await prisma.requestDetails.delete({
+      where: { id: editDataId },
+    });
+
+    revalidatePath('/api/relatives');
+    revalidatePath('/api/calendar/[month]/[year]');
+    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/tree');
+
+    return NextResponse.json({
+      success: true,
+      message: `Rejected ${requestData.type}`,
+    });
+  } catch (error: any) {
+    console.error("Error deleting request:", error);
+
+    // Handle token verification errors
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json(
-        { error: "Internal server error" },
-        { status: 500 }
+        { error: "Invalid token" },
+        { status: 401 }
       );
     }
+
+    if (error.code === "P2025") {
+      // Prisma-specific error for "Record not found"
+      return NextResponse.json(
+        { error: "Request not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

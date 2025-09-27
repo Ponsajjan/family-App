@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
+import { revalidatePath } from "next/cache";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -167,7 +168,7 @@ export async function PUT(request: NextRequest) {
         { status: 404 }
       );
     }
-    
+
     // Check if any member (main member, partner, or children) is verified
     const hasVerified =
       member?.verified || // Check if the main member is verified
@@ -269,6 +270,11 @@ export async function PUT(request: NextRequest) {
 
     // Wait for all updates to complete
     await Promise.all(updatePromises);
+
+    revalidatePath('/api/relatives');
+    revalidatePath('/api/calendar/[month]/[year]');
+    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/tree');
 
     return NextResponse.json({
       success: true,

@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
   // Authentication
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -72,10 +72,10 @@ export async function GET(request: NextRequest) {
         partner: { select: { name: true } },
       },
       orderBy: { name: "asc" },
-      cacheStrategy: { 
-        ttl: 60 * 5,
+      cacheStrategy: {
+        ttl: 60 * 30,
         swr: 10, // Stale-while-revalidate for 10 seconds 
-      }, // Cache for 5 minutes
+      }, // Cache for 30 minutes
       skip,
       take,
     });
@@ -130,14 +130,14 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching members:", error);
-    
+
     if (error instanceof Error) {
       if (error.name === 'JsonWebTokenError') {
         return NextResponse.json({ error: "Invalid token" }, { status: 401 });
       }
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    
+
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
