@@ -142,7 +142,7 @@ function AddRelationShipForm({
                     </>
                     <>
                         {newChildrenData?.children.map((item: { id: any, name: string, verified: boolean }, index) => (
-                            <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-[10px] ${newChildrenData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} ${draggedOverIndex === index ? 'bg-blue-100' : ''} `}
+                            <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-[10px] ${newChildrenData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} ${draggedOverIndex === index ? 'bg-field_hover' : ''} `}
                                 ref={(el) => { itemRefs.current[index] = el; }}
                                 draggable={true}
                                 onDragStart={() => handleDragStart(index)}

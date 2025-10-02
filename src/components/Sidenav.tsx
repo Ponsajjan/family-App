@@ -26,14 +26,14 @@ export default function Sidenav() {
             <div onClick={() => setShowNav(false)} className={`fixed xl:hidden ${showNav ? 'right-0 bg-gray-500/60' : 'left-full delay-500 bg-gray-300/5'} inset-0 z-[102] duration-500 ease-in-out`} />
             <nav className={` ${showNav ? 'opacity-100 delay-500' : 'opacity-0 xl:opacity-100'} transition-all duration-300 ease-in-out xl:block sticky top-14 md:top-0 z-[102] h-[70vh] lg:h-full`}>
                 <div className="h-12 border-b border-border_color w-full bg-field_color"></div>
-                <div className={`flex-col justify-between ${showNav ? 'flex' : 'hidden xl:flex'} absolute xl:static top-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-fit md:w-40 min-h-[calc(100vh-4rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden`}>
+                <div className={`flex-col justify-between ${showNav ? 'flex' : 'hidden xl:flex'} absolute xl:static top-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-fit md:w-40 min-h-[calc(100vh-10rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden`}>
                     <div>
                         <NavLink linkName="Calendar" link="" onClick={() => navigateTo("/")} />
                         <NavLink linkName="Relatives" link="relatives" onClick={() => navigateTo("/relatives")} />
                         <NavLink linkName="Relations" link="tree" onClick={() => navigateTo("/tree")} />
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={() => navigateTo("/add_edit")} />
                         {moderator && <NavLink linkName="Moderator" link="moderator" onClick={() => navigateTo("/moderator")} />}
-                        <span  className="border-t border-border_color pt-2 mt-6 block mx-4"></span>
+                        <span className="border-t border-border_color pt-2 mt-6 block mx-4"></span>
                         <NavLink linkName="Terms" link="terms" onClick={() => navigateTo("/terms")} />
                     </div>
                 </div>
@@ -46,7 +46,7 @@ export function NavLink({ link, linkName, onClick }: { link: string, linkName: s
     const pathName = usePathname();
 
     return (
-        <button 
+        <button
             onClick={onClick}
             className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover/75 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName.split('/')[1] === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >

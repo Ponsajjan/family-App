@@ -116,7 +116,7 @@ function EditRelationShipForm({
                 <>
                     <p className="text-sm">Children</p>
                     {formData.children?.map((child: { id: number, name: string, order: number }, index: number) => (
-                        <div key={child.id} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 ${formData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} ${draggedOverIndex === index ? 'bg-blue-100' : ''}`}
+                        <div key={child.id} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 ${formData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} ${draggedOverIndex === index ? 'bg-field_hover' : ''}`}
                             ref={(el) => { itemRefs.current[index] = el; }}
                             draggable={true}
                             onDragStart={() => handleDragStart(index)}
