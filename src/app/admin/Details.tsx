@@ -4,14 +4,14 @@ import { HoldButton } from "@/components/HoldButton"
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthEntry, Moderator } from "@/types/admin/types"
-import { CopyLink } from "@/utils/Icons";
+import { Copy } from "@/utils/Icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function Details({selectedMember}: {selectedMember: AuthEntry}) {
+function Details({ selectedMember }: { selectedMember: AuthEntry }) {
     const toast = useToast();
     const router = useRouter();
-    const {logout} = useAuth();
+    const { logout } = useAuth();
     const [deleting, setDeleting] = useState(false);
     const [moderators, setModerators] = useState<Moderator[]>([]);
     const [editingModerator, setEditingModerator] = useState<{ id: number | null; index: number | null }>({ id: null, index: null });
@@ -25,7 +25,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
     }, [selectedMember])
     const copyToClipboard = (text: string, type: string) => {
         const copyText = `Website: ${process.env.NEXT_PUBLIC_BASE_URL} \nCredential for: ${selectedMember.credential} family calendar \n${type}: ${text}`;
-        
+
         navigator.clipboard.writeText(copyText).then(() => {
             toast?.show(`${type} copied to clipboard!`, "success", 2000);
         }).catch(err => {
@@ -43,7 +43,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
             });
-    
+
             if (!response.ok) {
                 if (response.status === 401) {
                     logout();
@@ -52,7 +52,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || "Failed to delete member");
             }
-    
+
             const result = await response.json();
             toast?.show(result.message, "success", 5000);
             router.refresh();
@@ -68,7 +68,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
             toast?.show("Name and contact number are required.", "error", 5000);
             return;
         }
-    
+
         try {
             setLoading(true);
             const response = await fetch(`/api/admin/moderator`, {
@@ -83,31 +83,31 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                     authId: selectedMember.id,
                 }),
             });
-    
+
             if (response.status === 401) {
                 logout();
                 return;
             }
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || "Failed to add moderator");
             }
-    
+
             const result = await response.json();
             toast?.show("Moderator added successfully", "success", 5000);
-            
+
             // Add the new moderator to the list
             const newModeratorData = {
                 id: result.id,
                 name: newModerator.moderatorName.trim(),
                 contactNumber: newModerator.moderatorContact.trim()
             };
-            
+
             setModerators([...moderators, newModeratorData]);
             setNewModerator({ moderatorName: "", moderatorContact: "" });
             setAddingModerator(false);
-    
+
         } catch (error: any) {
             toast?.show(error.message || "Failed to add moderator", "error", 5000);
         } finally {
@@ -123,12 +123,12 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
 
     const handleSaveEditModerator = async () => {
         if (!editingModerator.id || editingModerator.index === null) return;
-        
+
         if (!editModerator.moderatorName.trim() || !editModerator.moderatorContact.trim()) {
             toast?.show("Name and contact number are required.", "error", 5000);
             return;
         }
-        
+
         try {
             setLoading(true);
             const response = await fetch(`/api/admin/moderator/${editingModerator.id}`, {
@@ -143,20 +143,20 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                     authId: selectedMember.id,
                 }),
             });
-    
+
             if (response.status === 401) {
                 logout();
                 return;
             }
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || "Failed to update moderator");
             }
-    
+
             const result = await response.json();
             toast?.show("Moderator updated successfully", "success", 5000);
-            
+
             // Update the moderator in the list
             const updatedModerators = [...moderators];
             updatedModerators[editingModerator.index!] = {
@@ -164,10 +164,10 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                 name: editModerator.moderatorName.trim(),
                 contactNumber: editModerator.moderatorContact.trim()
             };
-            
+
             setModerators(updatedModerators);
             setEditingModerator({ id: null, index: null });
-    
+
         } catch (error: any) {
             toast?.show(error.message || "Failed to update moderator", "error", 5000);
         } finally {
@@ -185,23 +185,23 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
             });
-    
+
             if (response.status === 401) {
                 logout();
                 return;
             }
-    
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || "Failed to delete moderator");
             }
-    
+
             toast?.show("Moderator deleted successfully", "success", 5000);
-            
+
             // Remove the moderator from the list
             const updatedModerators = moderators.filter((_, i) => i !== index);
             setModerators(updatedModerators);
-            
+
         } catch (error: any) {
             toast?.show(error.message || "Failed to delete moderator", "error", 5000);
         } finally {
@@ -221,18 +221,18 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
     return (
         <Container className="p-4 text-text_color">
             <h2 className="text-2xl font-bold mb-2">{selectedMember.credential}</h2>
-            
+
             <div className="pl-4 border-l-4 border-text_color/30 mb-4">
                 <div className="flex items-center flex-wrap w-full">
                     <div className="font-medium">Member Password:</div>
                     <div className="flex-1 flex items-center justify-between">
                         <div className="ml-2">{selectedMember.memberPassword}</div>
-                        <div 
+                        <div
                             onClick={() => copyToClipboard(selectedMember.memberPassword, "Member password")}
                             className="p-1 hover:bg-field_color rounded-md transition-colors"
                             title="Copy member password"
                         >
-                            <CopyLink />
+                            <Copy />
                         </div>
                     </div>
                 </div>
@@ -240,12 +240,12 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                     <div className="font-medium">Moderator Password:</div>
                     <div className="flex-1 flex items-center justify-between">
                         <div className="ml-2">{selectedMember.moderatorPassword}</div>
-                        <div 
+                        <div
                             onClick={() => copyToClipboard(selectedMember.moderatorPassword, "Moderator password")}
                             className="p-1 hover:bg-field_color rounded-md transition-colors"
                             title="Copy moderator password"
                         >
-                            <CopyLink />
+                            <Copy />
                         </div>
                     </div>
                 </div>
@@ -263,7 +263,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                                     <input
                                         type="text"
                                         value={editModerator.moderatorName}
-                                        onChange={(e) => setEditModerator({...editModerator, moderatorName: e.target.value})}
+                                        onChange={(e) => setEditModerator({ ...editModerator, moderatorName: e.target.value })}
                                         className="w-full p-2 mb-2 border rounded"
                                         placeholder="Moderator Name"
                                         disabled={loading}
@@ -271,20 +271,20 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                                     <input
                                         type="text"
                                         value={editModerator.moderatorContact}
-                                        onChange={(e) => setEditModerator({...editModerator, moderatorContact: e.target.value})}
+                                        onChange={(e) => setEditModerator({ ...editModerator, moderatorContact: e.target.value })}
                                         className="w-full p-2 border rounded"
                                         placeholder="Contact Number"
                                         disabled={loading}
                                     />
                                     <div className="flex mt-2 space-x-2">
-                                        <button 
+                                        <button
                                             onClick={handleSaveEditModerator}
                                             disabled={loading}
                                             className="px-3 bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast rounded disabled:opacity-50"
                                         >
                                             {loading ? "Saving..." : "Save"}
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={cancelEdit}
                                             disabled={loading}
                                             className="px-3 bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color rounded disabled:opacity-50"
@@ -300,14 +300,14 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                                         <div className="text-sm text-gray-600">{moderator.contactNumber}</div>
                                     </div>
                                     <div className="flex space-x-2">
-                                        <button 
+                                        <button
                                             onClick={() => handleEditModerator(index)}
                                             disabled={loading}
                                             className="px-3 bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast rounded disabled:opacity-50"
                                         >
                                             Edit
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => handleDeleteModerator(moderator.id, index)}
                                             disabled={loading}
                                             className="px-3 bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color rounded disabled:opacity-50"
@@ -327,7 +327,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                             <input
                                 type="text"
                                 value={newModerator.moderatorName}
-                                onChange={(e) => setNewModerator({...newModerator, moderatorName: e.target.value})}
+                                onChange={(e) => setNewModerator({ ...newModerator, moderatorName: e.target.value })}
                                 className="w-full p-2 mb-2 border rounded"
                                 placeholder="Moderator Name"
                                 disabled={loading}
@@ -335,20 +335,20 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                             <input
                                 type="text"
                                 value={newModerator.moderatorContact}
-                                onChange={(e) => setNewModerator({...newModerator, moderatorContact: e.target.value})}
+                                onChange={(e) => setNewModerator({ ...newModerator, moderatorContact: e.target.value })}
                                 className="w-full p-2 border rounded"
                                 placeholder="Contact Number"
                                 disabled={loading}
                             />
                             <div className="flex mt-2 space-x-2">
-                                <button 
+                                <button
                                     onClick={handleAddModerator}
                                     disabled={loading}
                                     className="px-3 bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast rounded disabled:opacity-50"
                                 >
                                     {loading ? "Adding..." : "Add"}
                                 </button>
-                                <button 
+                                <button
                                     onClick={cancelAdd}
                                     disabled={loading}
                                     className="px-3 bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color rounded disabled:opacity-50"
@@ -358,7 +358,7 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
                             </div>
                         </div>
                     ) : (
-                        <button 
+                        <button
                             onClick={() => setAddingModerator(true)}
                             disabled={loading}
                             className="w-full py-2 border border-border_color rounded-md text-center hover:bg-gray-100 disabled:opacity-50"
@@ -370,16 +370,16 @@ function Details({selectedMember}: {selectedMember: AuthEntry}) {
             </div>
 
             <div className='flex flex-col mt-8 gap-2'>
-                <LinkButtonSolid 
-                    disabled={loading || deleting} 
-                    buttonText='Edit Credentials' 
+                <LinkButtonSolid
+                    disabled={loading || deleting}
+                    buttonText='Edit Credentials'
                     linkto={`/admin/edit_login/${selectedMember.id}`}
                 />
-                <HoldButton 
-                    disabled={deleting || loading} 
-                    type='outline' 
-                    buttonText={deleting ? 'Deleting...' : 'Delete Credential'} 
-                    onClick={() => deleteRecord(selectedMember.id)} 
+                <HoldButton
+                    disabled={deleting || loading}
+                    type='outline'
+                    buttonText={deleting ? 'Deleting...' : 'Delete Credential'}
+                    onClick={() => deleteRecord(selectedMember.id)}
                 />
             </div>
         </Container>

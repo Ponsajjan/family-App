@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
   // Extract and validate parameters
   const { searchParams } = new URL(request.url);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50", 10)));
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "40", 10)));
   const searchQuery = searchParams.get("search")?.trim() || "";
 
   // Authentication
@@ -73,9 +73,9 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { name: "asc" },
       cacheStrategy: {
-        ttl: 60 * 30,
-        swr: 10, // Stale-while-revalidate for 10 seconds 
-      }, // Cache for 30 minutes
+        ttl: 60, // Cache for 60 seconds
+        swr: 60, // Stale-while-revalidate for 60 seconds 
+      },
       skip,
       take,
     });

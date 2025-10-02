@@ -2,7 +2,7 @@
 
 import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
-import { Community, CopyLink, Logout, SwitchLogin } from '@/utils/Icons'
+import { Community, Logout, ShareLink, SwitchLogin } from '@/utils/Icons'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/Toast'
@@ -139,12 +139,6 @@ export default function Terms() {
                   <ul className="list-disc list-inside space-y-2 pl-4">
                     <li className='list-outside'>Ensure family descendants are accurately recorded</li>
                     <li className='list-outside'>Add family relationships <span className='whitespace-nowrap'>( Partner | Children )</span> if applicable</li>
-                    <li className='list-outside' onClick={handleCopy}>
-                      <div className='flex items-center justify-between gap-2 cursor-pointer max-w-md'>
-                        <span>Share page link and password with family members</span>
-                        <CopyLink />
-                      </div>
-                    </li>
                     <li className='list-outside'>New members remain hidden in Calendar and Relations chart until they are verified</li>
                   </ul>
                   <p className="mt-4 italic opacity-65">
@@ -153,7 +147,7 @@ export default function Terms() {
                 </div>
               </div>
 
-              <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-4">
+              <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
                 <div className="text-xl font-medium md:font-semibold mb-4">
                   {(moderatorList.length > 1) ? 'Moderators:' : 'Moderator:'}
                 </div>
@@ -166,6 +160,10 @@ export default function Terms() {
                     </li>
                   ))}
                 </ul>
+              </div>
+              <div onClick={handleCopy} className="bg-field_hover shadow-md border border-border_color rounded-lg p-4 mb-4 flex items-center gap-2 cursor-pointer hover:bg-field_hover transition">
+                <ShareLink />
+                <span>Share Page link and password with family members</span>
               </div>
               <div className='flex justify-between'>
                 <Link href="/terms/moderator_login">Login as Moderator</Link>
