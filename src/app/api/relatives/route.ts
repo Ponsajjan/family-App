@@ -72,10 +72,6 @@ export async function GET(request: NextRequest) {
         partner: { select: { name: true } },
       },
       orderBy: { name: "asc" },
-      // cacheStrategy: {
-      //   ttl: 60, // Cache for 60 seconds
-      //   swr: 60, // Stale-while-revalidate for 60 seconds 
-      // },
       skip,
       take,
     });

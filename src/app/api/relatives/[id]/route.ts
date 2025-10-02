@@ -82,10 +82,6 @@ export async function GET(request: NextRequest) {
             select: { fatherName: true, motherName: true, siblingNames: true }
           },
         },
-        cacheStrategy: {
-          ttl: 60 * 5,
-          swr: 10 // Stale-while-revalidate for 10 seconds
-        }, // Cache for 5 minutes
       }),
       // Fetch siblings in parallel
       prisma.member.findMany({
@@ -100,10 +96,6 @@ export async function GET(request: NextRequest) {
         select: { name: true, order: true },
         orderBy: { order: 'asc' },
         distinct: ['name'], // Ensure unique siblings
-        // cacheStrategy: { 
-        //   ttl: 60 * 5,
-        //   swr: 10 // Stale-while-revalidate for 10 seconds
-        // }, // Cache for 5 minutes
       })
     ]);
 
