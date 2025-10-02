@@ -171,7 +171,7 @@ export default function Terms() {
                   <ShareLink />
                   {showCopiedMsg ?
                     <span>Copied to clipboard</span> :
-                    <span>Share Page link and password with family members</span>
+                    <span>Share page link and password with family members</span>
                   }
                 </div>
               </div>
