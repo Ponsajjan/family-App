@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
-  
+
   // Validate inputs
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (isNaN(id)) return NextResponse.json({ error: "Invalid Member ID" }, { status: 400 });
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
             select: { fatherName: true, motherName: true, siblingNames: true }
           },
         },
-        cacheStrategy: { 
+        cacheStrategy: {
           ttl: 60 * 5,
           swr: 10 // Stale-while-revalidate for 10 seconds
         }, // Cache for 5 minutes
@@ -100,10 +100,10 @@ export async function GET(request: NextRequest) {
         select: { name: true, order: true },
         orderBy: { order: 'asc' },
         distinct: ['name'], // Ensure unique siblings
-        cacheStrategy: { 
-          ttl: 60 * 5,
-          swr: 10 // Stale-while-revalidate for 10 seconds
-        }, // Cache for 5 minutes
+        // cacheStrategy: { 
+        //   ttl: 60 * 5,
+        //   swr: 10 // Stale-while-revalidate for 10 seconds
+        // }, // Cache for 5 minutes
       })
     ]);
 
@@ -157,21 +157,21 @@ function buildGeneralInfo(member: any) {
 }
 
 function buildRelationInfo(member: any, siblings: any[]) {
-  const hasRelations = member.father || member.mother || member.partner || 
-                     member.fatherOf.length > 0 || member.motherOf.length > 0 || 
-                     siblings.length > 0 || member.nonDescendantRelation[0];
+  const hasRelations = member.father || member.mother || member.partner ||
+    member.fatherOf.length > 0 || member.motherOf.length > 0 ||
+    siblings.length > 0 || member.nonDescendantRelation[0];
   if (!hasRelations) return undefined;
 
   return {
     ...(member.father && { father: member.father.name }),
     ...(member.mother && { mother: member.mother.name }),
     ...(member.partner && { partner: member.partner.name }),
-    ...((member.fatherOf.length > 0 || member.motherOf.length > 0) && { 
-      children: [...new Set([...member.fatherOf, ...member.motherOf])] 
+    ...((member.fatherOf.length > 0 || member.motherOf.length > 0) && {
+      children: [...new Set([...member.fatherOf, ...member.motherOf])]
     }),
     ...(siblings.length > 0 && { siblings }),
-    ...(member.nonDescendantRelation[0] && { 
-      nonDescendantRelations: member.nonDescendantRelation[0] 
+    ...(member.nonDescendantRelation[0] && {
+      nonDescendantRelations: member.nonDescendantRelation[0]
     })
   };
 }
