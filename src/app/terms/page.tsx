@@ -23,6 +23,7 @@ export default function Terms() {
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
   const [refetch, setRefetch] = useState(false);
+  const [showCopiedMsg, setShowCopiedMsg] = useState(false); // Added missing state
   const router = useRouter();
 
   useEffect(() => {
@@ -93,7 +94,8 @@ export default function Terms() {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`Link: ${window.location.href}\nPassword: ${password}`);
-    toast?.show('Copied to clipboard', 'success', 3000);
+    setShowCopiedMsg(true);
+    setTimeout(() => setShowCopiedMsg(false), 2000);
   };
 
 
@@ -161,9 +163,17 @@ export default function Terms() {
                   ))}
                 </ul>
               </div>
-              <div onClick={handleCopy} className="bg-field_hover shadow-md border border-border_color rounded-lg p-4 mb-4 flex items-center gap-2 cursor-pointer hover:bg-field_hover transition">
-                <ShareLink />
-                <span>Share Page link and password with family members</span>
+              <div className="relative">
+                <div
+                  onClick={handleCopy}
+                  className="bg-field_hover shadow-md border border-border_color rounded-lg p-4 mb-4 flex items-center gap-2 cursor-pointer hover:bg-field_hover transition"
+                >
+                  <ShareLink />
+                  {showCopiedMsg ?
+                    <span>Copied to clipboard</span> :
+                    <span>Share Page link and password with family members</span>
+                  }
+                </div>
               </div>
               <div className='flex justify-between'>
                 <Link href="/terms/moderator_login">Login as Moderator</Link>
