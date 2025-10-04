@@ -6,7 +6,7 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -68,21 +68,24 @@ svg {
   0% {
     transform: translateX(100%);
   }
+
   4% {
     transform: translateX(-15%);
   }
+
   6% {
     transform: translateX(0);
   }
+
   95% {
     transform: translateX(0);
     scale: 1;
   }
+
   100% {
     scale: 0;
   }
 }
-
 
 .progress:before {
   content: "";
@@ -109,7 +112,9 @@ svg {
 }
 
 @keyframes input_error {
-  0%, 100% {
+
+  0%,
+  100% {
     translate: 0;
   }
 
@@ -187,13 +192,13 @@ input[type="radio"]:checked::after {
   background: rgba(var(--text_color));
 }
 
-.tooltip{
+.tooltip {
   position: absolute;
   inset: 0;
   cursor: pointer;
 }
 
-.tooltip-text{
+.tooltip-text {
   visibility: hidden;
   position: absolute;
   padding: 6px 10px;
@@ -211,28 +216,30 @@ input[type="radio"]:checked::after {
   transition: opacity 1s;
 }
 
-.tooltip-text::after{
+.tooltip-text::after {
   content: "";
   position: absolute;
   top: 100%;
   left: 50%;
   transform: translate(-50%);
   border: 10px solid;
-  border-color:  rgba(var(--accent_color)) transparent transparent transparent;
+  border-color: rgba(var(--accent_color)) transparent transparent transparent;
 }
 
-.tooltip:hover .tooltip-text{
+.tooltip:hover .tooltip-text {
   visibility: visible;
   opacity: 1;
 }
 
 .refresh-text {
-  opacity: 0; /* Start hidden */
+  opacity: 0;
+  /* Start hidden */
   animation: showLoading 0s ease-in 3s forwards;
 }
 
 .loading-text {
-  opacity: 0; /* Start hidden */
+  opacity: 0;
+  /* Start hidden */
   animation: showLoading 0s ease-in 1s forwards;
 }
 
@@ -252,7 +259,11 @@ table {
   width: 100%;
 }
 
-thead, tbody, tr, th, td {
+thead,
+tbody,
+tr,
+th,
+td {
   text-align: left;
   padding: 2px;
 }
@@ -262,33 +273,56 @@ thead, tbody, tr, th, td {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-  20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
 }
 
-/* From Uiverse.io by necatimertmetin */ 
+/* From Uiverse.io by necatimertmetin */
 .z {
   position: absolute;
   opacity: 0;
 }
+
 .z-1 {
   animation: swayUpToRight 4s ease-out infinite;
 }
+
 .z-2 {
   animation: swayUpToRight 4s ease-out 0.5s infinite;
 }
+
 .z-3 {
   animation: swayUpToRight 4s ease-out 1s infinite;
 }
+
 .z-4 {
   animation: swayUpToRight 4s ease-out 1.5s infinite;
 }
+
 @keyframes swayUpToRight {
   0% {
     transform: translate(0, 0) rotate(0deg);
     opacity: 1;
   }
+
   100% {
     transform: translate(80px, -100px) rotate(30deg);
     opacity: 0;
@@ -310,5 +344,20 @@ thead, tbody, tr, th, td {
 
   100% {
     transform: rotateX(-15deg) translateY(0px);
+  }
+}
+
+.animate-spin {
+  display: inline-block;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }
