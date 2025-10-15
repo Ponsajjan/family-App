@@ -10,7 +10,7 @@ interface LoginRequestBody {
 
 interface LoginResponse {
   id: number;
-  forDescendanceOf: string;
+  forDescendanceOf?: string;
   mainMemberId: number | null;
   password: string;
   moderatorName?: string;
@@ -63,12 +63,12 @@ export async function POST(request: Request) {
 
     const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
-    return NextResponse.json({ 
-        success: true, 
-        message: "Login successful", 
-        newtoken: token, // Changed from token to newtoken
-        userType, 
-        forDescendanceOf: login.forDescendanceOf
+    return NextResponse.json({
+      success: true,
+      message: "Login successful",
+      newtoken: token, // Changed from token to newtoken
+      userType,
+      forDescendanceOf: login.forDescendanceOf
     });
   } catch (error) {
     console.error("Error logging in:", error);

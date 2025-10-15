@@ -10,7 +10,7 @@ interface LoginRequestBody {
 
 interface LoginResponse {
   id: number;
-  forDescendanceOf: string;
+  forDescendanceOf?: string;
   mainMemberId: number | null;
   password: string;
   moderatorName?: string;

@@ -10,8 +10,8 @@ datasource db {
 
 model Auth {
   id                Int             @id @default(autoincrement())
-  forDescendanceOf  String          @unique
   mainMemberId      Int?            @unique
+  mainMemberNameRef String?         @unique
   moderatorList     ModeratorList[]
   moderatorPassword String
   password          String          @unique
@@ -22,10 +22,10 @@ model Auth {
 }
 
 model Member {
-  id           Int      @id @default(autoincrement())
-  descendantOf String
-  verified     Boolean? @default(false)
-  name         String
+  id       Int      @id @default(autoincrement())
+  authId   Int
+  verified Boolean? @default(false)
+  name     String
 
   birthDate  Int?
   birthMonth Int?
@@ -48,24 +48,36 @@ model Member {
   // Family relationships
   fatherId            Int? // Foreign key for father
   motherId            Int? // Foreign key for mother
-  partnerId           Int? // Foreign key for partner
 
   nonDescendantRelation nonDescendantRelation[]
 
   father Member? @relation("FatherOfChildren", fields: [fatherId], references: [id])
   mother Member? @relation("MotherOfChildren", fields: [motherId], references: [id])
 
-  // get Partner Pair values
-  partner   Member?  @relation("PartnerRelation", fields: [partnerId], references: [id])
-  partnerOf Member[] @relation("PartnerRelation") // Opposite relation for partner
+  // Partnerships: Many-to-many relationships with other members
+  partnershipsAsPartner1 Partnership[] @relation("PartnershipsAsPartner1") // Partnerships where this member is partner1
+  partnershipsAsPartner2 Partnership[] @relation("PartnershipsAsPartner2") // Partnerships where this member is partner2
 
   // Children having member as father list
-  fatherOf Member[] @relation("FatherOfChildren")
-  motherOf Member[] @relation("MotherOfChildren")
-  auth     Auth     @relation("AuthToMember", fields: [descendantOf], references: [forDescendanceOf], onDelete: Cascade)
+  fatherOf  Member[] @relation("FatherOfChildren")
+  motherOf  Member[] @relation("MotherOfChildren")
+  auth      Auth     @relation("AuthToMember", fields: [authId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Join table for many-to-many partnerships between members
+model Partnership {
+  id         Int    @id @default(autoincrement())
+  partner1Id Int
+  partner2Id Int
+  partner1   Member @relation("PartnershipsAsPartner1", fields: [partner1Id], references: [id], onDelete: Cascade)
+  partner2   Member @relation("PartnershipsAsPartner2", fields: [partner2Id], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([partner1Id, partner2Id])
 }
 
 model RequestDetails {

@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE "Auth" (
     "id" SERIAL NOT NULL,
-    "forDescendanceOf" TEXT NOT NULL,
     "mainMemberId" INTEGER,
+    "mainMemberNameRef" TEXT,
     "moderatorPassword" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -14,7 +14,7 @@ CREATE TABLE "Auth" (
 -- CreateTable
 CREATE TABLE "Member" (
     "id" SERIAL NOT NULL,
-    "descendantOf" TEXT NOT NULL,
+    "authId" INTEGER NOT NULL,
     "verified" BOOLEAN DEFAULT false,
     "name" TEXT NOT NULL,
     "birthDate" INTEGER,
@@ -33,11 +33,21 @@ CREATE TABLE "Member" (
     "order" INTEGER NOT NULL DEFAULT 1,
     "fatherId" INTEGER,
     "motherId" INTEGER,
-    "partnerId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Member_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Partnership" (
+    "id" SERIAL NOT NULL,
+    "partner1Id" INTEGER NOT NULL,
+    "partner2Id" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Partnership_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -79,13 +89,16 @@ CREATE TABLE "ModeratorList" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Auth_forDescendanceOf_key" ON "Auth"("forDescendanceOf");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Auth_mainMemberId_key" ON "Auth"("mainMemberId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Auth_mainMemberNameRef_key" ON "Auth"("mainMemberNameRef");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Auth_password_key" ON "Auth"("password");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Partnership_partner1Id_partner2Id_key" ON "Partnership"("partner1Id", "partner2Id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "nonDescendantRelation_memberId_key" ON "nonDescendantRelation"("memberId");
@@ -97,10 +110,13 @@ ALTER TABLE "Member" ADD CONSTRAINT "Member_fatherId_fkey" FOREIGN KEY ("fatherI
 ALTER TABLE "Member" ADD CONSTRAINT "Member_motherId_fkey" FOREIGN KEY ("motherId") REFERENCES "Member"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Member" ADD CONSTRAINT "Member_partnerId_fkey" FOREIGN KEY ("partnerId") REFERENCES "Member"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Member" ADD CONSTRAINT "Member_authId_fkey" FOREIGN KEY ("authId") REFERENCES "Auth"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Member" ADD CONSTRAINT "Member_descendantOf_fkey" FOREIGN KEY ("descendantOf") REFERENCES "Auth"("forDescendanceOf") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Partnership" ADD CONSTRAINT "Partnership_partner1Id_fkey" FOREIGN KEY ("partner1Id") REFERENCES "Member"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Partnership" ADD CONSTRAINT "Partnership_partner2Id_fkey" FOREIGN KEY ("partner2Id") REFERENCES "Member"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RequestDetails" ADD CONSTRAINT "RequestDetails_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("id") ON DELETE CASCADE ON UPDATE CASCADE;
