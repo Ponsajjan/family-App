@@ -4,9 +4,9 @@ import { verifyToken } from "@/utils/auth";
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const userType = decoded.userType;
 
     if (userType !== "Admin") {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const url = new URL(request.url);
     const id = parseInt(url.pathname.split("/").pop() || "", 10); // Extract the member ID from the URL
@@ -103,12 +103,12 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-  
+
 export async function PUT(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
@@ -116,7 +116,7 @@ export async function PUT(request: NextRequest) {
     const userType = decoded.userType;
 
     if (userType !== "Admin") {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const formData = await request.json();
     const deceased = !!(formData.deathDate || formData.deathMonth || formData.deathYear);
@@ -211,14 +211,14 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const url = new URL(request.url);
-  const authId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (isNaN(authId)) {
+  if (isNaN(memberId)) {
     return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
   }
 
@@ -227,22 +227,22 @@ export async function DELETE(request: NextRequest) {
     const userType = decoded.userType;
 
     if (userType !== "Admin") {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const credential = await prisma.auth.findUnique({
-      where: { id: authId },
+    const authEntry = await prisma.auth.findUnique({
+      where: { mainMemberId: memberId },
     });
-    
-    if (!credential) {
+
+    if (!authEntry) {
       return NextResponse.json(
-        { error: "Invalid credential. The referenced moderator does not exist." },
-        { status: 400 }
+        { error: "Auth entry not found for the member" },
+        { status: 404 }
       );
     }
-    // Delete the auth entry
+    // Delete the auth entry (cascade will delete members)
     await prisma.auth.delete({
-      where: { id: authId },
+      where: { id: authEntry.id },
     });
 
     // Return a success message
@@ -251,13 +251,13 @@ export async function DELETE(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting credential:", error);
+    console.error("Error deleting records:", error);
     // Handle token verification errors
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     return NextResponse.json(
-      { error: "Failed to delete credential." },
+      { error: "Failed to delete records." },
       { status: 500 }
     );
   }
