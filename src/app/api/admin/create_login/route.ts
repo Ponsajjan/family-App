@@ -4,16 +4,16 @@ import { verifyToken } from "@/utils/auth";
 
 export async function POST(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
     const decoded = await verifyToken(token);
     const userType = decoded.userType;
 
     if (userType !== "Admin") {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const formData = await request.json();
     const deceased = !!(formData.deathDate || formData.deathMonth || formData.deathYear);
@@ -48,14 +48,15 @@ export async function POST(request: NextRequest) {
       const withUnderscores = lowercased.replace(/\s+/g, '_');
       const randomDigits = Math.floor(1000 + Math.random() * 9000);
       const result = `${withUnderscores}_${randomDigits}`;
-    
+
       return result;
     }
+
+    const uniqueRef = unique_descendantOf_string(formData.name);
 
     // Prepare member data
     const member = {
       name: formData.name,
-      descendantOf: unique_descendantOf_string(formData.name),
       gender: formData.gender,
       verified: true,
       descendant: true,
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
       // Step 1: Create the Auth entry first (without mainMemberId)
       const authEntry = await prisma.auth.create({
         data: {
-          forDescendanceOf: member.descendantOf,
+          mainMemberNameRef: uniqueRef,
           moderatorPassword: formData.moderatorPassword,
           password: formData.memberPassword,
           mainMemberId: null, // Initially set to null
@@ -86,7 +87,10 @@ export async function POST(request: NextRequest) {
 
       // Step 2: Create the member
       const newMember = await prisma.member.create({
-        data: member,
+        data: {
+          ...member,
+          authId: authEntry.id,
+        },
       });
 
       // Step 3: If the member has relatives, create nonDescendantRelation
