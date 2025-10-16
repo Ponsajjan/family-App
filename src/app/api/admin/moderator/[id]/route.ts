@@ -8,13 +8,13 @@ export async function PUT(request: NextRequest) {
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  
+
   try {
     const decoded = await verifyToken(token);
     const userType = decoded.userType;
 
     if (userType !== "Admin") {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     const url = new URL(request.url);
     const id = parseInt(url.pathname.split("/").pop() || "", 10);
@@ -23,14 +23,14 @@ export async function PUT(request: NextRequest) {
     const existingAuth = await prisma.auth.findUnique({
       where: { id: authId },
     });
-    
+
     if (!existingAuth) {
       return NextResponse.json(
         { error: "Invalid authId. The referenced user/auth does not exist." },
         { status: 400 }
       );
     }
-    
+
     // Validate required fields
     if (!moderatorName || !moderatorContact || !authId) {
       return NextResponse.json(
@@ -70,13 +70,13 @@ export async function DELETE(request: NextRequest) {
   const url = new URL(request.url);
   const moderatorId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (isNaN(moderatorId)) {
-    return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid moderator ID" }, { status: 400 });
   }
 
   try {
@@ -84,13 +84,13 @@ export async function DELETE(request: NextRequest) {
     const userType = decoded.userType;
 
     if (userType !== "Admin") {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const moderator = await prisma.moderatorList.findUnique({
       where: { id: moderatorId },
     });
-    
+
     if (!moderator) {
       return NextResponse.json(
         { error: "Invalid moderator. The referenced moderator does not exist." },
