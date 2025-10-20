@@ -55,8 +55,8 @@ model Member {
   mother Member? @relation("MotherOfChildren", fields: [motherId], references: [id])
 
   // Partnerships: Many-to-many relationships with other members
-  partnershipsAsPartner1 Partnership[] @relation("PartnershipsAsPartner1") // Partnerships where this member is partner1
-  partnershipsAsPartner2 Partnership[] @relation("PartnershipsAsPartner2") // Partnerships where this member is partner2
+  partnerOf   Partnership[] @relation("PartnerOf") // Partnerships where this member is person1
+  partnerWith Partnership[] @relation("PartnerWith") // Partnerships where this member is person2
 
   // Children having member as father list
   fatherOf  Member[] @relation("FatherOfChildren")
@@ -68,16 +68,16 @@ model Member {
 
 // Join table for many-to-many partnerships between members
 model Partnership {
-  id         Int    @id @default(autoincrement())
-  partner1Id Int
-  partner2Id Int
-  partner1   Member @relation("PartnershipsAsPartner1", fields: [partner1Id], references: [id], onDelete: Cascade)
-  partner2   Member @relation("PartnershipsAsPartner2", fields: [partner2Id], references: [id], onDelete: Cascade)
+  id        Int    @id @default(autoincrement())
+  person1Id Int
+  person2Id Int
+  person1   Member @relation("PartnerOf", fields: [person1Id], references: [id], onDelete: Cascade)
+  person2   Member @relation("PartnerWith", fields: [person2Id], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([partner1Id, partner2Id])
+  @@unique([person1Id, person2Id])
 }
 
 model RequestDetails {
@@ -111,6 +111,14 @@ model ModeratorList {
   authId           Int
   moderator        Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Announcement {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
