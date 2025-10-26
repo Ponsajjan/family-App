@@ -211,14 +211,14 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const url = new URL(request.url);
-  const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
+  const authId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
 
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (isNaN(memberId)) {
+  if (isNaN(authId)) {
     return NextResponse.json({ error: "Invalid member ID" }, { status: 400 });
   }
 
@@ -230,11 +230,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const authEntry = await prisma.auth.findUnique({
-      where: { mainMemberId: memberId },
+    const credential = await prisma.auth.findUnique({
+      where: { id: authId },
     });
 
-    if (!authEntry) {
+    if (!credential) {
       return NextResponse.json(
         { error: "Auth entry not found for the member" },
         { status: 404 }
@@ -242,7 +242,7 @@ export async function DELETE(request: NextRequest) {
     }
     // Delete the auth entry (cascade will delete members)
     await prisma.auth.delete({
-      where: { id: authEntry.id },
+      where: { id: authId },
     });
 
     // Return a success message
