@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1"); // Current page
   const limit = parseInt(searchParams.get("limit") || "50"); // Page size
   const lastLetterId = searchParams.get("lastLetterId") || "";
-  
+
   // Authentication
   const token = request.cookies.get("token")?.value;
 
@@ -53,10 +53,10 @@ export async function GET(request: NextRequest) {
   // Exclude the member and partner for selectChildren
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
     const mainMemberId = decoded.memberId;
 
-    if (!forDescendanceOf || !mainMemberId) {
+    if (!authId || !mainMemberId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
           mode: "insensitive",
         },
       }),
-      descendantOf: forDescendanceOf,
+      authId: authId,
     };
 
     switch (forType) {
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
             gender: true,
             father: { select: { name: true } },
             mother: { select: { name: true } },
-            partner: { select: { name: true } },
+            // partner: { select: { name: true } },
           },
           orderBy: { name: "asc" },
           skip,
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
           where: {
             ...baseWhere,
             gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
-            partnerId: null,
+            // partnerId: null,
             id: { notIn: excludeId },
             descendant: descendant === 'true' ? showCousin : true,
             // AND: {
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
             gender: true,
             verified: true,
             birthYear: true,
-            partner: { select: { name: true } },
+            // partner: { select: { name: true } },
           },
           orderBy: { name: "asc" },
           skip,
@@ -175,7 +175,7 @@ export async function GET(request: NextRequest) {
             OR: [
               { fatherOf: { some: {} } },
               { motherOf: { some: {} } },
-              { partnerId: { not: null } },
+              // { partnerId: { not: null } },
             ],
           },
           select: {
@@ -185,7 +185,7 @@ export async function GET(request: NextRequest) {
             birthYear: true,
             father: { select: { name: true } },
             mother: { select: { name: true } },
-            partner: { select: { name: true } },
+            // partner: { select: { name: true } },
           },
           orderBy: { name: "asc" },
           skip,
@@ -204,7 +204,7 @@ export async function GET(request: NextRequest) {
             gender: true,
             father: { select: { name: true } },
             mother: { select: { name: true } },
-            partner: { select: { name: true } },
+            // partner: { select: { name: true } },
           },
           orderBy: { name: "asc" },
           skip,

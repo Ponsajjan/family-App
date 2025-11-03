@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     if (userType !== "Admin") {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
-    
+
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const searchTerm = searchParams.get('search')?.trim() || '';
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     // Build where clause for search
     const whereClause = searchTerm ? {
-      forDescendanceOf: {
+      mainMemberNameRef: {
         contains: searchTerm,
         mode: 'insensitive' as const,
       }
@@ -85,17 +85,17 @@ export async function GET(request: NextRequest) {
       mainMembers.map((member) => [member.id, member])
     );
     const formattedResponse: FormattedAuthEntry[] = authEntries.map((auth) => {
-    
+
       const mainMember = auth.mainMemberId ? mainMemberMap.get(auth.mainMemberId) : null;
-      
+
       return {
         id: auth.id,
         mainMemberId: auth.mainMemberId,
-        descendantOf: auth.forDescendanceOf,
+        descendantOf: auth.mainMemberNameRef,
         credential: mainMember?.name || 'Unknown',
         memberPassword: auth.password,
         moderatorPassword: auth.moderatorPassword,
-        moderators: auth.moderatorList.map((moderator:{id:number, moderatorName: string, moderatorContact: string}) => ({
+        moderators: auth.moderatorList.map((moderator: { id: number, moderatorName: string, moderatorContact: string }) => ({
           id: moderator.id,
           name: moderator.moderatorName,
           contactNumber: moderator.moderatorContact,

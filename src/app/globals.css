@@ -172,26 +172,6 @@ input[type="checkbox"]:checked::after {
   text-align: center;
 }
 
-input[type="radio"] {
-  position: relative;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  height: 18px;
-  width: 18px;
-  border-radius: 100%;
-}
-
-input[type="radio"]:checked::after {
-  content: '';
-  display: block;
-  height: 16px;
-  width: 16px;
-  border-radius: 100%;
-  border: 2px solid rgba(var(--main_background));
-  background: rgba(var(--text_color));
-}
-
 .tooltip {
   position: absolute;
   inset: 0;

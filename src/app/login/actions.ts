@@ -10,13 +10,13 @@ const DEBOUNCE_MS = 30 * 1000;
 const ATTEMPT_LIMIT = 8; // Maximum attempts before lockout
 
 interface LoginResponse {
-  id: number;
-  forDescendanceOf: string;
-  mainMemberId: number | null;
-  password: string;
-  moderatorName?: string;
-  moderatorContact?: string;
-  moderatorPassword: string;
+    id: number;
+    mainMemberId: number | null;
+    password: string;
+    moderatorName?: string;
+    moderatorContact?: string;
+    moderatorPassword: string;
+    mainMemberNameRef?: string | null;
 }
 
 export async function login(formData: FormData) {
@@ -52,22 +52,22 @@ export async function login(formData: FormData) {
         if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
             login = {
                 id: -108,
-                forDescendanceOf: "super_admin_007",
                 mainMemberId: null,
                 password: process.env.SUPER_ADMIN_PASSWORD,
                 moderatorName: "Admin",
                 moderatorContact: "N/A",
                 moderatorPassword: "N/A",
+                mainMemberNameRef: "SuperAdmin"
             };
         }
 
         if (!login) {
             const newAttempts = Math.min(attempts + 1, ATTEMPT_LIMIT);
             cookieStore.set('_att_tk', `${newAttempts.toString().padStart(3, '0')}-${now}`, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: DEBOUNCE_MS / 1000
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict',
+                maxAge: DEBOUNCE_MS / 1000
             });
             return {
                 success: false,
@@ -76,7 +76,7 @@ export async function login(formData: FormData) {
         }
 
         const token = await generateToken({
-            forDescendanceOf: login.forDescendanceOf,
+            authId: login.id,
             memberId: login.mainMemberId,
             userType: login.moderatorName === "Admin" ? "Admin" : "Member"
         });
@@ -87,7 +87,7 @@ export async function login(formData: FormData) {
             message: "Login successful",
             token,
             userType,
-            forDescendanceOf: login.forDescendanceOf
+            mainMemberNameRef: login.mainMemberNameRef || 'Unknown'
         };
     } catch (error) {
         console.error("Error logging in:", error);

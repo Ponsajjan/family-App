@@ -21,17 +21,17 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
     const mainMemberId = decoded.memberId;
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const member = await prisma.member.findUnique({
       where: {
         id: id,
-        descendantOf: forDescendanceOf
+        authId: authId
       },
       select: {
         id: true,
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         deathMonth: true,
         deathYear: true,
         descendant: true,
-        partnerId: true,
+        // partnerId: true,
         fatherId: true,
         motherId: true,
         fatherOf: true,
@@ -102,8 +102,8 @@ export async function GET(request: NextRequest) {
         siblings: member.nonDescendantRelation?.[0]?.siblingNames,
       },
       allowEdit: {
-        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
-        editDescendant: member.fatherId || member.motherId || member.id == mainMemberId,
+        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 // || member.partnerId,
+        // editDescendant: member.fatherId || member.motherId || member.id == mainMemberId,
       },
     };
 
@@ -141,9 +141,9 @@ export async function PUT(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -159,7 +159,7 @@ export async function PUT(request: NextRequest) {
     const member = await prisma.member.findUnique({
       where: {
         id: memberId,
-        descendantOf: forDescendanceOf
+        authId: authId
       },
       select: {
         id: true,
@@ -179,11 +179,11 @@ export async function PUT(request: NextRequest) {
         descendant: true,
         father: true,
         mother: true,
-        partner: true,
+        // partner: true,
         fatherOf: true,
         motherOf: true,
         verified: true,
-        partnerId: true,
+        // partnerId: true,
         fatherId: true,
         motherId: true,
         nonDescendantRelation: {
@@ -204,17 +204,17 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    if (member.partner) {
-      const currentGender = member.gender;
-      const updatedGender = updatedData.gender;
+    // if (member.partner) {
+    //   const currentGender = member.gender;
+    //   const updatedGender = updatedData.gender;
 
-      if (updatedGender && (currentGender !== updatedGender)) {
-        return NextResponse.json(
-          { error: "Gender mismatch: Cannot update gender." },
-          { status: 400 }
-        );
-      }
-    }
+    //   if (updatedGender && (currentGender !== updatedGender)) {
+    //     return NextResponse.json(
+    //       { error: "Gender mismatch: Cannot update gender." },
+    //       { status: 400 }
+    //     );
+    //   }
+    // }
 
     if (member.fatherOf.length > 0 || member.motherOf.length > 0) {
       const currentGender = member.gender;
@@ -313,7 +313,7 @@ export async function PUT(request: NextRequest) {
 
         await prisma.requestDetails.create({
           data: {
-            descendantOf: forDescendanceOf,
+            descendantOf: authId,
             type: "Edit Member",
             details: JSON.stringify(requestDetails),
             memberId: memberId,

@@ -9,8 +9,9 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   access: string | null;
+  mainMemberNameRef: string | null;
   setAccess: (access: string | null) => void;
-  storeLoginValues: (token: string, access: string, forDescendanceOf:string) => void;
+  storeLoginValues: (token: string, access: string, mainMemberNameRef: string) => void;
   logout: () => void;
 }
 
@@ -20,6 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [access, setAccess] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [mainMemberNameRef, setMainMemberNameRef] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,43 +37,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   }, []);
 
-  const storeLoginValues = (newToken: string, newAccess: string, forDescendanceOf: string) => {
+  const storeLoginValues = (newToken: string, newAccess: string, mainMemberNameRef: string) => {
     setToken(newToken);
     setAccess(newAccess);
+    setMainMemberNameRef(mainMemberNameRef);
     const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
-    
+
     // Set token and access cookies
     document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
     document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
-    
+
     // Get existing logged accounts
     const existingCookie = document.cookie.split('; ')
-        .find(row => row.startsWith('loggedAccounts='));
-    
+      .find(row => row.startsWith('loggedAccounts='));
+
     let accounts: string[] = [];
     if (existingCookie) {
-        const cookieValue = existingCookie.split('=')[1];
-        try {
-            // First decode URI component, then parse JSON
-            const decodedValue = decodeURIComponent(cookieValue);
-            // Handle both array format and malformed strings
-            if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
-                accounts = JSON.parse(decodedValue);
-            } else {
-                // If it's a malformed array string, treat as single value
-                accounts = [decodedValue.replace(/^\["|"\]$/g, '')];
-            }
-        } catch (e) {
-            console.error("Error parsing loggedAccounts cookie", e);
-            accounts = [forDescendanceOf]; // Fallback to new value
+      const cookieValue = existingCookie.split('=')[1];
+      try {
+        // First decode URI component, then parse JSON
+        const decodedValue = decodeURIComponent(cookieValue);
+        // Handle both array format and malformed strings
+        if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
+          accounts = JSON.parse(decodedValue);
+        } else {
+          // If it's a malformed array string, treat as single value
+          accounts = [decodedValue.replace(/^\["|"\]$/g, '')];
         }
+      } catch (e) {
+        console.error("Error parsing loggedAccounts cookie", e);
+        accounts = [mainMemberNameRef]; // Fallback to new value
+      }
     }
-    
+
     // Add new account if it doesn't exist
-    if (!accounts.includes(forDescendanceOf)) {
-        accounts.push(forDescendanceOf);
+    if (!accounts.includes(mainMemberNameRef)) {
+      accounts.push(mainMemberNameRef);
     }
-    
+
     // Update the cookie with properly formatted JSON array
     document.cookie = `loggedAccounts=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=${daysToSeconds};`;
 
@@ -96,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     token,
     isAuthenticated,
     access,
+    mainMemberNameRef,
     setAccess,
     storeLoginValues,
     logout,
@@ -121,7 +125,7 @@ export const useAuth = () => {
   return context;
 };
 
-  //   // Process the value: remove everything after last underscore and replace underscores with spaces
-  //   const processedValue = newDescendentFor
-  //     .substring(0, newDescendentFor.lastIndexOf("_"))
-  //     .replace(/_/g, " ");
+//   // Process the value: remove everything after last underscore and replace underscores with spaces
+//   const processedValue = newDescendentFor
+//     .substring(0, newDescendentFor.lastIndexOf("_"))
+//     .replace(/_/g, " ");

@@ -49,13 +49,13 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
-    if (!forDescendanceOf) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    const authId = decoded.authId;
+    if (!authId) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
     // Fetch member with all relations in a single query using transactions
     const [member, siblings] = await prisma.$transaction([
       prisma.member.findUnique({
-        where: { id, descendantOf: forDescendanceOf },
+        where: { id, authId: authId },
         select: {
           id: true,
           name: true,
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
           descendant: true,
           father: { select: { id: true, name: true } },
           mother: { select: { id: true, name: true } },
-          partner: { select: { name: true } },
+          // partner: { select: { name: true } },
           fatherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
           motherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
           nonDescendantRelation: {
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
             { motherId: { not: null, in: await getParentIds(id) } }
           ],
           id: { not: id },
-          descendantOf: forDescendanceOf
+          authId: authId
         },
         select: { name: true, order: true },
         orderBy: { order: 'asc' },

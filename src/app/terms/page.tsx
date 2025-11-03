@@ -17,7 +17,7 @@ export default function Terms() {
   const [loading, setLoading] = useState(true);
   const [head, setHead] = useState('');
   const [moderatorList, setModeratorList] = useState([]);
-  const [activeFamily, setActiveFamily] = useState<string | null>(null);
+  // const [activeFamily, setActiveFamily] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
@@ -50,7 +50,7 @@ export default function Terms() {
         }
         const data = await response.json();
         setHead(data.member['name'])
-        setActiveFamily(data.member['descendantOf'])
+        // setActiveFamily(data.member['descendantOf'])
         setModeratorList(data.moderators)
         setPassword(data.password)
 
@@ -182,8 +182,8 @@ export default function Terms() {
             </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-          {showLogin && <SwitchLoginList activeFamily={activeFamily} setActiveFamily={setActiveFamily} setRefetch={setRefetch} />}
-          {showLogout && <LogoutList activeFamily={activeFamily} />}
+          {showLogin && <SwitchLoginList setRefetch={setRefetch} />}
+          {showLogout && <LogoutList />}
         </SlidePanel>
       </div>
     </div>

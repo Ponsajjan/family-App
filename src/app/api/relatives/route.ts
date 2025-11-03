@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 
     const members = await prisma.member.findMany({
       where: {
-        descendantOf: forDescendanceOf,
+        authId: authId,
         ...(searchQuery && {
           name: {
             contains: searchQuery,
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
         phoneNumber: true,
         father: { select: { name: true } },
         mother: { select: { name: true } },
-        partner: { select: { name: true } },
+        // partner: { select: { name: true } },
       },
       orderBy: { name: "asc" },
       skip,
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     // Total count for pagination
     const totalCount = await prisma.member.count({
       where: {
-        descendantOf: forDescendanceOf,
+        authId: authId,
         ...(searchQuery && {
           name: {
             contains: searchQuery,

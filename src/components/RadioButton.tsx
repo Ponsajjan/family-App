@@ -17,7 +17,7 @@ const Radio: React.FC<RadioProps> = ({
       <input
         type="radio"
         disabled={disabled}
-        className={`border border-border_active rounded-full ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+        className={`appearance-none rounded-full w-3 h-3 outline outline-1 outline-[--text_color] outline-offset-2 bg-[--main_background] checked:bg-gray-900 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
         {...restProps}
       />
       {label && <span className="text-sm font-medium">{label}</span>}

@@ -39,7 +39,7 @@ export default function LoginForm() {
             setMessage("Submitting...");
             const result = await login(formData);
             if (result.success && result.token) {
-                storeLoginValues(result.token, result.userType, result.forDescendanceOf);
+                storeLoginValues(result.token, result.userType, result.mainMemberNameRef);
             } else {
                 setMessage(result.error || "Login failed");
                 if (result.error === "Invalid credential") {

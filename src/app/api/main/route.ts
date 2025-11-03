@@ -11,14 +11,14 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const id = decoded.authId;
     const memberId = decoded.memberId
-    if (!forDescendanceOf) {
+    if (!id) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const authRecord = await prisma.auth.findUnique({
-      where: { forDescendanceOf },
+      where: { id },
       select: {
         members: {
           where: { id: memberId },
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      cacheStrategy: { 
+      cacheStrategy: {
         ttl: 60 * 20,
         swr: 30
       }, // Cache for 10 minutes

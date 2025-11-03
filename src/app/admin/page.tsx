@@ -21,7 +21,7 @@ export default function Relatives() {
   const [data, setData] = useState<AuthEntry[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const {logout, access} = useAuth();
+  const { logout, access } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 25,
@@ -70,13 +70,13 @@ export default function Relatives() {
       }
 
       const result: ApiResponse = await response.json();
-      
+
       if (isLoadMore) {
         setData(prev => [...prev, ...result.data]);
       } else {
         setData(result.data);
       }
-      
+
       setHasMore(result.pagination.hasNext);
     } catch (error: any) {
       toast?.show(error.message || 'Error fetching data', "error", 5000);
@@ -160,7 +160,7 @@ export default function Relatives() {
               {data?.map((row: AuthEntry, rowIndex: number) => (
                 <div key={row.id || rowIndex} className="pl-4 pr-3">
                   <div className="py-0.5">
-                    <div 
+                    <div
                       onClick={() => handleShowDetails(row)}
                       className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color hover:bg-field_color/80 transition-colors"
                     >
@@ -179,10 +179,10 @@ export default function Relatives() {
               <div className="h-10 px-4 py-2">
                 {loading && <p className="px-4 text-text_color">Loading...</p>}
                 {loadingMore && <p className="px-4 text-text_color">Loading more...</p>}
-                {(!loading && data.length === 0 && !searchInput) && 
+                {(!loading && data.length === 0 && !searchInput) &&
                   <p className="p-4 text-text_color">No credentials available</p>
                 }
-                {(!loading && data.length === 0 && searchInput) && 
+                {(!loading && data.length === 0 && searchInput) &&
                   <p className="p-4 text-text_color">No credentials found for &lsquo;{params.search}&lsquo;</p>
                 }
                 {!loading && !hasMore && data.length > 0 && <p className="text-text_color py-4">, , ,</p>}
@@ -190,7 +190,7 @@ export default function Relatives() {
             </div>
           </div>
         </div>
-        
+
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails}>
           {selectedMember && (
             <Details selectedMember={selectedMember} />

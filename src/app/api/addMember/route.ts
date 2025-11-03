@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
   }
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     // Utility function to capitalize words
@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
 
     // Prepare member data
     const member = {
+      authId: authId,
       name: capitalizeWords(formData.name),
-      descendantOf: forDescendanceOf,
       gender: formData.gender,
       birthDate: formData.birthDate ? formatTwoDigits(formData.birthDate) : null,
       birthMonth: formData.birthMonth ? formatTwoDigits(formData.birthMonth) : null,

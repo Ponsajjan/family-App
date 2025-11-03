@@ -26,9 +26,9 @@ export async function GET(request: NextRequest) {
 
     try {
         const decoded = await verifyToken(token);
-        const forDescendanceOf = decoded.forDescendanceOf;
+        const authId = decoded.authId;
 
-        if (!forDescendanceOf) {
+        if (!authId) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
         // Fetch data from Prisma
         const members = await prisma.member.findMany({
             where: {
-                descendantOf: forDescendanceOf,
+                authId: authId,
                 verified: true,
                 OR: [
                     { birthMonth: month },
