@@ -7,7 +7,6 @@ import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
-import { useRouter } from "next/navigation";
 import Details from "./Details";
 import { ApiResponse, AuthEntry } from "@/types/admin/types";
 
@@ -166,7 +165,6 @@ export default function Relatives() {
                     >
                       <div className="w-full">
                         <div
-                          className="md:font-medium md:text-lg"
                           dangerouslySetInnerHTML={{
                             __html: highlightText(row.credential, params.search),
                           }}

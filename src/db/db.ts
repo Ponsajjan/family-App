@@ -3,10 +3,15 @@
 import { PrismaClient } from '@prisma/client'
 import dotenv from 'dotenv';
 import { withAccelerate } from '@prisma/extension-accelerate';
+import databaseConfig from '../config/database.js';
 dotenv.config();
 
 const prismaClientSingleton = () => {
-  return new PrismaClient().$extends(withAccelerate())
+  console.log('lebron james', databaseConfig.url)
+  return new PrismaClient({
+    datasourceUrl: databaseConfig.url,
+
+  }).$extends(withAccelerate())
 }
 
 declare const globalThis: {
