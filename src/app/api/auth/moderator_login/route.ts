@@ -8,15 +8,15 @@ export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json();
     const token = request.cookies.get("token")?.value;
-    
+
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (!authId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     if (!password) {
       return NextResponse.json(
@@ -25,11 +25,11 @@ export async function POST(request: NextRequest) {
       );
     }
     // Try finding the password in the database
-    const login = await prisma.auth.findUnique({ 
-      where: { 
+    const login = await prisma.auth.findUnique({
+      where: {
         moderatorPassword: password,
-        forDescendanceOf: forDescendanceOf,
-      }, 
+        id: authId,
+      },
     });
 
     if (!login) {
@@ -41,12 +41,12 @@ export async function POST(request: NextRequest) {
 
     // Generate token
     const newtoken = await generateToken({
-      forDescendanceOf: login.forDescendanceOf,
+      authId: login.id,
       memberId: login.mainMemberId,
       userType: "Moderator",
     });
 
-    return NextResponse.json({ message: "Login successful", newtoken, userType: "Moderator", forDescendanceOf: login.forDescendanceOf }, { status: 200 });
+    return NextResponse.json({ message: "Login successful", newtoken, userType: "Moderator", mainMemberNameRef: login.mainMemberNameRef }, { status: 200 });
 
   } catch (error) {
     console.error("Error logging in:", error);

@@ -42,7 +42,7 @@ export default function AdminSidenav() {
                         <AdminNavLink linkName="Login List" link="/admin" onClick={() => navigateTo("/admin")} />
                         <AdminNavLink linkName="New Login" link="/admin/new_login" onClick={() => navigateTo("/admin/new_login")} />
                     </div>
-                    <button onClick={logout} className="py-2 flex gap-2 items-center justify-center border-y border-border_color">
+                    <button onClick={logout} className="py-2 flex gap-2 items-center justify-center border-t border-border_color">
                         <Logout />
                         <span>Logout</span>
                     </button>

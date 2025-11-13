@@ -7,7 +7,6 @@ import databaseConfig from '../config/database.js';
 dotenv.config();
 
 const prismaClientSingleton = () => {
-  console.log('lebron james', databaseConfig.url)
   return new PrismaClient({
     datasourceUrl: databaseConfig.url,
 

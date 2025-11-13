@@ -48,17 +48,16 @@ model Member {
   // Family relationships
   fatherId            Int? // Foreign key for father
   motherId            Int? // Foreign key for mother
+  partnerId           Int?
 
   nonDescendantRelation nonDescendantRelation[]
 
-  father Member? @relation("FatherOfChildren", fields: [fatherId], references: [id])
-  mother Member? @relation("MotherOfChildren", fields: [motherId], references: [id])
+  father  Member? @relation("FatherOfChildren", fields: [fatherId], references: [id])
+  mother  Member? @relation("MotherOfChildren", fields: [motherId], references: [id])
+  partner Member? @relation("MemberPartners", fields: [partnerId], references: [id])
 
-  // Partnerships: Many-to-many relationships with other members
-  partnerOf   Partnership[] @relation("PartnerOf") // Partnerships where this member is person1
-  partnerWith Partnership[] @relation("PartnerWith") // Partnerships where this member is person2
-
-  // Children having member as father list
+  // One-to-many self-referencing relationship
+  partnerOf Member[] @relation("MemberPartners")
   fatherOf  Member[] @relation("FatherOfChildren")
   motherOf  Member[] @relation("MotherOfChildren")
   auth      Auth     @relation("AuthToMember", fields: [authId], references: [id], onDelete: Cascade)
@@ -66,27 +65,13 @@ model Member {
   updatedAt DateTime @updatedAt
 }
 
-// Join table for many-to-many partnerships between members
-model Partnership {
-  id        Int    @id @default(autoincrement())
-  person1Id Int
-  person2Id Int
-  person1   Member @relation("PartnerOf", fields: [person1Id], references: [id], onDelete: Cascade)
-  person2   Member @relation("PartnerWith", fields: [person2Id], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([person1Id, person2Id])
-}
-
 model RequestDetails {
-  id           Int    @id @default(autoincrement())
-  descendantOf String // for filtering out data
-  type         String // editMember, addRelationShip, EditRelationship,
-  details      String
-  memberId     Int
-  member       Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  authId   Int // for filtering out data
+  type     String // editMember, addRelationShip, EditRelationship,
+  details  String
+  memberId Int
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

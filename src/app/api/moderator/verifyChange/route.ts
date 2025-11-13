@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   // Authentication
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
     return NextResponse.json(
       { error: "Unauthorized" },
@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json(
         { error: "Invalid token" },
         { status: 401 }
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     const [members, totalCount] = await Promise.all([
       prisma.member.findMany({
         where: {
-          descendantOf: forDescendanceOf,
+          authId: authId,
           pendingVerification: { some: {} } // Check for at least one pending verification
         },
         select: {
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
           verified: true,
           father: { select: { name: true } },
           mother: { select: { name: true } },
-          partner: { select: { name: true } },
+          // partner: { select: { name: true } },
           pendingVerification: {
             select: {
               id: true,
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.member.count({
         where: {
-          descendantOf: forDescendanceOf,
+          authId: authId,
           pendingVerification: { some: {} }
         }
       })
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error("Pending verification fetch error:", error);
-    
+
     if (error instanceof Error) {
       // Specific token errors
       if (['JsonWebTokenError', 'TokenExpiredError', 'NotBeforeError'].includes(error.name)) {
@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
           { status: 401 }
         );
       }
-      
+
       // Prisma errors
       if (error.name.startsWith('Prisma')) {
         return NextResponse.json(

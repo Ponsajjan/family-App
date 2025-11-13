@@ -11,17 +11,17 @@ export async function GET(request: NextRequest) {
   const searchQuery = searchParams.get("search") || ""; // Search term
   const filterQuery = searchParams.get("filter") || "";
   const token = request.cookies.get("token")?.value;
-  
+
   if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (!authId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     // Calculate skip for pagination
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     // Fetch paginated data from Prisma
     const memberList = await prisma.member.findMany({
       where: {
-        descendantOf: forDescendanceOf,
+        authId: authId,
         ...(filterCondition !== undefined && { verified: filterCondition }),
         name: {
           contains: searchQuery,
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         verified: true,
         father: { select: { name: true } },
         mother: { select: { name: true } },
-        partner: { select: { name: true } },
+        // partner: { select: { name: true } },
       },
       orderBy: {
         createdAt: 'desc',
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     // Total count for pagination
     const totalCount = await prisma.member.count({
       where: {
-        descendantOf: forDescendanceOf,
+        authId: authId,
         ...(filterCondition !== undefined && { verified: filterCondition }),
         name: {
           contains: searchQuery,

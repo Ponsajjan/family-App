@@ -232,7 +232,7 @@ export async function GET(request: NextRequest) {
       // }),
       ...(forType === "selectPartner" && {
         gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
-        partnerId: null,
+        // partnerId: null,
         id: { notIn: excludeId },
         descendant: descendant === 'true' ? showCousin : undefined,
         // AND: {
@@ -252,7 +252,7 @@ export async function GET(request: NextRequest) {
         OR: [
           { fatherOf: { some: {} } },
           { motherOf: { some: {} } },
-          { partnerId: { not: null } },
+          // { partnerId: { not: null } },
         ],
       }),
     };

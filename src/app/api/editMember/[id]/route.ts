@@ -313,7 +313,7 @@ export async function PUT(request: NextRequest) {
 
         await prisma.requestDetails.create({
           data: {
-            descendantOf: authId,
+            authId: authId,
             type: "Edit Member",
             details: JSON.stringify(requestDetails),
             memberId: memberId,

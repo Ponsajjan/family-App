@@ -7,15 +7,15 @@ import RadioButton from "@/components/RadioButton";
 import { useToast } from '../Toast';
 
 function EditMemberForm({
-        handleSubmit,
-        formData,
-        setShowList,
-        handleInputChange,
-        errors,
-        allowedEdit,
-        submitting,
-        head
-    }: any) {
+    handleSubmit,
+    formData,
+    setShowList,
+    handleInputChange,
+    errors,
+    allowedEdit,
+    submitting,
+    head
+}: any) {
 
     const toast = useToast();
     const showWarning = (input: string) => {
@@ -23,10 +23,10 @@ function EditMemberForm({
     }
 
     const getCurrentISTYear = () => {
-      return new Date().toLocaleString("en-US", {
-        timeZone: "Asia/Kolkata",
-        year: "numeric",
-      });
+        return new Date().toLocaleString("en-US", {
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+        });
     };
 
     const currentYear = parseInt(getCurrentISTYear(), 10);
@@ -36,10 +36,10 @@ function EditMemberForm({
 
     return (
         <form className="text-text_color relative" onSubmit={handleSubmit}>
-            {!formData.id  && <div onClick={() => setShowList(true)} className={`absolute inset-0 z-10`}></div>}
+            {!formData.id && <div onClick={() => setShowList(true)} className={`absolute inset-0 z-10`}></div>}
             <div className="w-full">
                 <span className="text-sm font-medium">Name</span>
-                <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!formData.id  && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
+                <div className={`border border-border_color z-0 rounded-md overflow-hidden bg-field_color flex items-center relative ${!formData.id && 'outline-2 outline-dashed outline-offset-2 outline-border_active'}`}>
                     <input
                         className={`p-2 outline-none focus:border-border_active text-sm w-full bg-field_color disabled:cursor-not-allowed`}
                         type="text"
@@ -62,14 +62,14 @@ function EditMemberForm({
                     name="gender"
                     value="Male"
                     checked={formData.gender === "Male"}
-                    onChange={allowedEdit.editGender ? () => {showWarning('gender')} : handleInputChange}
+                    onChange={allowedEdit.editGender ? () => { showWarning('gender') } : handleInputChange}
                 />
                 <RadioButton
                     label="Female"
                     name="gender"
                     value="Female"
                     checked={formData.gender === "Female"}
-                    onChange={allowedEdit.editGender ? () => {showWarning('gender')} : handleInputChange}
+                    onChange={allowedEdit.editGender ? () => { showWarning('gender') } : handleInputChange}
                 />
             </div>
             <div>
@@ -107,7 +107,7 @@ function EditMemberForm({
                 </div>
                 {(errors.birth_day) && (
                     <p className="text-red-500 text-sm mt-2">
-                    {errors.birth_day}
+                        {errors.birth_day}
                     </p>
                 )}
             </div>
@@ -155,21 +155,21 @@ function EditMemberForm({
                         />
                     </div>
                     {(errors.death_day) && (
-                    <p className="text-red-500 text-sm mt-2">
-                        {errors.death_day}
-                    </p>
+                        <p className="text-red-500 text-sm mt-2">
+                            {errors.death_day}
+                        </p>
                     )}
                 </div>
             </div>
             <div className='mb-2'>
                 <Input
-                type="text"
-                name="phone_number"
-                label="Phone Number"
-                maxLength={25}
-                value={formData.phone_number || ''}
-                error={errors.phone_number}
-                onChange={handleInputChange}
+                    type="text"
+                    name="phone_number"
+                    label="Phone Number"
+                    maxLength={25}
+                    value={formData.phone_number || ''}
+                    error={errors.phone_number}
+                    onChange={handleInputChange}
                 />
             </div>
             <Input
@@ -196,49 +196,49 @@ function EditMemberForm({
             <div className="flex justify-start items-center gap-4">
                 <p className="text-sm font-medium">{head ? `${head}` : 'Family'} descendant:</p>
                 {["Yes", "No"].map((option) => (
-                <RadioButton
-                    key={option}
-                    label={option}
-                    name="descendant"
-                    value={option} // "Yes" maps to true, "No" maps to false
-                    checked={formData.descendant === option }
-                    onChange={allowedEdit.editDescendant ? () => {showWarning('descendancy')} : handleInputChange }
-                />
+                    <RadioButton
+                        key={option}
+                        label={option}
+                        name="descendant"
+                        value={option} // "Yes" maps to true, "No" maps to false
+                        checked={formData.descendant === option}
+                        onChange={allowedEdit.editDescendant ? () => { showWarning('descendancy') } : handleInputChange}
+                    />
                 ))}
             </div>
-            {formData?.descendant === 'No' && 
-            <div className="p-2 mt-4 border border-border_color rounded-lg">
-                <div className="flex gap-2 mb-2">
-                    <div>
-                        <Input
-                        showOptional={true}
-                        name="father"
-                        label="Father"
-                        value={formData.father || ''}
-                        onChange={handleInputChange}
-                        />
+            {formData?.descendant === 'No' &&
+                <div className="p-2 mt-4 border border-border_color rounded-lg">
+                    <div className="flex gap-2 mb-2">
+                        <div>
+                            <Input
+                                showOptional={true}
+                                name="father"
+                                label="Father"
+                                value={formData.father || ''}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div>
+                            <Input
+                                showOptional={true}
+                                name="mother"
+                                label="Mother"
+                                value={formData.mother || ''}
+                                onChange={handleInputChange}
+                            />
+                        </div>
                     </div>
                     <div>
                         <Input
-                        showOptional={true}
-                        name="mother"
-                        label="Mother"
-                        value={formData.mother || ''}
-                        onChange={handleInputChange}
+                            showOptional={true}
+                            name="siblings"
+                            label="Siblings"
+                            placeholder="Name1, Name2, ..."
+                            value={formData.siblings || ''}
+                            onChange={handleInputChange}
                         />
                     </div>
-                </div>
-                <div>
-                    <Input
-                        showOptional={true}
-                        name="siblings"
-                        label="Siblings"
-                        placeholder="Name1, Name2, ..."
-                        value={formData.siblings || ''}
-                        onChange={handleInputChange}
-                    />
-                </div>
-            </div>}
+                </div>}
             <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Updating..." : "Update Details"} />
         </form>
     )

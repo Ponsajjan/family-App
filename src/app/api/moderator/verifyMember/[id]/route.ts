@@ -55,13 +55,14 @@ export async function GET(request: NextRequest) {
   try {
     // Authentication
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
-    if (!forDescendanceOf) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-
+    const authId = decoded.authId;
+    if (!authId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
     // Fetch data in parallel using transaction
     const [member, siblings] = await prisma.$transaction([
       prisma.member.findUnique({
-        where: { id, descendantOf: forDescendanceOf },
+        where: { id, authId: authId },
         select: {
           id: true,
           name: true,
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
           descendant: true,
           father: { select: { id: true, name: true, verified: true } },
           mother: { select: { id: true, name: true, verified: true } },
-          partner: { select: { name: true, verified: true } },
+          // partner: { select: { name: true, verified: true } },
           fatherOf: { select: { name: true, order: true, verified: true }, orderBy: { order: 'asc' } },
           motherOf: { select: { name: true, order: true, verified: true }, orderBy: { order: 'asc' } },
           nonDescendantRelation: {
@@ -97,7 +98,7 @@ export async function GET(request: NextRequest) {
             { motherId: { not: null, in: await getParentIds(id) } }
           ],
           id: { not: id },
-          descendantOf: forDescendanceOf
+          authId: authId
         },
         select: { name: true, order: true, verified: true },
         orderBy: { order: 'asc' },
@@ -219,10 +220,10 @@ export async function PATCH(request: NextRequest) {
     if (decoded.userType !== "Moderator") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
     const mainMemberId = decoded.memberId
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -233,7 +234,7 @@ export async function PATCH(request: NextRequest) {
     const member = await prisma.member.findUnique({
       where: {
         id: memberId,
-        descendantOf: forDescendanceOf
+        authId: authId
       },
       select: {
         verified: true
@@ -297,10 +298,10 @@ export async function DELETE(request: NextRequest) {
     if (decoded.userType !== "Moderator") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
     const mainMemberId = decoded.memberId
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -312,7 +313,7 @@ export async function DELETE(request: NextRequest) {
     const member = await prisma.member.findUnique({
       where: {
         id: memberId,
-        descendantOf: forDescendanceOf
+        authId: authId
       },
       select: {
         verified: true

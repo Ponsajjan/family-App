@@ -21,9 +21,10 @@ export async function POST(request: NextRequest) {
     // Utility function to capitalize words
     const capitalizeWords = (name: string) => {
       return name
-        .replace(/\b\w/g, (char) => char.toUpperCase())
-        .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .replace(/,\s*\w/g, (char) => char.toUpperCase());
+        .trim() // Remove spaces from beginning and end
+        .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+        .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter of each word
+        .replace(/,\s*\w/g, (match) => match.toUpperCase()); // Capitalize letters after commas
     };
 
     // Utility function to format two digits

@@ -1,10 +1,5 @@
 
-console.log('hello kitty1', process.env.NODE_ENV)
-console.log('hello kitty2', process.env.SQLITE_DB_PATH)
-console.log('hello kitty3', process.env.DATABASE_URL)
-console.log('hello kitty4', process.env.NODE_ENV)
-
-const isProduction = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
 
 const databaseConfig = {
     type: isProduction ? 'postgresql' : 'sqlite',
@@ -16,7 +11,7 @@ const databaseConfig = {
     postgresql: {
         url:
             process.env.DATABASE_URL ||
-            'postgresql://user:pass@localhost:5432/db',
+            '',
     },
     url: '',
 };
@@ -28,5 +23,3 @@ databaseConfig.url =
         : databaseConfig.postgresql.url;
 
 export default databaseConfig;
-console.log('hello kitty5', databaseConfig)
-

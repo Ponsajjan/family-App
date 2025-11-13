@@ -57,7 +57,7 @@ export async function login(formData: FormData) {
                 moderatorName: "Admin",
                 moderatorContact: "N/A",
                 moderatorPassword: "N/A",
-                mainMemberNameRef: "SuperAdmin"
+                mainMemberNameRef: "SuperAdmin_007"
             };
         }
 
@@ -80,6 +80,7 @@ export async function login(formData: FormData) {
             memberId: login.mainMemberId,
             userType: login.moderatorName === "Admin" ? "Admin" : "Member"
         });
+
         const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
         return {

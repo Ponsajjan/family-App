@@ -11,23 +11,23 @@ export async function GET(request: NextRequest) {
   }
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    if (!authId) {
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const unverifiedCount = await prisma.member.count({
       where: {
-        descendantOf: forDescendanceOf,
+        authId: authId,
         verified: false,
       },
     });
 
     const pendingRequestCount = await prisma.requestDetails.count({
       where: {
-        descendantOf: forDescendanceOf,
-      }, 
+        authId: authId,
+      },
     });
 
     return NextResponse.json({
