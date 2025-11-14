@@ -18,16 +18,16 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const dbData: any = await prisma.member.findUnique({
       where: {
         id: id,
-        descendantOf: forDescendanceOf
+        authId: authId
       },
       select: {
         id: true,
@@ -126,9 +126,9 @@ export async function PUT(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -138,7 +138,7 @@ export async function PUT(request: NextRequest) {
     const member = await prisma.member.findUnique({
       where: {
         id: memberId,
-        descendantOf: forDescendanceOf
+        authId: authId
       },
       select: {
         name: true,
@@ -180,7 +180,7 @@ export async function PUT(request: NextRequest) {
     if (hasVerified) {
       await prisma.requestDetails.create({
         data: {
-          descendantOf: forDescendanceOf,
+          authId: authId,
           type: "Edit Relationship", // Type of request
           details: JSON.stringify({ deleteData, hasPartner, childrenOrder }), // Store the update data as a JSON string
           memberId: memberId, // Associate the request with the main member

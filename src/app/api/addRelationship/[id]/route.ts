@@ -53,20 +53,20 @@ export async function GET(request: NextRequest) {
             motherOf: true,
           },
         },
-        // partner: {
-        //   select: {
-        //     id: true,
-        //     name: true,
-        //     verified: true,
-        //     fatherId: true,
-        //     motherId: true,
-        //   },
-        // },
+        partner: {
+          select: {
+            id: true,
+            name: true,
+            verified: true,
+            fatherId: true,
+            motherId: true,
+          },
+        },
         fatherOf: {
           select: {
             id: true,
             name: true,
-            // partnerId: true,
+            partnerId: true,
             order: true,
           },
         },
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            // partnerId: true,
+            partnerId: true,
             order: true,
           },
         },
@@ -110,16 +110,16 @@ export async function GET(request: NextRequest) {
       gender: dbData.gender,
       verified: dbData.verified, // || dbData.partner?.verified,
       descendant: dbData.descendant,
-      // partner: dbData.partner,
+      partner: dbData.partner,
       childrenData: childrenData,
       pendingVerification: dbData.pendingVerification?.length,
       excludeIds: [
         dbData?.id ? dbData.id : null,
         dbData.father?.id ? dbData.father?.id : null,
         dbData.mother?.id ? dbData.mother?.id : null,
-        // dbData.partner?.id ? dbData.partner.id : null,
-        // dbData.partner?.fatherId ? dbData.partner?.fatherId : null,
-        // dbData.partner?.motherId ? dbData.partner?.motherId : null,
+        dbData.partner?.id ? dbData.partner.id : null,
+        dbData.partner?.fatherId ? dbData.partner?.fatherId : null,
+        dbData.partner?.motherId ? dbData.partner?.motherId : null,
         ...(siblingData ? siblingData.map((sibling: any) => sibling.id) : []),
         ...(childrenData ? childrenData.map((child: any) => child.id) : []),
         ...(childrenData ? childrenData.map((child: any) => child.partnerId) : []),
@@ -190,15 +190,15 @@ export async function PUT(request: NextRequest) {
       select: {
         fatherOf: { select: { id: true } },
         motherOf: { select: { id: true } },
-        // partnerId: true
+        partnerId: true
       }
     });
 
     if (!currentMember) return NextResponse.json({ error: "Member not found" }, { status: 404 });
 
-    // if (!currentMember.partnerId && !updatedData.partnerId) {
-    //   return NextResponse.json({ error: "Partner not defined" }, { status: 400 })
-    // }
+    if (!currentMember.partnerId && !updatedData.partnerId) {
+      return NextResponse.json({ error: "Partner not defined" }, { status: 400 })
+    }
 
     // Handle Verified Relationships
     if (verifiedMembers.length > 0) {
@@ -220,20 +220,20 @@ export async function PUT(request: NextRequest) {
         updatedData.motherOf
       );
 
-      // if (Object.values(newRelationships).some(Boolean)) {
-      //   await prisma.requestDetails.create({
-      //     data: {
-      //       authId: authId,
-      //       type: "Add Relationship",
-      //       details: JSON.stringify(newRelationships),
-      //       memberId: memberId,
-      //     },
-      //   });
-      //   return NextResponse.json({
-      //     success: true,
-      //     message: "New relationships added for verification",
-      //   });
-      // }
+      if (Object.values(newRelationships).some(Boolean)) {
+        await prisma.requestDetails.create({
+          data: {
+            authId: authId,
+            type: "Add Relationship",
+            details: JSON.stringify(newRelationships),
+            memberId: memberId,
+          },
+        });
+        return NextResponse.json({
+          success: true,
+          message: "New relationships added for verification",
+        });
+      }
       return NextResponse.json({
         success: true,
         message: "No new relationships to update",
@@ -262,14 +262,14 @@ export async function PUT(request: NextRequest) {
       ...(updatedData.motherOf || []).map(({ id, order }) =>
         prisma.member.update({ where: { id }, data: { order } })
       ),
-      // ...(updatedData.partnerId ? [prisma.member.update({
-      //   where: { id: updatedData.partnerId },
-      //   data: {
-      //     partnerId: memberId,
-      //     ...(updatedData.fatherOf && { motherOf: { connect: updatedData.fatherOf.map(({ id }) => ({ id })) } }),
-      //     ...(updatedData.motherOf && { fatherOf: { connect: updatedData.motherOf.map(({ id }) => ({ id })) } })
-      //   }
-      // })] : [])
+      ...(updatedData.partnerId ? [prisma.member.update({
+        where: { id: updatedData.partnerId },
+        data: {
+          partnerId: memberId,
+          ...(updatedData.fatherOf && { motherOf: { connect: updatedData.fatherOf.map(({ id }) => ({ id })) } }),
+          ...(updatedData.motherOf && { fatherOf: { connect: updatedData.motherOf.map(({ id }) => ({ id })) } })
+        }
+      })] : [])
     ]);
 
     revalidatePath('/api/relatives');

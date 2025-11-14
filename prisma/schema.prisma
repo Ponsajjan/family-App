@@ -52,15 +52,17 @@ model Member {
 
   nonDescendantRelation nonDescendantRelation[]
 
-  father  Member? @relation("FatherOfChildren", fields: [fatherId], references: [id])
-  mother  Member? @relation("MotherOfChildren", fields: [motherId], references: [id])
-  partner Member? @relation("MemberPartners", fields: [partnerId], references: [id])
+  father Member? @relation("FatherOfChildren", fields: [fatherId], references: [id])
+  mother Member? @relation("MotherOfChildren", fields: [motherId], references: [id])
 
-  // One-to-many self-referencing relationship
-  partnerOf Member[] @relation("MemberPartners")
-  fatherOf  Member[] @relation("FatherOfChildren")
-  motherOf  Member[] @relation("MotherOfChildren")
-  auth      Auth     @relation("AuthToMember", fields: [authId], references: [id], onDelete: Cascade)
+  // get Partner Pair values One-to-many self-referencing relationship
+  partner   Member?  @relation("PartnerRelation", fields: [partnerId], references: [id])
+  partnerOf Member[] @relation("PartnerRelation") // Opposite relation for partner
+
+  fatherOf Member[] @relation("FatherOfChildren")
+  motherOf Member[] @relation("MotherOfChildren")
+  auth     Auth     @relation("AuthToMember", fields: [authId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

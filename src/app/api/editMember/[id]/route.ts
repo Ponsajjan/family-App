@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
         deathMonth: true,
         deathYear: true,
         descendant: true,
-        // partnerId: true,
+        partnerId: true,
         fatherId: true,
         motherId: true,
         fatherOf: true,
@@ -102,8 +102,8 @@ export async function GET(request: NextRequest) {
         siblings: member.nonDescendantRelation?.[0]?.siblingNames,
       },
       allowEdit: {
-        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 // || member.partnerId,
-        // editDescendant: member.fatherId || member.motherId || member.id == mainMemberId,
+        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
+        editDescendant: member.fatherId || member.motherId || member.id == mainMemberId,
       },
     };
 
@@ -179,11 +179,11 @@ export async function PUT(request: NextRequest) {
         descendant: true,
         father: true,
         mother: true,
-        // partner: true,
+        partner: true,
         fatherOf: true,
         motherOf: true,
         verified: true,
-        // partnerId: true,
+        partnerId: true,
         fatherId: true,
         motherId: true,
         nonDescendantRelation: {
@@ -204,17 +204,17 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // if (member.partner) {
-    //   const currentGender = member.gender;
-    //   const updatedGender = updatedData.gender;
+    if (member.partner) {
+      const currentGender = member.gender;
+      const updatedGender = updatedData.gender;
 
-    //   if (updatedGender && (currentGender !== updatedGender)) {
-    //     return NextResponse.json(
-    //       { error: "Gender mismatch: Cannot update gender." },
-    //       { status: 400 }
-    //     );
-    //   }
-    // }
+      if (updatedGender && (currentGender !== updatedGender)) {
+        return NextResponse.json(
+          { error: "Gender mismatch: Cannot update gender." },
+          { status: 400 }
+        );
+      }
+    }
 
     if (member.fatherOf.length > 0 || member.motherOf.length > 0) {
       const currentGender = member.gender;

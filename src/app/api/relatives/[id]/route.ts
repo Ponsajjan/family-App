@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
           descendant: true,
           father: { select: { id: true, name: true } },
           mother: { select: { id: true, name: true } },
-          // partner: { select: { name: true } },
+          partner: { select: { name: true } },
           fatherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
           motherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
           nonDescendantRelation: {

@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
         phoneNumber: true,
         father: { select: { name: true } },
         mother: { select: { name: true } },
-        // partner: { select: { name: true } },
+        partner: { select: { name: true } },
       },
       orderBy: { name: "asc" },
       skip,

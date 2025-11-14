@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         .trim() // Remove spaces from beginning and end
         .replace(/\s+/g, ' ') // Replace multiple spaces with single space
         .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter of each word
-        .replace(/,\s*\w/g, (match) => match.toUpperCase()); // Capitalize letters after commas
+        .replace(/,\s*\w/g, (match: string) => match.toUpperCase()); // Capitalize letters after commas
     };
 
     // Utility function to format two digits
