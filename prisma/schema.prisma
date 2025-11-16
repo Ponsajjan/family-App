@@ -42,6 +42,7 @@ model Member {
   address             String?
   occupation          String?
   education           String?
+  additionalInfo      String?
   pendingVerification RequestDetails[]
   descendant          Boolean          @default(false)
   order               Int              @default(1) // Order of the member in the family tree

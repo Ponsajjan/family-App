@@ -2,6 +2,7 @@
 import { ChangeMember, Info } from '@/utils/Icons'
 import React from 'react'
 import Input from '@/components/Input'
+import TextArea from '@/components/TextArea'
 import { ButtonSolid } from '@/components/Button'
 import RadioButton from "@/components/RadioButton";
 import { useToast } from '../Toast';
@@ -191,6 +192,13 @@ function EditMemberForm({
                 label="Address State/Country"
                 name="address"
                 value={formData.address || ''}
+                onChange={handleInputChange}
+            />
+            <TextArea
+                className="mb-4"
+                label="Additional Info"
+                name="additionalInfo"
+                value={formData.additionalInfo || ''}
                 onChange={handleInputChange}
             />
             <div className="flex justify-start items-center gap-4">

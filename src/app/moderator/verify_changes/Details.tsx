@@ -6,10 +6,10 @@ import { Approved, CloseIcon, NavIconVerified, Rejected } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-const ChangeRequestView = ({ 
-  showDetailsFor, 
-  setShowDetails, 
-  currentDetailIndex, 
+const ChangeRequestView = ({
+  showDetailsFor,
+  setShowDetails,
+  currentDetailIndex,
   setCurrentDetailIndex,
   setShowDetailsFor,
   setChangeList,
@@ -28,9 +28,9 @@ const ChangeRequestView = ({
     const updatedRequests = showDetailsFor.filter(
       (_: any, index: number) => index !== currentDetailIndex
     );
-    
+
     setShowDetailsFor(updatedRequests);
-    
+
     // If no more requests, clean up
     if (updatedRequests.length === 0) {
       setChangeList((prev: any) => prev.filter((item: any) => item.id !== memberId));
@@ -68,22 +68,22 @@ const ChangeRequestView = ({
         setDisableButton(false);
         setLoading(true);
         setRequestStatus('pending');
-        
+
         const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[validIndex].id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
           },
         });
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch request");
         }
-        
+
         const result = await response.json();
         setData(result.data);
-      } catch (error:any) {
+      } catch (error: any) {
         console.error('Error fetching data:', error);
         setError(error.message || 'Unknown error occurred');
       } finally {
@@ -94,7 +94,7 @@ const ChangeRequestView = ({
     if (showDetailsFor) {
       fetchData();
     }
-    
+
   }, [showDetailsFor, currentDetailIndex, memberId, setChangeList, setCurrentDetailIndex]);
 
   const handleNext = () => {
@@ -116,7 +116,7 @@ const ChangeRequestView = ({
       if (!data?.submitData || !showDetailsFor[currentDetailIndex]?.id) {
         throw new Error("Invalid request data");
       }
-      
+
       const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
         method: 'PUT',
         headers: {
@@ -130,19 +130,21 @@ const ChangeRequestView = ({
         toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
       }
-      
+
+      const result = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update member");
+        // Use the detailed message from your error response
+        const errorMessage = result.message || result.error || "Failed to update relationship";
+        toast?.show(errorMessage, "error", 9000);
+        return;
       }
-      
-      // const result = await response.json();
-      // toast?.show(result.message || "Change verification approved", "success", 5000);
+
+      // Success case
+      toast?.show(result.message || "Change verification approved", "success", 5000);
       setRequestStatus('approved');
-      
-      // Show status for 2 second before removing
       setTimeout(processRequestRemoval, 2000);
-      
+
     } catch (error: any) {
       console.error("error", error);
       toast?.show(error.message || "Error handling verification", "error", 5000);
@@ -167,19 +169,19 @@ const ChangeRequestView = ({
         toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
       }
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to reject request");
       }
-      
+
       // const result = await response.json();
       // toast?.show(result.message || "Change verification rejected", "success", 5000);
       setRequestStatus('rejected');
-      
+
       // Show status for 2 second before removing
       setTimeout(processRequestRemoval, 2000);
-      
+
     } catch (error: any) {
       console.error("error", error);
       toast?.show(error.message || "Error handling verification", "error", 5000);
@@ -187,7 +189,7 @@ const ChangeRequestView = ({
       setDisableButton(false);
     }
   };
-  
+
   if (!showDetailsFor || showDetailsFor.length === 0) return <div className='p-4'>No pending requests</div>;
   if (!data && !loading) return <div className='p-4 loading-text'>No data found</div>;
 
@@ -196,7 +198,7 @@ const ChangeRequestView = ({
       <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
         <CloseIcon />
       </div>
-      
+
       <div className='flex justify-between items-center'>
         <div className='text-xl font-semibold mb-2 flex gap-2'>
           <span><NavIconVerified /></span>
@@ -206,29 +208,27 @@ const ChangeRequestView = ({
           <div className='flex mr-10'>
             <button
               disabled={loading || disableButton || currentDetailIndex === 0}
-              className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${
-                currentDetailIndex === 0 || loading || disableButton 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : ''
-              }`}
+              className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${currentDetailIndex === 0 || loading || disableButton
+                ? 'opacity-50 cursor-not-allowed'
+                : ''
+                }`}
               onClick={handlePrevious}
             >{`<`}</button>
-            
+
             <span>{currentDetailIndex + 1}/{showDetailsFor.length}</span>
-            
+
             <button
               disabled={loading || disableButton || currentDetailIndex === showDetailsFor.length - 1}
-              className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${
-                currentDetailIndex === showDetailsFor.length - 1 || loading || disableButton 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : ''
-              }`}
+              className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${currentDetailIndex === showDetailsFor.length - 1 || loading || disableButton
+                ? 'opacity-50 cursor-not-allowed'
+                : ''
+                }`}
               onClick={handleNext}
             >{`>`}</button>
           </div>
         )}
       </div>
-      
+
       {loading ? (
         <Loading />
       ) : (
@@ -242,16 +242,16 @@ const ChangeRequestView = ({
             </div>
           </div>
           <div className='flex flex-col mt-6 gap-2'>
-            <HoldButton 
-              disabled={disableButton || requestStatus !== 'pending'} 
-              buttonText='Approve changes' 
+            <HoldButton
+              disabled={disableButton || requestStatus !== 'pending'}
+              buttonText='Approve changes'
               onClick={handleApproveChanges}
             />
-            <HoldButton 
-              disabled={disableButton || requestStatus !== 'pending'} 
-              type='outline' 
-              buttonText='Reject changes' 
-              onClick={handleRejectChanges} 
+            <HoldButton
+              disabled={disableButton || requestStatus !== 'pending'}
+              type='outline'
+              buttonText='Reject changes'
+              onClick={handleRejectChanges}
             />
           </div>
         </>

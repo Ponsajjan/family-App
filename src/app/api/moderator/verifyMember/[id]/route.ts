@@ -41,6 +41,9 @@ interface MemberResponse {
     education?: string;
   };
   descendant?: boolean;
+  additionalInformation?: {
+    additionalInfo?: string;
+  };
 }
 
 export async function GET(request: NextRequest) {
@@ -82,12 +85,13 @@ export async function GET(request: NextRequest) {
           descendant: true,
           father: { select: { id: true, name: true, verified: true } },
           mother: { select: { id: true, name: true, verified: true } },
-          // partner: { select: { name: true, verified: true } },
+          partner: { select: { name: true, verified: true } },
           fatherOf: { select: { name: true, order: true, verified: true }, orderBy: { order: 'asc' } },
           motherOf: { select: { name: true, order: true, verified: true }, orderBy: { order: 'asc' } },
           nonDescendantRelation: {
             select: { fatherName: true, motherName: true, siblingNames: true }
           },
+          additionalInfo: true
         },
       }),
       // Fetch siblings in parallel
@@ -114,6 +118,7 @@ export async function GET(request: NextRequest) {
       relationInformation: buildRelationInfo(member, siblings),
       contactInformation: buildContactInfo(member),
       personalInformation: buildPersonalInfo(member),
+      additionalInformation: buildAdditionalInfo(member),
       ...(member.descendant !== undefined && { descendant: member.descendant })
     };
 
@@ -198,6 +203,13 @@ function buildPersonalInfo(member: any) {
     ...(member.education && { education: member.education })
   } : undefined;
 }
+
+function buildAdditionalInfo(member: any) {
+  return member.additionalInfo ? {
+    additionalInfo: member.additionalInfo
+  } : undefined;
+}
+
 
 export async function PATCH(request: NextRequest) {
   const url = new URL(request.url);

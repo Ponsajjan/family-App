@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 function LogoutList() {
     const [accounts, setAccounts] = useState<string[]>([]);
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
-    const { mainMemberNameRef: activeFamily } = useAuth();
+    const { mainMemberNameRef } = useAuth();
     const router = useRouter();
 
     // Format account name: replace _ with space, capitalize each word, and remove everything after last _
@@ -93,14 +93,14 @@ function LogoutList() {
             </div>
             <div className='pl-4 pt-4 border-b border-dashed pb-2 pr-[22px] w-full'>
                 <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
-                    <div>{formatAccountName(activeFamily || '')}</div>
+                    <div>{formatAccountName(mainMemberNameRef || '')}</div>
                     <span onClick={logout} className='border-l border-border_color pl-3'>
                         <Logout />
                     </span>
                 </div>
             </div>
             <div className='px-4 py-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
-                {accounts.filter(account => account !== activeFamily).map((account, index) => {
+                {accounts.filter(account => account !== mainMemberNameRef).map((account, index) => {
                     const formattedName = formatAccountName(account);
                     return (
                         <div key={index} className='py-0.5 w-full'>

@@ -169,6 +169,106 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "No data provided" }, { status: 400 });
     }
 
+    // Enhanced Child Validation - Check if children already have parents
+    const allChildIds = [
+      ...(updatedData.fatherOf?.map(c => c.id) || []),
+      ...(updatedData.motherOf?.map(c => c.id) || [])
+    ];
+
+    if (allChildIds.length > 0) {
+      const childrenWithParents = await prisma.member.findMany({
+        where: {
+          id: { in: allChildIds },
+          OR: [
+            { fatherId: { not: null } },
+            { motherId: { not: null } }
+          ]
+        },
+        select: {
+          id: true,
+          name: true,
+          fatherId: true,
+          motherId: true,
+          father: {
+            select: {
+              id: true,
+              name: true
+            }
+          },
+          mother: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+
+      // Filter children that have conflicting parents
+      const conflictingChildren = childrenWithParents.filter(child => {
+        const isFromFatherOf = updatedData.fatherOf?.some(c => c.id === child.id);
+        const isFromMotherOf = updatedData.motherOf?.some(c => c.id === child.id);
+
+        // If adding as father
+        if (isFromFatherOf) {
+          // Check if child has a different father
+          if (child.fatherId && child.fatherId !== memberId) {
+            return true; // Conflict: Child already has a different father
+          }
+          // Check if child has a different mother (when partner is specified)
+          if (updatedData.partnerId && child.motherId && child.motherId !== updatedData.partnerId) {
+            return true; // Conflict: Child already has a different mother
+          }
+        }
+
+        // If adding as mother
+        if (isFromMotherOf) {
+          // Check if child has a different mother
+          if (child.motherId && child.motherId !== memberId) {
+            return true; // Conflict: Child already has a different mother
+          }
+          // Check if child has a different father (when partner is specified)
+          if (updatedData.partnerId && child.fatherId && child.fatherId !== updatedData.partnerId) {
+            return true; // Conflict: Child already has a different father
+          }
+        }
+
+        return false; // No conflicts
+      });
+
+      if (conflictingChildren.length > 0) {
+        const errorMessages = conflictingChildren.map(child => {
+          const isFromFatherOf = updatedData.fatherOf?.some(c => c.id === child.id);
+          const isFromMotherOf = updatedData.motherOf?.some(c => c.id === child.id);
+
+          if (isFromFatherOf) {
+            if (child.fatherId && child.fatherId !== memberId) {
+              return `${child.name} already has father ${child.father?.name}`;
+            }
+            if (updatedData.partnerId && child.motherId && child.motherId !== updatedData.partnerId) {
+              return `${child.name} already has mother ${child.mother?.name}`;
+            }
+          }
+
+          if (isFromMotherOf) {
+            if (child.motherId && child.motherId !== memberId) {
+              return `${child.name} already has mother ${child.mother?.name}`;
+            }
+            if (updatedData.partnerId && child.fatherId && child.fatherId !== updatedData.partnerId) {
+              return `${child.name} already has father ${child.father?.name}`;
+            }
+          }
+
+          return `${child.name} has parent conflict`;
+        });
+
+        return NextResponse.json({
+          success: false,
+          error: errorMessages.join(', '),
+        }, { status: 400 });
+      }
+    }
+
     // Relationship Validation
     const allIds = [
       memberId,
@@ -205,7 +305,6 @@ export async function PUT(request: NextRequest) {
       const newRelationships: Partial<UpdateData> = {};
 
       newRelationships.partnerId = updatedData.partnerId;
-
 
       const getNewRelationships = (currentIds: number[], updated?: ChildRelation[]) =>
         updated?.filter(child => !currentIds.includes(child.id)) || [];

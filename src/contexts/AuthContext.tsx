@@ -28,10 +28,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Initialize auth state on mount
     const storedToken = getCookie('token') || null;
     const storedAccess = getCookie('access') || null;
-    if (storedToken || storedAccess) {
+    const storedMainMemberNameRef = getCookie('mainMemberNameRef') || null;
+    if (storedToken || storedAccess || storedMainMemberNameRef) {
       setToken(storedToken as string | null);
       setAccess(storedAccess as string | null);
       updateToken(storedToken as string)
+      setMainMemberNameRef(storedMainMemberNameRef as string | null);
     }
     setIsInitialized(true);
 
@@ -46,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set token and access cookies
     document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
     document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
+    document.cookie = `mainMemberNameRef=${mainMemberNameRef}; path=/; max-age=${daysToSeconds};`;
 
     // Get existing logged accounts
     const existingCookie = document.cookie.split('; ')
@@ -124,8 +127,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-//   // Process the value: remove everything after last underscore and replace underscores with spaces
-//   const processedValue = newDescendentFor
-//     .substring(0, newDescendentFor.lastIndexOf("_"))
-//     .replace(/_/g, " ");

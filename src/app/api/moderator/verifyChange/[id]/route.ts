@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     const decoded = await verifyToken(token);
-    if (!decoded?.forDescendanceOf) {
+    if (!decoded?.authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -72,6 +72,7 @@ export async function GET(request: NextRequest) {
         motherId: true,
         fatherOf: true,
         motherOf: true,
+        additionalInfo: true,
         nonDescendantRelation: {
           select: {
             id: true,
@@ -133,13 +134,13 @@ export async function PUT(request: NextRequest) {
   try {
     // Authentication
     const decoded = await verifyToken(token);
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
     if (decoded.userType !== "Moderator") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
@@ -157,7 +158,7 @@ export async function PUT(request: NextRequest) {
     const member = await prisma.member.findUnique({
       where: {
         id: requestData.memberId,
-        descendantOf: forDescendanceOf
+        authId: authId
       },
       select: { id: true, verified: true },
     });
@@ -249,9 +250,9 @@ export async function DELETE(request: NextRequest) {
     if (decoded.userType !== "Moderator") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const forDescendanceOf = decoded.forDescendanceOf;
+    const authId = decoded.authId;
 
-    if (!forDescendanceOf) {
+    if (!authId) {
       return NextResponse.json(
         { error: "Invalid token" },
         { status: 401 }
@@ -262,7 +263,7 @@ export async function DELETE(request: NextRequest) {
     const requestData = await prisma.requestDetails.findUnique({
       where: {
         id: editDataId,
-        descendantOf: forDescendanceOf
+        authId: authId
       },
       select: {
         type: true

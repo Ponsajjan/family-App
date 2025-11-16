@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMemberHeadContext } from "@/contexts/HeadContext";
 import SlidePanel from "@/components/SlidePanel";
 
-export default function EditMemberDetails () {
+export default function EditMemberDetails() {
   const toast = useToast();
   const [showList, setShowList] = useState(false);
   const [editedMember, setEditedMember] = useState('')
@@ -23,14 +23,14 @@ export default function EditMemberDetails () {
   const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
-  const {logout} = useAuth();
-  const {head} = useMemberHeadContext()
+  const { logout } = useAuth();
+  const { head } = useMemberHeadContext()
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
     setShowList(false);
   };
-  
+
   useEffect(() => {
     if (formData.id) {
       const fetchMember = async () => {
@@ -39,7 +39,7 @@ export default function EditMemberDetails () {
           const response = await fetch(`/api/editMember/${formData.id}`,
             {
               method: 'GET',
-              headers: { 
+              headers: {
                 'Content-Type': 'application/json'
               },
             }
@@ -61,7 +61,7 @@ export default function EditMemberDetails () {
           setLoading(false)
         }
       }
-  
+
       fetchMember()
     }
   }, [formData.id, toast, logout]);
@@ -73,12 +73,12 @@ export default function EditMemberDetails () {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" 
-        ? checked 
+      [name]: type === "checkbox"
+        ? checked
         : value,
     }));
     // Clear error when input is updated
-    setErrors((prev) => ({ ...prev, [name]: "" })); 
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,8 +112,9 @@ export default function EditMemberDetails () {
         occupation: formData.occupation?.trimEnd(),
         education: formData.education?.trimEnd(),
         address: formData.address?.trimEnd(),
+        additionalInfo: formData.additionalInfo?.trimEnd(),
         descendant: descendant,
-        father: descendant ? null : formData.father?.trimEnd(), 
+        father: descendant ? null : formData.father?.trimEnd(),
         mother: descendant ? null : formData.mother?.trimEnd(),
         siblings: descendant ? null : formData.siblings?.trimEnd()
       };
@@ -139,29 +140,29 @@ export default function EditMemberDetails () {
       setSubmitting(false);
     }
   };
-  
+
   return (
     <div className="md:flex text-text_color relative">
       <Container className='relative'>
         {(loading || submitting) && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
-            <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">{loading ? 'Loading...' : 'Submitting...'}</p>
-          </div>}
+          <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">{loading ? 'Loading...' : 'Submitting...'}</p>
+        </div>}
         <div className="w-full md:max-w-xl px-4 py-5 md:py-10 mx-auto">
           <div className="mb-3">
             <div className="flex justify-between items-center">
-              <div className="flex items-center">                
+              <div className="flex items-center">
                 <span className="hidden md:block"><EditMember /></span>
                 <Link href={"/add_edit"} className="md:hidden block">
                   <span><BackButton /></span>
                 </Link>
                 <p className="cursor-default text-2xl font-semibold text-text_color underline pl-3">
-                  Edit {editedMember ? editedMember  :'Member'}
+                  Edit {editedMember ? editedMember : 'Member'}
                 </p>
               </div>
             </div>
           </div>
           {(formData.pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color border-dashed rounded-md bg-field_color"><span className='inline-block align-bottom pr-2'><Warning /></span>{formData.pendingVerification} pending verification</p>}
-          <EditMemberForm 
+          <EditMemberForm
             handleSubmit={handleSubmit}
             formData={formData}
             setShowList={setShowList}
@@ -175,13 +176,13 @@ export default function EditMemberDetails () {
         </div>
       </Container>
       <SlidePanel setShowDetails={setShowList} showDetails={showList} >
-        <MemberList 
-          forType={'editMember'} 
-          getSelectedValues={formData} 
-          setSelectedValue={handleSelectedValue} 
-          openList={setShowList} 
+        <MemberList
+          forType={'editMember'}
+          getSelectedValues={formData}
+          setSelectedValue={handleSelectedValue}
+          openList={setShowList}
           multiselect={false}
-          descendant={null} 
+          descendant={null}
         />
       </SlidePanel>
     </div>

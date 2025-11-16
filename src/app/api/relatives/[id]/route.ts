@@ -35,6 +35,9 @@ interface MemberResponse {
     occupation?: string;
     education?: string;
   };
+  additionalInformation?: {
+    additionalInfo?: string;
+  }
   descendant?: boolean;
 }
 
@@ -65,6 +68,7 @@ export async function GET(request: NextRequest) {
           address: true,
           occupation: true,
           education: true,
+          additionalInfo: true,
           birthDate: true,
           birthMonth: true,
           birthYear: true,
@@ -107,6 +111,7 @@ export async function GET(request: NextRequest) {
       relationInformation: buildRelationInfo(member, siblings),
       contactInformation: buildContactInfo(member),
       personalInformation: buildPersonalInfo(member),
+      additionalInformation: buildAdditionalInfo(member),
       ...(member.descendant !== undefined && { descendant: member.descendant })
     };
 
@@ -179,5 +184,11 @@ function buildPersonalInfo(member: any) {
   return member.occupation || member.education ? {
     ...(member.occupation && { occupation: member.occupation }),
     ...(member.education && { education: member.education })
+  } : undefined;
+}
+
+function buildAdditionalInfo(member: any) {
+  return member.additionalInfo ? {
+    ...(member.additionalInfo && { additionalInfo: member.additionalInfo })
   } : undefined;
 }

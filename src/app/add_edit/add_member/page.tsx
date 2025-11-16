@@ -11,22 +11,26 @@ import AddMemberForm from "@/components/forms/AddMemberForm";
 import { useMemberHeadContext } from "@/contexts/HeadContext";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function AddMemberDetails () {
+export default function AddMemberDetails() {
   const toast = useToast();
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<AddMemberFormValueTypes>(AddMemberDefaultFormValue);
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
-  const {logout} = useAuth();
-  const {head} = useMemberHeadContext();
+  const { logout } = useAuth();
+  const { head } = useMemberHeadContext();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (loading) return
-    const { name, value, type, checked } = e.target;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (loading) return;
+    const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+    const name = target.name;
+    const value = target.value;
+    const type = (target as HTMLInputElement).type;
+    const checked = (target as HTMLInputElement).checked;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    setErrors((prev) => ({ ...prev, [name]: "" })); 
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -34,11 +38,11 @@ export default function AddMemberDetails () {
 
     const capitalizeWords = (name: string) => {
       return name.replace(/\b\w/g, (char) => char.toUpperCase())
-      .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .replace(/,\s*\w/g, (char) => char.toUpperCase());
+        .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .replace(/,\s*\w/g, (char) => char.toUpperCase());
     }
 
-    const errorMessage = validateAddMemberForm(formData);  
+    const errorMessage = validateAddMemberForm(formData);
     if (Object.keys(errorMessage).length) {
       setErrors(errorMessage);
       return;
@@ -61,6 +65,7 @@ export default function AddMemberDetails () {
         occupation: formData.occupation?.trimEnd(),
         education: formData.education?.trimEnd(),
         address: formData.address?.trimEnd(),
+        additionalInfo: formData.additionalInfo?.trimEnd(),
         descendant: descendant,
         father: descendant ? null : capitalizeWords(formData.father).trimEnd(),
         mother: descendant ? null : capitalizeWords(formData.mother).trimEnd(),
@@ -110,7 +115,7 @@ export default function AddMemberDetails () {
         </div>
         <AddMemberForm
           formData={formData}
-          loading={loading} 
+          loading={loading}
           errors={errors}
           handleInputChange={handleInputChange}
           handleFormSubmit={handleFormSubmit}

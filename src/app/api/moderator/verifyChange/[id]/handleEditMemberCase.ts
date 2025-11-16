@@ -21,9 +21,10 @@ export async function handleEditMemberCase(member: any, changeData: any) {
     father: member.nonDescendantRelation?.[0]?.fatherName,
     mother: member.nonDescendantRelation?.[0]?.motherName,
     siblings: member.nonDescendantRelation?.[0]?.siblingNames,
+    additionalInfo: member.additionalInfo || null,
   };
 
-  let changeDetails:any = {};
+  let changeDetails: any = {};
   try {
     changeDetails = JSON.parse(changeData?.details || '{}');
   } catch (e) {
@@ -32,8 +33,8 @@ export async function handleEditMemberCase(member: any, changeData: any) {
 
   const changesJsx = Object.entries(formData).map(([key, value]) => {
     const newValue = key in changeDetails ? changeDetails[key] : value;
-    const hasChanged = 
-      (value == null && newValue != null) || 
+    const hasChanged =
+      (value == null && newValue != null) ||
       (value != null && newValue == null) ||
       normalizeValue(value, key) !== normalizeValue(newValue, key);
 
@@ -53,7 +54,7 @@ export async function handleEditMemberCase(member: any, changeData: any) {
     `;
   }).join('');
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     data: {
       submitData: {
         memberId: changeData.memberId,

@@ -78,6 +78,13 @@ function MemberDetails({ data }: { data: any }) {
                     <MemberItem label="Education" value={data.personalInformation.education} />
                 </InformationSection>
             )}
+
+            {/* Additional Information */}
+            {data.additionalInformation && (
+                <InformationSection title="Additional Information">
+                    <MemberItem value={data.additionalInformation.additionalInfo} />
+                </InformationSection>
+            )}
         </div>
     )
 }

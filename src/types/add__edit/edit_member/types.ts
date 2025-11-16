@@ -15,6 +15,7 @@ export interface EditMemberFormValueTypes {
     occupation: string;
     education: string;
     address: string;
+    additionalInfo: string;
     descendant: string | undefined;
     father: string;
     mother: string;
@@ -24,8 +25,8 @@ export interface EditMemberFormValueTypes {
 export interface EditMemberFormErrorTypes {
     name?: string
     birth_day?: string,
-    death_day?: string, 
-    phone_number?: string 
+    death_day?: string,
+    phone_number?: string
 }
 
 export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
@@ -45,6 +46,7 @@ export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
     occupation: '',
     education: '',
     address: '',
+    additionalInfo: '',
     descendant: undefined,
     father: '',
     mother: '',

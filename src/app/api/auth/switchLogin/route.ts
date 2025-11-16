@@ -43,6 +43,7 @@ export async function POST(request: Request) {
         moderatorName: "Admin",
         moderatorContact: "N/A",
         moderatorPassword: "N/A",
+        mainMemberNameRef: "super_admin_007",
       };
     }
 
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
 
     // Generate token
     const token = await generateToken({
-      id: login.id,
+      authId: login.id,
       memberId: login.mainMemberId,
       userType: login.moderatorName === "Admin" ? "Admin" : "Member",
     });

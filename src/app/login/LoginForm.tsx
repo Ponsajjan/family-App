@@ -1,33 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { login } from './actions';
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { RefreshIcon } from "@/utils/Icons";
 
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
-    const { token, storeLoginValues } = useAuth();
-    const [refreshing, setRefreshing] = useState(false);
+    const { storeLoginValues } = useAuth();
     const router = useRouter();
-
-    // useEffect(() => {
-    //     if (token) {
-    //         router.push('/');
-    //     }
-    // }, [router]);
 
     const handelInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
         setMessage("");
-    };
-
-    const handleRefresh = () => {
-        setRefreshing(true);
-        window.location.reload();
     };
 
     async function handleSubmit(formData: FormData) {
@@ -40,7 +27,7 @@ export default function LoginForm() {
             const result = await login(formData);
             if (result.success && result.token) {
                 storeLoginValues(result.token, result.userType, result.mainMemberNameRef);
-                router.push('/')
+                router.push('/terms')
             } else {
                 setMessage(result.error || "Login failed");
                 if (result.error === "Invalid credential") {
@@ -54,7 +41,6 @@ export default function LoginForm() {
         }
     }
 
-    // if (!token) {
     return (
         <div className="flex flex-col md:flex-row justify-center items-center h-screen w-full max-w-4xl mx-auto overflow-auto px-4 py-6">
             <div className="w-full max-w-80">
@@ -159,23 +145,4 @@ export default function LoginForm() {
             </div>
         </div>
     );
-    // }
-
-    // if (!token) {
-    // }
-    // return (
-    //     <main className="w-full h-screen flex flex-col justify-center items-center refresh-text">
-    //         <button
-    //             className="mt-4 px-4 py-2 rounded hover:bg-field_hover mx-auto"
-    //             onClick={handleRefresh}
-    //         >
-    //             <span className={refreshing ? "animate-spin" : ""}>
-    //                 <RefreshIcon />
-    //             </span>
-    //         </button>
-    //         <span className="text-center text-text_color font-light w-full">
-    //             {refreshing ? "Refreshing..." : "Try refreshing the page..."}
-    //         </span>
-    //     </main>
-    // )
 }

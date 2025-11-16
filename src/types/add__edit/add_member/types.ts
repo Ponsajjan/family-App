@@ -12,6 +12,7 @@ export interface AddMemberFormValueTypes {
     occupation: string;
     education: string;
     address: string;
+    additionalInfo: string;
     descendant: "Yes" | "No" | undefined;
     father: string;
     mother: string;
@@ -41,16 +42,17 @@ export const AddMemberDefaultFormValue: AddMemberFormValueTypes = {
     occupation: '',
     education: '',
     address: '',
+    additionalInfo: '',
     descendant: undefined,
     father: '',
     mother: '',
     siblings: ''
 };
 
-export const AddMemberDefaultErrorValue: AddMemberFormErrorTypes = { 
+export const AddMemberDefaultErrorValue: AddMemberFormErrorTypes = {
     name: '',
     gender: '',
     birth_day: '',
     death_day: '',
     descendant: '',
-  };
+};

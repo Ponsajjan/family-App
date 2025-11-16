@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
         address: true,
         occupation: true,
         education: true,
+        additionalInfo: true,
         birthDate: true,
         birthMonth: true,
         birthYear: true,
@@ -96,6 +97,7 @@ export async function GET(request: NextRequest) {
         occupation: member.occupation,
         education: member.education,
         address: member.address,
+        additionalInfo: member.additionalInfo,
         descendant: member.descendant ? 'Yes' : 'No',
         father: member.nonDescendantRelation?.[0]?.fatherName,
         mother: member.nonDescendantRelation?.[0]?.motherName,
@@ -257,6 +259,7 @@ export async function PUT(request: NextRequest) {
       occupation: updatedData.occupation || null,
       education: updatedData.education || null,
       address: updatedData.address || null,
+      additionalInfo: updatedData.additionalInfo || null,
       descendant: updatedData.descendant,
     };
 
