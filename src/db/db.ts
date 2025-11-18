@@ -3,15 +3,18 @@
 import { PrismaClient } from '@prisma/client'
 import dotenv from 'dotenv';
 import { withAccelerate } from '@prisma/extension-accelerate';
-import databaseConfig from '../config/database.js';
 dotenv.config();
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    datasourceUrl: databaseConfig.url,
+    datasourceUrl: process.env.DATABASE_URL,
 
   }).$extends(withAccelerate())
 }
+
+console.log("datasourceUrldatasourceUrl", process.env.DATABASE_URL)
+console.log("NODE_ENV", process.env.NODE_ENV)
+console.log("NEXT_PUBLIC_BASE_URL", process.env.NEXT_PUBLIC_BASE_URL)
 
 declare const globalThis: {
   prismaGlobal: ReturnType<typeof prismaClientSingleton>;

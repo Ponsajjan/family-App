@@ -111,7 +111,7 @@ export default function Terms() {
           {loading ? <Loading /> :
             <div className="max-w-4xl mx-auto p-4 md:py-10">
               <h1 className="text-2xl md:text-3xl font-bold text-center mb-1 sm:mb-4">
-                {head} Family, Birthdays & Remembrances
+                The {head} Family, Birthdays & Remembrances
               </h1>
 
               <p className="text-base sm:text-lg text-center mb-3">
