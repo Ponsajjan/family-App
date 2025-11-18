@@ -12,10 +12,6 @@ const prismaClientSingleton = () => {
   }).$extends(withAccelerate())
 }
 
-console.log("datasourceUrldatasourceUrl", process.env.DATABASE_URL)
-console.log("NODE_ENV", process.env.NODE_ENV)
-console.log("NEXT_PUBLIC_BASE_URL", process.env.NEXT_PUBLIC_BASE_URL)
-
 declare const globalThis: {
   prismaGlobal: ReturnType<typeof prismaClientSingleton>;
 } & typeof global;
