@@ -93,7 +93,7 @@ export default function Terms() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`Link: ${window.location.href}\nPassword: ${password}`);
+    navigator.clipboard.writeText(`Link: ${window.location.origin}\nPassword: ${password}`);
     setShowCopiedMsg(true);
     setTimeout(() => setShowCopiedMsg(false), 2000);
   };

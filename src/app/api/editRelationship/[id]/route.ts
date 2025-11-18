@@ -146,16 +146,19 @@ export async function PUT(request: NextRequest) {
         verified: true,
         partner: {
           select: {
+            id: true,
             verified: true,
           },
         },
         fatherOf: {
           select: {
+            id: true,
             verified: true,
           },
         },
         motherOf: {
           select: {
+            id: true,
             verified: true,
           },
         },
@@ -198,74 +201,120 @@ export async function PUT(request: NextRequest) {
     // Start processing updates
     const updatePromises: Promise<any>[] = [];
 
-    // Handle partner removal
+    // Get all children of the member to determine custody split
+    const memberChildren = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: {
+        fatherOf: { select: { id: true } },
+        motherOf: { select: { id: true } }
+      }
+    });
+
+    const allMemberChildren = [
+      ...(memberChildren?.fatherOf?.map(child => child.id) || []),
+      ...(memberChildren?.motherOf?.map(child => child.id) || [])
+    ];
+
+    // Handle partner removal (divorce)
     if (deleteData.partnerId) {
       updatePromises.push(
         prisma.$transaction([
+          // Remove partner from member
           prisma.member.update({
             where: { id: deleteData.partnerId },
             data: { partnerId: null },
           }),
+          // Remove member from partner
           prisma.member.update({
             where: { id: memberId },
             data: { partnerId: null },
           }),
         ])
       );
-    }
 
-    // Handle children relations removal
-    if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
-      const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
+      // If no children specified during divorce, keep all children with both parents
+      // Children maintain relationships with both parents after divorce
 
-      // Update the member's fatherOf and motherOf relationships (remove child from member)
-      updatePromises.push(
-        prisma.member.update({
-          where: { id: memberId },
-          data: {
-            // Remove children from fatherOf if it exists
-            fatherOf: {
-              disconnect: removeChildRelation.map((childId) => ({ id: childId })),
-            },
-            // Remove children from motherOf if it exists
-            motherOf: {
-              disconnect: removeChildRelation.map((childId) => ({ id: childId })),
-            },
-          },
-        })
-      );
+      // Custody split during divorce (only if children specified)
+      if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
+        const memberRemovedChildren: number[] = Array.from(new Set(deleteData.childrenId)); // Children removed from member
+        const memberKeptChildren: number[] = allMemberChildren.filter(childId => !memberRemovedChildren.includes(childId)); // Children kept by member
 
-      // Update the partner's fatherOf and motherOf relationships (remove child from partner)
-      if (hasPartner && !deleteData.partnerId) {
+        // Remove specified children from MEMBER (member loses custody)
+        if (memberRemovedChildren.length > 0) {
+          updatePromises.push(
+            prisma.member.update({
+              where: { id: memberId },
+              data: {
+                fatherOf: {
+                  disconnect: memberRemovedChildren.map((childId) => ({ id: childId })),
+                },
+                motherOf: {
+                  disconnect: memberRemovedChildren.map((childId) => ({ id: childId })),
+                },
+              },
+            })
+          );
+        }
+
+        // Remove kept children from PARTNER (partner loses custody of the ones member keeps)
+        if (memberKeptChildren.length > 0) {
+          updatePromises.push(
+            prisma.member.update({
+              where: { id: deleteData.partnerId },
+              data: {
+                fatherOf: {
+                  disconnect: memberKeptChildren.map((childId) => ({ id: childId })),
+                },
+                motherOf: {
+                  disconnect: memberKeptChildren.map((childId) => ({ id: childId })),
+                },
+              },
+            })
+          );
+        }
+      }
+    } else {
+      // Handle children relations removal (NOT during divorce)
+      if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
+        const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
+
+        // Update the member's fatherOf and motherOf relationships (remove child from member)
         updatePromises.push(
           prisma.member.update({
-            where: { id: hasPartner },
+            where: { id: memberId },
             data: {
-              // Remove children from fatherOf if it exists
-              fatherOf: {
-                disconnect: removeChildRelation.map((childId) => ({ id: childId })),
-              },
-              // Remove children from motherOf if it exists
-              motherOf: {
-                disconnect: removeChildRelation.map((childId) => ({ id: childId })),
-              },
+              fatherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })), },
+              motherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })), },
             },
           })
         );
+
+        // Update the partner's fatherOf and motherOf relationships (remove child from partner)
+        if (hasPartner) {
+          updatePromises.push(
+            prisma.member.update({
+              where: { id: hasPartner },
+              data: {
+                fatherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })) },
+                motherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })) },
+              },
+            })
+          );
+        }
       }
     }
 
-    // Handle children order update
+    // Handle children order updates
     if (childrenOrder && Array.isArray(childrenOrder)) {
-      for (let i = 0; i < childrenOrder.length; i++) {
-        const child = childrenOrder[i];
-        updatePromises.push(
+      updatePromises.push(
+        ...childrenOrder.map((child, index) =>
           prisma.member.update({
             where: { id: child.id },
-            data: { order: i + 1 }, // Update the order based on the position in the array
+            data: { order: index + 1 },
           })
-        );
-      }
+        )
+      );
     }
 
     // Wait for all updates to complete
