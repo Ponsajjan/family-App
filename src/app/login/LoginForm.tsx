@@ -1,44 +1,92 @@
 "use client";
 
 import { useState } from "react";
-import { login } from './actions';
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
-
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const { storeLoginValues } = useAuth();
-    const router = useRouter();
 
-    const handelInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-        setMessage("");
-    };
+    async function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
 
-    async function handleSubmit(formData: FormData) {
-        if (!formData.get("password")) {
+        if (!form.password.trim()) {
             return;
         }
+
+        if (submitting) return;
+
         try {
             setSubmitting(true);
-            setMessage("Submitting...");
-            const result = await login(formData);
-            if (result.success && result.token) {
-                storeLoginValues(result.token, result.userType, result.mainMemberNameRef);
+
+            const result = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(form),
+            });
+
+            // Check HTTP status before parsing JSON
+            if (!result.ok) {
+                // Handle different HTTP error statuses
+                if (result.status === 401) {
+                    throw new Error("Invalid credentials");
+                } else if (result.status === 429) {
+                    throw new Error("Too many attempts. Please try again later.");
+                } else if (result.status >= 500) {
+                    throw new Error("Server error. Please try again later.");
+                } else {
+                    throw new Error(`Request failed with status: ${result.status}`);
+                }
+            }
+
+            const data = await result.json();
+
+            // Validate response structure
+            if (!data || typeof data !== 'object') {
+                throw new Error("Invalid server response");
+            }
+
+            if (data.success && data.token) {
+                // Store login values and redirect
+                await storeLoginValues(data.token, data.userType, data.mainMemberNameRef);
             } else {
-                setMessage(result.error || "Login failed");
-                if (result.error === "Invalid credential") {
-                    setForm({ ...form, password: "" });
+                // Handle API-level errors
+                const errorMessage = data.error || "Login failed";
+                setMessage(errorMessage);
+
+                if (data.error === "Invalid credential") {
+                    setForm(prev => ({ ...prev, password: "" }));
                 }
             }
         } catch (error: any) {
-            setMessage(error.message);
+            console.error("Login error:", error);
+
+            // More specific error handling
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                setMessage("Network error. Please check your connection.");
+            } else if (error.message.includes('Failed to fetch')) {
+                setMessage("Cannot connect to server. Please check your internet connection.");
+            } else {
+                setMessage(error.message || "An unexpected error occurred");
+            }
         } finally {
             setSubmitting(false);
         }
     }
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm(prev => ({ ...prev, password: e.target.value }));
+        // Clear message when user starts typing
+        if (message) setMessage("");
+    };
+
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSubmit(e);
+    };
 
     return (
         <div className="flex flex-col md:flex-row justify-center items-center h-screen w-full max-w-4xl mx-auto overflow-auto px-4 py-6">
@@ -112,26 +160,34 @@ export default function LoginForm() {
                 </svg>
             </div>
             <div className="w-full max-w-80">
-                <form action={handleSubmit}>
-                    <div className={`flex h-12 border border-border_color ${message ? 'passwordError' : ''} bg-field_color rounded-md overflow-hidden px-2`}>
+                <form onSubmit={handleFormSubmit}>
+                    <div className={`flex h-12 border border-border_color ${message && !message.includes('Submitting') ? 'border-red-500' : ''} bg-field_color rounded-md overflow-hidden px-2 transition-colors duration-200`}>
                         <label className="flex items-center w-full">
                             <input
                                 name="password"
-                                onChange={(e) => handelInputChange(e)}
-                                value={form.password || ""}
+                                onChange={handleInputChange}
+                                value={form.password}
                                 disabled={submitting}
                                 required
                                 autoFocus
                                 placeholder="hello world !"
-                                className="py-3 px-1 outline-none text-text_color focus:border-border_active text-sm h-full w-full bg-transparent disabled:cursor-not-allowed"
+                                className="py-3 px-1 outline-none text-text_color focus:border-border_active text-sm h-full w-full bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
                             />
                         </label>
-                        <button type="submit" disabled={submitting} className={`py-1 ${submitting ? 'cursor-not-allowed opacity-60' : ''}`}>
+                        <button
+                            type="submit"
+                            disabled={submitting || !form.password.trim()}
+                            className={`py-1 transition-opacity duration-200 ${submitting || !form.password.trim()
+                                ? 'cursor-not-allowed opacity-50'
+                                : 'hover:opacity-80'
+                                }`}
+                        >
                             <svg
                                 width="40px"
                                 height="40px"
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 48 48"
+                                className={submitting ? "opacity-60" : ""}
                             >
                                 <path d="M38.8,26.1c-5.9,4.2-16.2,2.6-16.2,5.7s.6,11.1.6,11.1L18.8,44s.6-9.5.6-12.2-7-1.1-10.8-3.1S3.7,16.6,4.2,14c3.3,2.6,5.4,2.6,9.8,4.2s6,5.6,6.7,8.2c0,.1-7.7-1.4-12.1-5.5C10,25,15,26.6,17.2,27.1A4.7,4.7,0,0,1,21,29.7c.5-2.1,5.3-6.8,9.1-8.4s7.6-4.2,8.2-7.1c-4.3,4-8.1,4.1-11.9,6.6a16.3,16.3,0,0,0-4.6,4.5c.6-2.8,2.3-9.6,5.7-12.9C34.1,6.1,38.3,8.7,43.7,4,44.2,5.6,44.8,21.9,38.8,26.1Z" />
                             </svg>
