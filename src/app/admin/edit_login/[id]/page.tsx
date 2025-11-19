@@ -16,7 +16,7 @@ export default function EditCredential() {
   const toast = useToast();
   const params = useParams();
   const router = useRouter();
-  const {logout} = useAuth();
+  const { logout } = useAuth();
   const memberId = params.id;
   const [formData, setFormData] = useState<NewLoginFormValueTypes>(NewLoginDefaultFormValue);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
@@ -36,8 +36,8 @@ export default function EditCredential() {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
-          }}
-        );
+          }
+        });
         const result = await response.json();
         const edit_member = result.data
         // Handle 401 Unauthorized
@@ -70,7 +70,7 @@ export default function EditCredential() {
           member_password: edit_member.member_password,
           moderator_password: edit_member.moderator_password,
         });
-      } catch (error:any) {
+      } catch (error: any) {
         console.error("Error fetching member data:", error);
         toast?.show(error.message || "Failed to fetch member data", "error", 5000);
       } finally {
@@ -89,7 +89,7 @@ export default function EditCredential() {
       ...prevData,
       [name]: value,
     }));
-    
+
     if (name === "member_password" || name === "moderator_password") {
       setErrors((prev) => ({ ...prev, password: "" }));
     } else {
@@ -137,7 +137,7 @@ export default function EditCredential() {
       const response = await fetch(`/api/admin/edit_login/${memberId}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(updatedMemberDetails),
       });
@@ -147,7 +147,7 @@ export default function EditCredential() {
       if (!response.ok) {
         toast?.show(result.error || "Something went wrong", "error", 5000);
       }
-      toast?.show(result.message, "success", 5000); 
+      toast?.show(result.message, "success", 5000);
       router.push("/admin")
     } catch (error: any) {
       console.error("Error submitting form:", error);

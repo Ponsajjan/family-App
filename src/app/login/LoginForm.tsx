@@ -27,7 +27,6 @@ export default function LoginForm() {
             const result = await login(formData);
             if (result.success && result.token) {
                 storeLoginValues(result.token, result.userType, result.mainMemberNameRef);
-                router.push('/terms')
             } else {
                 setMessage(result.error || "Login failed");
                 if (result.error === "Invalid credential") {

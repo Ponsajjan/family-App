@@ -9,7 +9,6 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   access: string | null;
-  mainMemberNameRef: string | null;
   setAccess: (access: string | null) => void;
   storeLoginValues: (token: string, access: string, mainMemberNameRef: string) => void;
   logout: () => void;
@@ -21,19 +20,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [access, setAccess] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [mainMemberNameRef, setMainMemberNameRef] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     // Initialize auth state on mount
     const storedToken = getCookie('token') || null;
     const storedAccess = getCookie('access') || null;
-    const storedMainMemberNameRef = getCookie('mainMemberNameRef') || null;
-    if (storedToken || storedAccess || storedMainMemberNameRef) {
+
+    if (storedToken || storedAccess) {
       setToken(storedToken as string | null);
       setAccess(storedAccess as string | null);
       updateToken(storedToken as string)
-      setMainMemberNameRef(storedMainMemberNameRef as string | null);
     }
     setIsInitialized(true);
 
@@ -42,13 +39,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const storeLoginValues = (newToken: string, newAccess: string, mainMemberNameRef: string) => {
     setToken(newToken);
     setAccess(newAccess);
-    setMainMemberNameRef(mainMemberNameRef);
     const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
 
     // Set token and access cookies
     document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
     document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
-    document.cookie = `mainMemberNameRef=${mainMemberNameRef}; path=/; max-age=${daysToSeconds};`;
 
     // Get existing logged accounts
     const existingCookie = document.cookie.split('; ')
@@ -81,9 +76,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Update the cookie with properly formatted JSON array
     document.cookie = `loggedAccounts=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=${daysToSeconds};`;
 
+    // Redirect based on new access
+    if (newAccess === 'Member') {
+      router.push('/terms');
+    }
     if (newAccess === 'Moderator') {
       router.push('/moderator');
-    } else if (newAccess === 'Admin') {
+    }
+    if (newAccess === 'Admin') {
       router.push('/admin');
     }
   };
@@ -102,7 +102,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     token,
     isAuthenticated,
     access,
-    mainMemberNameRef,
     setAccess,
     storeLoginValues,
     logout,

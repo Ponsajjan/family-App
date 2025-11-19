@@ -23,7 +23,9 @@ export default function Terms() {
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
   const [refetch, setRefetch] = useState(false);
-  const [showCopiedMsg, setShowCopiedMsg] = useState(false); // Added missing state
+  const [showCopiedMsg, setShowCopiedMsg] = useState(false);
+  const [mainMemberNameRef, setMainMemberNameRef] = useState('');
+
   const router = useRouter();
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function Terms() {
         }
         const data = await response.json();
         setHead(data.member['name'])
-        // setActiveFamily(data.member['descendantOf'])
+        setMainMemberNameRef(data.mainMemberName)
         setModeratorList(data.moderators)
         setPassword(data.password)
 
@@ -114,7 +116,7 @@ export default function Terms() {
                 The {head} Family, Birthdays & Remembrances
               </h1>
 
-              <p className="text-base sm:text-lg text-center mb-3">
+              <p className="text-base sm:text-lg text-center mb-3 md:px-10">
                 This web app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances
               </p>
 
@@ -182,8 +184,8 @@ export default function Terms() {
             </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-          {showLogin && <SwitchLoginList setRefetch={setRefetch} />}
-          {showLogout && <LogoutList />}
+          {showLogin && <SwitchLoginList setRefetch={setRefetch} mainMemberNameRef={mainMemberNameRef} />}
+          {showLogout && <LogoutList mainMemberNameRef={mainMemberNameRef} />}
         </SlidePanel>
       </div>
     </div>

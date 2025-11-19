@@ -14,7 +14,7 @@ import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 
-export default function AddRelationshipDetails () {
+export default function AddRelationshipDetails() {
   const toast = useToast();
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>();
   const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>();
@@ -23,7 +23,7 @@ export default function AddRelationshipDetails () {
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
-  const {logout} = useAuth();
+  const { logout } = useAuth();
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
     excludeId: [],
@@ -34,13 +34,13 @@ export default function AddRelationshipDetails () {
     descendant,
     selectedMemberData,
     excludeMemberRelation,
-    pendingVerification} = useAddMember({selectedMemberId});
+    pendingVerification } = useAddMember({ selectedMemberId });
 
   const {
     patnerLoading,
     selectedPartnerData,
-    excludePartnerRelation} = useAddPartner({selectedPartnerId, selectedMemberData});
- 
+    excludePartnerRelation } = useAddPartner({ selectedPartnerId, selectedMemberData });
+
   const handleShowList = (field: 'selectMember' | 'selectChildren' | 'selectPartner') => {
     setShowList(true);
     if (field === showListFor) return // This if to triger MemberList fetch only when 'showListFor' value changes
@@ -48,13 +48,13 @@ export default function AddRelationshipDetails () {
     setMemberListConstrain((prevParams) => ({
       ...prevParams,
       gender: selectedMemberData?.gender,
-      excludeId: [...excludeMemberRelation, ...excludePartnerRelation, ...newChildrenData.children?.map((child:any) => ( child.id ))],
+      excludeId: [...excludeMemberRelation, ...excludePartnerRelation, ...newChildrenData.children?.map((child: any) => (child.id))],
       descendant: descendant
     }));
   };
 
   const handleSelectedValue = (name: string, id: number, select: string, verified: boolean) => {
-  
+
     const updateData = (prev: any) => {
       if (Array.isArray(prev['children'])) {
         const exists = prev['children'].some((entry) => entry.id === id);
@@ -71,7 +71,7 @@ export default function AddRelationshipDetails () {
         }
       }
     };
-  
+
     switch (select) {
       case 'selectMember':
         if (id === selectedMemberId) {
@@ -83,7 +83,7 @@ export default function AddRelationshipDetails () {
         setNewChildrenData(AddRelationDefaultFormValue)
         setShowList(false);
         break;
-    
+
       case 'selectPartner':
         if (id === selectedPartnerId) {
           setShowList(false);
@@ -93,7 +93,7 @@ export default function AddRelationshipDetails () {
         setSelectedPartnerId(id);
         setShowList(false);
         break;
-    
+
       case 'selectChildren':
         setNewChildrenData(updateData);
         break;
@@ -120,23 +120,23 @@ export default function AddRelationshipDetails () {
 
       const getOrderedChildren = () => {
         const allChildren = [
-          ...(selectedMemberData.children?.map((child:any) => ({ ...child, source: 'member' })) || []),
-          ...(selectedPartnerData?.children?.map((child:any) => ({ ...child, source: 'partner' })) || []),
-          ...(newChildrenData.children?.map((child:any) => ({ ...child, source: 'new' })) || [])
+          ...(selectedMemberData.children?.map((child: any) => ({ ...child, source: 'member' })) || []),
+          ...(selectedPartnerData?.children?.map((child: any) => ({ ...child, source: 'partner' })) || []),
+          ...(newChildrenData.children?.map((child: any) => ({ ...child, source: 'new' })) || [])
         ];
-      
+
         return allChildren.map((child, index) => ({
           id: child.id,
           order: index + 1
         }));
       };
-      
+
       const memberData = {
         partnerId: selectedMemberData.partner?.id ?? selectedPartnerData?.id,
         ...(isMale && { fatherOf: getOrderedChildren() }),
         ...(isFemale && { motherOf: getOrderedChildren() }),
       };
-  
+
       const response = await fetch(`/api/addRelationship/${selectedMemberData?.id}`, {
         method: "PUT",
         headers: {
@@ -154,14 +154,14 @@ export default function AddRelationshipDetails () {
         toast?.show(errorData.error || "Failed to update member", "error", 5000)
         return
       }
-  
+
       const result = await response.json();
       if (!response.ok) {
         toast?.show(result.error || "Something went wrong", "error", 5000);
       } else {
         toast?.show(result.message, "success", 5000);
       }
-  
+
       // Reset the form
       setSelectedMemberId(null);
       setSelectedPartnerId(null);
@@ -178,8 +178,8 @@ export default function AddRelationshipDetails () {
     <div className="md:flex text-text_color">
       <Container className='relative'>
         {(memberloading || patnerLoading || loading) &&
-        <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
-          <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">Loading...</p>
+          <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
+            <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">Loading...</p>
           </div>}
         <div className="w-full md:max-w-xl px-4 py-5 md:py-10 mx-auto">
           <div className="flex justify-between items-center mb-3">
@@ -214,15 +214,15 @@ export default function AddRelationshipDetails () {
         </div>
       </Container>
       <SlidePanel setShowDetails={setShowList} showDetails={showList} >
-        <MemberList 
+        <MemberList
           forType={showListFor}
-          gender={memberListConstrain?.gender} 
-          excludeId={memberListConstrain?.excludeId} 
-          getSelectedValues={newChildrenData} 
-          setSelectedValue={ handleSelectedValue } 
-          openList={setShowList} 
-          multiselect={'selectChildren' === showListFor} 
-          descendant={memberListConstrain?.descendant} 
+          gender={memberListConstrain?.gender}
+          excludeId={memberListConstrain?.excludeId}
+          getSelectedValues={newChildrenData}
+          setSelectedValue={handleSelectedValue}
+          openList={setShowList}
+          multiselect={'selectChildren' === showListFor}
+          descendant={memberListConstrain?.descendant}
         />
       </SlidePanel>
     </div>

@@ -21,11 +21,12 @@ export async function GET(request: NextRequest) {
       where: { id },
       select: {
         password: true,
+        mainMemberNameRef: true,
         members: {
           where: { id: memberId },
           select: {
             name: true,
-            authId: true
+            authId: true,
           },
         },
         moderatorList: {
@@ -55,6 +56,7 @@ export async function GET(request: NextRequest) {
     // Respond with the fetched data
     return NextResponse.json({
       member: mainMember, // The main member associated with the auth record
+      mainMemberName: authRecord.mainMemberNameRef, // The main member's name
       moderators: authRecord.moderatorList, // List of moderators,
       password: authRecord.password,
     });

@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 
-function SwitchLoginList({ setRefetch }: any) {
+function SwitchLoginList({ setRefetch, mainMemberNameRef }: any) {
     const [accounts, setAccounts] = useState<string[]>([]);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
-    const { storeLoginValues, mainMemberNameRef } = useAuth();
+    const { storeLoginValues } = useAuth();
     const toast = useToast();
 
     // Format account name: replace _ with space and capitalize each word
@@ -57,7 +57,7 @@ function SwitchLoginList({ setRefetch }: any) {
 
             const data = await res.json();
             if (data.newtoken) { // Check for token instead of newtoken
-                storeLoginValues(data.newtoken, data.userType, data.forDescendanceOf);
+                storeLoginValues(data.newtoken, data.userType, data.mainMemberNameRef);
                 // setActiveFamily(account);
                 setRefetch((prev: boolean) => !prev);
             } else {
@@ -87,15 +87,15 @@ function SwitchLoginList({ setRefetch }: any) {
 
             const data = await res.json();
             if (data.token) {
-                if (accounts.includes(data.forDescendanceOf)) {
+                if (accounts.includes(data.mainMemberNameRef)) {
                     setError("Account already exists.");
                     setSwitchingAccount(false);
                     return;
                 }
-                storeLoginValues(data.token, data.userType, data.forDescendanceOf);
+                storeLoginValues(data.token, data.userType, data.mainMemberNameRef);
                 setForm({ password: "" })
-                setAccounts((prev: any) => [...prev, data.forDescendanceOf]);
-                // setActiveFamily(data.forDescendanceOf);
+                setAccounts((prev: any) => [...prev, data.mainMemberNameRef]);
+                // setActiveFamily(data.mainMemberNameRef);
                 setError("");
             } else {
                 setError(data.error);

@@ -23,7 +23,7 @@ export default function EditRelationshipDetails() {
   const [showList, setShowList] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [resetValue, setResetValue] = useState<any>({});
-  const {logout} = useAuth();
+  const { logout } = useAuth();
   const router = useRouter();
 
   const handleShowList = () => {
@@ -38,7 +38,7 @@ export default function EditRelationshipDetails() {
           const response = await fetch(`/api/editRelationship/${formData.id}`,
             {
               method: 'GET',
-              headers: { 
+              headers: {
                 'Content-Type': 'application/json'
               },
             }
@@ -55,7 +55,7 @@ export default function EditRelationshipDetails() {
           if (data.children && Array.isArray(data.children)) {
             data.children.sort((a: any, b: any) => a.order - b.order);
           }
-          setResetValue({'data': data, 'hasPartner': data.partner?.id})
+          setResetValue({ 'data': data, 'hasPartner': data.partner?.id })
 
           setFormData(data);
           setHasPatner(data.partner?.id);
@@ -116,7 +116,7 @@ export default function EditRelationshipDetails() {
     }
     router.push("/add_edit");
   }
-  
+
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
     setShowList(false);
@@ -136,9 +136,9 @@ export default function EditRelationshipDetails() {
         headers: {
           "Content-Type": 'application/json'
         },
-        body: JSON.stringify({ 
-          deleteData: deleteData, 
-          hasPartner: hasPartner, 
+        body: JSON.stringify({
+          deleteData: deleteData,
+          hasPartner: hasPartner,
           childrenOrder: formData.children?.map(({ id, order }) => ({ id, order }))
         }),
       });

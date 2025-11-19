@@ -1,38 +1,59 @@
-# Database Configuration
+# Family App
 
-This project supports both SQLite (for development) and PostgreSQL (for production) databases.
+A Next.js application for managing family trees and relationships, built with TypeScript, Tailwind CSS, and PostgreSQL.
 
-## Configuration
+## Features
 
-The database type is automatically selected based on the `NODE_ENV` environment variable:
-- `NODE_ENV=production`: Uses PostgreSQL
-- Otherwise: Uses SQLite
+- Family tree visualization
+- Member management
+- Relationship tracking
+- Authentication and authorization
+- Admin and moderator roles
+- Offline support with PWA
 
-## Environment Variables
+## Database
 
-### PostgreSQL (Production)
-- `DATABASE_URL`: PostgreSQL connection string (e.g., `postgresql://user:pass@localhost:5432/db`)
+This project uses PostgreSQL for both development and production environments.
 
-### SQLite (Development)
-- `SQLITE_DB_PATH`: Path to the SQLite database file (default: `./dev.db`)
-- `CREATE_NEW_SQLITE_DB`: Set to `true` to create a new SQLite database at `./dev_new.db` (default: `false`)
+### Environment Variables
 
-## Usage
+- `DATABASE_URL`: PostgreSQL connection string for production (e.g., `postgresql://user:pass@host:5432/family_app_prod`)
+- `DATABASE_URL_DEV`: PostgreSQL connection string for development (e.g., `postgresql://user:pass@localhost:5432/family_app_dev`)
 
-To switch to PostgreSQL for production, set `NODE_ENV=production` and provide a valid `DATABASE_URL`.
+### Database Backup and Restore
 
-For development with SQLite, ensure `NODE_ENV` is not set to `production` (or set it to `development`).
+Use the provided script to backup and restore the PostgreSQL database.
 
-To create a new SQLite database, set `CREATE_NEW_SQLITE_DB=true`.
+#### Usage
 
-## Example .env file
+- Backup development database: `node scripts/backup.js --env dev --action backup`
+- Backup production database: `node scripts/backup.js --env prod --action backup`
+- Restore: `node scripts/backup.js --env dev --action restore --file backups/dev_backup_YYYY-MM-DD_HH-MM-SS.sql`
+- List backups: `node scripts/backup.js --env dev --action list`
 
-```env
-# For development (SQLite)
-NODE_ENV=development
-SQLITE_DB_PATH=./dev.db
-CREATE_NEW_SQLITE_DB=false
+See the script's help for more options: `node scripts/backup.js --help`
 
-# For production (PostgreSQL)
-NODE_ENV=production
-DATABASE_URL=postgresql://user:pass@localhost:5432/db
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables in `.env.local`
+4. Generate Prisma client: `npx prisma generate`
+5. Run database migrations: `npx prisma migrate dev`
+6. Start the development server: `npm run dev`
+
+## Scripts
+
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm run start`: Start production server
+- `npm run lint`: Run ESLint
+
+## Technologies
+
+- Next.js 15
+- React 18
+- TypeScript
+- Prisma with PostgreSQL
+- Tailwind CSS
+- PWA with next-pwa

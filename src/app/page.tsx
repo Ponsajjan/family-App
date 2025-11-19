@@ -16,7 +16,7 @@ import CalendarMemberDetail from "../components/CalendarMemberDetail";
 
 // Helper function to get current date in IST
 const getCurrentIndiaDate = () => {
-  return new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
 };
 
 interface CalendarMonthlyEvent {
@@ -48,20 +48,20 @@ export default function Calendar() {
   const [datesList, setDatesList] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
-  
+
   // Get current date parts in IST
   const current_date = currentIndiaDate.getDate();
   const current_month = currentIndiaDate.getMonth() + 1; // Months are 0-indexed
   const current_year = currentIndiaDate.getFullYear();
-  
+
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth(); // 0-indexed
-  
+
   const [selectedDate, setSelectedDate] = useState('');
   const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
-  const [selectedMemberId, setSelectedMemberId] = useState<string | null >(null);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [showPopupFor, setShowPopupFor] = useState<'member' | 'date' | null>(null);
-  const {logout, isAuthenticated, access} = useAuth();
+  const { logout, isAuthenticated, access } = useAuth();
 
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year: number, month: number) {
@@ -80,7 +80,7 @@ export default function Calendar() {
   const emptyCells = 7 - lastDayOfMonth.getDay();
 
   let emptyCellsCount;
-    
+
   if (emptyCells < 7) {
     emptyCellsCount = emptyCells;
   } else {
@@ -91,7 +91,7 @@ export default function Calendar() {
     if (!datesList.includes(date)) {
       return;
     }
-    
+
     // Create date in IST
     const selectedDateIST = new Date(year, month, date);
     setSelectedDate(selectedDateIST.toISOString());
@@ -177,7 +177,7 @@ export default function Calendar() {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
-        const {eventDates, datesList} = await response.json();
+        const { eventDates, datesList } = await response.json();
         setEventDatesValue(eventDates);
         setDatesList(datesList);
 
@@ -209,14 +209,14 @@ export default function Calendar() {
     <div className="w-full">
       <Topnav>
       </Topnav>
-      
+
       <div className="md:flex">
         <Container className='px-3 md:border-r md:border-border_color pb-3 w-full'>
           <div className="w-full max-w-3xl mx-auto mt-6">
             <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
-                
+
                 <div className="flex items-baseline">
                   <p className="font-medium text-xl pr-2">
                     {moment(calendarDate).tz("Asia/Kolkata").format("MMMM")}
@@ -225,7 +225,7 @@ export default function Calendar() {
                     {moment(calendarDate).tz("Asia/Kolkata").format("YYYY")}
                   </p>
                 </div>
-                
+
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getNextMonth}>{">"}</div>
               </div>
             </div>
@@ -244,15 +244,14 @@ export default function Calendar() {
               {/* Render Days of Month with Events */}
               {Array.from({ length: lastDayOfMonth.getDate() }, (_, index) => {
                 const date = index + 1;
-                
+
                 return (
                   <div
                     key={date}
                     onClick={() => HandlePopupData('date', date)}
                     style={{ viewTransitionName: `item${date}` }}
-                    className={`date-cell ${
-                      (current_date === date && current_month === month + 1 && current_year === year) ? "bg-accent_color text-accent_contrast" : ""
-                    } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
+                    className={`date-cell ${(current_date === date && current_month === month + 1 && current_year === year) ? "bg-accent_color text-accent_contrast" : ""
+                      } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
                   >
                     {datesList?.includes(date) && !loading && <p className={`${current_month === month + 1 && current_date === date ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
                     <p className={`absolute p-0.5`}>{date}</p>
@@ -267,7 +266,7 @@ export default function Calendar() {
                 </div>
               ))}
             </div>
-            
+
             <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className="relative">
@@ -290,9 +289,9 @@ export default function Calendar() {
         </Container>
         <div className="w-full lg:max-w-[580px] mx-auto">
           {loading ? <Loading /> :
-          datesList?.length > 0 
-          ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} /> 
-          : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
+            datesList?.length > 0
+              ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} />
+              : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
         </div>
       </div>
     </div>

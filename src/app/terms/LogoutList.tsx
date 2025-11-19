@@ -3,10 +3,9 @@ import { CloseIcon, Logout } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
-function LogoutList() {
+function LogoutList({ mainMemberNameRef }: { mainMemberNameRef: string }) {
     const [accounts, setAccounts] = useState<string[]>([]);
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
-    const { mainMemberNameRef } = useAuth();
     const router = useRouter();
 
     // Format account name: replace _ with space, capitalize each word, and remove everything after last _
