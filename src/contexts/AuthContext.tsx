@@ -45,6 +45,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
     document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
 
+    if (newAccess === 'Admin') {
+      router.push('/admin');
+      return
+    }
+
     // Get existing logged accounts
     const existingCookie = document.cookie.split('; ')
       .find(row => row.startsWith('loggedAccounts='));
@@ -82,9 +87,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     if (newAccess === 'Moderator') {
       router.push('/moderator');
-    }
-    if (newAccess === 'Admin') {
-      router.push('/admin');
     }
   };
 

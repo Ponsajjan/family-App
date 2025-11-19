@@ -154,7 +154,7 @@ export default function LoginForm() {
                             type="submit"
                             disabled={submitting || !form.password.trim()}
                             className={`py-1 transition-opacity duration-200 ${submitting || !form.password.trim()
-                                ? 'cursor-not-allowed opacity-50'
+                                ? 'cursor-not-allowed opacity-60'
                                 : 'hover:opacity-80'
                                 }`}
                         >
