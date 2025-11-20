@@ -170,10 +170,12 @@ export default function Terms() {
                   onClick={handleCopy}
                   className="bg-field_hover shadow-md border border-border_color rounded-lg p-4 mb-4 flex items-center gap-2 cursor-pointer hover:bg-field_hover transition"
                 >
-                  <ShareLink />
+                  <span className='w-5 h-5'>
+                    <ShareLink />
+                  </span>
                   {showCopiedMsg ?
                     <span>Copied to clipboard</span> :
-                    <span>Share page link and password with family members</span>
+                    <span>Share website link and password with family members</span>
                   }
                 </div>
               </div>
