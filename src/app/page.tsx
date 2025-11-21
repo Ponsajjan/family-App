@@ -63,6 +63,31 @@ export default function Calendar() {
   const [showPopupFor, setShowPopupFor] = useState<'member' | 'date' | null>(null);
   const { logout, isAuthenticated, access } = useAuth();
 
+  // Function to send push notification
+  const sendNotification = (events: CalendarMonthlyEvent[]) => {
+    const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    if ('Notification' in window) {
+      const sendNotifications = (permission: NotificationPermission) => {
+        if (permission === 'granted') {
+          events.forEach(event => {
+            const eventName = `${event.name} (${(event.type === 'birthday' ? '\u{1F382} Birthday' : 'Remembrance \u{1F490}')})`;
+            new Notification('Family Calendar Reminder', {
+              body: `Today: ${eventName}`,
+              icon: '/web-app-manifest-192x192.png',
+              badge: '/web-app-manifest-192x192.png'
+            });
+          });
+        }
+      };
+
+      if (Notification.permission === 'granted') {
+        sendNotifications('granted');
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(sendNotifications);
+      }
+    }
+  };
+
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year: number, month: number) {
     const selectMonth = new Date(year, month, 1);
@@ -180,6 +205,17 @@ export default function Calendar() {
         const { eventDates, datesList } = await response.json();
         setEventDatesValue(eventDates);
         setDatesList(datesList);
+
+        // Check for today's events and send notification once per day
+        const todayEvents = eventDates.todayEvents || [];
+        if (todayEvents.length > 0) {
+          const today = new Date().toDateString();
+          const lastNotificationDate = localStorage.getItem('lastNotificationDate');
+          if (lastNotificationDate !== today) {
+            sendNotification(todayEvents);
+            localStorage.setItem('lastNotificationDate', today);
+          }
+        }
 
       } catch (error: any) {
         toast?.show(error.message || "Failed to fetch event dates.", "error", 5000);
