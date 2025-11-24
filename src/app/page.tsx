@@ -59,11 +59,6 @@ export default function Calendar() {
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
 
-  // Get current date parts in IST
-  const current_date = currentIndiaDate.getDate();
-  const current_month = currentIndiaDate.getMonth() + 1; // Months are 0-indexed
-  const current_year = currentIndiaDate.getFullYear();
-
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth(); // 0-indexed
 
@@ -320,7 +315,7 @@ export default function Calendar() {
               ))}
             </div>
 
-            <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-300 bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
+            <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-[600ms] bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className="relative">
                 <span onClick={() => setShowPopup(false)} className="absolute top-4 right-4 hidden md:block border border-border_color rounded-md cursor-pointer z-10"><CloseIcon /></span>
