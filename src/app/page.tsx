@@ -19,6 +19,16 @@ const getCurrentIndiaDate = () => {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
 };
 
+// Helper function to check if a date is today
+const isToday = (date: Date) => {
+  const today = getCurrentIndiaDate();
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
+};
+
 interface CalendarMonthlyEvent {
   id: string;
   name: string;
@@ -285,16 +295,18 @@ export default function Calendar() {
               {/* Render Days of Month with Events */}
               {Array.from({ length: lastDayOfMonth.getDate() }, (_, index) => {
                 const date = index + 1;
+                const cellDate = new Date(year, month, date);
+                const cellIsToday = isToday(cellDate);
 
                 return (
                   <div
                     key={date}
                     onClick={() => HandlePopupData('date', date)}
                     style={{ viewTransitionName: `item${date}` }}
-                    className={`date-cell ${(current_date === date && current_month === month + 1 && current_year === year) ? "bg-accent_color text-accent_contrast" : ""
+                    className={`date-cell ${cellIsToday ? "bg-accent_color text-accent_contrast" : ""
                       } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
                   >
-                    {datesList?.includes(date) && !loading && <p className={`${current_month === month + 1 && current_date === date ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
+                    {datesList?.includes(date) && !loading && <p className={`${cellIsToday ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
                     <p className={`absolute p-0.5`}>{date}</p>
                   </div>
                 );
@@ -312,14 +324,22 @@ export default function Calendar() {
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className="relative">
                 <span onClick={() => setShowPopup(false)} className="absolute top-4 right-4 hidden md:block border border-border_color rounded-md cursor-pointer z-10"><CloseIcon /></span>
-                {showPopupFor === 'date' && <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
-                  <p className="text-xl font-medium md:font-semibold text-text_color">
-                    {format(new Date(selectedDate), 'd MMM yyyy')}
-                    <span className="font-normal pl-2">
-                      ({format(new Date(selectedDate), 'EEEE')})
-                    </span>
-                  </p>
-                </div>}
+                {showPopupFor === 'date' && (() => {
+                  const selected = new Date(selectedDate);
+                  const selectedIsToday = isToday(selected);
+
+                  return (
+                    <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
+                      <p className="text-xl font-medium md:font-semibold text-text_color">
+                        {selectedIsToday && <span className="pr-2 font-semibold text-accent_color">Today - </span>}
+                        {format(selected, 'd MMM yyyy')}
+                        <span className="font-normal pl-2">
+                          ({format(selected, 'EEEE')})
+                        </span>
+                      </p>
+                    </div>
+                  );
+                })()}
                 <div className={`p-4 ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
                   {showPopupFor === 'date' && <OnDate events={eventForDate} />}
                   {showPopupFor === 'member' && <CalendarMemberDetail memberId={selectedMemberId} />}
