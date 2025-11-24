@@ -43,7 +43,7 @@ export const applyHandleEditMember = async (data: RequestData, tx: any) => {
     occupation: formData.occupation || null,
     education: formData.education || null,
     address: formData.address || null,
-    descendant: formData.descendant == 'Yes',
+    descendant: formData.descendant,
     additionalInfo: formData.additionalInfo || null,
   };
 
