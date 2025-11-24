@@ -65,7 +65,6 @@ export default function Calendar() {
 
   // Function to send push notification
   const sendNotification = (events: CalendarMonthlyEvent[]) => {
-    const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     if ('Notification' in window) {
       const sendNotifications = (permission: NotificationPermission) => {
         if (permission === 'granted') {
@@ -215,6 +214,12 @@ export default function Calendar() {
             sendNotification(todayEvents);
             localStorage.setItem('lastNotificationDate', today);
           }
+          // Show popup if there is event today
+          const todayDateObj = new Date();
+          setSelectedDate(todayDateObj.toISOString());
+          setEventForDate(todayEvents);
+          setShowPopupFor('date');
+          setShowPopup(true);
         }
 
       } catch (error: any) {
