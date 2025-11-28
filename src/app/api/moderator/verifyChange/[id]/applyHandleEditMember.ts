@@ -43,7 +43,7 @@ export const applyHandleEditMember = async (data: RequestData, tx: any) => {
     occupation: formData.occupation || null,
     education: formData.education || null,
     address: formData.address || null,
-    descendant: formData.descendant,
+    descendant: formData.descendant == 'Yes',
     additionalInfo: formData.additionalInfo || null,
   };
 
@@ -54,7 +54,7 @@ export const applyHandleEditMember = async (data: RequestData, tx: any) => {
   });
 
   // Handle non-descendant relations
-  if (formData.descendant) {
+  if (formData.descendant == 'Yes') {
     // If member is now a descendant, remove any existing non-descendant relations
     await tx.nonDescendantRelation.deleteMany({
       where: { memberId: data.memberId },

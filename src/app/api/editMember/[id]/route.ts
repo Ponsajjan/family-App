@@ -309,10 +309,15 @@ export async function PUT(request: NextRequest) {
 
       // If there are any changes (either member data or non-descendant relations)
       if (Object.keys(filteredUpdateData).length > 0 || Object.keys(nonDescendantChanges).length > 0) {
-        const requestDetails = {
+        const requestDetails: Record<string, any> = {
           ...(Object.keys(filteredUpdateData).length > 0 && { ...filteredUpdateData }),
           ...(Object.keys(nonDescendantChanges).length > 0 && { ...nonDescendantChanges }),
         };
+
+        // Convert descendant to Yes/No for consistency with other parts of the app
+        if ('descendant' in requestDetails) {
+          requestDetails.descendant = requestDetails.descendant ? 'Yes' : 'No';
+        }
 
         await prisma.requestDetails.create({
           data: {
