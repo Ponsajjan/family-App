@@ -4,6 +4,7 @@ import Sidenav from "@/components/Sidenav";
 import ToastProvider from "@/components/Toast";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/contexts/AuthContext";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 export default function ClientLayout({
   children,
@@ -39,6 +40,7 @@ export default function ClientLayout({
               <div className="w-full relative">
                 <ToastProvider>
                   {children}
+                  <PWAInstallPrompt />
                   <div id='portal'></div>
                 </ToastProvider>
               </div>
@@ -48,7 +50,7 @@ export default function ClientLayout({
       </main>
     );
   }
-  
+
   return (
     <AuthProvider>
       <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
