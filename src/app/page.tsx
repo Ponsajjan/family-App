@@ -213,13 +213,14 @@ export default function Calendar() {
         // Check for today's events and send notification once per day
         const todayEvents = eventDates.todayEvents || [];
         if (todayEvents.length > 0) {
-          const today = new Date().toDateString();
-          const lastNotificationDate = localStorage.getItem('lastNotificationDate');
           // Function to send push notification
+          // const today = new Date().toDateString();
+          // const lastNotificationDate = localStorage.getItem('lastNotificationDate');
           // if (lastNotificationDate !== today) {
           //   sendNotification(todayEvents);
           //   localStorage.setItem('lastNotificationDate', today);
           // }
+
           // Show popup if there is event today
           const todayDateObj = new Date();
           setSelectedDate(todayDateObj.toISOString());

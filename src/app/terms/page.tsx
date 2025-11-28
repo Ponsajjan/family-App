@@ -2,7 +2,7 @@
 
 import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
-import { Community, Logout, ShareLink, SwitchLogin } from '@/utils/Icons'
+import { Community, InstallIcon, Logout, ShareLink, SwitchLogin } from '@/utils/Icons'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/Toast'
@@ -17,7 +17,6 @@ export default function Terms() {
   const [loading, setLoading] = useState(true);
   const [head, setHead] = useState('');
   const [moderatorList, setModeratorList] = useState([]);
-  // const [activeFamily, setActiveFamily] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
@@ -25,8 +24,47 @@ export default function Terms() {
   const [refetch, setRefetch] = useState(false);
   const [showCopiedMsg, setShowCopiedMsg] = useState(false);
   const [mainMemberNameRef, setMainMemberNameRef] = useState('');
-
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallButton, setShowInstallButton] = useState(false);
   const router = useRouter();
+
+  // Fixed PWA detection
+  const isPWA = (): boolean => {
+    if (typeof window === 'undefined') return false;
+
+    return window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches ||
+      window.matchMedia('(display-mode: minimal-ui)').matches ||
+      ((window.navigator as any).standalone === true);
+  };
+
+  // Fixed PWA install function
+  const triggerPWAInstall = async () => {
+    // For iOS, show instructions (iOS doesn't allow programmatic install)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      alert('📱 To install: Tap the share icon → "Add to Home Screen"');
+      return;
+    }
+
+    // For Android/Desktop
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choiceResult = await deferredPrompt.userChoice;
+
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+
+      setDeferredPrompt(null);
+      setShowInstallButton(false);
+    } else {
+      // Fallback for browsers that don't support the prompt
+      alert('Look for "Add to Home Screen" in your browser menu (usually the share icon 📱 or install icon 📥)');
+    }
+  };
 
   useEffect(() => {
     async function fetchMembers() {
@@ -62,8 +100,18 @@ export default function Terms() {
         setLoading(false)
       }
     }
-
     fetchMembers();
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallButton(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, [router, toast, refetch]);
 
   const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
@@ -183,6 +231,16 @@ export default function Terms() {
                 <Link href="/terms/moderator_login">Login as Moderator</Link>
                 <button onClick={() => handleSidePanelToggle('switchLogout')} className="px-2 flex items-center gap-2"><Logout />Logout</button>
               </div>
+
+              {/* Fixed PWA Install Button - Show when NOT in PWA and when install is available */}
+              {!isPWA() && showInstallButton && (
+                <div
+                  onClick={triggerPWAInstall}
+                  className='md:hidden text-center border-y border-border_color mt-6 p-1 flex justify-center gap-2 items-center cursor-pointer hover:bg-field_hover transition-colors'
+                >
+                  Add to Home Screen <InstallIcon />
+                </div>
+              )}
             </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
