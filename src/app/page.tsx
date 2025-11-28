@@ -1,7 +1,7 @@
 "use client";
 
 import Topnav from "@/components/Topnav";
-import { CloseIcon } from "@/utils/Icons";
+import { Announcement, CloseIcon } from "@/utils/Icons";
 import React, { useEffect, useState } from "react";
 import moment from "moment-timezone"; // Changed from moment to moment-timezone
 import CalendarMonthlyData from "../components/CalendarMonthlyData";
@@ -325,9 +325,14 @@ export default function Calendar() {
                   const selectedIsToday = isToday(selected);
 
                   return (
-                    <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color p-4`}>
-                      <p className="text-xl font-medium md:font-semibold text-text_color">
-                        {selectedIsToday && <span className="pr-2 font-semibold text-accent_color">Today - </span>}
+                    <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 py-3`}>
+                      <p className="flex flex-wrap text-xl font-medium md:font-semibold text-text_color">
+                        {selectedIsToday &&
+                          <>
+                            <Announcement />
+                            <span className="pl-1 pr-2 font-semibold text-accent_color">Today - </span>
+                          </>
+                        }
                         {format(selected, 'd MMM yyyy')}
                         <span className="font-normal pl-2">
                           ({format(selected, 'EEEE')})
