@@ -1,6 +1,6 @@
 'use client';
 
-import { Female, FilterClose, FilterSelect, Male, SearchIcon } from '@/utils/Icons';
+import { Cross, Female, FilterSelect, Male, SearchIcon, Tick } from '@/utils/Icons';
 import React, { useEffect, useRef, useState } from 'react';
 import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
@@ -293,8 +293,8 @@ export default function MemberList({
           <div className="py-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm border-b border-border_color">
             <p>Show Cousins List</p>
             <label className="relative inline-flex items-center cursor-pointer p-1">
-              <span className="absolute left-[5px] z-10">
-                <FilterClose />
+              <span className="absolute left-[4px] z-10">
+                <Cross />
               </span>
               <input
                 className="sr-only peer"
@@ -302,10 +302,17 @@ export default function MemberList({
                 checked={params.showCousin}
                 onChange={handleShowCousin}
               />
-              <span className="absolute right-[5px] z-10">
-                <FilterSelect />
+              <span className="absolute right-[4px] z-10">
+                <Tick />
               </span>
-              <div className="peer rounded-full outline-none duration-75 border border-border_color after:duration-100 w-9 h-[18px] bg-accent_color peer-focus:outline-none after:absolute after:outline-none after:rounded-full after:h-4 after:w-4 after:bg-white after:flex after:justify-center after:items-center after:font-bold peer-checked:after:translate-x-[18px] peer-checked:after:border-border_active" />
+              <div className={`
+              peer ring-1 bg-black ring-gray-600 rounded-full outline-none duration-300 after:duration-500 
+              w-[33px] h-[14px] peer-focus:outline-none after:content-[''] after:rounded-full after:absolute
+              after:outline-none after:h-4 after:w-4 after:bg-main_background after:top-1/2 
+              after:-translate-y-1/2 after:flex after:justify-center after:items-center 
+              after:border-2 after:border-gray-600 
+              ${params.showCousin ? 'after:translate-x-[17px]' : 'after:translate-x-0'} 
+            `} />
             </label>
           </div>
         )}

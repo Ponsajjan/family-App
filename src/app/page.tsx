@@ -326,12 +326,12 @@ export default function Calendar() {
                   const selectedIsToday = isToday(selected);
 
                   return (
-                    <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 py-3`}>
-                      <p className="flex flex-wrap text-xl font-medium md:font-semibold text-text_color">
+                    <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 pt-3 pb-2`}>
+                      <p className="flex flex-wrap text-xl font-medium md:font-semibold text-text_color items-end min-h-[30px]">
                         {selectedIsToday &&
                           <>
                             <Announcement />
-                            <span className="pl-1 pr-2 font-semibold text-accent_color">Today - </span>
+                            <span className="px-1 font-semibold text-accent_color">Today - </span>
                           </>
                         }
                         {format(selected, 'd MMM yyyy')}
