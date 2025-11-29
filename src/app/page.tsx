@@ -3,7 +3,7 @@
 import Topnav from "@/components/Topnav";
 import { Announcement, CloseIcon } from "@/utils/Icons";
 import React, { useEffect, useState } from "react";
-import moment from "moment-timezone"; // Changed from moment to moment-timezone
+import moment from "moment-timezone";
 import CalendarMonthlyData from "../components/CalendarMonthlyData";
 import Container from "@/components/Container";
 import Loading from "@/components/Loading";
@@ -13,6 +13,7 @@ import { useToast } from '@/components/Toast';
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import CalendarMemberDetail from "../components/CalendarMemberDetail";
+// import { useDailyNotifications } from "@/utils/notificationUtils";
 
 // Helper function to get current date in IST
 const getCurrentIndiaDate = () => {
@@ -68,29 +69,8 @@ export default function Calendar() {
   const [showPopupFor, setShowPopupFor] = useState<'member' | 'date' | null>(null);
   const { logout, isAuthenticated, access } = useAuth();
 
-  // Function to send push notification
-  // const sendNotification = (events: CalendarMonthlyEvent[]) => {
-  //   if ('Notification' in window) {
-  //     const sendNotifications = (permission: NotificationPermission) => {
-  //       if (permission === 'granted') {
-  //         events.forEach(event => {
-  //           const eventName = `${event.name} (${(event.type === 'birthday' ? '\u{1F382} Birthday' : 'Remembrance \u{1F490}')})`;
-  //           new Notification('Family Calendar Reminder', {
-  //             body: `Today: ${eventName}`,
-  //             icon: '/web-app-manifest-192x192.png',
-  //             badge: '/web-app-manifest-192x192.png'
-  //           });
-  //         });
-  //       }
-  //     };
-
-  //     if (Notification.permission === 'granted') {
-  //       sendNotifications('granted');
-  //     } else if (Notification.permission !== 'denied') {
-  //       Notification.requestPermission().then(sendNotifications);
-  //     }
-  //   }
-  // };
+  // Use the notification hook
+  // const { checkAndSendNotifications } = useDailyNotifications();
 
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year: number, month: number) {
@@ -213,13 +193,8 @@ export default function Calendar() {
         // Check for today's events and send notification once per day
         const todayEvents = eventDates.todayEvents || [];
         if (todayEvents.length > 0) {
-          // Function to send push notification
-          // const today = new Date().toDateString();
-          // const lastNotificationDate = localStorage.getItem('lastNotificationDate');
-          // if (lastNotificationDate !== today) {
-          //   sendNotification(todayEvents);
-          //   localStorage.setItem('lastNotificationDate', today);
-          // }
+          // Use the notification hook to handle daily notifications
+          // checkAndSendNotifications(todayEvents);
 
           // Show popup if there is event today
           const todayDateObj = new Date();
@@ -237,7 +212,7 @@ export default function Calendar() {
     }
 
     fetchEventDates();
-  }, [isAuthenticated, month, year, toast, logout, access, router]);
+  }, [isAuthenticated, month, year, toast, logout, access, router]); //checkAndSendNotifications
 
   const HandlePopupData = (event: 'member' | 'date', data: any) => {
     if (event === 'member') {

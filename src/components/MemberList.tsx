@@ -307,11 +307,11 @@ export default function MemberList({
               </span>
               <div className={`
               peer ring-1 bg-black ring-gray-600 rounded-full outline-none duration-300 after:duration-500 
-              w-[33px] h-[14px] peer-focus:outline-none after:content-[''] after:rounded-full after:absolute
+              w-[31.5px] h-[14px] peer-focus:outline-none after:content-[''] after:rounded-full after:absolute
               after:outline-none after:h-4 after:w-4 after:bg-main_background after:top-1/2 
               after:-translate-y-1/2 after:flex after:justify-center after:items-center 
               after:border-2 after:border-gray-600 
-              ${params.showCousin ? 'after:translate-x-[17px]' : 'after:translate-x-0'} 
+              ${params.showCousin ? 'after:translate-x-[16px]' : 'after:translate-x-0'} 
             `} />
             </label>
           </div>

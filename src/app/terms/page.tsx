@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import SlidePanel from '@/components/SlidePanel'
 import SwitchLoginList from './SwitchLoginList'
 import LogoutList from './LogoutList'
+import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as needed
 
 export default function Terms() {
   const toast = useToast();
@@ -24,47 +25,10 @@ export default function Terms() {
   const [refetch, setRefetch] = useState(false);
   const [showCopiedMsg, setShowCopiedMsg] = useState(false);
   const [mainMemberNameRef, setMainMemberNameRef] = useState('');
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
   const router = useRouter();
 
-  // Fixed PWA detection
-  const isPWA = (): boolean => {
-    if (typeof window === 'undefined') return false;
-
-    return window.matchMedia('(display-mode: standalone)').matches ||
-      window.matchMedia('(display-mode: fullscreen)').matches ||
-      window.matchMedia('(display-mode: minimal-ui)').matches ||
-      ((window.navigator as any).standalone === true);
-  };
-
-  // Fixed PWA install function
-  const triggerPWAInstall = async () => {
-    // For iOS, show instructions (iOS doesn't allow programmatic install)
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    if (isIOS) {
-      alert('📱 To install: Tap the share icon → "Add to Home Screen"');
-      return;
-    }
-
-    // For Android/Desktop
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const choiceResult = await deferredPrompt.userChoice;
-
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-      } else {
-        console.log('User dismissed the install prompt');
-      }
-
-      setDeferredPrompt(null);
-      setShowInstallButton(false);
-    } else {
-      // Fallback for browsers that don't support the prompt
-      alert('Look for "Add to Home Screen" in your browser menu (usually the share icon 📱 or install icon 📥)');
-    }
-  };
+  // Use the PWA hook
+  const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
 
   useEffect(() => {
     async function fetchMembers() {
@@ -101,17 +65,6 @@ export default function Terms() {
       }
     }
     fetchMembers();
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setShowInstallButton(true);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
   }, [router, toast, refetch]);
 
   const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
