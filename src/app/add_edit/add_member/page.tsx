@@ -35,7 +35,7 @@ export default function AddMemberDetails() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    window.scrollTo(0, 0);
     const capitalizeWords = (name: string) => {
       return name.replace(/\b\w/g, (char) => char.toUpperCase())
         .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())

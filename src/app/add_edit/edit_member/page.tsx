@@ -84,6 +84,7 @@ export default function EditMemberDetails() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validateEditMemberForm(formData);
+    window.scrollTo(0, 0);
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -138,6 +139,7 @@ export default function EditMemberDetails() {
       toast?.show(error.message || "Failed to update member", "error", 5000);
     } finally {
       setSubmitting(false);
+
     }
   };
 
