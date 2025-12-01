@@ -18,7 +18,7 @@ export default function NewMembers() {
   const [showDetailsFor, setShowDetailsFor] = useState([]);
   const [currentDetailIndex, setCurrentDetailIndex] = useState<number>(0);
   const [memberId, setMemberId] = useState<number | null>(null)
-  const {logout} = useAuth();
+  const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 25,
@@ -37,7 +37,7 @@ export default function NewMembers() {
         const response = await fetch(`/api/moderator/verifyChange?page=${params.page}&limit=${params.limit}`,
           {
             method: 'GET',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json'
             },
             cache: 'no-store',
@@ -92,7 +92,7 @@ export default function NewMembers() {
     };
   }, [params, hasMore, toast, logout]);
 
-  const handleShowDetails = (value: any, id:number) => {
+  const handleShowDetails = (value: any, id: number) => {
     setShowDetails(true);
     setShowDetailsFor(value)
     setCurrentDetailIndex(0)
@@ -104,10 +104,10 @@ export default function NewMembers() {
       <Topnav>
       </Topnav>
       <div className="w-full md:flex">
-        <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
+        <div className='w-full' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
-              <div className="bg-main_background w-full sticky pt-4 top-0 z-20 flex">
+              <div className="bg-main_background w-full sticky pt-4 top-12 z-20 flex">
                 <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">Verify Changes</span>
                 <span className="border-b border-border_color block w-full"></span>
               </div>
@@ -115,29 +115,29 @@ export default function NewMembers() {
                 {changeList?.map((member: any) => (
                   <div key={member.id} className="pl-4">
                     <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
-                      <div 
-                        onClick={() => handleShowDetails(member.pendingVerification, member.id)} 
+                      <div
+                        onClick={() => handleShowDetails(member.pendingVerification, member.id)}
                         className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                       >
                         <div>
                           <div className="flex flex-wrap gap-2">
-                            {member.gender === "Male" && <Male /> }
+                            {member.gender === "Male" && <Male />}
                             {member.gender === "Female" && <Female />}
                             <div className='font-medium md:font-semibold'>{member.name}</div>
                           </div>
                           <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                              {(member.father || member.mother) ? (
+                            {(member.father || member.mother) ? (
                               <>
                                 <span className="pr-1 font-medium md:font-semibold">Parents:</span>
                                 {member.father && <span className="pr-1">{member.father.name},</span>}
                                 {member.mother && <span className="pr-1">{member.mother.name}</span>}
                               </>
-                              ) : member.partner ? (
+                            ) : member.partner ? (
                               <div>
                                 <span className="pr-1 font-medium md:font-semibold">Partner:</span>
                                 <span className="pr-1">{member.partner.name}</span>
                               </div>
-                              ) : 'No family relationship assigned yet'}
+                            ) : 'No family relationship assigned yet'}
                           </div>
                         </div>
                       </div>
@@ -147,18 +147,18 @@ export default function NewMembers() {
               </div>
               <div className="h-10 px-4 py-2">
                 {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
-                {(!loadingList && changeList.length === 0) && 
+                {(!loadingList && changeList.length === 0) &&
                   <p className='p-4 loading-text'>No changes to verify</p>
                 }
-                {!hasMore && <p className="text-text_color">, , ,</p> }
+                {!hasMore && <p className="text-text_color">, , ,</p>}
               </div>
             </div>
           </div>
         </div>
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
-          <Details 
-            showDetailsFor={showDetailsFor} 
-            setShowDetails={setShowDetails} 
+          <Details
+            showDetailsFor={showDetailsFor}
+            setShowDetails={setShowDetails}
             currentDetailIndex={currentDetailIndex}
             setCurrentDetailIndex={setCurrentDetailIndex}
             setShowDetailsFor={setShowDetailsFor}

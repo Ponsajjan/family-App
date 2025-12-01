@@ -68,7 +68,7 @@ export default function VerifyMember() {
         const response = await fetch(`/api/moderator/verifyMember?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&filter=${params.filter}`,
           {
             method: 'GET',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json'
             },
             cache: 'no-store',
@@ -132,10 +132,10 @@ export default function VerifyMember() {
   }
 
   const handleFilterChange = (value: string) => {
-  if (value === selectedFilter) {
-    setDropdownOpen(false);
-    return;
-  }
+    if (value === selectedFilter) {
+      setDropdownOpen(false);
+      return;
+    }
     setMembers([]);
     setSelectedFilter(value);
     setParams((prevParams) => ({
@@ -165,34 +165,34 @@ export default function VerifyMember() {
             <CloseIcon />
           </button>
         </div>
-        
+
         {/* Dropdown for Filtering Members */}
         <div className="relative">
-          <button 
-            onClick={() => {setDropdownOpen(!dropdownOpen); setShowDetails(false)}}
-            onBlur={() => setDropdownOpen(false)} 
+          <button
+            onClick={() => { setDropdownOpen(!dropdownOpen); setShowDetails(false) }}
+            onBlur={() => setDropdownOpen(false)}
             className="py-1 px-1 sm:px-2 border border-border_color rounded-md bg-main_background flex justify-between w-auto sm:min-w-32">
             <span className="hidden sm:block">{selectedFilter}</span>
-            <span><Filter/></span>
+            <span><Filter /></span>
           </button>
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-32 bg-field_color border border-border_color shadow-md rounded-md overflow-hidden">
-              <div 
-                className="p-2 hover:bg-field_hover cursor-pointer" 
+              <div
+                className="p-2 hover:bg-field_hover cursor-pointer"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => {handleFilterChange("All")}}>
+                onClick={() => { handleFilterChange("All") }}>
                 All
               </div>
-              <div 
-                className="p-2 hover:bg-field_hover cursor-pointer" 
+              <div
+                className="p-2 hover:bg-field_hover cursor-pointer"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => {handleFilterChange("Verified")}}>
+                onClick={() => { handleFilterChange("Verified") }}>
                 Verified
               </div>
-              <div 
-                className="p-2 hover:bg-field_hover cursor-pointer" 
+              <div
+                className="p-2 hover:bg-field_hover cursor-pointer"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => {handleFilterChange("Unverified")}}>
+                onClick={() => { handleFilterChange("Unverified") }}>
                 Unverified
               </div>
             </div>
@@ -200,10 +200,10 @@ export default function VerifyMember() {
         </div>
       </Topnav>
       <div className="w-full md:flex">
-        <div className='h-[calc(100vh-3rem)] overflow-y-auto scroll-stable w-full' ref={containerRef}>
+        <div className='w-full' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
-              <div className="bg-main_background w-full sticky pt-4 top-0 z-20 flex">
+              <div className="bg-main_background w-full sticky pt-4 top-12 z-20 flex">
                 <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members</span>
                 <span className="border-b border-border_color block w-full"></span>
               </div>
@@ -211,37 +211,37 @@ export default function VerifyMember() {
                 {members?.map((member: any) => (
                   <div key={member.id} className="pl-4">
                     <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
-                      <div 
-                        onClick={() => {setShowDetailsFor(member); setShowDetails(true)}} 
+                      <div
+                        onClick={() => { setShowDetailsFor(member); setShowDetails(true) }}
                         className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                       >
                         <div>
                           <div className="flex flex-wrap gap-2">
-                            {member.gender === "Male" && <Male /> }
+                            {member.gender === "Male" && <Male />}
                             {member.gender === "Female" && <Female />}
                             <div
                               className="font-medium md:font-semibold"
                               dangerouslySetInnerHTML={{
-                              __html: highlightText(member.name, params.search),
-                            }}
+                                __html: highlightText(member.name, params.search),
+                              }}
                             />
                           </div>
                           <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
-                              {(member.father || member.mother) ? (
+                            {(member.father || member.mother) ? (
                               <>
                                 <span className="pr-1 font-medium md:font-semibold">Parents:</span>
                                 {member.father && <span className="pr-1">{member.father.name},</span>}
                                 {member.mother && <span className="pr-1">{member.mother.name}</span>}
                               </>
-                              ) : member.partner ? (
+                            ) : member.partner ? (
                               <div>
                                 <span className="pr-1 font-medium md:font-semibold">Partner:</span>
                                 <span className="pr-1">{member.partner.name}</span>
                               </div>
-                              ) : 'No family relationship assigned yet'}
+                            ) : 'No family relationship assigned yet'}
                           </div>
                         </div>
-                        {params.filter == 'All' ? member.verified && <Verified/> : ''}
+                        {params.filter == 'All' ? member.verified && <Verified /> : ''}
                       </div>
                     </div>
                   </div>
@@ -251,14 +251,14 @@ export default function VerifyMember() {
                   {(!loadingList && members.length == 0) && (
                     searchInput ? <p className='p-4 text-text_color'>No member found for &lsquo;{params.search}&lsquo;</p> : <p className='p-4 loading-text'>No {selectedFilter} member available</p>
                   )}
-                  {!hasMore && <p className="text-text_color">, , ,</p> }
+                  {!hasMore && <p className="text-text_color">, , ,</p>}
                 </div>
               </div>
             </div>
           </div>
         </div>
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
-          <NewMemberDetails showDetailsFor={showDetailsFor} setShowDetails={setShowDetails} setParams={setParams} handleMemberSearch={handleMemberSearch} setMembers={setMembers} members={members} selectedFilter={selectedFilter}/>
+          <NewMemberDetails showDetailsFor={showDetailsFor} setShowDetails={setShowDetails} setParams={setParams} handleMemberSearch={handleMemberSearch} setMembers={setMembers} members={members} selectedFilter={selectedFilter} />
         </SlidePanel>
       </div>
     </div>
