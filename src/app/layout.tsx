@@ -72,7 +72,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} font-inter-fallback`} suppressHydrationWarning={true}>
+      <body className={`${inter.className} font-inter-fallback h-full bg-main_background`} suppressHydrationWarning={true}>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

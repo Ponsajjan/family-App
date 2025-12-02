@@ -30,7 +30,7 @@ export default function ClientLayout({
 
   if (IncludeSideNavLayoutPaths.includes(pathname)) {
     return (
-      <main id="MainDiv" className="bg-main_background h-full">
+      <main id="MainDiv">
         <noscript>Amor fati!..</noscript>
         <AuthProvider>
           <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
@@ -51,7 +51,7 @@ export default function ClientLayout({
 
   return (
     <AuthProvider>
-      <div className="w-full transition-all duration-500 ease-in-out h-full bg-main_background">
+      <div className="w-full transition-all duration-500 ease-in-out">
         <div className="w-full max-w-[2600px] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
           {children}
         </div>
