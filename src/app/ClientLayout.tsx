@@ -34,7 +34,7 @@ export default function ClientLayout({
         <noscript>Amor fati!..</noscript>
         <AuthProvider>
           <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
-            <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+            <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color md:min-h-screen relative flex">
               <Sidenav />
               <div className="w-full relative">
                 <ToastProvider>
@@ -52,7 +52,7 @@ export default function ClientLayout({
   return (
     <AuthProvider>
       <div className="w-full bg-field_color/95 transition-all duration-500 ease-in-out">
-        <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color min-h-screen relative flex">
+        <div className="w-full max-w-[2600px] mx-auto bg-main_background md:border-x md:border-border_color md:min-h-screen relative flex">
           {children}
         </div>
       </div>
