@@ -145,7 +145,7 @@ export default function NewMembers() {
                   </div>
                 ))}
               </div>
-              <div className="h-10 px-4 py-2">
+              <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
                 {(!loadingList && changeList.length === 0) &&
                   <p className='p-4 loading-text'>No changes to verify</p>

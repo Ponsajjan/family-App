@@ -174,7 +174,7 @@ export default function Relatives() {
                   </div>
                 </div>
               ))}
-              <div className="h-10 px-4 py-2">
+              <div className="min-h-10 px-4 py-2">
                 {loading && <p className="px-4 text-text_color">Loading...</p>}
                 {loadingMore && <p className="px-4 text-text_color">Loading more...</p>}
                 {(!loading && data.length === 0 && !searchInput) &&
