@@ -229,6 +229,16 @@ input[type="checkbox"]:checked::after {
   }
 }
 
+.slidepanel-hide {
+  animation: removeHeight 0s ease-in 500ms forwards;
+}
+
+@keyframes removeHeight {
+  to {
+    height: 0;
+  }
+}
+
 .input-not-placeholder:focus,
 .input-not-placeholder:not(:placeholder-shown) {
   width: 100%;
