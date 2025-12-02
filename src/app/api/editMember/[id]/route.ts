@@ -260,7 +260,7 @@ export async function PUT(request: NextRequest) {
       occupation: updatedData.occupation || null,
       education: updatedData.education || null,
       address: updatedData.address || null,
-      additionalInfo: updatedData.additionalInfo || null,
+      additionalInfo: updatedData.additionalInfo ?? null,
       descendant: updatedData.descendant,
     };
 

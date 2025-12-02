@@ -145,7 +145,7 @@ export default function EditMemberDetails() {
 
   return (
     <div className="md:flex text-text_color relative">
-      <Container className='relative'>
+      <Container className='relative h-full'>
         {(loading || submitting) && <div className={`absolute inset-0 flex justify-center items-start bg-gray-50/30 z-20 cursor-wait`}>
           <p className="mt-20 px-2 bg-field_color border border-border_color text-text_color rounded-md z-[100]">{loading ? 'Loading...' : 'Submitting...'}</p>
         </div>}
