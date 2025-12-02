@@ -78,6 +78,7 @@ export default function AddRelationshipDetails() {
           setShowList(false);
           return;
         }
+        setError(null);
         setSelectedMemberId(id);
         setSelectedPartnerId(null);
         setNewChildrenData(AddRelationDefaultFormValue)
@@ -95,6 +96,7 @@ export default function AddRelationshipDetails() {
         break;
 
       case 'selectChildren':
+        setError(null);
         setNewChildrenData(updateData);
         break;
     }
