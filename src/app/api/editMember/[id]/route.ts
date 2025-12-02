@@ -171,6 +171,7 @@ export async function PUT(request: NextRequest) {
         address: true,
         occupation: true,
         education: true,
+        additionalInfo: true,
         birthDate: true,
         birthMonth: true,
         birthYear: true,
