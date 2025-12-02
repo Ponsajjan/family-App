@@ -243,11 +243,50 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Helper function to normalize values for comparison
+    const normalizeValue = (value: any): any => {
+      if (value === null || value === undefined) return null;
+      if (typeof value === 'string') return value.trim();
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'number') return value;
+      if (Array.isArray(value)) return value.map(item => normalizeValue(item));
+      return value;
+    };
+
+    // Helper function to compare values robustly
+    const valuesAreEqual = (value1: any, value2: any): boolean => {
+      const normalized1 = normalizeValue(value1);
+      const normalized2 = normalizeValue(value2);
+
+      // Handle null/undefined cases
+      if (normalized1 === null && normalized2 === null) return true;
+      if (normalized1 === null || normalized2 === null) return normalized1 === normalized2;
+
+      // Handle numbers (convert strings to numbers for comparison)
+      if (!isNaN(Number(normalized1)) && !isNaN(Number(normalized2))) {
+        return Number(normalized1) === Number(normalized2);
+      }
+
+      // Handle arrays
+      if (Array.isArray(normalized1) && Array.isArray(normalized2)) {
+        if (normalized1.length !== normalized2.length) return false;
+        return JSON.stringify(normalized1.sort()) === JSON.stringify(normalized2.sort());
+      }
+
+      // Handle booleans
+      if (typeof normalized1 === 'boolean' || typeof normalized2 === 'boolean') {
+        return Boolean(normalized1) === Boolean(normalized2);
+      }
+
+      // Default to string comparison
+      return String(normalized1) === String(normalized2);
+    };
+
     const deceased = updatedData.deceased === true;
 
-    // Prepare the update data
+    // Prepare the update data - ensure proper type conversion
     const memberUpdateData = {
-      name: updatedData.name,
+      name: updatedData.name !== undefined ? String(updatedData.name).trim() : undefined,
       gender: updatedData.gender,
       birthDate: updatedData.birthDate ? parseInt(updatedData.birthDate, 10) : null,
       birthMonth: updatedData.birthMonth ? parseInt(updatedData.birthMonth, 10) : null,
@@ -256,18 +295,28 @@ export async function PUT(request: NextRequest) {
       deathDate: deceased && updatedData.deathDate ? parseInt(updatedData.deathDate, 10) : null,
       deathMonth: deceased && updatedData.deathMonth ? parseInt(updatedData.deathMonth, 10) : null,
       deathYear: deceased && updatedData.deathYear ? parseInt(updatedData.deathYear, 10) : null,
-      phoneNumber: updatedData.phoneNumber,
-      occupation: updatedData.occupation || null,
-      education: updatedData.education || null,
-      address: updatedData.address || null,
-      additionalInfo: updatedData.additionalInfo ?? null,
-      descendant: updatedData.descendant,
+      phoneNumber: updatedData.phoneNumber ? String(updatedData.phoneNumber).trim() : undefined,
+      occupation: updatedData.occupation ? String(updatedData.occupation).trim() : null,
+      education: updatedData.education ? String(updatedData.education).trim() : null,
+      address: updatedData.address ? String(updatedData.address).trim() : null,
+      additionalInfo: updatedData.additionalInfo !== undefined
+        ? (updatedData.additionalInfo === null ? null : String(updatedData.additionalInfo).trim())
+        : undefined,
+      descendant: updatedData.descendant !== undefined
+        ? (updatedData.descendant === true || updatedData.descendant === 'true')
+        : undefined,
     };
 
-    // Filter out unchanged fields
+    // Filter out unchanged fields using robust comparison
     const filteredUpdateData: Record<string, any> = {};
+
     Object.entries(memberUpdateData).forEach(([key, value]) => {
-      if (JSON.stringify(value) !== JSON.stringify(member[key as keyof typeof member])) {
+      // Skip undefined values (means field wasn't provided for update)
+      if (value === undefined) return;
+
+      const currentValue = member[key as keyof typeof member];
+
+      if (!valuesAreEqual(value, currentValue)) {
         filteredUpdateData[key] = value;
       }
     });
@@ -277,18 +326,38 @@ export async function PUT(request: NextRequest) {
     if (updatedData.descendant === false) {
       const currentNonDescendant = member.nonDescendantRelation?.[0];
 
-      if (updatedData.father !== undefined && updatedData.father !== currentNonDescendant?.fatherName) {
-        nonDescendantChanges.father = updatedData.father || null;
+      // Normalize and compare father name
+      if (updatedData.father !== undefined) {
+        const newFather = updatedData.father ? String(updatedData.father).trim() : null;
+        const currentFather = currentNonDescendant?.fatherName ? String(currentNonDescendant.fatherName).trim() : null;
+
+        if (!valuesAreEqual(newFather, currentFather)) {
+          nonDescendantChanges.father = newFather;
+        }
       }
-      if (updatedData.mother !== undefined && updatedData.mother !== currentNonDescendant?.motherName) {
-        nonDescendantChanges.mother = updatedData.mother || null;
+
+      // Normalize and compare mother name
+      if (updatedData.mother !== undefined) {
+        const newMother = updatedData.mother ? String(updatedData.mother).trim() : null;
+        const currentMother = currentNonDescendant?.motherName ? String(currentNonDescendant.motherName).trim() : null;
+
+        if (!valuesAreEqual(newMother, currentMother)) {
+          nonDescendantChanges.mother = newMother;
+        }
       }
-      if (updatedData.siblings !== undefined && JSON.stringify(updatedData.siblings) !== JSON.stringify(currentNonDescendant?.siblingNames)) {
-        nonDescendantChanges.siblings = updatedData.siblings || null;
+
+      // Normalize and compare siblings
+      if (updatedData.siblings !== undefined) {
+        const newSiblings = updatedData.siblings || null;
+        const currentSiblings = currentNonDescendant?.siblingNames || null;
+
+        if (!valuesAreEqual(newSiblings, currentSiblings)) {
+          nonDescendantChanges.siblings = newSiblings;
+        }
       }
     }
 
-    // If descendant is true, ensure we remove non-descendant relations
+    // If descendant is being changed to true, and there are existing non-descendant relations
     if (updatedData.descendant === true && member.nonDescendantRelation?.[0]) {
       nonDescendantChanges = {
         father: '',
@@ -297,8 +366,16 @@ export async function PUT(request: NextRequest) {
       };
     }
 
+    // Clean up empty values from nonDescendantChanges
+    const cleanedNonDescendantChanges: Record<string, any> = {};
+    Object.entries(nonDescendantChanges).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        cleanedNonDescendantChanges[key] = value;
+      }
+    });
+
     // If no fields are changed, return early
-    if (Object.keys(filteredUpdateData).length === 0 && Object.keys(nonDescendantChanges).length === 0) {
+    if (Object.keys(filteredUpdateData).length === 0 && Object.keys(cleanedNonDescendantChanges).length === 0) {
       return NextResponse.json(
         { error: "No changes to update." },
         { status: 400 }
@@ -307,12 +384,11 @@ export async function PUT(request: NextRequest) {
 
     // Check if the member is verified
     if (member.verified) {
-
       // If there are any changes (either member data or non-descendant relations)
-      if (Object.keys(filteredUpdateData).length > 0 || Object.keys(nonDescendantChanges).length > 0) {
+      if (Object.keys(filteredUpdateData).length > 0 || Object.keys(cleanedNonDescendantChanges).length > 0) {
         const requestDetails: Record<string, any> = {
           ...(Object.keys(filteredUpdateData).length > 0 && { ...filteredUpdateData }),
-          ...(Object.keys(nonDescendantChanges).length > 0 && { ...nonDescendantChanges }),
+          ...(Object.keys(cleanedNonDescendantChanges).length > 0 && { ...cleanedNonDescendantChanges }),
         };
 
         // Convert descendant to Yes/No for consistency with other parts of the app
@@ -331,7 +407,7 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          message: `Update request has been added for verification. ${JSON.stringify(requestDetails)}`,
+          message: `Update request has been added for verification.`,
         });
       }
 
@@ -343,32 +419,37 @@ export async function PUT(request: NextRequest) {
 
     // Non-verified member update logic
     try {
-      await prisma.member.update({
-        where: { id: memberId },
-        data: filteredUpdateData,
-      });
+      // Only update if there are changes to member data
+      if (Object.keys(filteredUpdateData).length > 0) {
+        await prisma.member.update({
+          where: { id: memberId },
+          data: filteredUpdateData,
+        });
+      }
 
       // Handle non-descendant relations
-      if (updatedData.descendant === false && (updatedData.father || updatedData.mother || updatedData.siblings)) {
-        await prisma.nonDescendantRelation.upsert({
-          where: { memberId: memberId },
-          update: {
-            fatherName: updatedData.father || null,
-            motherName: updatedData.mother || null,
-            siblingNames: updatedData.siblings || null,
-          },
-          create: {
-            memberId: memberId,
-            fatherName: updatedData.father || null,
-            motherName: updatedData.mother || null,
-            siblingNames: updatedData.siblings || null,
-          },
-        });
-      } else if (updatedData.descendant === true) {
-        // Remove non-descendant relations if descendant is true
-        await prisma.nonDescendantRelation.deleteMany({
-          where: { memberId: memberId },
-        });
+      if (Object.keys(cleanedNonDescendantChanges).length > 0) {
+        if (updatedData.descendant === false) {
+          await prisma.nonDescendantRelation.upsert({
+            where: { memberId: memberId },
+            update: {
+              fatherName: cleanedNonDescendantChanges.father !== undefined ? cleanedNonDescendantChanges.father : undefined,
+              motherName: cleanedNonDescendantChanges.mother !== undefined ? cleanedNonDescendantChanges.mother : undefined,
+              siblingNames: cleanedNonDescendantChanges.siblings !== undefined ? cleanedNonDescendantChanges.siblings : undefined,
+            },
+            create: {
+              memberId: memberId,
+              fatherName: cleanedNonDescendantChanges.father || null,
+              motherName: cleanedNonDescendantChanges.mother || null,
+              siblingNames: cleanedNonDescendantChanges.siblings || null,
+            },
+          });
+        } else if (updatedData.descendant === true) {
+          // Remove non-descendant relations if descendant is true
+          await prisma.nonDescendantRelation.deleteMany({
+            where: { memberId: memberId },
+          });
+        }
       }
 
       revalidatePath('/api/relatives');
