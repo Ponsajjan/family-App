@@ -330,7 +330,7 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          message: `Update request has been added for verification. ${Object.keys(filteredUpdateData).length > 0 ? `Member details ${filteredUpdateData}` : ''}${Object.keys(filteredUpdateData).length > 0 && Object.keys(nonDescendantChanges).length > 0 ? ' and ' : ''}${Object.keys(nonDescendantChanges).length > 0 ? `non-descendant relations ${nonDescendantChanges}` : ''} will be updated upon approval.`,
+          message: `Update request has been added for verification. ${JSON.stringify(requestDetails)}`,
         });
       }
 
