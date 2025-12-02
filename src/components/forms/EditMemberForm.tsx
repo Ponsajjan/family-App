@@ -20,6 +20,7 @@ function EditMemberForm({
 
     const toast = useToast();
     const showWarning = (input: string) => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         toast?.show(`Can not change ${input} for this member`, "warning", 5000);
     }
 
