@@ -115,9 +115,9 @@ export default function EditMemberDetails() {
         address: formData.address?.trimEnd(),
         additionalInfo: formData.additionalInfo?.trimEnd(),
         descendant: descendant,
-        father: descendant ? null : formData.father?.trimEnd(),
-        mother: descendant ? null : formData.mother?.trimEnd(),
-        siblings: descendant ? null : formData.siblings?.trimEnd()
+        father: descendant ? '' : formData.father?.trimEnd(),
+        mother: descendant ? '' : formData.mother?.trimEnd(),
+        siblings: descendant ? '' : formData.siblings?.trimEnd()
       };
       const response = await fetch(`/api/editMember/${formData.id}`, {
         method: "PUT",
