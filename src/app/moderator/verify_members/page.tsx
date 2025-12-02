@@ -9,6 +9,7 @@ import { useDebounce } from "@/utils/debounce";
 import NewMemberDetails from "./Details";
 import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
+import Container from "@/components/Container";
 
 export default function VerifyMember() {
   const toast = useToast();
@@ -200,10 +201,10 @@ export default function VerifyMember() {
         </div>
       </Topnav>
       <div className="w-full md:flex">
-        <div className='w-full' ref={containerRef}>
+        <Container className='scroll-stable' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
-              <div className="bg-main_background w-full sticky pt-4 top-12 z-20 flex">
+              <div className="bg-main_background w-full sticky pt-4 top-12 md:top-0 z-20 flex">
                 <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members</span>
                 <span className="border-b border-border_color block w-full"></span>
               </div>
@@ -256,7 +257,7 @@ export default function VerifyMember() {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
           <NewMemberDetails showDetailsFor={showDetailsFor} setShowDetails={setShowDetails} setParams={setParams} handleMemberSearch={handleMemberSearch} setMembers={setMembers} members={members} selectedFilter={selectedFilter} />
         </SlidePanel>

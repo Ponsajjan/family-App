@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 import Details from "./Details";
 import { ApiResponse, AuthEntry } from "@/types/admin/types";
+import Container from "@/components/Container";
 
 export default function Relatives() {
   const toast = useToast();
@@ -153,7 +154,7 @@ export default function Relatives() {
         </div>
       </Topnav>
       <div className="w-full md:flex">
-        <div className='w-full pt-3' ref={containerRef}>
+        <Container className='scroll-stable pt-3' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
               {data?.map((row: AuthEntry, rowIndex: number) => (
@@ -187,7 +188,7 @@ export default function Relatives() {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
 
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails}>
           {selectedMember && (

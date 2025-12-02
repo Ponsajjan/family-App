@@ -10,6 +10,7 @@ import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
+import Container from "@/components/Container";
 
 interface EachMember {
   id: number;
@@ -151,12 +152,12 @@ export default function Relatives() {
         </div>
       </Topnav>
       <div className="w-full md:flex">
-        <div className='w-full' ref={containerRef}>
+        <Container className='scroll-stable' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
               {members?.map((member: any) => (
                 member.gender === "Letter" ?
-                  <div key={member.id} className="flex text-text_color items-center px-[10px] md:pt-1 bg-main_background sticky top-12 z-10">
+                  <div key={member.id} className="flex text-text_color items-center px-[10px] md:pt-1 bg-main_background sticky top-12 md:top-0 z-10">
                     <span className="font-medium md:font-semibold pr-1">{member.name}</span>
                     <span className="border-t border-border_color block w-full"></span>
                   </div> :
@@ -212,7 +213,7 @@ export default function Relatives() {
               </div>
             </div>
           </div>
-        </div>
+        </Container>
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
           <Details showMember={showMember} openDetails={setShowDetails} />
         </SlidePanel>
