@@ -391,6 +391,13 @@ export async function PUT(request: NextRequest) {
           ...(Object.keys(cleanedNonDescendantChanges).length > 0 && { ...cleanedNonDescendantChanges }),
         };
 
+        // If descendant is changing to true, mark non-descendant relations as empty
+        if (requestDetails.descendant === true && member.nonDescendantRelation?.[0]) {
+          requestDetails.father = '';
+          requestDetails.mother = '';
+          requestDetails.siblings = '';
+        }
+
         // Convert descendant to Yes/No for consistency with other parts of the app
         if ('descendant' in requestDetails) {
           requestDetails.descendant = requestDetails.descendant ? 'Yes' : 'No';
