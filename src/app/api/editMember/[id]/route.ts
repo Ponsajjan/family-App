@@ -353,7 +353,7 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // If descendant is true, ensure we remove non-descendant relations
+    // If descendant is being changed to true, and there are existing non-descendant relations, ensure we remove non-descendant relations
     if (updatedData.descendant === true && member.nonDescendantRelation?.[0]) {
       nonDescendantChanges = {
         father: '',
