@@ -284,9 +284,9 @@ export async function PUT(request: NextRequest) {
 
     const deceased = updatedData.deceased === true;
 
-    // Prepare the update data - ensure proper type conversion
+    // Prepare the update data
     const memberUpdateData = {
-      name: updatedData.name !== undefined ? String(updatedData.name).trim() : undefined,
+      name: updatedData.name,
       gender: updatedData.gender,
       birthDate: updatedData.birthDate ? parseInt(updatedData.birthDate, 10) : null,
       birthMonth: updatedData.birthMonth ? parseInt(updatedData.birthMonth, 10) : null,
@@ -295,19 +295,15 @@ export async function PUT(request: NextRequest) {
       deathDate: deceased && updatedData.deathDate ? parseInt(updatedData.deathDate, 10) : null,
       deathMonth: deceased && updatedData.deathMonth ? parseInt(updatedData.deathMonth, 10) : null,
       deathYear: deceased && updatedData.deathYear ? parseInt(updatedData.deathYear, 10) : null,
-      phoneNumber: updatedData.phoneNumber ? String(updatedData.phoneNumber).trim() : undefined,
-      occupation: updatedData.occupation ? String(updatedData.occupation).trim() : null,
-      education: updatedData.education ? String(updatedData.education).trim() : null,
-      address: updatedData.address ? String(updatedData.address).trim() : null,
-      additionalInfo: updatedData.additionalInfo !== undefined
-        ? (updatedData.additionalInfo === null ? null : String(updatedData.additionalInfo).trim())
-        : undefined,
-      descendant: updatedData.descendant !== undefined
-        ? (updatedData.descendant === true || updatedData.descendant === 'true')
-        : undefined,
+      phoneNumber: updatedData.phoneNumber,
+      occupation: updatedData.occupation || null,
+      education: updatedData.education || null,
+      address: updatedData.address || null,
+      additionalInfo: updatedData.additionalInfo || null,
+      descendant: updatedData.descendant,
     };
 
-    // Filter out unchanged fields using robust comparison
+    // Filter out unchanged fields
     const filteredUpdateData: Record<string, any> = {};
 
     Object.entries(memberUpdateData).forEach(([key, value]) => {
@@ -357,7 +353,7 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // If descendant is being changed to true, and there are existing non-descendant relations
+    // If descendant is true, ensure we remove non-descendant relations
     if (updatedData.descendant === true && member.nonDescendantRelation?.[0]) {
       nonDescendantChanges = {
         father: '',
