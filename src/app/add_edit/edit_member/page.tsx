@@ -84,7 +84,7 @@ export default function EditMemberDetails() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validateEditMemberForm(formData);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;

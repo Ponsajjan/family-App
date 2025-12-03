@@ -148,7 +148,6 @@ export default function NewMemberDetails({ showDetailsFor, setShowDetails, handl
             }
             // Handle API response
             if (!response.ok) {
-                toast?.show(result.error || "Something went wrong", "error", 5000);
                 throw new Error(result.error || "Something went wrong");
                 // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
             }
