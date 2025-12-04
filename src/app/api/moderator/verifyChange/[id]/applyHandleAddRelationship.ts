@@ -177,8 +177,8 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
   }
 
   // Convert to Prisma's expected format
-  const prismaData = {
-    partnerId: formData.partnerId,
+  const sanitizedUpdateData = {
+    ...(formData.partnerId !== undefined && { partnerId: formData.partnerId }),
     ...(formData.fatherOf && {
       fatherOf: { connect: formData.fatherOf.map(({ id }) => ({ id })) }
     }),
@@ -187,9 +187,12 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
     })
   };
 
+  // Use provided partnerId or fall back to existing partner
+  const effectivePartnerId = formData.partnerId !== undefined ? formData.partnerId : currentMember.partnerId;
+
   const updatedMember = await tx.member.update({
     where: { id: memberId },
-    data: prismaData,
+    data: sanitizedUpdateData,
   });
 
   // Batch update children orders
@@ -217,31 +220,14 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
     await Promise.all(childrenUpdates);
   }
 
-  // Update partner relationships (only if partner is different)
-  if (formData.partnerId && formData.partnerId !== currentMember.partnerId) {
-    const partnerUpdateData: Partial<AddRelationshipData> = {
-      partnerId: memberId
-    };
-
-    if (formData.fatherOf) {
-      partnerUpdateData.motherOf = formData.fatherOf;
-    }
-
-    if (formData.motherOf) {
-      partnerUpdateData.fatherOf = formData.motherOf;
-    }
-
+  // Update partner relationships (with effective partner)
+  if (effectivePartnerId) {
     await tx.member.update({
-      where: { id: formData.partnerId },
+      where: { id: effectivePartnerId },
       data: {
-        ...partnerUpdateData,
-        // Convert to Prisma format for partner update too
-        ...(partnerUpdateData.fatherOf && {
-          fatherOf: { connect: partnerUpdateData.fatherOf.map(({ id }) => ({ id })) }
-        }),
-        ...(partnerUpdateData.motherOf && {
-          motherOf: { connect: partnerUpdateData.motherOf.map(({ id }) => ({ id })) }
-        })
+        partnerId: memberId,
+        ...(formData.fatherOf && { motherOf: { connect: formData.fatherOf.map(({ id }) => ({ id })) } }),
+        ...(formData.motherOf && { fatherOf: { connect: formData.motherOf.map(({ id }) => ({ id })) } })
       }
     });
   }

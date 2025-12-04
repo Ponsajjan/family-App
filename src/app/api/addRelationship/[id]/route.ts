@@ -350,6 +350,9 @@ export async function PUT(request: NextRequest) {
       })
     };
 
+    // Use provided partnerId or fall back to existing partner
+    const effectivePartnerId = updatedData.partnerId !== undefined ? updatedData.partnerId : currentMember.partnerId;
+
     await prisma.$transaction([
       prisma.member.update({
         where: { id: memberId },
@@ -361,8 +364,8 @@ export async function PUT(request: NextRequest) {
       ...(updatedData.motherOf || []).map(({ id, order }) =>
         prisma.member.update({ where: { id }, data: { order } })
       ),
-      ...(updatedData.partnerId ? [prisma.member.update({
-        where: { id: updatedData.partnerId },
+      ...(effectivePartnerId ? [prisma.member.update({
+        where: { id: effectivePartnerId },
         data: {
           partnerId: memberId,
           ...(updatedData.fatherOf && { motherOf: { connect: updatedData.fatherOf.map(({ id }) => ({ id })) } }),
