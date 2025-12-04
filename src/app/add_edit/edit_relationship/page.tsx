@@ -75,26 +75,22 @@ export default function EditRelationshipDetails() {
   const handleRemoveChildrenValue = (id: number) => {
     setNoChanges(false);
     setFormData((prev: any) => {
-      // Ensure we always return a state object. If children isn't an array, just return prev.
-      if (!Array.isArray(prev?.children)) return prev;
+      if (Array.isArray(prev['children'])) {
+        // Find the child to remove
+        const childToRemove = prev.children.find((entry: any) => entry.id === id);
+        if (!childToRemove) return prev;
 
-      // Find the child to remove
-      const childToRemove = prev.children.find((entry: any) => entry.id === id);
-      if (!childToRemove) return prev;
 
-      // Add to deleteData with shape { id, order }
-      setDeleteData((prevDeleted: any) => ({
-        ...prevDeleted,
-        childrenId: Array.isArray(prevDeleted?.childrenId)
-          ? [...prevDeleted.childrenId, { id, order: childToRemove.order }]
-          : [{ id, order: childToRemove.order }],
-      }));
-
-      // Return new formData with the child removed
-      return {
-        ...prev,
-        children: prev.children.filter((entry: any) => entry.id !== id),
-      };
+        setDeleteData((prevDeleted: any) => ({
+          ...prevDeleted,
+          ['childrenId']: [...prevDeleted['childrenId'], id],
+        }));
+        // Remove the existing entry
+        return {
+          ...prev,
+          ['children']: prev['children'].filter((entry: any) => entry.id !== id),
+        };
+      }
     });
   };
 
