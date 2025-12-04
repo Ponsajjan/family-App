@@ -339,7 +339,7 @@ export async function PUT(request: NextRequest) {
       });
     }
 
-    // Update Member
+    // Update Member (mirror applyHandleAddRelationship)
     const sanitizedUpdateData = {
       ...(updatedData.partnerId !== undefined && { partnerId: updatedData.partnerId }),
       ...(updatedData.fatherOf && {
@@ -353,26 +353,41 @@ export async function PUT(request: NextRequest) {
     // Use provided partnerId or fall back to existing partner
     const effectivePartnerId = updatedData.partnerId !== undefined ? updatedData.partnerId : currentMember.partnerId;
 
-    await prisma.$transaction([
-      prisma.member.update({
-        where: { id: memberId },
-        data: sanitizedUpdateData,
-      }),
-      ...(updatedData.fatherOf || []).map(({ id, order }) =>
-        prisma.member.update({ where: { id }, data: { order } })
-      ),
-      ...(updatedData.motherOf || []).map(({ id, order }) =>
-        prisma.member.update({ where: { id }, data: { order } })
-      ),
-      ...(effectivePartnerId ? [prisma.member.update({
+    await prisma.member.update({
+      where: { id: memberId },
+      data: sanitizedUpdateData,
+    });
+
+    // Batch update children orders
+    const childrenUpdates: Promise<any>[] = [];
+
+    if (updatedData.fatherOf) {
+      childrenUpdates.push(...updatedData.fatherOf.map(child =>
+        prisma.member.update({ where: { id: child.id }, data: { order: child.order } })
+      ));
+    }
+
+    if (updatedData.motherOf) {
+      childrenUpdates.push(...updatedData.motherOf.map(child =>
+        prisma.member.update({ where: { id: child.id }, data: { order: child.order } })
+      ));
+    }
+
+    if (childrenUpdates.length > 0) {
+      await Promise.all(childrenUpdates);
+    }
+
+    // Update partner relationships (with effective partner)
+    if (effectivePartnerId) {
+      await prisma.member.update({
         where: { id: effectivePartnerId },
         data: {
           partnerId: memberId,
           ...(updatedData.fatherOf && { motherOf: { connect: updatedData.fatherOf.map(({ id }) => ({ id })) } }),
           ...(updatedData.motherOf && { fatherOf: { connect: updatedData.motherOf.map(({ id }) => ({ id })) } })
         }
-      })] : [])
-    ]);
+      });
+    }
 
     revalidatePath('/api/relatives');
 
