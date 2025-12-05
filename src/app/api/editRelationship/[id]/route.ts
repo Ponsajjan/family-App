@@ -217,19 +217,19 @@ export async function PUT(request: NextRequest) {
 
     // Handle partner removal (divorce)
     if (deleteData.partnerId) {
+      // Remove partner from member
       updatePromises.push(
-        prisma.$transaction([
-          // Remove partner from member
-          prisma.member.update({
-            where: { id: deleteData.partnerId },
-            data: { partnerId: null },
-          }),
-          // Remove member from partner
-          prisma.member.update({
-            where: { id: memberId },
-            data: { partnerId: null },
-          }),
-        ])
+        prisma.member.update({
+          where: { id: deleteData.partnerId },
+          data: { partnerId: null },
+        }),
+      );
+      // Remove member from partner
+      updatePromises.push(
+        prisma.member.update({
+          where: { id: memberId },
+          data: { partnerId: null },
+        }),
       );
 
       // If no children specified during divorce, keep all children with both parents

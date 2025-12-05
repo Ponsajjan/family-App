@@ -43,6 +43,7 @@ function EditRelationShipForm({
     };
 
     const handleTouchStart = (index: number, e: React.TouchEvent) => {
+        e.preventDefault();
         const touch = e.touches[0];
         touchStartPos.current = { x: touch.clientX, y: touch.clientY };
         dragItem.current = index

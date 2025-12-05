@@ -26,19 +26,19 @@ export const applyHandleEditRelationship = async (data: RequestData, tx: any) =>
 
   // Handle partner removal (divorce)
   if (data.formData.deleteData?.partnerId) {
+    // Remove partner from member
     updatePromises.push(
-      tx.$transaction([
-        // Remove partner from member
-        tx.member.update({
-          where: { id: data.formData.deleteData.partnerId },
-          data: { partnerId: null }
-        }),
-        // Remove member from partner
-        tx.member.update({
-          where: { id: data.memberId },
-          data: { partnerId: null }
-        })
-      ])
+      tx.member.update({
+        where: { id: data.formData.deleteData.partnerId },
+        data: { partnerId: null }
+      })
+    );
+    // Remove member from partner
+    updatePromises.push(
+      tx.member.update({
+        where: { id: data.memberId },
+        data: { partnerId: null }
+      })
     );
 
     // If no children specified during divorce, keep all children with both parents
