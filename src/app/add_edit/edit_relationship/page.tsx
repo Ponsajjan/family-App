@@ -55,7 +55,8 @@ export default function EditRelationshipDetails() {
           if (data.children && Array.isArray(data.children)) {
             data.children.sort((a: any, b: any) => a.order - b.order);
           }
-          setResetValue({ 'data': data, 'hasPartner': data.partner?.id })
+          // Deep copy the data to prevent mutations from affecting reset state
+          setResetValue({ 'data': JSON.parse(JSON.stringify(data)), 'hasPartner': data.partner?.id })
 
           setFormData(data);
           setHasPatner(data.partner?.id);
@@ -79,7 +80,6 @@ export default function EditRelationshipDetails() {
         // Find the child to remove
         const childToRemove = prev.children.find((entry: any) => entry.id === id);
         if (!childToRemove) return prev;
-
 
         setDeleteData((prevDeleted: any) => ({
           ...prevDeleted,

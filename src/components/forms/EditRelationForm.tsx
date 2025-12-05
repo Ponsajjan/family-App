@@ -18,6 +18,8 @@ function EditRelationShipForm({
     const [isDragging, setIsDragging] = useState(false);
     const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+    const dragThreshold = 10; // pixels to move before considering it a drag
 
     const handleDragStart = (index: number) => {
         dragItem.current = index;
@@ -30,7 +32,7 @@ function EditRelationShipForm({
     };
 
     const handleDrop = () => {
-        const list = formData.children;
+        const list = [...formData.children];
         const dragItemContent = list[dragItem.current];
         list.splice(dragItem.current, 1);
         list.splice(dragOverItem.current, 0, dragItemContent);
@@ -41,15 +43,33 @@ function EditRelationShipForm({
     };
 
     const handleTouchStart = (index: number, e: React.TouchEvent) => {
-        dragItem.current = index;
-        setIsDragging(true);
+        const touch = e.touches[0];
+        touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+        dragItem.current = index
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
-        if (!isDragging) return;
-        e.preventDefault();
+        if (!touchStartPos.current) return;
+
         const touch = e.touches[0];
         const { clientX, clientY } = touch;
+
+        // Check if we've moved beyond the threshold
+        if (!isDragging) {
+            const deltaX = Math.abs(clientX - touchStartPos.current.x);
+            const deltaY = Math.abs(clientY - touchStartPos.current.y);
+
+            if (deltaX > dragThreshold || deltaY > dragThreshold) {
+                // User has moved enough, start dragging
+                setIsDragging(true);
+            } else {
+                // Not enough movement yet, don't start dragging
+                return;
+            }
+        }
+
+        e.preventDefault();
+
         const overIndex = itemRefs.current.findIndex((ref) => {
             if (!ref) return false;
             const rect = ref.getBoundingClientRect();
@@ -67,6 +87,10 @@ function EditRelationShipForm({
         if (isDragging) {
             handleDrop();
         }
+        // Reset touch tracking
+        touchStartPos.current = null;
+        setIsDragging(false);
+        setDraggedOverIndex(null);
     };
 
     return (
@@ -102,11 +126,6 @@ function EditRelationShipForm({
                                     className="block w-9 h-6 cursor-pointer">
                                     <Divorced />
                                 </span>
-                                {/* <span
-                        onClick={() => handleRemovePartnerValue()}
-                        className="block h-fit cursor-pointer">
-                        <CloseIcon />
-                    </span> */}
                             </div>
                         </div>
                     </> :
@@ -115,8 +134,8 @@ function EditRelationShipForm({
             {formData.children.length > 0 &&
                 <>
                     <p className="text-sm">Children</p>
-                    {formData.children?.map((child: { id: number, name: string, order: number }, index: number) => (
-                        <div key={child.id} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 ${formData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} ${draggedOverIndex === index ? 'bg-field_hover' : ''}`}
+                    {formData.children.map((child: { id: number, name: string }, index: number) => (
+                        <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-2 ${formData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} ${draggedOverIndex === index ? 'bg-field_hover' : ''}`}
                             ref={(el) => { itemRefs.current[index] = el; }}
                             draggable={true}
                             onDragStart={() => handleDragStart(index)}
@@ -127,12 +146,12 @@ function EditRelationShipForm({
                             onTouchMove={handleTouchMove}
                             onTouchEnd={handleTouchEnd}
                         >
-                            <span className="py-2 w-full">{child?.name}</span>
-                            {formData.children.length > 0 && <span
-                                onClick={() => handleRemoveChildrenValue(child?.id)}
+                            <span className="py-2 w-full">{child.name}</span>
+                            <span
+                                onClick={() => handleRemoveChildrenValue(child.id)}
                                 className="border border-border_color rounded-md h-fit  cursor-pointer">
                                 <CloseIcon />
-                            </span>}
+                            </span>
                         </div>)
                     )}
                 </>}
