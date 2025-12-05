@@ -38,6 +38,8 @@ function AddRelationShipForm({
     const [isDragging, setIsDragging] = useState(false);
     const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+    const dragThreshold = 10; // pixels to move before considering it a drag
 
     const handleDragStart = (index: number) => {
         dragItem.current = index;
@@ -50,7 +52,8 @@ function AddRelationShipForm({
     };
 
     const handleDrop = () => {
-        const list = newChildrenData.children;
+        // Create a copy of the array to avoid mutating the original
+        const list = [...newChildrenData.children];
         const dragItemContent = list[dragItem.current];
         list.splice(dragItem.current, 1);
         list.splice(dragOverItem.current, 0, dragItemContent);
@@ -60,15 +63,34 @@ function AddRelationShipForm({
     };
 
     const handleTouchStart = (index: number, e: React.TouchEvent) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        touchStartPos.current = { x: touch.clientX, y: touch.clientY };
         dragItem.current = index;
-        setIsDragging(true);
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
-        if (!isDragging) return;
-        e.preventDefault();
+        if (!touchStartPos.current) return;
+
         const touch = e.touches[0];
         const { clientX, clientY } = touch;
+
+        // Check if we've moved beyond the threshold
+        if (!isDragging) {
+            const deltaX = Math.abs(clientX - touchStartPos.current.x);
+            const deltaY = Math.abs(clientY - touchStartPos.current.y);
+
+            if (deltaX > dragThreshold || deltaY > dragThreshold) {
+                // User has moved enough, start dragging
+                setIsDragging(true);
+            } else {
+                // Not enough movement yet, don't start dragging
+                return;
+            }
+        }
+
+        e.preventDefault();
+
         const overIndex = itemRefs.current.findIndex((ref) => {
             if (!ref) return false;
             const rect = ref.getBoundingClientRect();
@@ -86,6 +108,10 @@ function AddRelationShipForm({
         if (isDragging) {
             handleDrop();
         }
+        // Reset touch tracking
+        touchStartPos.current = null;
+        setIsDragging(false);
+        setDraggedOverIndex(null);
     };
 
     return (
