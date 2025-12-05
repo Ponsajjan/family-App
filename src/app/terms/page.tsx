@@ -118,7 +118,7 @@ export default function Terms() {
               </h1>
 
               <p className="text-base sm:text-lg text-center mb-3 md:px-10">
-                This web app is created exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances
+                This web app is exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances
               </p>
 
               <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
