@@ -14,6 +14,7 @@ export default function NewMembers() {
   const [changeList, setChangeList] = useState<any[] | never[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [loadingList, setLoadingList] = useState(true);
+  const [disableButton, setDisableButton] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [showDetailsFor, setShowDetailsFor] = useState([]);
@@ -94,6 +95,7 @@ export default function NewMembers() {
   }, [params, hasMore, toast, logout]);
 
   const handleShowDetails = (value: any, id: number) => {
+    if (disableButton) return;
     setShowDetails(true);
     setShowDetailsFor(value)
     setCurrentDetailIndex(0)
@@ -164,6 +166,8 @@ export default function NewMembers() {
             setCurrentDetailIndex={setCurrentDetailIndex}
             setShowDetailsFor={setShowDetailsFor}
             setChangeList={setChangeList}
+            disableButton={disableButton}
+            setDisableButton={setDisableButton}
             memberId={memberId}
           />
         </SlidePanel>

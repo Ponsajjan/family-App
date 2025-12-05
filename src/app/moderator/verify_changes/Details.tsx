@@ -13,11 +13,12 @@ const ChangeRequestView = ({
   setCurrentDetailIndex,
   setShowDetailsFor,
   setChangeList,
-  memberId
+  memberId,
+  disableButton,
+  setDisableButton
 }: any) => {
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
-  const [disableButton, setDisableButton] = useState(false);
   const [requestStatus, setRequestStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();

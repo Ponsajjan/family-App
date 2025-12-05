@@ -18,6 +18,7 @@ export default function VerifyMember() {
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsFor, setShowDetailsFor] = useState('');
   const [loadingList, setLoadingList] = useState(true);
+  const [preparingList, setPreparingList] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -132,6 +133,12 @@ export default function VerifyMember() {
     return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>');
   }
 
+  const handleShowDetails = (member: any) => {
+    if (preparingList) return
+    setShowDetailsFor(member);
+    setShowDetails(true)
+  }
+
   const handleFilterChange = (value: string) => {
     if (value === selectedFilter) {
       setDropdownOpen(false);
@@ -213,7 +220,7 @@ export default function VerifyMember() {
                   <div key={member.id} className="pl-4">
                     <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
                       <div
-                        onClick={() => { setShowDetailsFor(member); setShowDetails(true) }}
+                        onClick={() => { handleShowDetails(member) }}
                         className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                       >
                         <div>
@@ -259,7 +266,16 @@ export default function VerifyMember() {
           </div>
         </Container>
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
-          <NewMemberDetails showDetailsFor={showDetailsFor} setShowDetails={setShowDetails} setParams={setParams} handleMemberSearch={handleMemberSearch} setMembers={setMembers} members={members} selectedFilter={selectedFilter} />
+          <NewMemberDetails
+            showDetailsFor={showDetailsFor}
+            setShowDetails={setShowDetails}
+            setParams={setParams}
+            handleMemberSearch={handleMemberSearch}
+            preparingList={preparingList}
+            setPreparingList={setPreparingList}
+            setMembers={setMembers}
+            members={members}
+            selectedFilter={selectedFilter} />
         </SlidePanel>
       </div>
     </div>
