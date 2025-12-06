@@ -2,7 +2,7 @@
 
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Details from './Details';
 import Link from 'next/link';
 import { useToast } from '@/components/Toast';
@@ -42,7 +42,7 @@ export default function Relatives() {
   const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
-    limit: 40,
+    limit: 14,
     search: "",
   });
 
