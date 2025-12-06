@@ -53,10 +53,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Main member not found" }, { status: 404 });
     }
 
-    // Respond with the fetched data
+    let mainMemberName = authRecord.mainMemberNameRef;
+
+    if (decoded?.userType === 'Moderator' && mainMemberName) {
+      const last4Digits = mainMemberName.slice(-4);
+      const numericValue = parseInt(last4Digits, 10);
+      const moderatorAccountNumericValue = numericValue - 108;
+      const moderatorAccountLast4Digits = moderatorAccountNumericValue.toString().padStart(4, '0');
+      const potentialModeratorAccount = mainMemberName.slice(0, -4) + moderatorAccountLast4Digits;
+
+      // Modifying the mainMemberName to be the moderator account
+      mainMemberName = potentialModeratorAccount;
+    }
+
     return NextResponse.json({
       member: mainMember, // The main member associated with the auth record
-      mainMemberName: authRecord.mainMemberNameRef, // The main member's name
+      mainMemberName: mainMemberName, // The main member's name
       moderators: authRecord.moderatorList, // List of moderators,
       password: authRecord.password,
     });
