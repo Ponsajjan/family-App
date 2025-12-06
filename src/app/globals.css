@@ -78,12 +78,11 @@ svg {
   }
 
   95% {
-    transform: translateX(0);
-    scale: 1;
+    transform: translateX(0) scale(1);
   }
 
   100% {
-    scale: 0;
+    transform: scale(0);
   }
 }
 
