@@ -73,12 +73,13 @@ export default function NewMembers() {
     fetchChangeList();
 
     const handleScroll = () => {
-      if (
-        containerRef.current &&
-        containerRef.current.scrollTop + containerRef.current.clientHeight >= containerRef.current.scrollHeight - 4 &&
-        hasMore &&
-        !isFetching
-      ) {
+      if (!hasMore || isFetching) return;
+
+      const container = containerRef.current;
+      const isContainerEnd = container ? container.scrollTop + container.clientHeight >= container.scrollHeight - 10 : false;
+      const isWindowEnd = typeof window !== 'undefined' ? window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 20 : false;
+
+      if (isContainerEnd || isWindowEnd) {
         setParams((prevParams) => ({
           ...prevParams,
           page: prevParams.page + 1,
@@ -88,9 +89,11 @@ export default function NewMembers() {
 
     const container = containerRef.current;
     container?.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
       container?.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [params, hasMore, toast, logout]);
 

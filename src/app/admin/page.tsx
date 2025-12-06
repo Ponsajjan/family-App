@@ -102,10 +102,11 @@ export default function Relatives() {
     const handleScroll = () => {
       if (loadingMore || !hasMore) return;
 
-      const { scrollTop, scrollHeight, clientHeight } = currentContainer;
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 100;
+      const container = currentContainer;
+      const isContainerEnd = container ? container.scrollTop + container.clientHeight >= container.scrollHeight - 100 : false;
+      const isWindowEnd = typeof window !== 'undefined' ? window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 100 : false;
 
-      if (isAtBottom) {
+      if (isContainerEnd || isWindowEnd) {
         setParams(prev => ({
           ...prev,
           page: prev.page + 1
@@ -114,7 +115,12 @@ export default function Relatives() {
     };
 
     currentContainer.addEventListener('scroll', handleScroll);
-    return () => currentContainer.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      currentContainer.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [loadingMore, hasMore]);
 
   useEffect(() => {
