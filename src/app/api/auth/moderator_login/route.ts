@@ -48,6 +48,14 @@ export async function POST(request: NextRequest) {
 
     // Extract last 4 digits from mainMemberNameRef and subtract 108
     const mainMemberNameRef = login.mainMemberNameRef;
+
+    if (!mainMemberNameRef) {
+      return NextResponse.json(
+        { error: "Invalid account reference" },
+        { status: 500 }
+      );
+    }
+
     const last4Digits = mainMemberNameRef.slice(-4);
     const numericValue = parseInt(last4Digits, 10);
     const newNumericValue = numericValue - 108;
