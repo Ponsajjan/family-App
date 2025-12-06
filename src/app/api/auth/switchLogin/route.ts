@@ -34,18 +34,32 @@ export async function POST(request: Request) {
       where: { mainMemberNameRef: account },
     });
 
-    // If no match is found in DB, check the environment variable
-    if (!login && process.env.SUPER_ADMIN_PASSWORD && account === 'super_admin_007') {
-      login = {
-        id: -108,
-        mainMemberId: null,
-        password: process.env.SUPER_ADMIN_PASSWORD,
-        moderatorName: "Admin",
-        moderatorContact: "N/A",
-        moderatorPassword: "N/A",
-        mainMemberNameRef: "super_admin_007",
-      };
+    // Check if this might be a moderator account (not in DB, but regular account exists)
+    // Extract last 4 digits and add 108 to check if a regular account exists
+    let userType: string = "Member";
+    let isModerator = false;
+
+    if (!login) {
+      const last4Digits = account.slice(-4);
+      const numericValue = parseInt(last4Digits, 10);
+      const regularAccountNumericValue = numericValue + 108;
+      const regularAccountLast4Digits = regularAccountNumericValue.toString().padStart(4, '0');
+      const potentialRegularAccount = account.slice(0, -4) + regularAccountLast4Digits;
+
+      // Check if the regular account exists in the database
+      const regularAccountExists = await prisma.auth.findUnique({
+        where: { mainMemberNameRef: potentialRegularAccount },
+      });
+
+      if (regularAccountExists) {
+        // This is a moderator account (has 108 less than the regular account)
+        login = regularAccountExists;
+        userType = "Moderator";
+        isModerator = true;
+      }
     }
+
+
 
     if (!login) {
       return NextResponse.json(
@@ -54,21 +68,24 @@ export async function POST(request: Request) {
       );
     }
 
+    // Determine user type if not already set as moderator
+    if (!isModerator) {
+      userType = "Member";
+    }
+
     // Generate token
     const token = await generateToken({
       authId: login.id,
       memberId: login.mainMemberId,
-      userType: login.moderatorName === "Admin" ? "Admin" : "Member",
+      userType,
     });
-
-    const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
     return NextResponse.json({
       success: true,
       message: "Login successful",
       newtoken: token, // Changed from token to newtoken
       userType,
-      mainMemberNameRef: login.mainMemberNameRef || 'Unknown'
+      mainMemberNameRef: account // Use the account parameter to preserve moderator account string
     });
   } catch (error) {
     console.error("Error logging in:", error);

@@ -10,7 +10,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   access: string | null;
   setAccess: (access: string | null) => void;
-  storeLoginValues: (token: string, access: string, mainMemberNameRef: string) => void;
+  storeLoginValues: (token: string, access: string, mainMemberNameRef: string, oldAccountRef?: string) => void;
   logout: () => void;
 }
 
@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   }, []);
 
-  const storeLoginValues = (newToken: string, newAccess: string, mainMemberNameRef: string) => {
+  const storeLoginValues = (newToken: string, newAccess: string, mainMemberNameRef: string, oldAccountRef?: string) => {
     setToken(newToken);
     setAccess(newAccess);
     const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
@@ -73,9 +73,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // Add new account if it doesn't exist
-    if (!accounts.includes(mainMemberNameRef)) {
-      accounts.push(mainMemberNameRef);
+    // If oldAccountRef is provided, replace it with the new one
+    if (oldAccountRef) {
+      const oldIndex = accounts.indexOf(oldAccountRef);
+      if (oldIndex !== -1) {
+        accounts[oldIndex] = mainMemberNameRef;
+      } else {
+        // If old account not found, add new account if it doesn't exist
+        if (!accounts.includes(mainMemberNameRef)) {
+          accounts.push(mainMemberNameRef);
+        }
+      }
+    } else {
+      // Add new account if it doesn't exist
+      if (!accounts.includes(mainMemberNameRef)) {
+        accounts.push(mainMemberNameRef);
+      }
     }
 
     // Update the cookie with properly formatted JSON array

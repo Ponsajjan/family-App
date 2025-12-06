@@ -57,7 +57,7 @@ function SwitchLoginList({ setRefetch, mainMemberNameRef }: any) {
 
             const data = await res.json();
             if (data.newtoken) { // Check for token instead of newtoken
-                storeLoginValues(data.newtoken, data.userType, data.mainMemberNameRef);
+                storeLoginValues(data.newtoken, data.userType, data.mainMemberNameRef, mainMemberNameRef);
                 // setActiveFamily(account);
                 setRefetch((prev: boolean) => !prev);
             } else {
