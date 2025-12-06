@@ -31,7 +31,7 @@ export default function Page() {
 
             const data = await res.json();
             if (data.newtoken) {
-                await storeLoginValues(data.newtoken, data.userType, data.mainMemberNameRef);
+                await storeLoginValues(data.newtoken, data.userType, data.moderatorNameRef, data.mainMemberNameRef);
             } else {
                 setError(data.error || "Login failed");
                 if (data.error === "Invalid credential") {

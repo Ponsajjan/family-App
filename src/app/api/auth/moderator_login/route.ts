@@ -66,7 +66,8 @@ export async function POST(request: NextRequest) {
       message: "Login successful",
       newtoken,
       userType: "Moderator",
-      mainMemberNameRef: moderatorAccountRef
+      moderatorNameRef: moderatorAccountRef,
+      mainMemberNameRef: login.mainMemberNameRef
     }, { status: 200 });
 
   } catch (error) {
