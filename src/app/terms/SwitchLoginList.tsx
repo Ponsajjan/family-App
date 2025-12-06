@@ -150,6 +150,7 @@ function SwitchLoginList({ setRefetch, mainMemberNameRef }: any) {
                         </button>
                     </div>
                     {error && <p className='text-text_color text-sm pl-1 pt-1'>{error}</p>}
+                    {accounts.length >= 10 && <p className='text-text_color text-sm pl-1 pt-1'>You have reached the maximum number of accounts.</p>}
                 </form>
             </div>
         </>

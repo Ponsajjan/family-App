@@ -60,7 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         // First decode URI component, then parse JSON
         const decodedValue = decodeURIComponent(cookieValue);
-        // Handle both array format and malformed strings
         if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
           accounts = JSON.parse(decodedValue);
         } else {
@@ -73,22 +72,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
+    // Limit accounts array to prevent cookie overflow
+    const MAX_ACCOUNTS = 10;
+
     // If oldAccountRef is provided, replace it with the new one
     if (oldAccountRef) {
       const oldIndex = accounts.indexOf(oldAccountRef);
       if (oldIndex !== -1) {
         accounts[oldIndex] = mainMemberNameRef;
       } else {
-        // If old account not found, add new account if it doesn't exist
-        if (!accounts.includes(mainMemberNameRef)) {
+        // If old account not found, add new account if it doesn't exist and we have space
+        if (!accounts.includes(mainMemberNameRef) && accounts.length < MAX_ACCOUNTS) {
           accounts.push(mainMemberNameRef);
         }
       }
     } else {
-      // Add new account if it doesn't exist
-      if (!accounts.includes(mainMemberNameRef)) {
+      // Add new account if it doesn't exist and we have space
+      if (!accounts.includes(mainMemberNameRef) && accounts.length < MAX_ACCOUNTS) {
         accounts.push(mainMemberNameRef);
       }
+    }
+
+    // Trim array if it exceeds max size (keep most recent)
+    if (accounts.length > MAX_ACCOUNTS) {
+      accounts = accounts.slice(-MAX_ACCOUNTS);
     }
 
     // Update the cookie with properly formatted JSON array
@@ -97,8 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Redirect based on new access
     if (newAccess === 'Member') {
       router.push('/terms');
-    }
-    if (newAccess === 'Moderator') {
+    } else if (newAccess === 'Moderator') {
       router.push('/moderator');
     }
   };
