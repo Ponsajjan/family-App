@@ -111,10 +111,9 @@ export default function Relatives() {
       toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
     } finally {
       setLoadingList(false);
-      // Small delay to prevent rapid fire
-      setTimeout(() => setIsFetching(false), 100);
+      setIsFetching(false);
     }
-  }, [params, logout, toast, hasMore, isFetching]);
+  }, [params, logout, toast]);
 
   useEffect(() => {
     fetchMembers();
@@ -133,20 +132,17 @@ export default function Relatives() {
       timeoutId = setTimeout(() => {
         const THRESHOLD = 200;
 
-        // Check container scroll if it exists and is scrollable
+        // Check container scroll if containerRef exists
         if (containerRef.current) {
           const container = containerRef.current;
-          // Check if container actually has scrollable content
-          if (container.scrollHeight > container.clientHeight) {
-            const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
 
-            if (distanceFromBottom <= THRESHOLD) {
-              setParams((prevParams) => ({
-                ...prevParams,
-                page: prevParams.page + 1,
-              }));
-              return;
-            }
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
+            }));
+            return;
           }
         }
 
@@ -161,7 +157,7 @@ export default function Relatives() {
             }));
           }
         }
-      }, 150);
+      }, 100);
     };
 
     const container = containerRef.current;
@@ -249,12 +245,7 @@ export default function Relatives() {
                           </div>
                         </div>
                         {member.phoneNumber && (
-                          <Link
-                            onClick={(e) => e.stopPropagation()}
-                            className="cursor-pointer"
-                            href={`tel:${member.phoneNumber}`}
-                            aria-label={`Call ${member.name}`}
-                          >
+                          <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${member.phoneNumber}`}>
                             <Call />
                           </Link>
                         )}
@@ -265,9 +256,7 @@ export default function Relatives() {
               <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loadingList && members.length === 0) &&
-                  <p className="p-4 text-text_color">
-                    {searchInput ? `No member found for '${params.search}'` : 'No members available'}
-                  </p>
+                  <p className="p-4 text-text_color">No member found for &lsquo;{params.search}&lsquo;</p>
                 }
                 {!hasMore && <p className="text-text_color">, , ,</p>}
               </div>
