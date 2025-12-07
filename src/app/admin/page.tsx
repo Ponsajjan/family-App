@@ -54,7 +54,7 @@ export default function Relatives() {
   };
 
   const fetchData = useCallback(async (isLoadMore = false) => {
-    if ((loadingMore && isLoadMore) || (loading && !isLoadMore) || !hasMore || params.page === 0) return;
+    if (loadingMore || !hasMore) return;
 
     try {
       if (isLoadMore) {

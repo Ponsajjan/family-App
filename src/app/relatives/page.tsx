@@ -73,7 +73,7 @@ export default function Relatives() {
   };
 
   const fetchMembers = useCallback(async () => {
-    if (isFetching || !hasMore || params.page === 0) return;
+    if (isFetching || !hasMore) return;
     try {
       setIsFetching(true);
       setLoadingList(true);
