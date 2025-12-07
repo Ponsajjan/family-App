@@ -98,10 +98,9 @@ export default function VerifyMember() {
       toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
     } finally {
       setLoadingList(false);
-      // Small delay to prevent rapid fire
       setTimeout(() => setIsFetching(false), 100);
     }
-  }, [params, hasMore, isFetching, logout, toast]);
+  }, [params, logout, toast]);
 
   useEffect(() => {
     fetchMembers();
@@ -113,27 +112,31 @@ export default function VerifyMember() {
     const handleScroll = () => {
       if (!hasMore || isFetching) return;
 
-      clearTimeout(timeoutId);
+      // Clear any existing timeout
+      if (timeoutId) clearTimeout(timeoutId);
+
+      // Debounce scroll events
       timeoutId = setTimeout(() => {
         const THRESHOLD = 200;
 
         if (containerRef.current) {
           const container = containerRef.current;
-          if (container.scrollHeight > container.clientHeight) {
-            const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
-            if (distanceFromBottom <= THRESHOLD) {
-              setParams((prevParams) => ({
-                ...prevParams,
-                page: prevParams.page + 1,
-              }));
-              return;
-            }
+          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
+            }));
+            return;
           }
         }
+
 
         // Check window scroll as fallback
         if (typeof window !== 'undefined') {
           const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
           if (distanceFromBottom <= THRESHOLD) {
             setParams((prevParams) => ({
               ...prevParams,
@@ -151,7 +154,7 @@ export default function VerifyMember() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [hasMore, isFetching]);
 

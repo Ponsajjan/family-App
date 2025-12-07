@@ -98,7 +98,6 @@ export default function Relatives() {
       }
 
       const { data, totalCount } = await response.json();
-
       if (params.page === 1) {
         setMembers(data);
       } else {

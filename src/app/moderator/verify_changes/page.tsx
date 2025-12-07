@@ -29,7 +29,6 @@ export default function NewMembers() {
 
   const fetchChangeList = useCallback(async () => {
     if (isFetching || !hasMore) return;
-
     try {
       setIsFetching(true);
       setLoadingList(true);
@@ -64,7 +63,6 @@ export default function NewMembers() {
       toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
     } finally {
       setLoadingList(false);
-      // Small delay to prevent rapid fire
       setTimeout(() => setIsFetching(false), 100);
     }
   }, [params, hasMore, isFetching, logout, toast]);
@@ -79,12 +77,18 @@ export default function NewMembers() {
     const handleScroll = () => {
       if (!hasMore || isFetching) return;
 
-      clearTimeout(timeoutId);
+      // Clear any existing timeout
+      if (timeoutId) clearTimeout(timeoutId);
+
+      // Debounce the scroll event
       timeoutId = setTimeout(() => {
         const THRESHOLD = 200;
 
-        if (typeof window !== 'undefined' && window.innerWidth < 768) {
-          const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+        // Check container scroll if containerRef exists
+        if (containerRef.current) {
+          const container = containerRef.current;
+          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+
           if (distanceFromBottom <= THRESHOLD) {
             setParams((prevParams) => ({
               ...prevParams,
@@ -92,32 +96,20 @@ export default function NewMembers() {
             }));
             return;
           }
-        } else {
-          // Desktop: Check container scroll
-          const container = containerRef.current;
-          if (container && container.scrollHeight > container.clientHeight) {
-            const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
-            if (distanceFromBottom <= THRESHOLD) {
-              setParams((prevParams) => ({
-                ...prevParams,
-                page: prevParams.page + 1,
-              }));
-              return;
-            }
-          }
+        }
 
-          // Check window scroll if container doesn't trigger
-          if (typeof window !== 'undefined') {
-            const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
-            if (distanceFromBottom <= THRESHOLD) {
-              setParams((prevParams) => ({
-                ...prevParams,
-                page: prevParams.page + 1,
-              }));
-            }
+        // Check window scroll as fallback
+        if (typeof window !== 'undefined') {
+          const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
+            }));
           }
         }
-      }, 150);
+      }, 100);
     };
 
     const container = containerRef.current;
