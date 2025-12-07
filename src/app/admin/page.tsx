@@ -43,6 +43,7 @@ export default function Relatives() {
   };
 
   const fetchData = useCallback(async (isLoadMore = false) => {
+    if (loadingMore || !hasMore) return;
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -102,15 +103,29 @@ export default function Relatives() {
     const handleScroll = () => {
       if (loadingMore || !hasMore) return;
 
-      const container = currentContainer;
-      const isContainerEnd = container ? container.scrollTop + container.clientHeight >= container.scrollHeight - 100 : false;
-      const isWindowEnd = typeof window !== 'undefined' ? window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 100 : false;
+      const THRESHOLD = 200;
 
-      if (isContainerEnd || isWindowEnd) {
+      const container = currentContainer;
+      const containerDistanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+
+      if (containerDistanceFromBottom <= THRESHOLD) {
         setParams(prev => ({
           ...prev,
           page: prev.page + 1
         }));
+        return;
+      }
+
+      // Check window scroll as fallback
+      if (typeof window !== 'undefined') {
+        const windowDistanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
+        if (windowDistanceFromBottom <= THRESHOLD) {
+          setParams(prev => ({
+            ...prev,
+            page: prev.page + 1
+          }));
+        }
       }
     };
 

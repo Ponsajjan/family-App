@@ -2,7 +2,7 @@
 
 import { CloseIcon, Filter, SearchIcon, Verified } from "@/utils/Icons";
 import { Female, Male } from '@/utils/Icons';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
@@ -30,6 +30,7 @@ export default function VerifyMember() {
     search: "",
     filter: "Unverified"
   });
+  const [isFetching, setIsFetching] = useState(false);
 
   const handleSetSearchFilter = useDebounce((value) => {
     setParams((prevParams) => ({
@@ -58,65 +59,82 @@ export default function VerifyMember() {
     handleSetSearchFilter(input);
   };
 
-  useEffect(() => {
-    let isFetching = false;
-    async function fetchMembers() {
-      if (isFetching) return;
-      if (!hasMore) return;
-      try {
-        setLoadingList(true);
-        isFetching = true;
+  const fetchMembers = useCallback(async () => {
+    if (isFetching || !hasMore) return;
 
-        const response = await fetch(`/api/moderator/verifyMember?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&filter=${params.filter}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            cache: 'no-store',
-          }
-        );
+    try {
+      setIsFetching(true);
+      setLoadingList(true);
 
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
-          logout();
-          return;
+      const response = await fetch(`/api/moderator/verifyMember?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&filter=${params.filter}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          cache: 'no-store',
         }
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const { data, totalCount } = await response.json();
+      );
 
-        if (params.page === 1) {
-          setMembers(data);
-        } else {
-          setMembers((prev) => [...new Set([...prev, ...data])]);
-        }
-
-        const totalPages = Math.ceil(totalCount / params.limit);
-        setHasMore(params.page < totalPages);
-      } catch (error: any) {
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-      } finally {
-        setLoadingList(false);
-        isFetching = false;
+      // Handle 401 Unauthorized
+      if (response.status === 401) {
+        logout();
+        return;
       }
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const { data, totalCount } = await response.json();
+
+      if (params.page === 1) {
+        setMembers(data);
+      } else {
+        setMembers((prev) => [...new Set([...prev, ...data])]);
+      }
+
+      const totalPages = Math.ceil(totalCount / params.limit);
+      setHasMore(params.page < totalPages);
+    } catch (error: any) {
+      toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+    } finally {
+      setLoadingList(false);
+      setIsFetching(false);
     }
+  }, [params, hasMore, isFetching, logout, toast]);
 
+  useEffect(() => {
     fetchMembers();
+  }, [fetchMembers]);
 
+  useEffect(() => {
     const handleScroll = () => {
       if (!hasMore || isFetching) return;
 
-      const container = containerRef.current;
-      const isContainerEnd = container ? container.scrollTop + container.clientHeight >= container.scrollHeight - 10 : false;
-      const isWindowEnd = typeof window !== 'undefined' ? window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 20 : false;
+      const THRESHOLD = 200;
 
-      if (isContainerEnd || isWindowEnd) {
-        setParams((prevParams) => ({
-          ...prevParams,
-          page: prevParams.page + 1,
-        }));
+      if (containerRef.current) {
+        const container = containerRef.current;
+        const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+
+        if (distanceFromBottom <= THRESHOLD) {
+          setParams((prevParams) => ({
+            ...prevParams,
+            page: prevParams.page + 1,
+          }));
+          return;
+        }
+      }
+
+      // Check window scroll as fallback
+      if (typeof window !== 'undefined') {
+        const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
+        if (distanceFromBottom <= THRESHOLD) {
+          setParams((prevParams) => ({
+            ...prevParams,
+            page: prevParams.page + 1,
+          }));
+        }
       }
     };
 
@@ -128,7 +146,7 @@ export default function VerifyMember() {
       container?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, logout]);
+  }, [hasMore, isFetching]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

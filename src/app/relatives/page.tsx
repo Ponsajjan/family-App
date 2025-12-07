@@ -2,7 +2,7 @@
 
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import Details from './Details';
 import Link from 'next/link';
 import { useToast } from '@/components/Toast';
@@ -42,9 +42,10 @@ export default function Relatives() {
   const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
-    limit: 14,
+    limit: 20,
     search: "",
   });
+  const [isFetching, setIsFetching] = useState(false);
 
   const handleSetSearchFilter = useDebounce((value) => {
     setParams((prevParams) => ({
@@ -60,64 +61,92 @@ export default function Relatives() {
     handleSetSearchFilter(input);
   };
 
-  useEffect(() => {
-    let isFetching = false;
-    async function fetchMembers() {
-      if (isFetching) return;
-      if (!hasMore) return;
-      try {
-        setLoadingList(true);
-        isFetching = true;
+  const fetchMembers = useCallback(async () => {
+    if (isFetching || !hasMore) return;
+    try {
+      setIsFetching(true);
+      setLoadingList(true);
 
-        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          }
-        );
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
-          logout();
-          return;
+      const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
         }
+      );
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const { data, totalCount } = await response.json();
-        if (params.page === 1) {
-          setMembers(data);
-        } else {
-          setMembers((prev) => [...new Set([...prev, ...data])]);
-        }
-
-        const totalPages = Math.ceil(totalCount / params.limit);
-        setHasMore(params.page < totalPages);
-      } catch (error: any) {
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-      } finally {
-        setLoadingList(false);
-        isFetching = false;
+      // Handle 401 Unauthorized
+      if (response.status === 401) {
+        logout();
+        return;
       }
-    }
 
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const { data, totalCount } = await response.json();
+
+      if (params.page === 1) {
+        setMembers(data);
+      } else {
+        setMembers((prev) => [...new Set([...prev, ...data])]);
+      }
+
+      const totalPages = Math.ceil(totalCount / params.limit);
+      setHasMore(params.page < totalPages);
+    } catch (error: any) {
+      toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+    } finally {
+      setLoadingList(false);
+      setIsFetching(false);
+    }
+  }, [params, logout, toast]);
+
+  useEffect(() => {
     fetchMembers();
+  }, [fetchMembers]);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
       if (!hasMore || isFetching) return;
 
-      const container = containerRef.current;
-      const isContainerEnd = container ? container.scrollTop + container.clientHeight >= container.scrollHeight - 10 : false;
-      const isWindowEnd = typeof window !== 'undefined' ? window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 20 : false;
+      // Clear any existing timeout
+      if (timeoutId) clearTimeout(timeoutId);
 
-      if (isContainerEnd || isWindowEnd) {
-        setParams((prevParams) => ({
-          ...prevParams,
-          page: prevParams.page + 1,
-        }));
-      }
+      // Debounce the scroll event
+      timeoutId = setTimeout(() => {
+        const THRESHOLD = 200;
+
+        // Check container scroll if containerRef exists
+        if (containerRef.current) {
+          const container = containerRef.current;
+          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
+            }));
+            return;
+          }
+        }
+
+        // Check window scroll as fallback
+        if (typeof window !== 'undefined') {
+          const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
+            }));
+          }
+        }
+      }, 100);
     };
 
     const container = containerRef.current;
@@ -127,8 +156,9 @@ export default function Relatives() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
+      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [params, hasMore, toast, logout]);
+  }, [hasMore, isFetching]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

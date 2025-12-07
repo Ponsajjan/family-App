@@ -1,7 +1,7 @@
 'use client'
 
 import { Female, Male } from '@/utils/Icons';
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import Details from './Details';
@@ -25,65 +25,83 @@ export default function NewMembers() {
     page: 1,
     limit: 25,
   });
+  const [isFetching, setIsFetching] = useState(false);
 
+  const fetchChangeList = useCallback(async () => {
+    if (isFetching || !hasMore) return;
+
+    try {
+      setIsFetching(true);
+      setLoadingList(true);
+
+      const response = await fetch(`/api/moderator/verifyChange?page=${params.page}&limit=${params.limit}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          cache: 'no-store',
+        }
+      );
+      // Handle 401 Unauthorized
+      if (response.status === 401) {
+        logout();
+        return;
+      }
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const { data, totalCount } = await response.json();
+      if (params.page === 1) {
+        setChangeList(data);
+      } else {
+        setChangeList((prev) => [...new Set([...prev, ...data])]);
+      }
+
+      const totalPages = Math.ceil(totalCount / params.limit);
+      setHasMore(params.page < totalPages);
+    } catch (error: any) {
+      toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+    } finally {
+      setLoadingList(false);
+      setIsFetching(false);
+    }
+  }, [params, hasMore, isFetching, logout, toast]);
 
   useEffect(() => {
-    let isFetching = false;
-    async function fetchChangeList() {
-      if (isFetching) return;
-      if (!hasMore) return;
-      try {
-        setLoadingList(true);
-        isFetching = true;
-
-        const response = await fetch(`/api/moderator/verifyChange?page=${params.page}&limit=${params.limit}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            cache: 'no-store',
-          }
-        );
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
-          logout();
-          return;
-        }
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const { data, totalCount } = await response.json();
-        if (params.page === 1) {
-          setChangeList(data);
-        } else {
-          setChangeList((prev) => [...new Set([...prev, ...data])]);
-        }
-
-        const totalPages = Math.ceil(totalCount / params.limit);
-        setHasMore(params.page < totalPages);
-      } catch (error: any) {
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-      } finally {
-        setLoadingList(false);
-        isFetching = false;
-      }
-    }
-
     fetchChangeList();
+  }, [fetchChangeList]);
 
+  useEffect(() => {
     const handleScroll = () => {
       if (!hasMore || isFetching) return;
 
-      const container = containerRef.current;
-      const isContainerEnd = container ? container.scrollTop + container.clientHeight >= container.scrollHeight - 10 : false;
-      const isWindowEnd = typeof window !== 'undefined' ? window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 20 : false;
+      const THRESHOLD = 200;
 
-      if (isContainerEnd || isWindowEnd) {
-        setParams((prevParams) => ({
-          ...prevParams,
-          page: prevParams.page + 1,
-        }));
+      // Mobile: Check window scroll
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
+        if (distanceFromBottom <= THRESHOLD) {
+          setParams((prevParams) => ({
+            ...prevParams,
+            page: prevParams.page + 1,
+          }));
+          return;
+        }
+      } else {
+        // Desktop: Check container scroll
+        const container = containerRef.current;
+        if (container) {
+          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
+            }));
+          }
+        }
       }
     };
 
@@ -95,7 +113,7 @@ export default function NewMembers() {
       container?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, logout]);
+  }, [hasMore, isFetching]);
 
   const handleShowDetails = (value: any, id: number) => {
     if (disableButton) return;
