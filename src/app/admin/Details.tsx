@@ -8,7 +8,7 @@ import { Copy } from "@/utils/Icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function Details({ selectedCredential }: { selectedCredential: AuthEntry }) {
+function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEntry, onDelete: (id: number) => void }) {
     const toast = useToast();
     const router = useRouter();
     const { logout } = useAuth();
@@ -56,7 +56,8 @@ function Details({ selectedCredential }: { selectedCredential: AuthEntry }) {
 
             const result = await response.json();
             toast?.show(result.message, "success", 5000);
-            router.refresh();
+            // List update
+            onDelete(id);
         } catch (error: any) {
             toast?.show(error.message || "Failed to delete member", "error", 5000);
         } finally {

@@ -155,6 +155,12 @@ export default function Relatives() {
     setShowDetails(true);
   };
 
+  const handleDelete = (id: number) => {
+    setData(prev => prev.filter(item => item.id !== id));
+    setShowDetails(false);
+    setSelectedCredential(null);
+  };
+
   return (
     <div className="w-full">
       <Topnav>
@@ -213,7 +219,10 @@ export default function Relatives() {
 
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails}>
           {selectedCredential && (
-            <Details selectedCredential={selectedCredential} />
+            <Details
+              selectedCredential={selectedCredential}
+              onDelete={handleDelete}
+            />
           )}
         </SlidePanel>
       </div>
