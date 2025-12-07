@@ -245,7 +245,7 @@ export default function VerifyMember() {
             <div className='max-w-xl mx-auto'>
               <div className="bg-main_background w-full sticky pt-4 top-12 md:top-0 z-20 flex">
                 <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members</span>
-                <span className="border-b border-border_color block w-full"></span>
+                <span className="border-b border-border_color block w-full mr-3"></span>
               </div>
               <div className="pt-3">
                 {members?.map((member: any) => (
@@ -253,7 +253,7 @@ export default function VerifyMember() {
                     <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
                       <div
                         onClick={() => { handleShowDetails(member) }}
-                        className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color hover:bg-field_hover transition-colors"
+                        className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                       >
                         <div>
                           <div className="flex flex-wrap gap-2">
@@ -266,7 +266,7 @@ export default function VerifyMember() {
                               }}
                             />
                           </div>
-                          <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1 mt-1">
+                          <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
                             {(member.father || member.mother) ? (
                               <>
                                 <span className="pr-1 font-medium md:font-semibold">Parents:</span>

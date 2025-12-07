@@ -61,8 +61,19 @@ export default function Relatives() {
     handleSetSearchFilter(input);
   };
 
+  const resetSearch = () => {
+    setSearchInput("");
+    setMembers([]);
+    setParams(prev => ({
+      ...prev,
+      search: "",
+      page: 1,
+    }));
+    setHasMore(true);
+  };
+
   const fetchMembers = useCallback(async () => {
-    if (isFetching || !hasMore) return;
+    if (isFetching || !hasMore || params.page === 0) return;
     try {
       setIsFetching(true);
       setLoadingList(true);
@@ -100,9 +111,10 @@ export default function Relatives() {
       toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
     } finally {
       setLoadingList(false);
-      setIsFetching(false);
+      // Small delay to prevent rapid fire
+      setTimeout(() => setIsFetching(false), 100);
     }
-  }, [params, logout, toast]);
+  }, [params, logout, toast, hasMore, isFetching]);
 
   useEffect(() => {
     fetchMembers();
@@ -121,17 +133,20 @@ export default function Relatives() {
       timeoutId = setTimeout(() => {
         const THRESHOLD = 200;
 
-        // Check container scroll if containerRef exists
+        // Check container scroll if it exists and is scrollable
         if (containerRef.current) {
           const container = containerRef.current;
-          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+          // Check if container actually has scrollable content
+          if (container.scrollHeight > container.clientHeight) {
+            const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
 
-          if (distanceFromBottom <= THRESHOLD) {
-            setParams((prevParams) => ({
-              ...prevParams,
-              page: prevParams.page + 1,
-            }));
-            return;
+            if (distanceFromBottom <= THRESHOLD) {
+              setParams((prevParams) => ({
+                ...prevParams,
+                page: prevParams.page + 1,
+              }));
+              return;
+            }
           }
         }
 
@@ -146,7 +161,7 @@ export default function Relatives() {
             }));
           }
         }
-      }, 100);
+      }, 150);
     };
 
     const container = containerRef.current;
@@ -180,7 +195,11 @@ export default function Relatives() {
           <span className="absolute right-[5px] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
             <SearchIcon />
           </span>
-          <button onClick={() => handleMemberSearch('')} className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md">
+          <button
+            onClick={resetSearch}
+            className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
+            aria-label="Clear search"
+          >
             <CloseIcon />
           </button>
         </div>
@@ -230,7 +249,12 @@ export default function Relatives() {
                           </div>
                         </div>
                         {member.phoneNumber && (
-                          <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${member.phoneNumber}`}>
+                          <Link
+                            onClick={(e) => e.stopPropagation()}
+                            className="cursor-pointer"
+                            href={`tel:${member.phoneNumber}`}
+                            aria-label={`Call ${member.name}`}
+                          >
                             <Call />
                           </Link>
                         )}
@@ -241,7 +265,9 @@ export default function Relatives() {
               <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loadingList && members.length === 0) &&
-                  <p className="p-4 text-text_color">No member found for &lsquo;{params.search}&lsquo;</p>
+                  <p className="p-4 text-text_color">
+                    {searchInput ? `No member found for '${params.search}'` : 'No members available'}
+                  </p>
                 }
                 {!hasMore && <p className="text-text_color">, , ,</p>}
               </div>

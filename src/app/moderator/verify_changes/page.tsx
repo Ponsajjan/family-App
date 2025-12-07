@@ -64,7 +64,8 @@ export default function NewMembers() {
       toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
     } finally {
       setLoadingList(false);
-      setIsFetching(false);
+      // Small delay to prevent rapid fire
+      setTimeout(() => setIsFetching(false), 100);
     }
   }, [params, hasMore, isFetching, logout, toast]);
 
@@ -73,36 +74,50 @@ export default function NewMembers() {
   }, [fetchChangeList]);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const handleScroll = () => {
       if (!hasMore || isFetching) return;
 
-      const THRESHOLD = 200;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const THRESHOLD = 200;
 
-      // Mobile: Check window scroll
-      if (typeof window !== 'undefined' && window.innerWidth < 768) {
-        const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
-
-        if (distanceFromBottom <= THRESHOLD) {
-          setParams((prevParams) => ({
-            ...prevParams,
-            page: prevParams.page + 1,
-          }));
-          return;
-        }
-      } else {
-        // Desktop: Check container scroll
-        const container = containerRef.current;
-        if (container) {
-          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
-
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+          const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
           if (distanceFromBottom <= THRESHOLD) {
             setParams((prevParams) => ({
               ...prevParams,
               page: prevParams.page + 1,
             }));
+            return;
+          }
+        } else {
+          // Desktop: Check container scroll
+          const container = containerRef.current;
+          if (container && container.scrollHeight > container.clientHeight) {
+            const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+            if (distanceFromBottom <= THRESHOLD) {
+              setParams((prevParams) => ({
+                ...prevParams,
+                page: prevParams.page + 1,
+              }));
+              return;
+            }
+          }
+
+          // Check window scroll if container doesn't trigger
+          if (typeof window !== 'undefined') {
+            const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+            if (distanceFromBottom <= THRESHOLD) {
+              setParams((prevParams) => ({
+                ...prevParams,
+                page: prevParams.page + 1,
+              }));
+            }
           }
         }
-      }
+      }, 150);
     };
 
     const container = containerRef.current;
@@ -112,6 +127,7 @@ export default function NewMembers() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeoutId);
     };
   }, [hasMore, isFetching]);
 
@@ -133,7 +149,7 @@ export default function NewMembers() {
             <div className='max-w-xl mx-auto'>
               <div className="bg-main_background w-full sticky pt-4 top-12 md:top-0 z-20 flex">
                 <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">Verify Changes</span>
-                <span className="border-b border-border_color block w-full"></span>
+                <span className="border-b border-border_color block w-full mr-3"></span>
               </div>
               <div className='pt-3'>
                 {changeList?.map((member: any) => (

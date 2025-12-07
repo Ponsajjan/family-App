@@ -42,8 +42,20 @@ export default function Relatives() {
     handleSetSearchFilter(input);
   };
 
+  const resetSearch = () => {
+    setSearchInput("");
+    setData([]);
+    setParams(prev => ({
+      ...prev,
+      search: "",
+      page: 1,
+    }));
+    setHasMore(true);
+  };
+
   const fetchData = useCallback(async (isLoadMore = false) => {
-    if (loadingMore || !hasMore) return;
+    if ((loadingMore && isLoadMore) || (loading && !isLoadMore) || !hasMore || params.page === 0) return;
+
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -85,7 +97,7 @@ export default function Relatives() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [params, logout, toast]);
+  }, [params, logout, toast, hasMore, loading, loadingMore]);
 
   useEffect(() => {
     if (access !== "Admin") {
@@ -97,44 +109,52 @@ export default function Relatives() {
   }, [fetchData, access, toast, logout]);
 
   useEffect(() => {
-    const currentContainer = containerRef.current;
-    if (!currentContainer) return;
+    let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
       if (loadingMore || !hasMore) return;
 
-      const THRESHOLD = 200;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const THRESHOLD = 200;
 
-      const container = currentContainer;
-      const containerDistanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+        if (containerRef.current) {
+          const container = containerRef.current;
+          if (container.scrollHeight > container.clientHeight) {
+            const containerDistanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
 
-      if (containerDistanceFromBottom <= THRESHOLD) {
-        setParams(prev => ({
-          ...prev,
-          page: prev.page + 1
-        }));
-        return;
-      }
-
-      // Check window scroll as fallback
-      if (typeof window !== 'undefined') {
-        const windowDistanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
-
-        if (windowDistanceFromBottom <= THRESHOLD) {
-          setParams(prev => ({
-            ...prev,
-            page: prev.page + 1
-          }));
+            if (containerDistanceFromBottom <= THRESHOLD) {
+              setParams(prev => ({
+                ...prev,
+                page: prev.page + 1
+              }));
+              return;
+            }
+          }
         }
-      }
+
+        // Check window scroll as fallback
+        if (typeof window !== 'undefined') {
+          const windowDistanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
+          if (windowDistanceFromBottom <= THRESHOLD) {
+            setParams(prev => ({
+              ...prev,
+              page: prev.page + 1
+            }));
+          }
+        }
+      }, 150);
     };
 
-    currentContainer.addEventListener('scroll', handleScroll);
+    const currentContainer = containerRef.current;
+    currentContainer?.addEventListener('scroll', handleScroll);
     window.addEventListener('scroll', handleScroll);
 
     return () => {
-      currentContainer.removeEventListener('scroll', handleScroll);
+      currentContainer?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeoutId);
     };
   }, [loadingMore, hasMore]);
 
@@ -142,7 +162,13 @@ export default function Relatives() {
     if (params.page > 1) {
       fetchData(true);
     }
-  }, [params.page, fetchData]);
+  }, [params.page]);
+
+  useEffect(() => {
+    if (params.page === 1 && params.search !== undefined) {
+      fetchData();
+    }
+  }, [params.search]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;
@@ -175,7 +201,11 @@ export default function Relatives() {
           <span className="absolute right-[5px] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
             <SearchIcon />
           </span>
-          <button onClick={() => handleMemberSearch('')} className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md">
+          <button
+            onClick={resetSearch}
+            className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
+            aria-label="Clear search"
+          >
             <CloseIcon />
           </button>
         </div>
