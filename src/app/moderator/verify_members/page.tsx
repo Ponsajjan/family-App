@@ -98,7 +98,8 @@ export default function VerifyMember() {
       toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
     } finally {
       setLoadingList(false);
-      setIsFetching(false);
+      // Small delay to prevent rapid fire
+      setTimeout(() => setIsFetching(false), 100);
     }
   }, [params, hasMore, isFetching, logout, toast]);
 
@@ -107,35 +108,40 @@ export default function VerifyMember() {
   }, [fetchMembers]);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const handleScroll = () => {
       if (!hasMore || isFetching) return;
 
-      const THRESHOLD = 200;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const THRESHOLD = 200;
 
-      if (containerRef.current) {
-        const container = containerRef.current;
-        const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
-
-        if (distanceFromBottom <= THRESHOLD) {
-          setParams((prevParams) => ({
-            ...prevParams,
-            page: prevParams.page + 1,
-          }));
-          return;
+        if (containerRef.current) {
+          const container = containerRef.current;
+          if (container.scrollHeight > container.clientHeight) {
+            const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+            if (distanceFromBottom <= THRESHOLD) {
+              setParams((prevParams) => ({
+                ...prevParams,
+                page: prevParams.page + 1,
+              }));
+              return;
+            }
+          }
         }
-      }
 
-      // Check window scroll as fallback
-      if (typeof window !== 'undefined') {
-        const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
-
-        if (distanceFromBottom <= THRESHOLD) {
-          setParams((prevParams) => ({
-            ...prevParams,
-            page: prevParams.page + 1,
-          }));
+        // Check window scroll as fallback
+        if (typeof window !== 'undefined') {
+          const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
+            }));
+          }
         }
-      }
+      }, 150);
     };
 
     const container = containerRef.current;
@@ -145,6 +151,7 @@ export default function VerifyMember() {
     return () => {
       container?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeoutId);
     };
   }, [hasMore, isFetching]);
 
@@ -190,7 +197,11 @@ export default function VerifyMember() {
             placeholder="All Members"
             className="peer p-1 block w-[calc(100%-1px)] pl-10 border border-border_color focus:outline-none font-normal rounded-md bg-main_background"
           />
-          <button onClick={() => resetPrams()} className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md">
+          <button
+            onClick={() => resetPrams()}
+            className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
+            aria-label="Clear search"
+          >
             <CloseIcon />
           </button>
         </div>
@@ -199,13 +210,13 @@ export default function VerifyMember() {
         <div className="relative">
           <button
             onClick={() => { setDropdownOpen(!dropdownOpen); setShowDetails(false) }}
-            onBlur={() => setDropdownOpen(false)}
+            onBlur={() => setTimeout(() => setDropdownOpen(false), 200)} // Fix: Delay for click handling
             className="py-1 px-1 sm:px-2 border border-border_color rounded-md bg-main_background flex justify-between w-auto sm:min-w-32">
             <span className="hidden sm:block">{selectedFilter}</span>
             <span><Filter /></span>
           </button>
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-32 bg-field_color border border-border_color shadow-md rounded-md overflow-hidden">
+            <div className="absolute right-0 mt-2 w-32 bg-field_color border border-border_color shadow-md rounded-md overflow-hidden z-30">
               <div
                 className="p-2 hover:bg-field_hover cursor-pointer"
                 onMouseDown={(e) => e.preventDefault()}
@@ -242,7 +253,7 @@ export default function VerifyMember() {
                     <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
                       <div
                         onClick={() => { handleShowDetails(member) }}
-                        className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
+                        className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color hover:bg-field_hover transition-colors"
                       >
                         <div>
                           <div className="flex flex-wrap gap-2">
@@ -255,7 +266,7 @@ export default function VerifyMember() {
                               }}
                             />
                           </div>
-                          <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                          <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1 mt-1">
                             {(member.father || member.mother) ? (
                               <>
                                 <span className="pr-1 font-medium md:font-semibold">Parents:</span>
