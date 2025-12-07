@@ -33,7 +33,8 @@ function Details({ selectedMember }: { selectedMember: AuthEntry }) {
         });
     };
 
-    const deleteRecord = async (id: number) => {
+    const deleteRecord = async (id: number | null) => {
+        if (deleting || loading || id === null) return;
         try {
             setDeleting(true);
             const response = await fetch(`/api/admin/edit_login/${id}`, {
@@ -373,13 +374,13 @@ function Details({ selectedMember }: { selectedMember: AuthEntry }) {
                 <LinkButtonSolid
                     disabled={loading || deleting}
                     buttonText='Edit Credentials'
-                    linkto={`/admin/edit_login/${selectedMember.id}`}
+                    linkto={`/admin/edit_login/${selectedMember.mainMemberId}`}
                 />
                 <HoldButton
                     disabled={deleting || loading}
                     type='outline'
                     buttonText={deleting ? 'Deleting...' : 'Delete Credential'}
-                    onClick={() => deleteRecord(selectedMember.id)}
+                    onClick={() => deleteRecord(selectedMember.mainMemberId)}
                 />
             </div>
         </Container>
