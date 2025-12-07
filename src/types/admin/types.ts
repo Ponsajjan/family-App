@@ -19,25 +19,25 @@ export interface NewLoginFormValueTypes {
   moderator_password: string,
 };
 
-export interface NewLoginFormErrorTypes { 
-  name?: string; 
-  gender?: string; 
-  birth_day?: string; 
+export interface NewLoginFormErrorTypes {
+  name?: string;
+  gender?: string;
+  birth_day?: string;
   death_day?: string;
   password?: string;
 };
 
 export interface Moderator {
-    id: number;
-    name: string;
-    contactNumber: string;
+  id: number;
+  name: string;
+  contactNumber: string;
 };
 
 export interface AuthEntry {
   id: number;
   mainMemberId: number | null;
   descendantOf: string;
-  credential: string;
+  mainMemberName: string;
   memberPassword: string;
   moderatorPassword: string;
   moderators: Moderator[];
@@ -76,7 +76,7 @@ export const NewLoginDefaultFormValue: NewLoginFormValueTypes = {
   moderator_password: '',
 };
 
-export const NewLoginDefaultErrorValue: NewLoginFormErrorTypes = { 
+export const NewLoginDefaultErrorValue: NewLoginFormErrorTypes = {
   name: '',
   gender: '',
   birth_day: '',

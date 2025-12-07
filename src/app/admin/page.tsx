@@ -15,7 +15,7 @@ export default function Relatives() {
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
   const [showDetails, setShowDetails] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<AuthEntry | null>(null);
+  const [selectedCredential, setSelectedCredential] = useState<AuthEntry | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [data, setData] = useState<AuthEntry[]>([]);
@@ -150,8 +150,8 @@ export default function Relatives() {
     return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>');
   }
 
-  const handleShowDetails = (member: AuthEntry) => {
-    setSelectedMember(member);
+  const handleShowDetails = (credential: AuthEntry) => {
+    setSelectedCredential(credential);
     setShowDetails(true);
   };
 
@@ -188,7 +188,7 @@ export default function Relatives() {
                       <div className="w-full">
                         <div
                           dangerouslySetInnerHTML={{
-                            __html: highlightText(row.credential, params.search),
+                            __html: highlightText(row.mainMemberName, params.search),
                           }}
                         />
                       </div>
@@ -212,8 +212,8 @@ export default function Relatives() {
         </Container>
 
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails}>
-          {selectedMember && (
-            <Details selectedMember={selectedMember} />
+          {selectedCredential && (
+            <Details selectedCredential={selectedCredential} />
           )}
         </SlidePanel>
       </div>

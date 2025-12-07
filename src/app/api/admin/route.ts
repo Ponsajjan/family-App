@@ -6,7 +6,7 @@ interface FormattedAuthEntry {
   id: number;
   mainMemberId: number | null;
   descendantOf: string;
-  credential: string;
+  mainMemberName: string;
   memberPassword: string;
   moderatorPassword: string;
   moderators: {
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
         id: auth.id,
         mainMemberId: auth.mainMemberId,
         descendantOf: auth.mainMemberNameRef,
-        credential: mainMember?.name || 'Unknown',
+        mainMemberName: mainMember?.name || 'Unknown',
         memberPassword: auth.password,
         moderatorPassword: auth.moderatorPassword,
         moderators: auth.moderatorList.map((moderator: { id: number, moderatorName: string, moderatorContact: string }) => ({

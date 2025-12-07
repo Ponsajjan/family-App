@@ -8,7 +8,7 @@ import { Copy } from "@/utils/Icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function Details({ selectedMember }: { selectedMember: AuthEntry }) {
+function Details({ selectedCredential }: { selectedCredential: AuthEntry }) {
     const toast = useToast();
     const router = useRouter();
     const { logout } = useAuth();
@@ -21,10 +21,10 @@ function Details({ selectedMember }: { selectedMember: AuthEntry }) {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        setModerators(selectedMember.moderators)
-    }, [selectedMember])
+        setModerators(selectedCredential.moderators)
+    }, [selectedCredential])
     const copyToClipboard = (text: string, type: string) => {
-        const copyText = `Website: ${process.env.NEXT_PUBLIC_BASE_URL} \nCredential for: ${selectedMember.credential} family calendar \n${type}: ${text}`;
+        const copyText = `Website: ${process.env.NEXT_PUBLIC_BASE_URL} \nCredential for: ${selectedCredential.mainMemberName} family calendar \n${type}: ${text}`;
 
         navigator.clipboard.writeText(copyText).then(() => {
             toast?.show(`${type} copied to clipboard!`, "success", 2000);
@@ -81,7 +81,7 @@ function Details({ selectedMember }: { selectedMember: AuthEntry }) {
                 body: JSON.stringify({
                     moderatorName: newModerator.moderatorName.trim(),
                     moderatorContact: newModerator.moderatorContact.trim(),
-                    authId: selectedMember.id,
+                    authId: selectedCredential.id,
                 }),
             });
 
@@ -141,7 +141,7 @@ function Details({ selectedMember }: { selectedMember: AuthEntry }) {
                 body: JSON.stringify({
                     moderatorName: editModerator.moderatorName.trim(),
                     moderatorContact: editModerator.moderatorContact.trim(),
-                    authId: selectedMember.id,
+                    authId: selectedCredential.id,
                 }),
             });
 
@@ -221,15 +221,15 @@ function Details({ selectedMember }: { selectedMember: AuthEntry }) {
 
     return (
         <Container className="p-4 text-text_color">
-            <h2 className="text-2xl font-bold mb-2">{selectedMember.credential}</h2>
+            <h2 className="text-2xl font-bold mb-2">{selectedCredential.mainMemberName}</h2>
 
             <div className="pl-4 border-l-4 border-text_color/30 mb-4">
                 <div className="flex items-center flex-wrap w-full">
                     <div className="font-medium">Member Password:</div>
                     <div className="flex-1 flex items-center justify-between">
-                        <div className="ml-2">{selectedMember.memberPassword}</div>
+                        <div className="ml-2">{selectedCredential.memberPassword}</div>
                         <div
-                            onClick={() => copyToClipboard(selectedMember.memberPassword, "Member password")}
+                            onClick={() => copyToClipboard(selectedCredential.memberPassword, "Member password")}
                             className="p-1 hover:bg-field_color rounded-md transition-colors"
                             title="Copy member password"
                         >
@@ -240,9 +240,9 @@ function Details({ selectedMember }: { selectedMember: AuthEntry }) {
                 <div className="flex items-center flex-wrap w-full">
                     <div className="font-medium">Moderator Password:</div>
                     <div className="flex-1 flex items-center justify-between">
-                        <div className="ml-2">{selectedMember.moderatorPassword}</div>
+                        <div className="ml-2">{selectedCredential.moderatorPassword}</div>
                         <div
-                            onClick={() => copyToClipboard(selectedMember.moderatorPassword, "Moderator password")}
+                            onClick={() => copyToClipboard(selectedCredential.moderatorPassword, "Moderator password")}
                             className="p-1 hover:bg-field_color rounded-md transition-colors"
                             title="Copy moderator password"
                         >
@@ -374,13 +374,13 @@ function Details({ selectedMember }: { selectedMember: AuthEntry }) {
                 <LinkButtonSolid
                     disabled={loading || deleting}
                     buttonText='Edit Credentials'
-                    linkto={`/admin/edit_login/${selectedMember.mainMemberId}`}
+                    linkto={`/admin/edit_login/${selectedCredential.mainMemberId}`}
                 />
                 <HoldButton
                     disabled={deleting || loading}
                     type='outline'
                     buttonText={deleting ? 'Deleting...' : 'Delete Credential'}
-                    onClick={() => deleteRecord(selectedMember.mainMemberId)}
+                    onClick={() => deleteRecord(selectedCredential.id)}
                 />
             </div>
         </Container>
