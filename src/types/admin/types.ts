@@ -45,14 +45,7 @@ export interface AuthEntry {
 
 export interface ApiResponse {
   data: AuthEntry[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    itemsPerPage: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
+  totalCount: number;
 };
 
 export const NewLoginDefaultFormValue: NewLoginFormValueTypes = {
