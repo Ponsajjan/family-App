@@ -1,7 +1,7 @@
 'use client'
 
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
@@ -17,7 +17,6 @@ export default function Relatives() {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedCredential, setSelectedCredential] = useState<AuthEntry | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [data, setData] = useState<AuthEntry[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
@@ -27,6 +26,7 @@ export default function Relatives() {
     limit: 25,
     search: "",
   });
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
   const handleSetSearchFilter = useDebounce((value: string) => {
     setParams((prevParams) => ({
@@ -53,15 +53,12 @@ export default function Relatives() {
     setHasMore(true);
   };
 
-  const fetchData = useCallback(async (isLoadMore = false) => {
-    if (loadingMore || !hasMore) return;
+  const fetchData = useCallback(async () => {
+    if (isFetching || !hasMore) return;
 
     try {
-      if (isLoadMore) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
+      setIsFetching(true);
+      setLoading(true);
 
       const queryParams = new URLSearchParams({
         page: params.page.toString(),
@@ -82,22 +79,26 @@ export default function Relatives() {
         return;
       }
 
-      const result: ApiResponse = await response.json();
-
-      if (isLoadMore) {
-        setData(prev => [...prev, ...result.data]);
-      } else {
-        setData(result.data);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
 
-      setHasMore(result.pagination.hasNext);
+      const { data, totalCount }: ApiResponse = await response.json();
+      if (params.page === 1) {
+        setData(data);
+      } else {
+        setData(prev => [...prev, ...data]);
+      }
+
+      const totalPages = Math.ceil(totalCount / params.limit);
+      setHasMore(params.page < totalPages);
     } catch (error: any) {
       toast?.show(error.message || 'Error fetching data', "error", 5000);
     } finally {
       setLoading(false);
-      setLoadingMore(false);
+      setIsFetching(false);
     }
-  }, [params, logout, toast, hasMore, loading, loadingMore]);
+  }, [params, logout, toast]);
 
   useEffect(() => {
     if (access !== "Admin") {
@@ -112,39 +113,41 @@ export default function Relatives() {
     let timeoutId: NodeJS.Timeout;
 
     const handleScroll = () => {
-      if (loadingMore || !hasMore) return;
+      if (isFetching || !hasMore) return;
 
-      clearTimeout(timeoutId);
+      // Clear any existing timeout
+      if (timeoutId) clearTimeout(timeoutId);
+
+      // Debounce the scroll event
       timeoutId = setTimeout(() => {
         const THRESHOLD = 200;
 
+        // Check container scroll if containerRef exists
         if (containerRef.current) {
           const container = containerRef.current;
-          if (container.scrollHeight > container.clientHeight) {
-            const containerDistanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
 
-            if (containerDistanceFromBottom <= THRESHOLD) {
-              setParams(prev => ({
-                ...prev,
-                page: prev.page + 1
-              }));
-              return;
-            }
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
+            }));
+            return;
           }
         }
 
         // Check window scroll as fallback
         if (typeof window !== 'undefined') {
-          const windowDistanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+          const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
 
-          if (windowDistanceFromBottom <= THRESHOLD) {
-            setParams(prev => ({
-              ...prev,
-              page: prev.page + 1
+          if (distanceFromBottom <= THRESHOLD) {
+            setParams((prevParams) => ({
+              ...prevParams,
+              page: prevParams.page + 1,
             }));
           }
         }
-      }, 150);
+      }, 100);
     };
 
     const currentContainer = containerRef.current;
@@ -154,21 +157,9 @@ export default function Relatives() {
     return () => {
       currentContainer?.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', handleScroll);
-      clearTimeout(timeoutId);
+      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [loadingMore, hasMore]);
-
-  useEffect(() => {
-    if (params.page > 1) {
-      fetchData(true);
-    }
-  }, [params.page]);
-
-  useEffect(() => {
-    if (params.page === 1 && params.search !== undefined) {
-      fetchData();
-    }
-  }, [params.search]);
+  }, [isFetching, hasMore]);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;
@@ -234,7 +225,7 @@ export default function Relatives() {
               ))}
               <div className="min-h-10 px-4 py-2">
                 {loading && <p className="px-4 text-text_color">Loading...</p>}
-                {loadingMore && <p className="px-4 text-text_color">Loading more...</p>}
+                {isFetching && <p className="px-4 text-text_color">Loading more...</p>}
                 {(!loading && data.length === 0 && !searchInput) &&
                   <p className="p-4 text-text_color">No credentials available</p>
                 }

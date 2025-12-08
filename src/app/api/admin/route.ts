@@ -106,14 +106,7 @@ export async function GET(request: NextRequest) {
     // Return response with pagination metadata
     return NextResponse.json({
       data: formattedResponse,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(totalCount / limit),
-        totalItems: totalCount,
-        itemsPerPage: limit,
-        hasNext: page < Math.ceil(totalCount / limit),
-        hasPrev: page > 1,
-      }
+      totalCount: totalCount,
     }, { status: 200 });
   } catch (error) {
     console.error('Error fetching auth entries:', error);

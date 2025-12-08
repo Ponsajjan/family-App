@@ -42,7 +42,7 @@ export default function Relatives() {
   const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
-    limit: 30,
+    limit: 40,
     search: "",
   });
   const [isFetching, setIsFetching] = useState(false);

@@ -63,7 +63,7 @@ export default function NewMembers() {
       toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
     } finally {
       setLoadingList(false);
-      setTimeout(() => setIsFetching(false), 100);
+      setIsFetching(false);
     }
   }, [params, hasMore, isFetching, logout, toast]);
 
@@ -178,7 +178,7 @@ export default function NewMembers() {
                 ))}
               </div>
               <div className="min-h-10 px-4 py-2">
-                {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
+                {loadingList && <p className="p-4 text-text_color">Loading...</p>}
                 {(!loadingList && changeList.length === 0) &&
                   <p className='p-4 loading-text'>No changes to verify</p>
                 }

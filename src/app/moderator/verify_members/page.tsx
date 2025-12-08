@@ -26,7 +26,7 @@ export default function VerifyMember() {
   const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
-    limit: 25,
+    limit: 40,
     search: "",
     filter: "Unverified"
   });
@@ -98,7 +98,7 @@ export default function VerifyMember() {
       toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
     } finally {
       setLoadingList(false);
-      setTimeout(() => setIsFetching(false), 100);
+      setIsFetching(false);
     }
   }, [params, logout, toast]);
 
@@ -290,7 +290,7 @@ export default function VerifyMember() {
                   </div>
                 ))}
                 <div className="min-h-10 px-4 py-2">
-                  {loadingList && <p className="p-4 text-text_color loading-text">Loading...</p>}
+                  {loadingList && <p className="p-4 text-text_color">Loading...</p>}
                   {(!loadingList && members.length == 0) && (
                     searchInput ? <p className='p-4 text-text_color'>No member found for &lsquo;{params.search}&lsquo;</p> : <p className='p-4 loading-text'>No {selectedFilter} member available</p>
                   )}
