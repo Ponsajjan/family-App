@@ -254,9 +254,9 @@ export default function Relatives() {
               ))}
               <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="px-4 text-text_color">Loading...</p>}
-                {(!loadingList && members.length === 0) &&
-                  <p className="p-4 text-text_color">No member found for &lsquo;{params.search}&lsquo;</p>
-                }
+                {(!loadingList && members.length === 0) && (
+                  params.search ? <p className="p-4 text-text_color">No member found for &lsquo;{params.search}&lsquo;</p> : ''
+                )}
                 {!hasMore && <p className="text-text_color">, , ,</p>}
               </div>
             </div>

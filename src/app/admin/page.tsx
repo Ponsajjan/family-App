@@ -224,8 +224,7 @@ export default function Relatives() {
                 </div>
               ))}
               <div className="min-h-10 px-4 py-2">
-                {loading && <p className="px-4 text-text_color">Loading...</p>}
-                {isFetching && <p className="px-4 text-text_color">Loading more...</p>}
+                {loading || isFetching && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loading && data.length === 0 && !searchInput) &&
                   <p className="p-4 text-text_color">No credentials available</p>
                 }

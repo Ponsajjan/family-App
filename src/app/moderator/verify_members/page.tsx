@@ -247,7 +247,7 @@ export default function VerifyMember() {
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
               <div className="bg-main_background w-full sticky pt-4 top-12 md:top-0 z-20 flex">
-                <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members</span>
+                <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members {params.search && '(Search)'}</span>
                 <span className="border-b border-border_color block w-full mr-3"></span>
               </div>
               <div className="pt-3">
@@ -290,9 +290,9 @@ export default function VerifyMember() {
                   </div>
                 ))}
                 <div className="min-h-10 px-4 py-2">
-                  {loadingList && <p className="p-4 text-text_color">Loading...</p>}
+                  {loadingList && <p className="px-4 text-text_color">Loading...</p>}
                   {(!loadingList && members.length == 0) && (
-                    searchInput ? <p className='p-4 text-text_color'>No member found for &lsquo;{params.search}&lsquo;</p> : <p className='p-4 loading-text'>No {selectedFilter} member available</p>
+                    params.search ? <p className='p-4 text-text_color'>No member found for &lsquo;{params.search}&lsquo;</p> : <p className='p-4'>No {selectedFilter} member available</p>
                   )}
                   {!hasMore && <p className="text-text_color">, , ,</p>}
                 </div>

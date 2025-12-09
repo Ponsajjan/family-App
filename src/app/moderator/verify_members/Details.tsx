@@ -8,7 +8,7 @@ import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { CloseIcon, Condolences, Female2, Info, Male2, Verified } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function NewMemberDetails({
     showDetailsFor,
@@ -217,7 +217,7 @@ export default function NewMemberDetails({
                             )}
                         </div>
                     </div>
-                    <div className='ml-auto mr-0 w-fit'>{data?.descendant ? '-- Descendant -- ' : '-- Non-descendant -- '}</div>
+                    <div className='ml-auto mr-0 w-fit'>{data?.descendant && !data?.isMainMember ? '-- Descendant -- ' : !data?.isMainMember ? '-- Non-descendant -- ' : '-- Main Member --'}</div>
                     {(data?.relationInformation) &&
                         <InformationSection title="Relation Information">
                             {data?.relationInformation.father && (
@@ -238,7 +238,7 @@ export default function NewMemberDetails({
                                 />
                             )}
 
-                            {data?.descendant && !(data?.relationInformation.father || data?.relationInformation.mother) && (
+                            {data?.descendant && !(data?.relationInformation.father || data?.relationInformation.mother) && !data?.isMainMember && (
                                 <MemberItemVerify
                                     label="Parents"
                                     name="-- Unassigned --"
