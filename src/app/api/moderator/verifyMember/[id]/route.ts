@@ -44,6 +44,7 @@ interface MemberResponse {
   additionalInformation?: {
     additionalInfo?: string;
   };
+  isMainMember?: boolean;
 }
 
 export async function GET(request: NextRequest) {
@@ -61,6 +62,12 @@ export async function GET(request: NextRequest) {
     const authId = decoded.authId;
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    let isMainMember = false;
+    const mainMemberId = decoded.memberId
+    if (id === mainMemberId) {
+      isMainMember = true;
     }
     // Fetch data in parallel using transaction
     const [member, siblings] = await prisma.$transaction([
@@ -119,7 +126,8 @@ export async function GET(request: NextRequest) {
       contactInformation: buildContactInfo(member),
       personalInformation: buildPersonalInfo(member),
       additionalInformation: buildAdditionalInfo(member),
-      ...(member.descendant !== undefined && { descendant: member.descendant })
+      ...(member.descendant !== undefined && { descendant: member.descendant }),
+      isMainMember
     };
 
     return NextResponse.json({ data: responseData });
