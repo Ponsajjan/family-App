@@ -61,11 +61,7 @@ export async function GET(request: NextRequest) {
                 deathDate: true,
                 deathMonth: true,
                 deathYear: true,
-            },
-            cacheStrategy: {
-                ttl: 60 * 2,
-                swr: 10
-            }, // Cache for 2 minutes
+            }
         });
 
         // Process events with IST

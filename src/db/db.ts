@@ -1,15 +1,16 @@
 // https://www.prisma.io/docs/orm/more/help-and-troubleshooting/help-articles/nextjs-prisma-client-dev-practices
 
-import { PrismaClient } from '@prisma/client'
-import dotenv from 'dotenv';
-import { withAccelerate } from '@prisma/extension-accelerate';
-dotenv.config();
+import { PrismaClient } from '@/generated/client/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+})
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL,
-
-  }).$extends(withAccelerate())
+    adapter
+  })
 }
 
 declare const globalThis: {
