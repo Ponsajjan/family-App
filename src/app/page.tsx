@@ -302,7 +302,7 @@ export default function Calendar() {
 
                   return (
                     <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 pt-3 pb-2`}>
-                      <p className="flex flex-wrap text-xl font-medium md:font-semibold text-text_color items-end min-h-[30px]">
+                      <p className="flex flex-wrap text-lg md:text-xl font-medium md:font-semibold text-text_color items-end min-h-[30px]">
                         {selectedIsToday &&
                           <>
                             <Announcement />
