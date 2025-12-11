@@ -898,6 +898,8 @@ export const AuthScalarFieldEnum = {
   mainMemberNameRef: 'mainMemberNameRef',
   moderatorPassword: 'moderatorPassword',
   password: 'password',
+  memberAuthId: 'memberAuthId',
+  moderatorAuthId: 'moderatorAuthId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
