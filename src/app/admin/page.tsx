@@ -225,10 +225,10 @@ export default function Relatives() {
               ))}
               <div className="min-h-10 px-4 py-2">
                 {loading || isFetching && <p className="px-4 text-text_color">Loading...</p>}
-                {(!loading && data.length === 0 && !searchInput) &&
+                {(!loading && data.length === 0 && !params.search) &&
                   <p className="p-4 text-text_color">No credentials available</p>
                 }
-                {(!loading && data.length === 0 && searchInput) &&
+                {(!loading && data.length === 0 && params.search) &&
                   <p className="p-4 text-text_color">No credentials found for &lsquo;{params.search}&lsquo;</p>
                 }
                 {!loading && !hasMore && data.length > 0 && <p className="text-text_color py-4">, , ,</p>}

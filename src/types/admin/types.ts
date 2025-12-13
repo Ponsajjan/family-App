@@ -36,7 +36,6 @@ export interface Moderator {
 export interface AuthEntry {
   id: number;
   mainMemberId: number | null;
-  descendantOf: string;
   mainMemberName: string;
   memberPassword: string;
   moderatorPassword: string;
