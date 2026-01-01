@@ -39,9 +39,13 @@ export async function GET(request: NextRequest) {
 
     // Build where clause for search
     const whereClause = searchTerm ? {
-      mainMemberNameRef: {
-        contains: searchTerm,
-        mode: 'insensitive' as const,
+      members: {
+        some: {
+          name: {
+            contains: searchTerm,
+            mode: 'insensitive' as const,
+          }
+        }
       }
     } : {};
 

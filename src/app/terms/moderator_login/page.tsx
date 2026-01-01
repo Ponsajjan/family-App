@@ -31,7 +31,8 @@ export default function Page() {
 
             const data = await res.json();
             if (data.newtoken) {
-                await storeLoginValues(data.newtoken, data.userType, data.moderatorNameRef, data.mainMemberNameRef);
+                await storeLoginValues(data.newtoken, data.userType, data.authId, data.oldAuthId);
+                router.push("/moderator");
             } else {
                 setError(data.error || "Login failed");
                 if (data.error === "Invalid credential") {

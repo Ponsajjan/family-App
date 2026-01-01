@@ -67,7 +67,7 @@ export default function Calendar() {
   const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [showPopupFor, setShowPopupFor] = useState<'member' | 'date' | null>(null);
-  const { logout, isAuthenticated, access } = useAuth();
+  const { logout } = useAuth();
 
   // Use the notification hook
   // const { checkAndSendNotifications } = useDailyNotifications();
@@ -159,14 +159,6 @@ export default function Calendar() {
   }
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return
-    }
-    if (access == 'Admin') {
-      router.push('/admin');
-      return;
-    }
     async function fetchEventDates() {
       try {
         // Use month+1 since the API expects 1-12 but Date uses 0-11
@@ -212,7 +204,7 @@ export default function Calendar() {
     }
 
     fetchEventDates();
-  }, [isAuthenticated, month, year, toast, logout, access, router]); //checkAndSendNotifications
+  }, [month, year, toast, logout, router]); //checkAndSendNotifications
 
   const HandlePopupData = (event: 'member' | 'date', data: any) => {
     if (event === 'member') {

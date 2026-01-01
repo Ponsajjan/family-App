@@ -1,65 +1,53 @@
 import { NextResponse } from "next/server";
 import { generateToken } from "@/utils/auth";
 import prisma from "@/db/db";
-import dotenv from 'dotenv';
-dotenv.config();
-
-interface LoginRequestBody {
-  account: string;
-}
-
-interface LoginResponse {
-  id: number;
-  mainMemberId: number | null;
-  password: string;
-  moderatorName?: string;
-  moderatorContact?: string;
-  moderatorPassword: string;
-  mainMemberNameRef?: string | null;
-}
 
 export async function POST(request: Request) {
   try {
-    const { account }: LoginRequestBody = await request.json();
+    const { account } = await request.json();
 
     if (!account) {
       return NextResponse.json(
-        { success: false, error: "account is required" },
+        { success: false, error: "Account is required" },
         { status: 400 }
       );
     }
 
-    // Try finding the account in the database
-    let login: LoginResponse | null = await prisma.auth.findUnique({
-      where: { mainMemberNameRef: account },
+    let login = null;
+    let userType = null;
+
+    // FIRST: Try moderator login (with full account string)
+    const moderatorAccount = await prisma.auth.findUnique({
+      where: { moderatorAuthId: account },
+      include: {
+        members: {
+          select: {
+            name: true
+          }
+        }
+      }
     });
 
-    // Check if this might be a moderator account (not in DB, but regular account exists)
-    // Extract last 4 digits and add 108 to check if a regular account exists
-    let userType: string = "Member";
-    let isModerator = false;
-
-    if (!login) {
-      const last4Digits = account.slice(-4);
-      const numericValue = parseInt(last4Digits, 10);
-      const regularAccountNumericValue = numericValue + 108;
-      const regularAccountLast4Digits = regularAccountNumericValue.toString().padStart(4, '0');
-      const potentialRegularAccount = account.slice(0, -4) + regularAccountLast4Digits;
-
-      // Check if the regular account exists in the database
-      const regularAccountExists = await prisma.auth.findUnique({
-        where: { mainMemberNameRef: potentialRegularAccount },
+    if (moderatorAccount) {
+      login = moderatorAccount;
+      userType = "Moderator";
+    } else {
+      const memberAccount = await prisma.auth.findUnique({
+        where: { memberAuthId: account },
+        include: {
+          members: {
+            select: {
+              name: true
+            }
+          }
+        }
       });
 
-      if (regularAccountExists) {
-        // This is a moderator account (has 108 less than the regular account)
-        login = regularAccountExists;
-        userType = "Moderator";
-        isModerator = true;
+      if (memberAccount) {
+        login = memberAccount;
+        userType = "Member";
       }
     }
-
-
 
     if (!login) {
       return NextResponse.json(
@@ -68,12 +56,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Determine user type if not already set as moderator
-    if (!isModerator) {
-      userType = "Member";
-    }
-
-    // Generate token
     const token = await generateToken({
       authId: login.id,
       memberId: login.mainMemberId,
@@ -83,12 +65,13 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: "Login successful",
-      newtoken: token, // Changed from token to newtoken
+      newtoken: token,
       userType,
-      mainMemberNameRef: account // Use the account parameter to preserve moderator account string
+      authId: account,
+      mainMemberName: login.members[0]?.name || null
     });
   } catch (error) {
-    console.error("Error logging in:", error);
+    console.error("Login error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }

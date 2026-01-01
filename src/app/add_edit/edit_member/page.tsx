@@ -154,7 +154,7 @@ export default function EditMemberDetails() {
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <span className="hidden md:block"><EditMember /></span>
-                <Link href={"/add_edit"} className="md:hidden block">
+                <Link href={"/add_edit?mode=edit"} className="md:hidden block">
                   <span><BackButton /></span>
                 </Link>
                 <p className="cursor-default text-2xl font-semibold text-text_color underline pl-3">
@@ -174,7 +174,7 @@ export default function EditMemberDetails() {
             submitting={submitting}
             head={head}
           />
-          <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
+          <LinkButtonOutline buttonText="Cancel" linkto="/add_edit?mode=edit" className="hidden md:block" />
         </div>
       </Container>
       <SlidePanel setShowDetails={setShowList} showDetails={showList} >

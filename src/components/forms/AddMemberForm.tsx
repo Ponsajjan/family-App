@@ -258,7 +258,6 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 </div>
             </div>}
             <ButtonSolid type="submit" disabled={loading} className="w-full mt-8 mb-4" buttonText={loading ? "Adding..." : "Add Member"} />
-            <LinkButtonOutline buttonText="Cancel" disabled={loading} linkto="/add_edit" className="hidden md:block" />
         </form>
     )
 }

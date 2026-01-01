@@ -6,39 +6,28 @@ import { useRouter } from 'next/navigation';
 import { updateToken } from '@/utils/auth';
 
 interface AuthContextType {
-  token: string | null;
-  isAuthenticated: boolean;
-  access: string | null;
-  setAccess: (access: string | null) => void;
-  storeLoginValues: (token: string, access: string, mainMemberNameRef: string, oldAccountRef?: string) => void;
+  storeLoginValues: (token: string, access: string, authId: string, oldauthId?: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [access, setAccess] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     // Initialize auth state on mount
     const storedToken = getCookie('token') || null;
-    const storedAccess = getCookie('access') || null;
 
-    if (storedToken || storedAccess) {
-      setToken(storedToken as string | null);
-      setAccess(storedAccess as string | null);
+    if (storedToken) {
       updateToken(storedToken as string)
     }
     setIsInitialized(true);
 
   }, []);
 
-  const storeLoginValues = (newToken: string, newAccess: string, mainMemberNameRef: string, oldAccountRef?: string) => {
-    setToken(newToken);
-    setAccess(newAccess);
+  const storeLoginValues = (newToken: string, newAccess: string, authId: string, oldAuthId?: string) => {
     const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
 
     // Set token and access cookies
@@ -52,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Get existing logged accounts
     const existingCookie = document.cookie.split('; ')
-      .find(row => row.startsWith('loggedAccounts='));
+      .find(row => row.startsWith('authId='));
 
     let accounts: string[] = [];
     if (existingCookie) {
@@ -67,29 +56,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           accounts = [decodedValue.replace(/^\["|"\]$/g, '')];
         }
       } catch (e) {
-        console.error("Error parsing loggedAccounts cookie", e);
-        accounts = [mainMemberNameRef]; // Fallback to new value
+        console.error("Error parsing logged accounts cookie", e);
+        accounts = [authId]; // Fallback to new value
       }
     }
 
     // Limit accounts array to prevent cookie overflow
     const MAX_ACCOUNTS = 10;
 
-    // If oldAccountRef is provided, replace it with the new one
-    if (oldAccountRef) {
-      const oldIndex = accounts.indexOf(oldAccountRef);
+    // If oldAuthId is provided, replace it with the new one
+    if (oldAuthId) {
+      const oldIndex = accounts.indexOf(oldAuthId);
       if (oldIndex !== -1) {
-        accounts[oldIndex] = mainMemberNameRef;
+        accounts[oldIndex] = authId;
       } else {
         // If old account not found, add new account if it doesn't exist and we have space
-        if (!accounts.includes(mainMemberNameRef) && accounts.length < MAX_ACCOUNTS) {
-          accounts.push(mainMemberNameRef);
+        if (!accounts.includes(authId) && accounts.length < MAX_ACCOUNTS) {
+          accounts.push(authId);
         }
       }
     } else {
       // Add new account if it doesn't exist and we have space
-      if (!accounts.includes(mainMemberNameRef) && accounts.length < MAX_ACCOUNTS) {
-        accounts.push(mainMemberNameRef);
+      if (!accounts.includes(authId) && accounts.length < MAX_ACCOUNTS) {
+        accounts.push(authId);
       }
     }
 
@@ -99,31 +88,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Update the cookie with properly formatted JSON array
-    document.cookie = `loggedAccounts=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=${daysToSeconds};`;
-
-    // Redirect based on new access
-    if (newAccess === 'Member') {
-      router.push('/terms');
-    } else if (newAccess === 'Moderator') {
-      router.push('/moderator');
-    }
+    document.cookie = `authId=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=${daysToSeconds};`;
+    router.push('/terms');
   };
 
   const logout = () => {
-    setToken(null);
-    setAccess(null);
     deleteCookie('token');
     deleteCookie('access');
     router.push('/login');
   };
 
-  const isAuthenticated = !!token;
+  // const isAuthenticated = Boolean(getCookie('token'));
 
   const contextValue: AuthContextType = {
-    token,
-    isAuthenticated,
-    access,
-    setAccess,
     storeLoginValues,
     logout,
   };

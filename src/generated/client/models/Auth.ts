@@ -39,7 +39,6 @@ export type AuthSumAggregateOutputType = {
 export type AuthMinAggregateOutputType = {
   id: number | null
   mainMemberId: number | null
-  mainMemberNameRef: string | null
   moderatorPassword: string | null
   password: string | null
   memberAuthId: string | null
@@ -51,7 +50,6 @@ export type AuthMinAggregateOutputType = {
 export type AuthMaxAggregateOutputType = {
   id: number | null
   mainMemberId: number | null
-  mainMemberNameRef: string | null
   moderatorPassword: string | null
   password: string | null
   memberAuthId: string | null
@@ -63,7 +61,6 @@ export type AuthMaxAggregateOutputType = {
 export type AuthCountAggregateOutputType = {
   id: number
   mainMemberId: number
-  mainMemberNameRef: number
   moderatorPassword: number
   password: number
   memberAuthId: number
@@ -87,7 +84,6 @@ export type AuthSumAggregateInputType = {
 export type AuthMinAggregateInputType = {
   id?: true
   mainMemberId?: true
-  mainMemberNameRef?: true
   moderatorPassword?: true
   password?: true
   memberAuthId?: true
@@ -99,7 +95,6 @@ export type AuthMinAggregateInputType = {
 export type AuthMaxAggregateInputType = {
   id?: true
   mainMemberId?: true
-  mainMemberNameRef?: true
   moderatorPassword?: true
   password?: true
   memberAuthId?: true
@@ -111,7 +106,6 @@ export type AuthMaxAggregateInputType = {
 export type AuthCountAggregateInputType = {
   id?: true
   mainMemberId?: true
-  mainMemberNameRef?: true
   moderatorPassword?: true
   password?: true
   memberAuthId?: true
@@ -210,7 +204,6 @@ export type AuthGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type AuthGroupByOutputType = {
   id: number
   mainMemberId: number | null
-  mainMemberNameRef: string | null
   moderatorPassword: string
   password: string
   memberAuthId: string | null
@@ -245,7 +238,6 @@ export type AuthWhereInput = {
   NOT?: Prisma.AuthWhereInput | Prisma.AuthWhereInput[]
   id?: Prisma.IntFilter<"Auth"> | number
   mainMemberId?: Prisma.IntNullableFilter<"Auth"> | number | null
-  mainMemberNameRef?: Prisma.StringNullableFilter<"Auth"> | string | null
   moderatorPassword?: Prisma.StringFilter<"Auth"> | string
   password?: Prisma.StringFilter<"Auth"> | string
   memberAuthId?: Prisma.StringNullableFilter<"Auth"> | string | null
@@ -259,7 +251,6 @@ export type AuthWhereInput = {
 export type AuthOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   mainMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
-  mainMemberNameRef?: Prisma.SortOrderInput | Prisma.SortOrder
   moderatorPassword?: Prisma.SortOrder
   password?: Prisma.SortOrder
   memberAuthId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -279,7 +270,6 @@ export type AuthWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AuthWhereInput | Prisma.AuthWhereInput[]
   OR?: Prisma.AuthWhereInput[]
   NOT?: Prisma.AuthWhereInput | Prisma.AuthWhereInput[]
-  mainMemberNameRef?: Prisma.StringNullableFilter<"Auth"> | string | null
   moderatorPassword?: Prisma.StringFilter<"Auth"> | string
   createdAt?: Prisma.DateTimeFilter<"Auth"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Auth"> | Date | string
@@ -290,7 +280,6 @@ export type AuthWhereUniqueInput = Prisma.AtLeast<{
 export type AuthOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   mainMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
-  mainMemberNameRef?: Prisma.SortOrderInput | Prisma.SortOrder
   moderatorPassword?: Prisma.SortOrder
   password?: Prisma.SortOrder
   memberAuthId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -310,7 +299,6 @@ export type AuthScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AuthScalarWhereWithAggregatesInput | Prisma.AuthScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Auth"> | number
   mainMemberId?: Prisma.IntNullableWithAggregatesFilter<"Auth"> | number | null
-  mainMemberNameRef?: Prisma.StringNullableWithAggregatesFilter<"Auth"> | string | null
   moderatorPassword?: Prisma.StringWithAggregatesFilter<"Auth"> | string
   password?: Prisma.StringWithAggregatesFilter<"Auth"> | string
   memberAuthId?: Prisma.StringNullableWithAggregatesFilter<"Auth"> | string | null
@@ -321,7 +309,6 @@ export type AuthScalarWhereWithAggregatesInput = {
 
 export type AuthCreateInput = {
   mainMemberId?: number | null
-  mainMemberNameRef?: string | null
   moderatorPassword: string
   password: string
   memberAuthId?: string | null
@@ -335,7 +322,6 @@ export type AuthCreateInput = {
 export type AuthUncheckedCreateInput = {
   id?: number
   mainMemberId?: number | null
-  mainMemberNameRef?: string | null
   moderatorPassword: string
   password: string
   memberAuthId?: string | null
@@ -348,7 +334,6 @@ export type AuthUncheckedCreateInput = {
 
 export type AuthUpdateInput = {
   mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  mainMemberNameRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -362,7 +347,6 @@ export type AuthUpdateInput = {
 export type AuthUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  mainMemberNameRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -376,7 +360,6 @@ export type AuthUncheckedUpdateInput = {
 export type AuthCreateManyInput = {
   id?: number
   mainMemberId?: number | null
-  mainMemberNameRef?: string | null
   moderatorPassword: string
   password: string
   memberAuthId?: string | null
@@ -387,7 +370,6 @@ export type AuthCreateManyInput = {
 
 export type AuthUpdateManyMutationInput = {
   mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  mainMemberNameRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -399,7 +381,6 @@ export type AuthUpdateManyMutationInput = {
 export type AuthUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  mainMemberNameRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -411,7 +392,6 @@ export type AuthUncheckedUpdateManyInput = {
 export type AuthCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mainMemberId?: Prisma.SortOrder
-  mainMemberNameRef?: Prisma.SortOrder
   moderatorPassword?: Prisma.SortOrder
   password?: Prisma.SortOrder
   memberAuthId?: Prisma.SortOrder
@@ -428,7 +408,6 @@ export type AuthAvgOrderByAggregateInput = {
 export type AuthMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mainMemberId?: Prisma.SortOrder
-  mainMemberNameRef?: Prisma.SortOrder
   moderatorPassword?: Prisma.SortOrder
   password?: Prisma.SortOrder
   memberAuthId?: Prisma.SortOrder
@@ -440,7 +419,6 @@ export type AuthMaxOrderByAggregateInput = {
 export type AuthMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mainMemberId?: Prisma.SortOrder
-  mainMemberNameRef?: Prisma.SortOrder
   moderatorPassword?: Prisma.SortOrder
   password?: Prisma.SortOrder
   memberAuthId?: Prisma.SortOrder
@@ -467,12 +445,12 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -517,7 +495,6 @@ export type AuthUpdateOneRequiredWithoutModeratorListNestedInput = {
 
 export type AuthCreateWithoutMembersInput = {
   mainMemberId?: number | null
-  mainMemberNameRef?: string | null
   moderatorPassword: string
   password: string
   memberAuthId?: string | null
@@ -530,7 +507,6 @@ export type AuthCreateWithoutMembersInput = {
 export type AuthUncheckedCreateWithoutMembersInput = {
   id?: number
   mainMemberId?: number | null
-  mainMemberNameRef?: string | null
   moderatorPassword: string
   password: string
   memberAuthId?: string | null
@@ -558,7 +534,6 @@ export type AuthUpdateToOneWithWhereWithoutMembersInput = {
 
 export type AuthUpdateWithoutMembersInput = {
   mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  mainMemberNameRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -571,7 +546,6 @@ export type AuthUpdateWithoutMembersInput = {
 export type AuthUncheckedUpdateWithoutMembersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  mainMemberNameRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -583,7 +557,6 @@ export type AuthUncheckedUpdateWithoutMembersInput = {
 
 export type AuthCreateWithoutModeratorListInput = {
   mainMemberId?: number | null
-  mainMemberNameRef?: string | null
   moderatorPassword: string
   password: string
   memberAuthId?: string | null
@@ -596,7 +569,6 @@ export type AuthCreateWithoutModeratorListInput = {
 export type AuthUncheckedCreateWithoutModeratorListInput = {
   id?: number
   mainMemberId?: number | null
-  mainMemberNameRef?: string | null
   moderatorPassword: string
   password: string
   memberAuthId?: string | null
@@ -624,7 +596,6 @@ export type AuthUpdateToOneWithWhereWithoutModeratorListInput = {
 
 export type AuthUpdateWithoutModeratorListInput = {
   mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  mainMemberNameRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -637,7 +608,6 @@ export type AuthUpdateWithoutModeratorListInput = {
 export type AuthUncheckedUpdateWithoutModeratorListInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  mainMemberNameRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -690,7 +660,6 @@ export type AuthCountOutputTypeCountMembersArgs<ExtArgs extends runtime.Types.Ex
 export type AuthSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   mainMemberId?: boolean
-  mainMemberNameRef?: boolean
   moderatorPassword?: boolean
   password?: boolean
   memberAuthId?: boolean
@@ -705,7 +674,6 @@ export type AuthSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type AuthSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   mainMemberId?: boolean
-  mainMemberNameRef?: boolean
   moderatorPassword?: boolean
   password?: boolean
   memberAuthId?: boolean
@@ -717,7 +685,6 @@ export type AuthSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type AuthSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   mainMemberId?: boolean
-  mainMemberNameRef?: boolean
   moderatorPassword?: boolean
   password?: boolean
   memberAuthId?: boolean
@@ -729,7 +696,6 @@ export type AuthSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
 export type AuthSelectScalar = {
   id?: boolean
   mainMemberId?: boolean
-  mainMemberNameRef?: boolean
   moderatorPassword?: boolean
   password?: boolean
   memberAuthId?: boolean
@@ -738,7 +704,7 @@ export type AuthSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AuthOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "mainMemberId" | "mainMemberNameRef" | "moderatorPassword" | "password" | "memberAuthId" | "moderatorAuthId" | "createdAt" | "updatedAt", ExtArgs["result"]["auth"]>
+export type AuthOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "mainMemberId" | "moderatorPassword" | "password" | "memberAuthId" | "moderatorAuthId" | "createdAt" | "updatedAt", ExtArgs["result"]["auth"]>
 export type AuthInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   moderatorList?: boolean | Prisma.Auth$moderatorListArgs<ExtArgs>
   members?: boolean | Prisma.Auth$membersArgs<ExtArgs>
@@ -756,7 +722,6 @@ export type $AuthPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     mainMemberId: number | null
-    mainMemberNameRef: string | null
     moderatorPassword: string
     password: string
     memberAuthId: string | null
@@ -1190,7 +1155,6 @@ export interface Prisma__AuthClient<T, Null = never, ExtArgs extends runtime.Typ
 export interface AuthFieldRefs {
   readonly id: Prisma.FieldRef<"Auth", 'Int'>
   readonly mainMemberId: Prisma.FieldRef<"Auth", 'Int'>
-  readonly mainMemberNameRef: Prisma.FieldRef<"Auth", 'String'>
   readonly moderatorPassword: Prisma.FieldRef<"Auth", 'String'>
   readonly password: Prisma.FieldRef<"Auth", 'String'>
   readonly memberAuthId: Prisma.FieldRef<"Auth", 'String'>

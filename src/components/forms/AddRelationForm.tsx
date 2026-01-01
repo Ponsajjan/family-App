@@ -201,7 +201,7 @@ function AddRelationShipForm({
                     newChildrenData.children.some((child: any) => child.verified)) &&
                 <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>
             }
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Adding..." : "Add Relationship"} />
+            <ButtonSolid type="submit" className="w-full mt-8 mb-4" disabled={submitting} buttonText={submitting ? "Adding..." : "Add Relationship"} />
         </form>
     )
 }

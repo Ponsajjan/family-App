@@ -16,7 +16,7 @@ interface LoginResponse {
     moderatorName?: string;
     moderatorContact?: string;
     moderatorPassword: string;
-    mainMemberNameRef?: string | null;
+    memberAuthId?: string | null;
 }
 
 export async function login(formData: FormData) {
@@ -57,7 +57,7 @@ export async function login(formData: FormData) {
                 moderatorName: "Admin",
                 moderatorContact: "N/A",
                 moderatorPassword: "N/A",
-                mainMemberNameRef: "SuperAdmin_007"
+                memberAuthId: "ADMIN007"
             };
         }
 
@@ -88,7 +88,7 @@ export async function login(formData: FormData) {
             message: "Login successful",
             token,
             userType,
-            mainMemberNameRef: login.mainMemberNameRef || 'Unknown'
+            authId: login.memberAuthId || 'Unknown'
         };
     } catch (error) {
         console.error("Error logging in:", error);

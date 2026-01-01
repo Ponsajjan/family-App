@@ -157,7 +157,7 @@ function EditRelationShipForm({
                     )}
                 </>}
             {formData.hasVerified && <p><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>}
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" buttonText={submitting ? "Updating..." : "Update Details"} />
+            <ButtonSolid type="submit" className="w-full mt-8 mb-4" disabled={submitting} buttonText={submitting ? "Updating..." : "Update Details"} />
         </form>
     )
 }

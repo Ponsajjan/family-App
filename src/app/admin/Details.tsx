@@ -5,12 +5,10 @@ import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthEntry, Moderator } from "@/types/admin/types"
 import { Copy } from "@/utils/Icons";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEntry, onDelete: (id: number) => void }) {
     const toast = useToast();
-    const router = useRouter();
     const { logout } = useAuth();
     const [deleting, setDeleting] = useState(false);
     const [moderators, setModerators] = useState<Moderator[]>([]);

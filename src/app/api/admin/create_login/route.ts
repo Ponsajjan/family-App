@@ -43,17 +43,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    function unique_descendantOf_string(input: string) {
-      const lowercased = input.toLowerCase();
-      const withUnderscores = lowercased.replace(/\s+/g, '_');
-      const randomDigits = Math.floor(1000 + Math.random() * 9000);
-      const result = `${withUnderscores}_${randomDigits}`;
-
-      return result;
+    function generateUniqueString(addSeconds = 0): string {
+      const timestamp = (Date.now() + (addSeconds * 1000)).toString(36).padStart(8, '0');
+      return `${timestamp}`
     }
 
-    const uniqueRef = unique_descendantOf_string(formData.name);
-
+    const moderatorUniqueString = generateUniqueString();
+    const memberUniqueString = generateUniqueString(2);
     // Prepare member data
     const member = {
       name: formData.name,
@@ -78,8 +74,9 @@ export async function POST(request: NextRequest) {
       // Step 1: Create the Auth entry first (without mainMemberId)
       const authEntry = await prisma.auth.create({
         data: {
-          mainMemberNameRef: uniqueRef,
           moderatorPassword: formData.moderatorPassword,
+          memberAuthId: memberUniqueString,
+          moderatorAuthId: moderatorUniqueString,
           password: formData.memberPassword,
           mainMemberId: null, // Initially set to null
         },

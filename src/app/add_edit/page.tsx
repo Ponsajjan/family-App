@@ -37,13 +37,13 @@ export default function AdminDashboard() {
             </div>
 
             <LinkButtonOutline
-                linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_member?mode=${currentMode}`}
+                linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_member`}
                 className="w-full mb-4"
                 buttonText={`${isAddMode ? 'Add' : 'Edit'} Member`}
             />
 
             <LinkButtonOutline
-                linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_relationship?mode=${currentMode}`}
+                linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_relationship`}
                 className="w-full"
                 buttonText={`${isAddMode ? 'Add' : 'Edit'} Relationship`}
             />

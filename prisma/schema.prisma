@@ -10,11 +10,14 @@ datasource db {
 model Auth {
   id                Int             @id @default(autoincrement())
   mainMemberId      Int?            @unique
-  mainMemberNameRef String?         @unique
+  // mainMemberNameRef String?
   moderatorList     ModeratorList[]
   moderatorPassword String
   password          String          @unique
   members           Member[]        @relation("AuthToMember")
+
+  memberAuthId    String? @unique
+  moderatorAuthId String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

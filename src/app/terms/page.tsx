@@ -16,15 +16,15 @@ import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as ne
 export default function Terms() {
   const toast = useToast();
   const [loading, setLoading] = useState(true);
-  const [head, setHead] = useState('');
   const [moderatorList, setModeratorList] = useState([]);
   const [password, setPassword] = useState('');
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
-  const [refetch, setRefetch] = useState(false);
   const [showCopiedMsg, setShowCopiedMsg] = useState(false);
-  const [mainMemberNameRef, setMainMemberNameRef] = useState('');
+  const [mainMemberName, setMainMemberName] = useState('');
+  const [accounts, setAccounts] = useState([]);
+  const [currentAuthId, setCurrentAuthId] = useState('');
   const router = useRouter();
 
   // Use the PWA hook
@@ -53,10 +53,12 @@ export default function Terms() {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setHead(data.member['name'])
-        setMainMemberNameRef(data.mainMemberName)
+        setMainMemberName(data.mainMemberName)
         setModeratorList(data.moderators)
         setPassword(data.password)
+        setCurrentAuthId(data.currentAuthId);
+        setAccounts(data.allAuthDetails)
+
 
       } catch (error: any) {
         toast?.show(error.message || 'Failed to fetch page data', 'error', 5000);
@@ -65,7 +67,7 @@ export default function Terms() {
       }
     }
     fetchMembers();
-  }, [router, toast, refetch]);
+  }, [router, toast]);
 
   const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
     if (loading) {
@@ -114,11 +116,11 @@ export default function Terms() {
           {loading ? <Loading /> :
             <div className="max-w-4xl mx-auto p-4 md:py-10">
               <h1 className="text-2xl md:text-3xl font-bold text-center mb-1 sm:mb-4">
-                The {head} Family, Birthdays & Remembrances
+                The {mainMemberName} Family, Birthdays & Remembrances
               </h1>
 
               <p className="text-base sm:text-lg text-center mb-3 md:px-10">
-                This web app is exclusively for the {head} family to honor and remember significant dates, such as birthdays and remembrances
+                This web app is exclusively for the {mainMemberName} family to honor and remember significant dates, such as birthdays and remembrances
               </p>
 
               <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
@@ -127,7 +129,7 @@ export default function Terms() {
                   <span className="inline-block">Access is limited to:</span>
                 </h2>
                 <ul className="list-disc list-inside space-y-2 pl-4">
-                  <li className='list-outside'>Direct descendants of {head}</li>
+                  <li className='list-outside'>Direct descendants of {mainMemberName}</li>
                   <li className='list-outside'>Their partner ( Husband or Wife )</li>
                 </ul>
                 <p className="mt-4 italic opacity-65">
@@ -197,8 +199,20 @@ export default function Terms() {
             </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-          {showLogin && <SwitchLoginList setRefetch={setRefetch} mainMemberNameRef={mainMemberNameRef} />}
-          {showLogout && <LogoutList mainMemberNameRef={mainMemberNameRef} />}
+          {showLogin &&
+            <SwitchLoginList
+              setMainMemberName={setMainMemberName}
+              accounts={accounts}
+              setAccounts={setAccounts}
+              currentAuthId={currentAuthId}
+            />}
+          {showLogout &&
+            <LogoutList
+              mainMemberName={mainMemberName}
+              accounts={accounts}
+              setAccounts={setAccounts}
+              currentAuthId={currentAuthId}
+            />}
         </SlidePanel>
       </div>
     </div>

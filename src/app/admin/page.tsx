@@ -20,7 +20,7 @@ export default function Relatives() {
   const [data, setData] = useState<AuthEntry[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const { logout, access } = useAuth();
+  const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 25,
@@ -101,13 +101,8 @@ export default function Relatives() {
   }, [params, logout, toast]);
 
   useEffect(() => {
-    if (access !== "Admin") {
-      toast?.show("You are not authorized to view this page", "error", 5000);
-      logout();
-      return;
-    }
     fetchData();
-  }, [fetchData, access, toast, logout]);
+  }, [fetchData, toast, logout]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
