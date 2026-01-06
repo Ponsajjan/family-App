@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
 
     // Update the authId cookie with the latest list
     const authIdCookie = serialize('authId', encodeURIComponent(JSON.stringify(allAuthIds)), {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',

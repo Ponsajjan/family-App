@@ -13,10 +13,9 @@ interface SwitchLoginListProps {
     setMainMemberName: (value: string) => void;
     accounts: AccountDetail[];
     setAccounts: any;
-    currentAuthId: string;
 }
 
-function SwitchLoginList({ setMainMemberName, accounts, setAccounts, currentAuthId }: SwitchLoginListProps) {
+function SwitchLoginList({ setMainMemberName, accounts, setAccounts }: SwitchLoginListProps) {
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
@@ -42,7 +41,7 @@ function SwitchLoginList({ setMainMemberName, accounts, setAccounts, currentAuth
             const data = await res.json();
             if (data.newtoken) {
                 // Pass the old authId (current one) and new authId to storeLoginValues
-                storeLoginValues(data.newtoken, data.userType, data.authId, currentAuthId);
+                storeLoginValues(data.newtoken, data.userType, data.authId);
                 setAccounts((prev: AccountDetail[]) =>
                     prev.map(acc => ({
                         ...acc,
@@ -93,11 +92,11 @@ function SwitchLoginList({ setMainMemberName, accounts, setAccounts, currentAuth
                     return;
                 }
 
-                // Add the new account to the list
+                // Add the new account to the list as current
                 const newAccount: AccountDetail = {
                     authId: data.authId,
                     mainMemberRef: data.mainMemberName || 'New Account', // Use name from response
-                    current: false // Not current since we're switching to it
+                    current: true // Set as current since we're switching to it
                 };
 
                 const updatedAccounts = [
@@ -105,7 +104,7 @@ function SwitchLoginList({ setMainMemberName, accounts, setAccounts, currentAuth
                     newAccount // Add new account as current
                 ];
 
-                storeLoginValues(data.token, data.userType, data.authId, currentAuthId);
+                storeLoginValues(data.token, data.userType, data.authId);
                 setForm({ password: "" });
                 setAccounts(updatedAccounts);
                 setError("");
@@ -179,9 +178,9 @@ function SwitchLoginList({ setMainMemberName, accounts, setAccounts, currentAuth
                             </svg>
                         </button>
                     </div>
-                    {error && <p className='text-red-500 text-sm pl-1 pt-1'>{error}</p>}
+                    {error && <p className='text-text_color text-sm pl-1 pt-1'>{error}</p>}
                     {accounts.length >= 10 && (
-                        <p className='text-amber-500 text-sm pl-1 pt-1'>
+                        <p className='text-text_color text-sm pl-1 pt-1'>
                             You have reached the maximum number of accounts (10).
                         </p>
                     )}
