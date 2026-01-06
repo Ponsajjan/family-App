@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     if (existingCookie) {
       try {
-        const decodedValue = decodeURIComponent(existingCookie);
+        const decodedValue = existingCookie;
         if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
           allAuthIds = JSON.parse(decodedValue);
         } else {
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Update the authId cookie with the latest list
-    const authIdCookie = serialize('authId', encodeURIComponent(JSON.stringify(allAuthIds)), {
+    const authIdCookie = serialize('authId', JSON.stringify(allAuthIds), {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',

@@ -1,6 +1,7 @@
 import { CloseIcon, Logout } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { setCookie, deleteCookie } from 'cookies-next';
 
 interface AccountDetail {
     authId: string;
@@ -12,10 +13,9 @@ interface LogoutListProps {
     mainMemberName: string;
     accounts: AccountDetail[];
     setAccounts: any;
-    currentAuthId: string;
 }
 
-function LogoutList({ mainMemberName, accounts, setAccounts, currentAuthId }: LogoutListProps) {
+function LogoutList({ mainMemberName, accounts, setAccounts }: LogoutListProps) {
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
     const router = useRouter();
 
@@ -24,7 +24,7 @@ function LogoutList({ mainMemberName, accounts, setAccounts, currentAuthId }: Lo
 
     const handleRemoveAccount = (accountToRemove: string) => {
         // Don't allow removing the currently logged in account
-        if (accountToRemove === currentAuthId) {
+        if (accountToRemove === currentAccount?.authId) {
             return;
         }
 
@@ -32,13 +32,13 @@ function LogoutList({ mainMemberName, accounts, setAccounts, currentAuthId }: Lo
         setAccounts(updatedAccounts);
 
         // Update the cookie with only authIds
-        const daysToSeconds = 180 * 24 * 60 * 60;
+        const maxAge = 180 * 24 * 60 * 60;
         if (updatedAccounts.length === 0) {
-            document.cookie = 'authId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            deleteCookie('authId', { path: '/' });
         } else {
             // Extract only authIds for the cookie
             const authIdsOnly = updatedAccounts.map(account => account.authId);
-            document.cookie = `authId=${encodeURIComponent(JSON.stringify(authIdsOnly))}; path=/; max-age=${daysToSeconds};`;
+            setCookie('authId', JSON.stringify(authIdsOnly), { maxAge, path: '/' });
         }
     };
 

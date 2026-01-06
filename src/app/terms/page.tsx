@@ -12,6 +12,7 @@ import SlidePanel from '@/components/SlidePanel'
 import SwitchLoginList from './SwitchLoginList'
 import LogoutList from './LogoutList'
 import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as needed
+import { deleteCookie } from 'cookies-next'
 
 export default function Terms() {
   const toast = useToast();
@@ -24,7 +25,6 @@ export default function Terms() {
   const [showCopiedMsg, setShowCopiedMsg] = useState(false);
   const [mainMemberName, setMainMemberName] = useState('');
   const [accounts, setAccounts] = useState([]);
-  const [currentAuthId, setCurrentAuthId] = useState('');
   const router = useRouter();
 
   // Use the PWA hook
@@ -44,7 +44,8 @@ export default function Terms() {
         );
         // Handle 401 Unauthorized
         if (response.status === 401) {
-          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          deleteCookie('token', { path: '/' });
+          deleteCookie('access', { path: '/' });
           router.push('/login');
           return;
         }
@@ -56,7 +57,6 @@ export default function Terms() {
         setMainMemberName(data.mainMemberName)
         setModeratorList(data.moderators)
         setPassword(data.password)
-        setCurrentAuthId(data.currentAuthId);
         setAccounts(data.allAuthDetails)
 
 
@@ -204,14 +204,12 @@ export default function Terms() {
               setMainMemberName={setMainMemberName}
               accounts={accounts}
               setAccounts={setAccounts}
-              currentAuthId={currentAuthId}
             />}
           {showLogout &&
             <LogoutList
               mainMemberName={mainMemberName}
               accounts={accounts}
               setAccounts={setAccounts}
-              currentAuthId={currentAuthId}
             />}
         </SlidePanel>
       </div>

@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getCookie } from "cookies-next";
 
 export default function Page() {
   const router = useRouter();
   const [hasToken, setHasToken] = useState(false);
 
   useEffect(() => {
-    const cookies = document.cookie.split("; ").find(row => row.startsWith("token="));
-    if (cookies) {
+    const token = getCookie('token');
+    if (token) {
       setHasToken(true);
       const redirectTimer = setTimeout(() => {
         router.push('/')

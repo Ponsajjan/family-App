@@ -1,12 +1,12 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getCookie, deleteCookie } from 'cookies-next';
+import { getCookie, deleteCookie, setCookie } from 'cookies-next';
 import { useRouter } from 'next/navigation';
 import { updateToken } from '@/utils/auth';
 
 interface AuthContextType {
-  storeLoginValues: (token: string, access: string, authId: string, oldauthId?: string) => void;
+  storeLoginValues: (token: string, access: string, authId: string, oldAuthId?: string) => void;
   logout: () => void;
 }
 
@@ -28,67 +28,59 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const storeLoginValues = (newToken: string, newAccess: string, authId: string, oldAuthId?: string) => {
-    const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
+    const maxAge = 180 * 24 * 60 * 60; // 180 days in seconds
 
-    // Set token and access cookies
-    document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
-    document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
+    // Set token and access cookies using setCookie
+    setCookie('token', newToken, { maxAge, path: '/' });
+    setCookie('access', newAccess, { maxAge, path: '/' });
 
     if (newAccess === 'Admin') {
       router.push('/admin');
-      return
+      return;
     }
 
-    // Get existing logged accounts
-    const existingCookie = document.cookie.split('; ')
-      .find(row => row.startsWith('authId='));
-
+    // Get existing logged accounts from cookies-next
+    const existingAccountsCookie = getCookie('authId');
     let accounts: string[] = [];
-    if (existingCookie) {
-      const cookieValue = existingCookie.split('=')[1];
+
+    if (existingAccountsCookie) {
       try {
-        // First decode URI component, then parse JSON
-        const decodedValue = decodeURIComponent(cookieValue);
-        if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
-          accounts = JSON.parse(decodedValue);
-        } else {
-          // If it's a malformed array string, treat as single value
-          accounts = [decodedValue.replace(/^\["|"\]$/g, '')];
+        const decodedValue = typeof existingAccountsCookie === 'string'
+          ? existingAccountsCookie
+          : JSON.stringify(existingAccountsCookie);
+
+        accounts = JSON.parse(decodedValue);
+        if (!Array.isArray(accounts)) {
+          accounts = [String(accounts)];
         }
       } catch (e) {
         console.error("Error parsing logged accounts cookie", e);
-        accounts = [authId]; // Fallback to new value
+        accounts = [];
+      }
+    }
+
+    if (oldAuthId) {
+      const oldIndex = accounts.indexOf(oldAuthId);
+      if (oldIndex !== -1) {
+        accounts[oldIndex] = authId; // Replace specific ID
+      } else if (!accounts.includes(authId)) {
+        accounts.push(authId); // Add if not found and new one not there
+      }
+    } else {
+      // Add new account if it doesn't exist
+      if (!accounts.includes(authId)) {
+        accounts.push(authId);
       }
     }
 
     // Limit accounts array to prevent cookie overflow
     const MAX_ACCOUNTS = 10;
-
-    // If oldAuthId is provided, replace it with the new one
-    if (oldAuthId) {
-      const oldIndex = accounts.indexOf(oldAuthId);
-      if (oldIndex !== -1) {
-        accounts[oldIndex] = authId;
-      } else {
-        // If old account not found, add new account if it doesn't exist and we have space
-        if (!accounts.includes(authId) && accounts.length < MAX_ACCOUNTS) {
-          accounts.push(authId);
-        }
-      }
-    } else {
-      // Add new account if it doesn't exist and we have space
-      if (!accounts.includes(authId) && accounts.length < MAX_ACCOUNTS) {
-        accounts.push(authId);
-      }
-    }
-
-    // Trim array if it exceeds max size (keep most recent)
     if (accounts.length > MAX_ACCOUNTS) {
       accounts = accounts.slice(-MAX_ACCOUNTS);
     }
 
-    // Update the cookie with properly formatted JSON array
-    document.cookie = `authId=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=${daysToSeconds};`;
+    // Update the cookie using setCookie
+    setCookie('authId', JSON.stringify(accounts), { maxAge, path: '/' });
     router.push('/terms');
   };
 
