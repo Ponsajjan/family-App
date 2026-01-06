@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
+import { serialize } from 'cookie';
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
@@ -12,7 +13,8 @@ export async function GET(request: NextRequest) {
   try {
     const decoded = await verifyToken(token);
     const id = decoded.authId;
-    const memberId = decoded.memberId
+    const userType = decoded.userType;
+
     if (!id) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
@@ -21,57 +23,122 @@ export async function GET(request: NextRequest) {
       where: { id },
       select: {
         password: true,
-        mainMemberNameRef: true,
-        members: {
-          where: { id: memberId },
-          select: {
-            name: true,
-            authId: true,
-          },
-        },
+        memberAuthId: true,
+        moderatorAuthId: true,
         moderatorList: {
           select: {
             moderatorName: true,
             moderatorContact: true,
           },
         },
-      },
-      cacheStrategy: {
-        ttl: 60 * 2,
-        swr: 30
-      }, // Cache for 2 minutes
+        members: {
+          select: {
+            name: true
+          }
+        }
+      }
     });
 
     if (!authRecord) {
       return NextResponse.json({ error: "Auth record not found" }, { status: 404 });
     }
 
-    // Extract the main member (first member in the filtered list)
-    const mainMember = authRecord.members[0];
+    // Get the current authId based on user type (from token)
+    const currentAuthId = userType === "Member" ? authRecord.memberAuthId : authRecord.moderatorAuthId;
 
-    if (!mainMember) {
-      return NextResponse.json({ error: "Main member not found" }, { status: 404 });
+    if (!currentAuthId) {
+      return NextResponse.json({ error: "Auth ID not found" }, { status: 404 });
     }
 
-    let mainMemberName = authRecord.mainMemberNameRef;
+    // Get all authIds from cookies
+    const existingCookie = request.cookies.get("authId")?.value;
+    let allAuthIds: string[] = [];
 
-    if (decoded?.userType === 'Moderator' && mainMemberName) {
-      const last4Digits = mainMemberName.slice(-4);
-      const numericValue = parseInt(last4Digits, 10);
-      const moderatorAccountNumericValue = numericValue - 108;
-      const moderatorAccountLast4Digits = moderatorAccountNumericValue.toString().padStart(4, '0');
-      const potentialModeratorAccount = mainMemberName.slice(0, -4) + moderatorAccountLast4Digits;
-
-      // Modifying the mainMemberName to be the moderator account
-      mainMemberName = potentialModeratorAccount;
+    if (existingCookie) {
+      try {
+        const decodedValue = existingCookie;
+        if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
+          allAuthIds = JSON.parse(decodedValue);
+        } else {
+          allAuthIds = [decodedValue.replace(/^\["|"\]$/g, '')];
+        }
+      } catch (e) {
+        console.error("Error parsing authId cookie", e);
+        allAuthIds = [currentAuthId];
+      }
     }
 
-    return NextResponse.json({
-      member: mainMember, // The main member associated with the auth record
-      mainMemberName: mainMemberName, // The main member's name
-      moderators: authRecord.moderatorList, // List of moderators,
-      password: authRecord.password,
+    // Add current authId if not already in the list
+    if (!allAuthIds.includes(currentAuthId)) {
+      allAuthIds.push(currentAuthId);
+    }
+
+    // Limit accounts array to prevent cookie overflow
+    const MAX_ACCOUNTS = 10;
+    if (allAuthIds.length > MAX_ACCOUNTS) {
+      allAuthIds = allAuthIds.slice(-MAX_ACCOUNTS);
+    }
+
+    // Fetch mainMemberRef for all authIds in a single query
+    const authRecords = await prisma.auth.findMany({
+      where: {
+        OR: [
+          { memberAuthId: { in: allAuthIds } },
+          { moderatorAuthId: { in: allAuthIds } }
+        ]
+      },
+      select: {
+        memberAuthId: true,
+        moderatorAuthId: true,
+        members: {
+          select: {
+            name: true
+          }
+        }
+      }
     });
+
+    // Map authIds to their details with current flag
+    const authDetails = allAuthIds.map(authId => {
+      const record = authRecords.find(record =>
+        record.memberAuthId === authId || record.moderatorAuthId === authId
+      );
+
+      return {
+        authId,
+        mainMemberRef: record?.members[0]?.name || null,
+        current: authId === currentAuthId // true only for token-derived authId
+      };
+    });
+
+    const sortedAuthDetails = [...authDetails].sort((a, b) => {
+      if (a.current && !b.current) return -1;
+      if (!a.current && b.current) return 1;
+      return 0;
+    });
+
+    // Prepare response
+    const response = NextResponse.json({
+      mainMemberName: authRecord.members[0]?.name || null,
+      moderators: authRecord.moderatorList,
+      password: authRecord.password,
+      currentAuthId: currentAuthId,
+      allAuthDetails: sortedAuthDetails, // Array of objects with authId, mainMemberRef, and current flag
+    });
+
+    // Update the authId cookie with the latest list
+    const authIdCookie = serialize('authId', JSON.stringify(allAuthIds), {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 180 * 24 * 60 * 60 // 180 days in seconds
+    });
+
+    response.headers.set('Set-Cookie', authIdCookie);
+
+    return response;
+
   } catch (error) {
     console.error("Error fetching member data:", error);
     // Handle token verification errors

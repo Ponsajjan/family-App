@@ -1,20 +1,23 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Auth {
   id                Int             @id @default(autoincrement())
   mainMemberId      Int?            @unique
-  mainMemberNameRef String?         @unique
+  // mainMemberNameRef String?
   moderatorList     ModeratorList[]
   moderatorPassword String
   password          String          @unique
   members           Member[]        @relation("AuthToMember")
+
+  memberAuthId    String? @unique
+  moderatorAuthId String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

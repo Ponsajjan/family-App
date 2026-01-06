@@ -46,28 +46,12 @@ export async function POST(request: NextRequest) {
       userType: "Moderator",
     });
 
-    // Extract last 4 digits from mainMemberNameRef and subtract 108
-    const mainMemberNameRef = login.mainMemberNameRef;
-
-    if (!mainMemberNameRef) {
-      return NextResponse.json(
-        { error: "Invalid account reference" },
-        { status: 500 }
-      );
-    }
-
-    const last4Digits = mainMemberNameRef.slice(-4);
-    const numericValue = parseInt(last4Digits, 10);
-    const newNumericValue = numericValue - 108;
-    const newLast4Digits = newNumericValue.toString().padStart(4, '0');
-    const moderatorAccountRef = mainMemberNameRef.slice(0, -4) + newLast4Digits;
-
     return NextResponse.json({
       message: "Login successful",
       newtoken,
       userType: "Moderator",
-      moderatorNameRef: moderatorAccountRef,
-      mainMemberNameRef: login.mainMemberNameRef
+      authId: login.moderatorAuthId,
+      oldAuthId: login.memberAuthId
     }, { status: 200 });
 
   } catch (error) {

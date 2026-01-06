@@ -1,129 +1,98 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getCookie, deleteCookie } from 'cookies-next';
+import { getCookie, deleteCookie, setCookie } from 'cookies-next';
 import { useRouter } from 'next/navigation';
 import { updateToken } from '@/utils/auth';
 
 interface AuthContextType {
-  token: string | null;
-  isAuthenticated: boolean;
-  access: string | null;
-  setAccess: (access: string | null) => void;
-  storeLoginValues: (token: string, access: string, mainMemberNameRef: string, oldAccountRef?: string) => void;
+  storeLoginValues: (token: string, access: string, authId: string, oldAuthId?: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [access, setAccess] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     // Initialize auth state on mount
     const storedToken = getCookie('token') || null;
-    const storedAccess = getCookie('access') || null;
 
-    if (storedToken || storedAccess) {
-      setToken(storedToken as string | null);
-      setAccess(storedAccess as string | null);
+    if (storedToken) {
       updateToken(storedToken as string)
     }
     setIsInitialized(true);
 
   }, []);
 
-  const storeLoginValues = (newToken: string, newAccess: string, mainMemberNameRef: string, oldAccountRef?: string) => {
-    setToken(newToken);
-    setAccess(newAccess);
-    const daysToSeconds = 180 * 24 * 60 * 60; // 180 days in seconds
+  const storeLoginValues = (newToken: string, newAccess: string, authId: string, oldAuthId?: string) => {
+    const maxAge = 180 * 24 * 60 * 60; // 180 days in seconds
 
-    // Set token and access cookies
-    document.cookie = `token=${newToken}; path=/; max-age=${daysToSeconds};`;
-    document.cookie = `access=${newAccess}; path=/; max-age=${daysToSeconds};`;
+    // Set token and access cookies using setCookie
+    setCookie('token', newToken, { maxAge, path: '/' });
+    setCookie('access', newAccess, { maxAge, path: '/' });
 
     if (newAccess === 'Admin') {
       router.push('/admin');
-      return
+      return;
     }
 
-    // Get existing logged accounts
-    const existingCookie = document.cookie.split('; ')
-      .find(row => row.startsWith('loggedAccounts='));
-
+    // Get existing logged accounts from cookies-next
+    const existingAccountsCookie = getCookie('authId');
     let accounts: string[] = [];
-    if (existingCookie) {
-      const cookieValue = existingCookie.split('=')[1];
+
+    if (existingAccountsCookie) {
       try {
-        // First decode URI component, then parse JSON
-        const decodedValue = decodeURIComponent(cookieValue);
-        if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
-          accounts = JSON.parse(decodedValue);
-        } else {
-          // If it's a malformed array string, treat as single value
-          accounts = [decodedValue.replace(/^\["|"\]$/g, '')];
+        const decodedValue = typeof existingAccountsCookie === 'string'
+          ? existingAccountsCookie
+          : JSON.stringify(existingAccountsCookie);
+
+        accounts = JSON.parse(decodedValue);
+        if (!Array.isArray(accounts)) {
+          accounts = [String(accounts)];
         }
       } catch (e) {
-        console.error("Error parsing loggedAccounts cookie", e);
-        accounts = [mainMemberNameRef]; // Fallback to new value
+        console.error("Error parsing logged accounts cookie", e);
+        accounts = [];
+      }
+    }
+
+    if (oldAuthId) {
+      const oldIndex = accounts.indexOf(oldAuthId);
+      if (oldIndex !== -1) {
+        accounts[oldIndex] = authId; // Replace specific ID
+      } else if (!accounts.includes(authId)) {
+        accounts.push(authId); // Add if not found and new one not there
+      }
+    } else {
+      // Add new account if it doesn't exist
+      if (!accounts.includes(authId)) {
+        accounts.push(authId);
       }
     }
 
     // Limit accounts array to prevent cookie overflow
     const MAX_ACCOUNTS = 10;
-
-    // If oldAccountRef is provided, replace it with the new one
-    if (oldAccountRef) {
-      const oldIndex = accounts.indexOf(oldAccountRef);
-      if (oldIndex !== -1) {
-        accounts[oldIndex] = mainMemberNameRef;
-      } else {
-        // If old account not found, add new account if it doesn't exist and we have space
-        if (!accounts.includes(mainMemberNameRef) && accounts.length < MAX_ACCOUNTS) {
-          accounts.push(mainMemberNameRef);
-        }
-      }
-    } else {
-      // Add new account if it doesn't exist and we have space
-      if (!accounts.includes(mainMemberNameRef) && accounts.length < MAX_ACCOUNTS) {
-        accounts.push(mainMemberNameRef);
-      }
-    }
-
-    // Trim array if it exceeds max size (keep most recent)
     if (accounts.length > MAX_ACCOUNTS) {
       accounts = accounts.slice(-MAX_ACCOUNTS);
     }
 
-    // Update the cookie with properly formatted JSON array
-    document.cookie = `loggedAccounts=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=${daysToSeconds};`;
-
-    // Redirect based on new access
-    if (newAccess === 'Member') {
-      router.push('/terms');
-    } else if (newAccess === 'Moderator') {
-      router.push('/moderator');
-    }
+    // Update the cookie using setCookie
+    setCookie('authId', JSON.stringify(accounts), { maxAge, path: '/' });
+    router.push('/terms');
   };
 
   const logout = () => {
-    setToken(null);
-    setAccess(null);
     deleteCookie('token');
     deleteCookie('access');
     router.push('/login');
   };
 
-  const isAuthenticated = !!token;
+  // const isAuthenticated = Boolean(getCookie('token'));
 
   const contextValue: AuthContextType = {
-    token,
-    isAuthenticated,
-    access,
-    setAccess,
     storeLoginValues,
     logout,
   };

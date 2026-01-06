@@ -17,15 +17,7 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = {
- experimental: {
-   turbo: {
-     resolveAlias: {
-       underscore: "lodash",
-     },
-     resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js", ".json"],
-   },
- },
- output: "standalone",
+  output: "standalone",
 };
 
 export default withPWA(nextConfig);

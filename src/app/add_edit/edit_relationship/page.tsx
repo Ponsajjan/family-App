@@ -114,7 +114,7 @@ export default function EditRelationshipDetails() {
       setNoChanges(true);
       return
     }
-    router.push("/add_edit");
+    router.push("/add_edit?mode=edit");
   }
 
   const handleSelectedValue = (name: string, id: number) => {
@@ -175,7 +175,7 @@ export default function EditRelationshipDetails() {
         <div className="w-full md:max-w-xl px-4 py-5 md:py-10 mx-auto">
           <div className="flex items-center mb-3">
             <span className="hidden md:block"><AddRelationship /></span>
-            <Link href={"/add_edit"} className="md:hidden block">
+            <Link href={"/add_edit?mode=edit"} className="md:hidden block">
               <span><BackButton /></span>
             </Link>
             <p className="text-2xl font-semibold text-center text-text_color underline pl-3">

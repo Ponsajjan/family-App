@@ -36,7 +36,7 @@ export default function LoginForm() {
 
             if (data.success && data.token) {
                 // Store login values and redirect
-                await storeLoginValues(data.token, data.userType, data.mainMemberNameRef);
+                await storeLoginValues(data.token, data.userType, data.authId);
             } else {
                 if (data.error === "Invalid credentials") {
                     setForm(prev => ({ ...prev, password: "" }));

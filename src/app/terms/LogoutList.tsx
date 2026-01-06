@@ -1,68 +1,44 @@
-import { useAuth } from '@/contexts/AuthContext';
 import { CloseIcon, Logout } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { setCookie, deleteCookie } from 'cookies-next';
 
-function LogoutList({ mainMemberNameRef }: { mainMemberNameRef: string }) {
-    const [accounts, setAccounts] = useState<string[]>([]);
+interface AccountDetail {
+    authId: string;
+    mainMemberRef: string;
+    current: boolean;
+}
+
+interface LogoutListProps {
+    mainMemberName: string;
+    accounts: AccountDetail[];
+    setAccounts: any;
+}
+
+function LogoutList({ mainMemberName, accounts, setAccounts }: LogoutListProps) {
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
     const router = useRouter();
 
-    // Format account name: replace _ with space, capitalize each word, and remove everything after last _
-    const formatAccountName = (account: string) => {
-        if (!account) return '';
-
-        // Replace underscores with spaces
-        let formatted = account.replace(/_/g, ' ');
-
-        // Capitalize first letter of each word
-        formatted = formatted.replace(/\b\w/g, char => char.toUpperCase());
-
-        // Remove everything after last space
-        const lastSpaceIndex = formatted.lastIndexOf(' ');
-        if (lastSpaceIndex !== -1) {
-            formatted = formatted.substring(0, lastSpaceIndex);
-        }
-
-        return formatted;
-    };
-
-    // Fetch and parse loggedAccounts cookie
-    useEffect(() => {
-        const cookie = document.cookie.split('; ')
-            .find(row => row.startsWith('loggedAccounts='));
-
-        if (cookie) {
-            const cookieValue = cookie.split('=')[1];
-            try {
-                // Decode and clean the value before parsing
-                const decodedValue = decodeURIComponent(cookieValue)
-                    .replace(/^\["?|"?\]$/g, '');
-
-                // Split by "," and clean each item
-                const parsedAccounts = decodedValue.split('","')
-                    .map(item => item.replace(/"/g, '').trim())
-                    .filter(item => item.length > 0);
-
-                setAccounts(parsedAccounts);
-            } catch (e) {
-                console.error("Error parsing loggedAccounts cookie", e);
-                // Fallback to treating the value as a single account
-                setAccounts([decodeURIComponent(cookieValue).replace(/^\["?|"?\]$/g, '')]);
-            }
-        }
-    }, []);
+    // Get current account (where current: true)
+    const currentAccount = accounts.find(account => account.current === true);
 
     const handleRemoveAccount = (accountToRemove: string) => {
-        const updatedAccounts = accounts.filter(account => account !== accountToRemove);
+        // Don't allow removing the currently logged in account
+        if (accountToRemove === currentAccount?.authId) {
+            return;
+        }
+
+        const updatedAccounts = accounts.filter(account => account.authId !== accountToRemove);
         setAccounts(updatedAccounts);
 
-        // Update or remove the cookie
-        const daysToSeconds = 180 * 24 * 60 * 60;
+        // Update the cookie with only authIds
+        const maxAge = 180 * 24 * 60 * 60;
         if (updatedAccounts.length === 0) {
-            document.cookie = 'loggedAccounts=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;';
+            deleteCookie('authId', { path: '/' });
         } else {
-            document.cookie = `loggedAccounts=${encodeURIComponent(JSON.stringify(updatedAccounts))}; path=/; max-age=${daysToSeconds};`;
+            // Extract only authIds for the cookie
+            const authIdsOnly = updatedAccounts.map(account => account.authId);
+            setCookie('authId', JSON.stringify(authIdsOnly), { maxAge, path: '/' });
         }
     };
 
@@ -85,27 +61,39 @@ function LogoutList({ mainMemberNameRef }: { mainMemberNameRef: string }) {
         }
     };
 
+    // Filter out current account from the list (current account shows at top separately)
+    const otherAccounts = accounts.filter(account => !account.current);
+
     return (
         <>
             <div className='relative px-2 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-start'>
-                <div className='z-10'>{loggingOut ? "Logging out..." : "Logout"}</div>
+                <div className='z-10'>{loggingOut ? "Logging out..." : "Accounts"}</div>
             </div>
+
+            {/* Current Account Section */}
             <div className='pl-4 pt-4 border-b border-dashed pb-2 pr-[22px] w-full'>
                 <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
-                    <div>{formatAccountName(mainMemberNameRef || '')}</div>
-                    <span onClick={logout} className='border-l border-border_color pl-3'>
+                    <div className="flex flex-col">
+                        <div className="font-semibold">{currentAccount?.mainMemberRef || mainMemberName}</div>
+                    </div>
+                    <span onClick={logout} className='border-l border-border_color pl-3 hover:text-accent_color'>
                         <Logout />
                     </span>
                 </div>
             </div>
+
+            {/* Other Accounts Section */}
             <div className='px-4 py-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
-                {accounts.filter(account => account !== mainMemberNameRef).map((account, index) => {
-                    const formattedName = formatAccountName(account);
+                {otherAccounts.map((account) => {
                     return (
-                        <div key={index} className='py-0.5 w-full'>
-                            <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md cursor-pointer`}>
-                                <div>{formattedName}</div>
-                                <span onClick={() => handleRemoveAccount(account)} className="hover:text-accent_color border-l border-border_color pl-3">
+                        <div key={account.authId} className='py-0.5 md:py-1 w-full'>
+                            <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md`}>
+                                <div>{account.mainMemberRef}</div>
+                                <span
+                                    onClick={() => handleRemoveAccount(account.authId)}
+                                    className="hover:text-accent_color border-l border-border_color pl-3 cursor-pointer"
+                                    title="Remove from list"
+                                >
                                     <CloseIcon />
                                 </span>
                             </div>

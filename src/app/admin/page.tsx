@@ -20,7 +20,7 @@ export default function Relatives() {
   const [data, setData] = useState<AuthEntry[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const { logout, access } = useAuth();
+  const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 25,
@@ -101,13 +101,8 @@ export default function Relatives() {
   }, [params, logout, toast]);
 
   useEffect(() => {
-    if (access !== "Admin") {
-      toast?.show("You are not authorized to view this page", "error", 5000);
-      logout();
-      return;
-    }
     fetchData();
-  }, [fetchData, access, toast, logout]);
+  }, [fetchData, toast, logout]);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -225,10 +220,10 @@ export default function Relatives() {
               ))}
               <div className="min-h-10 px-4 py-2">
                 {loading || isFetching && <p className="px-4 text-text_color">Loading...</p>}
-                {(!loading && data.length === 0 && !searchInput) &&
+                {(!loading && data.length === 0 && !params.search) &&
                   <p className="p-4 text-text_color">No credentials available</p>
                 }
-                {(!loading && data.length === 0 && searchInput) &&
+                {(!loading && data.length === 0 && params.search) &&
                   <p className="p-4 text-text_color">No credentials found for &lsquo;{params.search}&lsquo;</p>
                 }
                 {!loading && !hasMore && data.length > 0 && <p className="text-text_color py-4">, , ,</p>}

@@ -5,7 +5,6 @@ import { verifyToken } from '@/utils/auth';
 interface FormattedAuthEntry {
   id: number;
   mainMemberId: number | null;
-  descendantOf: string;
   mainMemberName: string;
   memberPassword: string;
   moderatorPassword: string;
@@ -40,9 +39,13 @@ export async function GET(request: NextRequest) {
 
     // Build where clause for search
     const whereClause = searchTerm ? {
-      mainMemberNameRef: {
-        contains: searchTerm,
-        mode: 'insensitive' as const,
+      members: {
+        some: {
+          name: {
+            contains: searchTerm,
+            mode: 'insensitive' as const,
+          }
+        }
       }
     } : {};
 
@@ -91,7 +94,6 @@ export async function GET(request: NextRequest) {
       return {
         id: auth.id,
         mainMemberId: auth.mainMemberId,
-        descendantOf: auth.mainMemberNameRef,
         mainMemberName: mainMember?.name || 'Unknown',
         memberPassword: auth.password,
         moderatorPassword: auth.moderatorPassword,

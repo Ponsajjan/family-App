@@ -12,7 +12,7 @@ interface LoginResponse {
   id: number;
   mainMemberId: number | null;
   password: string;
-  mainMemberNameRef?: string | null;
+  memberAuthId?: string | null;
   moderatorName?: string;
   moderatorContact?: string;
   moderatorPassword: string;
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
         moderatorName: "Admin",
         moderatorContact: "N/A",
         moderatorPassword: "N/A",
-        mainMemberNameRef: "superAdmin_007",
+        memberAuthId: "admin",
       };
     }
 
@@ -63,7 +63,13 @@ export async function POST(request: Request) {
 
     const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
-    return NextResponse.json({ success: true, message: "Login successful", token, userType, mainMemberNameRef: login.mainMemberNameRef || 'Unknown' });
+    return NextResponse.json({
+      success: true,
+      message: "Login successful",
+      token,
+      userType,
+      authId: login.memberAuthId,
+    });
   } catch (error) {
     console.error("Error logging in:", error);
     return NextResponse.json(

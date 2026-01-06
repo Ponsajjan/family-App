@@ -10,6 +10,7 @@ import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
 import { useMemberHeadContext } from "@/contexts/HeadContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { LinkButtonOutline } from "@/components/Button";
 
 export default function AddMemberDetails() {
   const toast = useToast();
@@ -121,6 +122,7 @@ export default function AddMemberDetails() {
           handleFormSubmit={handleFormSubmit}
           head={head}
         />
+        <LinkButtonOutline buttonText="Cancel" disabled={loading} linkto="/add_edit" className="hidden md:block" />
       </div>
     </Container>
   );

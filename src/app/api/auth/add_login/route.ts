@@ -15,7 +15,8 @@ interface LoginResponse {
   moderatorName?: string;
   moderatorContact?: string;
   moderatorPassword: string;
-  mainMemberNameRef?: string | null;
+  memberAuthId?: string | null;
+  members?: any;
 }
 
 export async function POST(request: Request) {
@@ -32,20 +33,15 @@ export async function POST(request: Request) {
     // Try finding the password in the database
     let login: LoginResponse | null = await prisma.auth.findUnique({
       where: { password },
+      include: {
+        members: {
+          select: {
+            name: true,
+          }
+        }
+      }
     });
 
-    // If no match is found in DB, check the environment variable
-    if (!login && process.env.SUPER_ADMIN_PASSWORD && password === process.env.SUPER_ADMIN_PASSWORD) {
-      login = {
-        id: -108,
-        mainMemberId: null,
-        password: process.env.SUPER_ADMIN_PASSWORD,
-        moderatorName: "Admin",
-        moderatorContact: "N/A",
-        moderatorPassword: "N/A",
-        mainMemberNameRef: "super_admin_007",
-      };
-    }
 
     if (!login) {
       return NextResponse.json(
@@ -58,12 +54,19 @@ export async function POST(request: Request) {
     const token = await generateToken({
       authId: login.id,
       memberId: login.mainMemberId,
-      userType: login.moderatorName === "Admin" ? "Admin" : "Member",
+      userType: "Member",
     });
 
-    const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
+    const userType = "Member";
 
-    return NextResponse.json({ success: true, message: "Login successful", token, userType, mainMemberNameRef: login.mainMemberNameRef || 'Unknown' });
+    return NextResponse.json({
+      success: true,
+      message: "Login successful",
+      token,
+      userType,
+      authId: login.memberAuthId,
+      mainMemberName: login.members[0].name,
+    });
   } catch (error) {
     console.error("Error logging in:", error);
     return NextResponse.json(

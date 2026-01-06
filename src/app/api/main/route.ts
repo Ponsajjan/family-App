@@ -26,11 +26,7 @@ export async function GET(request: NextRequest) {
             name: true,
           },
         },
-      },
-      cacheStrategy: {
-        ttl: 60 * 20,
-        swr: 30
-      }, // Cache for 10 minutes
+      }
     });
 
     if (!authRecord) {
