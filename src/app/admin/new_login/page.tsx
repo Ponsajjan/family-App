@@ -17,14 +17,14 @@ export default function Page() {
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<NewLoginFormErrorTypes>(NewLoginDefaultErrorValue);
   const { logout } = useAuth();
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-  
+
     if (name === "member_password" || name === "moderator_password") {
       setErrors((prev) => ({ ...prev, password: "" }));
     } else {
@@ -34,7 +34,7 @@ export default function Page() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const errorMessage = validateNewLoginForm(formData);  
+    const errorMessage = validateNewLoginForm(formData);
     if (Object.keys(errorMessage).length) {
       setErrors(errorMessage);
       return;
@@ -44,7 +44,7 @@ export default function Page() {
     if (!formData.name || !formData.gender || !formData.member_password || !formData.moderator_password) {
       return;
     }
-    
+
     try {
       setLoading(true);
       const newLoginDetails = {
@@ -88,7 +88,7 @@ export default function Page() {
       toast?.show(result.message, "success", 5000);
       setFormData(NewLoginDefaultFormValue);
     } catch (error: any) {
-      toast?.show( error.message || "An error occurred. Please try again.", "error", 5000);
+      toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
     } finally {
       setLoading(false);
     }
@@ -126,7 +126,7 @@ export default function Page() {
                 />
                 {(errors.gender) && (
                   <p className="text-red-500 text-sm">
-                  {errors.gender}
+                    {errors.gender}
                   </p>
                 )}
               </div>
@@ -171,9 +171,9 @@ export default function Page() {
                 />
               </div>
               {(errors.birth_day) && (
-                  <p className="text-red-500 text-sm">
+                <p className="text-red-500 text-sm">
                   {errors.birth_day}
-                  </p>
+                </p>
               )}
             </div>
             <div className='mb-2'>
@@ -217,7 +217,7 @@ export default function Page() {
               </div>
               {(errors.death_day) && (
                 <p className="text-red-500 text-sm mt-2">
-                    {errors.death_day}
+                  {errors.death_day}
                 </p>
               )}
             </div>
@@ -278,7 +278,7 @@ export default function Page() {
               className="mb-2"
               showOptional={true}
               name="address"
-              label="Address State/Country"
+              label="Address"
               value={formData.address}
               onChange={handleInputChange}
             />

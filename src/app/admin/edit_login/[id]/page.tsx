@@ -341,7 +341,7 @@ export default function EditCredential() {
               className="mb-2"
               showOptional={true}
               name="address"
-              label="Address State/Country"
+              label="Address"
               value={formData.address}
               onChange={handleInputChange}
             />
