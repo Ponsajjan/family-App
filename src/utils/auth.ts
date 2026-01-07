@@ -1,7 +1,7 @@
 'use server'
 // import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -39,7 +39,7 @@ export const verifyToken = async (token: string): Promise<any> => {
 };
 
 export async function updateToken(token: string) {
-  const response = NextResponse.next();
+  const cookieStore = await cookies();
 
   try {
     const decoded: any = jwt.decode(token);
@@ -48,17 +48,18 @@ export async function updateToken(token: string) {
 
     const currentTime = Math.floor(Date.now() / 1000);
     const expirationTime = decoded.exp;
-    const bufferTime = 90 * 24 * 60 * 60;
+    const bufferTime = 90 * 24 * 60 * 60; // 90 days buffer
+
     if (expirationTime < currentTime) {
       // Token expired, clear cookie
-      response.cookies.set("token", "", { maxAge: 0 });
-      response.cookies.set("access", "", { maxAge: 0 });
+      cookieStore.delete("token");
+      cookieStore.delete("access");
     } else if (expirationTime - currentTime < bufferTime) {
       // Token is about to expire, renew it
       const { iat, exp, ...safePayload } = decoded;
       const newToken = await generateToken(safePayload);
 
-      response.cookies.set("token", newToken, {
+      cookieStore.set("token", newToken, {
         httpOnly: true,
         secure: true,
         path: "/",

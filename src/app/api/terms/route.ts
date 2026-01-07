@@ -98,8 +98,13 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Filter allAuthIds to only include those that exist in the database
+    const validAuthIds = allAuthIds.filter(authId =>
+      authRecords.some(record => record.memberAuthId === authId || record.moderatorAuthId === authId)
+    );
+
     // Map authIds to their details with current flag
-    const authDetails = allAuthIds.map(authId => {
+    const authDetails = validAuthIds.map(authId => {
       const record = authRecords.find(record =>
         record.memberAuthId === authId || record.moderatorAuthId === authId
       );
@@ -127,7 +132,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Update the authId cookie with the latest list
-    const authIdCookie = serialize('authId', JSON.stringify(allAuthIds), {
+    const authIdCookie = serialize('authId', JSON.stringify(validAuthIds), {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
