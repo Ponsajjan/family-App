@@ -104,11 +104,3 @@ model ModeratorList {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-model Announcement {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}

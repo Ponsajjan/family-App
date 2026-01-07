@@ -45,11 +45,13 @@ export async function POST(request: NextRequest) {
 
     function generateUniqueString(addSeconds = 0): string {
       const timestamp = (Date.now() + (addSeconds * 1000)).toString(36).padStart(8, '0');
-      return `${timestamp}`
+      const randomNum = Math.floor(Math.random() * 10);
+      const randomChar = String.fromCharCode(97 + Math.floor(Math.random() * 26));
+      return `${timestamp}${randomNum}${randomChar}`
     }
 
     const moderatorUniqueString = generateUniqueString();
-    const memberUniqueString = generateUniqueString(2);
+    const memberUniqueString = generateUniqueString(6);
     // Prepare member data
     const member = {
       name: formData.name,

@@ -2,9 +2,10 @@
 CREATE TABLE "Auth" (
     "id" SERIAL NOT NULL,
     "mainMemberId" INTEGER,
-    "mainMemberNameRef" TEXT,
     "moderatorPassword" TEXT NOT NULL,
     "password" TEXT NOT NULL,
+    "memberAuthId" TEXT,
+    "moderatorAuthId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -79,25 +80,17 @@ CREATE TABLE "ModeratorList" (
     CONSTRAINT "ModeratorList_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "Announcement" (
-    "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Announcement_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "Auth_mainMemberId_key" ON "Auth"("mainMemberId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Auth_mainMemberNameRef_key" ON "Auth"("mainMemberNameRef");
+CREATE UNIQUE INDEX "Auth_password_key" ON "Auth"("password");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Auth_password_key" ON "Auth"("password");
+CREATE UNIQUE INDEX "Auth_memberAuthId_key" ON "Auth"("memberAuthId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Auth_moderatorAuthId_key" ON "Auth"("moderatorAuthId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "nonDescendantRelation_memberId_key" ON "nonDescendantRelation"("memberId");
