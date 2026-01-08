@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
-import { Prisma } from "@prisma/client";
 
 interface Member {
   id: number;
@@ -80,7 +79,7 @@ export async function GET(request: NextRequest) {
     const groupedData: Array<Member | LetterHeader> = [];
 
     // Common where clause for all queries
-    const baseWhere: Prisma.MemberWhereInput = {
+    const baseWhere: any = {
       ...(searchQuery && {
         name: {
           contains: searchQuery,
