@@ -8,16 +8,7 @@ interface LoginRequestBody {
   password: string;
 }
 
-interface LoginResponse {
-  id: number;
-  mainMemberId: number | null;
-  password: string;
-  moderatorName?: string;
-  moderatorContact?: string;
-  moderatorPassword: string;
-  memberAuthId?: string | null;
-  members?: any;
-}
+
 
 export async function POST(request: Request) {
   try {
@@ -31,15 +22,8 @@ export async function POST(request: Request) {
     }
 
     // Try finding the password in the database
-    let login: LoginResponse | null = await prisma.auth.findUnique({
+    let login = await prisma.auth.findUnique({
       where: { password },
-      include: {
-        members: {
-          select: {
-            name: true,
-          }
-        }
-      }
     });
 
 
@@ -48,6 +32,16 @@ export async function POST(request: Request) {
         { success: false, error: "Invalid credentials" },
         { status: 403 }
       );
+    }
+
+    // Fetch main member name if mainMemberId exists
+    let mainMemberName = null;
+    if (login.mainMemberId) {
+      const member = await prisma.member.findUnique({
+        where: { id: login.mainMemberId },
+        select: { name: true }
+      });
+      mainMemberName = member?.name || null;
     }
 
     // Generate token
@@ -65,7 +59,7 @@ export async function POST(request: Request) {
       token,
       userType,
       authId: login.memberAuthId,
-      mainMemberName: login.members[0]?.name || null,
+      mainMemberName,
       password: login.password,
     });
   } catch (error) {

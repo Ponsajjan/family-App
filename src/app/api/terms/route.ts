@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
       return {
         authId,
         mainMemberRef: record?.mainMemberId ? memberMap.get(record.mainMemberId) || null : null,
-        current: authId === currentAuthId // true only for token-derived authId
+        current: authId === authRecord.memberAuthId || authId === authRecord.moderatorAuthId
       };
     });
 

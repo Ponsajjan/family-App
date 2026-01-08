@@ -19,13 +19,6 @@ export async function POST(request: Request) {
     // FIRST: Try moderator login (with full account string)
     const moderatorAccount = await prisma.auth.findUnique({
       where: { moderatorAuthId: account },
-      include: {
-        members: {
-          select: {
-            name: true
-          }
-        }
-      }
     });
 
     if (moderatorAccount) {
@@ -34,13 +27,6 @@ export async function POST(request: Request) {
     } else {
       const memberAccount = await prisma.auth.findUnique({
         where: { memberAuthId: account },
-        include: {
-          members: {
-            select: {
-              name: true
-            }
-          }
-        }
       });
 
       if (memberAccount) {
@@ -56,6 +42,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // Fetch main member name if mainMemberId exists
+    let mainMemberName = null;
+    if (login.mainMemberId) {
+      const member = await prisma.member.findUnique({
+        where: { id: login.mainMemberId },
+        select: { name: true }
+      });
+      mainMemberName = member?.name || null;
+    }
+
     const token = await generateToken({
       authId: login.id,
       memberId: login.mainMemberId,
@@ -68,7 +64,7 @@ export async function POST(request: Request) {
       newtoken: token,
       userType,
       authId: account,
-      mainMemberName: login.members[0]?.name || null,
+      mainMemberName,
       password: login.password
     });
   } catch (error) {
