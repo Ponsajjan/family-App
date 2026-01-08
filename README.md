@@ -17,7 +17,7 @@ This project uses PostgreSQL for both development and production environments.
 
 ### Environment Variables
 
-- `DATABASE_URL`: PostgreSQL connection string for production (e.g., `postgresql://user:pass@host:5432/family_app_prod`)
+- `DATABASE_URL_CLIENT`: PostgreSQL connection string for production (e.g., `postgresql://user:pass@host:5432/family_app_prod`)
 - `DATABASE_URL_DEV`: PostgreSQL connection string for development (e.g., `postgresql://user:pass@localhost:5432/family_app_dev`)
 
 ### Database Backup and Restore
