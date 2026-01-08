@@ -202,6 +202,7 @@ export default function Terms() {
           {showLogin &&
             <SwitchLoginList
               setMainMemberName={setMainMemberName}
+              setPassword={setPassword}
               accounts={accounts}
               setAccounts={setAccounts}
             />}

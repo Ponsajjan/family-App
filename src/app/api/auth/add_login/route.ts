@@ -65,7 +65,8 @@ export async function POST(request: Request) {
       token,
       userType,
       authId: login.memberAuthId,
-      mainMemberName: login.members[0].name,
+      mainMemberName: login.members[0]?.name || null,
+      password: login.password,
     });
   } catch (error) {
     console.error("Error logging in:", error);

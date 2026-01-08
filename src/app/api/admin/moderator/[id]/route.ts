@@ -20,8 +20,20 @@ export async function PUT(request: NextRequest) {
     const id = parseInt(url.pathname.split("/").pop() || "", 10);
     const { moderatorName, moderatorContact, authId } = await request.json();
 
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid moderator ID" }, { status: 400 });
+    }
+
+    const authIdNum = Number(authId);
+    if (!moderatorName?.trim() || !moderatorContact?.trim() || isNaN(authIdNum)) {
+      return NextResponse.json(
+        { error: "Moderator name, contact, and valid authId are required." },
+        { status: 400 }
+      );
+    }
+
     const existingAuth = await prisma.auth.findUnique({
-      where: { id: authId },
+      where: { id: authIdNum },
     });
 
     if (!existingAuth) {
@@ -31,21 +43,13 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validate required fields
-    if (!moderatorName || !moderatorContact || !authId) {
-      return NextResponse.json(
-        { error: "All fields (moderatorName, moderatorContact, authId) are required." },
-        { status: 400 }
-      );
-    }
-
     // Update the ModeratorList entry
     const updatedModerator = await prisma.moderatorList.update({
       where: { id: id },
       data: {
-        moderatorName,
-        moderatorContact,
-        authId,
+        moderatorName: moderatorName.trim(),
+        moderatorContact: moderatorContact.trim(),
+        authId: authIdNum,
       },
     });
 

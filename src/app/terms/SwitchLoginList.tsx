@@ -11,11 +11,12 @@ interface AccountDetail {
 
 interface SwitchLoginListProps {
     setMainMemberName: (value: string) => void;
+    setPassword: (value: string) => void;
     accounts: AccountDetail[];
     setAccounts: any;
 }
 
-function SwitchLoginList({ setMainMemberName, accounts, setAccounts }: SwitchLoginListProps) {
+function SwitchLoginList({ setMainMemberName, setPassword, accounts, setAccounts }: SwitchLoginListProps) {
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
@@ -49,6 +50,7 @@ function SwitchLoginList({ setMainMemberName, accounts, setAccounts }: SwitchLog
                     }))
                 );
                 setMainMemberName(data.mainMemberName);
+                setPassword(data.password);
             } else {
                 toast?.show(data.error || "An unexpected error occurred.", "error", 5000);
             }
@@ -109,6 +111,7 @@ function SwitchLoginList({ setMainMemberName, accounts, setAccounts }: SwitchLog
                 setAccounts(updatedAccounts);
                 setError("");
                 setMainMemberName(data.mainMemberName || 'New Account');
+                setPassword(data.password);
             } else {
                 setError(data.error || "Failed to add account");
             }

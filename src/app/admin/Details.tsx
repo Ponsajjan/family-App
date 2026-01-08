@@ -99,9 +99,9 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
 
             // Add the new moderator to the list
             const newModeratorData = {
-                id: result.id,
-                name: newModerator.moderatorName.trim(),
-                contactNumber: newModerator.moderatorContact.trim()
+                id: result.moderator.id,
+                name: result.moderator.moderatorName,
+                contactNumber: result.moderator.moderatorContact
             };
 
             setModerators([...moderators, newModeratorData]);
@@ -122,7 +122,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
     };
 
     const handleSaveEditModerator = async () => {
-        if (!editingModerator.id || editingModerator.index === null) return;
+        if (editingModerator.id === null || editingModerator.index === null) return;
 
         if (!editModerator.moderatorName.trim() || !editModerator.moderatorContact.trim()) {
             toast?.show("Name and contact number are required.", "error", 5000);
@@ -158,14 +158,17 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
             toast?.show("Moderator updated successfully", "success", 5000);
 
             // Update the moderator in the list
-            const updatedModerators = [...moderators];
-            updatedModerators[editingModerator.index!] = {
-                ...updatedModerators[editingModerator.index!],
-                name: editModerator.moderatorName.trim(),
-                contactNumber: editModerator.moderatorContact.trim()
-            };
-
-            setModerators(updatedModerators);
+            setModerators(prev => {
+                const updated = [...prev];
+                if (editingModerator.index !== null && updated[editingModerator.index]) {
+                    updated[editingModerator.index] = {
+                        ...updated[editingModerator.index],
+                        name: result.moderatorName || editModerator.moderatorName.trim(),
+                        contactNumber: result.moderatorContact || editModerator.moderatorContact.trim()
+                    };
+                }
+                return updated;
+            });
             setEditingModerator({ id: null, index: null });
 
         } catch (error: any) {
@@ -360,7 +363,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
                     ) : (
                         <button
                             onClick={() => setAddingModerator(true)}
-                            disabled={loading}
+                            disabled={loading || deleting || editingModerator.id !== null}
                             className="w-full py-2 border border-border_color rounded-md text-center hover:bg-gray-100 disabled:opacity-50"
                         >
                             Add Moderator +
@@ -371,12 +374,12 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
 
             <div className='flex flex-col mt-8 gap-2'>
                 <LinkButtonSolid
-                    disabled={loading || deleting}
+                    disabled={loading || deleting || editingModerator.id !== null}
                     buttonText='Edit Credentials'
                     linkto={`/admin/edit_login/${selectedCredential.mainMemberId}`}
                 />
                 <HoldButton
-                    disabled={deleting || loading}
+                    disabled={deleting || loading || editingModerator.id !== null}
                     type='outline'
                     buttonText={deleting ? 'Deleting...' : 'Delete Credential'}
                     onClick={() => deleteRecord(selectedCredential.id)}

@@ -25,22 +25,28 @@ export async function GET(request: NextRequest) {
         password: true,
         memberAuthId: true,
         moderatorAuthId: true,
+        mainMemberId: true,
         moderatorList: {
           select: {
             moderatorName: true,
             moderatorContact: true,
           },
         },
-        members: {
-          select: {
-            name: true
-          }
-        }
       }
     });
 
     if (!authRecord) {
       return NextResponse.json({ error: "Auth record not found" }, { status: 404 });
+    }
+
+    // Fetch main member name for the current auth record
+    let mainMemberName = null;
+    if (authRecord.mainMemberId) {
+      const member = await prisma.member.findUnique({
+        where: { id: authRecord.mainMemberId },
+        select: { name: true }
+      });
+      mainMemberName = member?.name || null;
     }
 
     // Get the current authId based on user type (from token)
@@ -90,10 +96,27 @@ export async function GET(request: NextRequest) {
       select: {
         memberAuthId: true,
         moderatorAuthId: true,
-        members: {
-          select: {
-            name: true
-          }
+        mainMemberId: true,
+      }
+    });
+
+    // Fetch main member names for all auth records in the list
+    const mainMemberIds = authRecords
+      .map(record => record.mainMemberId)
+      .filter((id): id is number => id !== null);
+
+    const members = await prisma.member.findMany({
+      where: { id: { in: mainMemberIds } },
+      select: { id: true, name: true }
+    });
+
+    const memberMap = new Map(members.map(m => [m.id, m.name]));
+
+    // Deduplicate: If both memberAuthId and moderatorAuthId for the same record are present, keep only moderatorAuthId
+    authRecords.forEach(record => {
+      if (record.memberAuthId && record.moderatorAuthId) {
+        if (allAuthIds.includes(record.memberAuthId) && allAuthIds.includes(record.moderatorAuthId)) {
+          allAuthIds = allAuthIds.filter(id => id !== record.memberAuthId);
         }
       }
     });
@@ -111,7 +134,7 @@ export async function GET(request: NextRequest) {
 
       return {
         authId,
-        mainMemberRef: record?.members[0]?.name || null,
+        mainMemberRef: record?.mainMemberId ? memberMap.get(record.mainMemberId) || null : null,
         current: authId === currentAuthId // true only for token-derived authId
       };
     });
@@ -124,7 +147,7 @@ export async function GET(request: NextRequest) {
 
     // Prepare response
     const response = NextResponse.json({
-      mainMemberName: authRecord.members[0]?.name || null,
+      mainMemberName: mainMemberName,
       moderators: authRecord.moderatorList,
       password: authRecord.password,
       currentAuthId: currentAuthId,

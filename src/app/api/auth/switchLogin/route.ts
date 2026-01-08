@@ -68,7 +68,8 @@ export async function POST(request: Request) {
       newtoken: token,
       userType,
       authId: account,
-      mainMemberName: login.members[0]?.name || null
+      mainMemberName: login.members[0]?.name || null,
+      password: login.password
     });
   } catch (error) {
     console.error("Login error:", error);
