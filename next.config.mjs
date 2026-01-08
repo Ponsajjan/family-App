@@ -17,8 +17,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = {
+  output: "standalone",
   turbopack: {
-    output: "standalone",
+    root: "/",
   }
 };
 

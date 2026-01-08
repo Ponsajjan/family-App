@@ -55,8 +55,7 @@ export const ModelName = {
   Member: 'Member',
   RequestDetails: 'RequestDetails',
   nonDescendantRelation: 'nonDescendantRelation',
-  ModeratorList: 'ModeratorList',
-  Announcement: 'Announcement'
+  ModeratorList: 'ModeratorList'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -155,17 +154,6 @@ export const ModeratorListScalarFieldEnum = {
 } as const
 
 export type ModeratorListScalarFieldEnum = (typeof ModeratorListScalarFieldEnum)[keyof typeof ModeratorListScalarFieldEnum]
-
-
-export const AnnouncementScalarFieldEnum = {
-  id: 'id',
-  title: 'title',
-  content: 'content',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type AnnouncementScalarFieldEnum = (typeof AnnouncementScalarFieldEnum)[keyof typeof AnnouncementScalarFieldEnum]
 
 
 export const SortOrder = {
