@@ -366,7 +366,7 @@ export default function EditCredential() {
               </p>
             )}
             <ButtonSolid type="submit" disabled={isLoading} className="w-full mt-8 mb-4" buttonText={isUpdating ? "Updating..." : "Update Credential"} />
-            <LinkButtonOutline linkto='/admin' type="button" className="w-full" buttonText={"Cancel"} />
+            <LinkButtonOutline linkto='/admin' className="w-full" buttonText={"Cancel"} />
           </form>
         </div>
       </Container>
