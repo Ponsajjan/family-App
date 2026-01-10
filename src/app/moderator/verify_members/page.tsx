@@ -10,6 +10,7 @@ import NewMemberDetails from "./Details";
 import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 import Container from "@/components/Container";
+import Link from "next/link";
 
 export default function VerifyMember() {
   const toast = useToast();
@@ -247,7 +248,16 @@ export default function VerifyMember() {
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
               <div className="bg-main_background w-full sticky pt-4 top-12 md:top-0 z-20 flex">
-                <span className="border border-border_color -mb-3 rounded-md  shadow-sm px-2 py-0.5 ml-2 text-text_color bg-field_color whitespace-nowrap">{selectedFilter} Members {params.search && '(Search)'}</span>
+                <div className="border border-border_color -mb-3 rounded-md flex justify-center items-center shadow-sm ml-2 text-text_color bg-field_color whitespace-nowrap">
+                  <Link href="/moderator" className="px-1 border-r border-border_color">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="20px" height="20px" viewBox="-8.5 0 32 32" version="1.1">
+                      <path d="M15.281 7.188v17.594l-15.281-8.781z" />
+                    </svg>
+                  </Link>
+                  <div className="px-2 py-0.5">
+                    {selectedFilter} Members {params.search && '(Search)'}
+                  </div>
+                </div>
                 <span className="border-b border-border_color block w-full mr-3"></span>
               </div>
               <div className="pt-3">

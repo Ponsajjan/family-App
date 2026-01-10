@@ -1,5 +1,3 @@
-/** @type {import('next').NextConfig} */
-
 import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
@@ -10,7 +8,7 @@ const withPWA = withPWAInit({
   dynamicStartUrl: true,
   reloadOnOnline: true,
   swcMinify: true,
-  disable: false,
+  disable: process.env.NODE_ENV === "development",
   workboxOptions: {
     disableDevLogs: true,
   },
@@ -18,9 +16,6 @@ const withPWA = withPWAInit({
 
 const nextConfig = {
   output: "standalone",
-  turbopack: {
-    root: "/",
-  }
 };
 
 export default withPWA(nextConfig);
