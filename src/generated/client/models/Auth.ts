@@ -245,6 +245,7 @@ export type AuthWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Auth"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Auth"> | Date | string
   moderatorList?: Prisma.ModeratorListListRelationFilter
+  familyTree?: Prisma.XOR<Prisma.FamilyTreeNullableScalarRelationFilter, Prisma.FamilyTreeWhereInput> | null
   members?: Prisma.MemberListRelationFilter
 }
 
@@ -258,6 +259,7 @@ export type AuthOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   moderatorList?: Prisma.ModeratorListOrderByRelationAggregateInput
+  familyTree?: Prisma.FamilyTreeOrderByWithRelationInput
   members?: Prisma.MemberOrderByRelationAggregateInput
 }
 
@@ -274,6 +276,7 @@ export type AuthWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Auth"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Auth"> | Date | string
   moderatorList?: Prisma.ModeratorListListRelationFilter
+  familyTree?: Prisma.XOR<Prisma.FamilyTreeNullableScalarRelationFilter, Prisma.FamilyTreeWhereInput> | null
   members?: Prisma.MemberListRelationFilter
 }, "id" | "mainMemberId" | "password" | "memberAuthId" | "moderatorAuthId">
 
@@ -316,6 +319,7 @@ export type AuthCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   moderatorList?: Prisma.ModeratorListCreateNestedManyWithoutModeratorInput
+  familyTree?: Prisma.FamilyTreeCreateNestedOneWithoutAuthInput
   members?: Prisma.MemberCreateNestedManyWithoutAuthInput
 }
 
@@ -329,6 +333,7 @@ export type AuthUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   moderatorList?: Prisma.ModeratorListUncheckedCreateNestedManyWithoutModeratorInput
+  familyTree?: Prisma.FamilyTreeUncheckedCreateNestedOneWithoutAuthInput
   members?: Prisma.MemberUncheckedCreateNestedManyWithoutAuthInput
 }
 
@@ -341,6 +346,7 @@ export type AuthUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   moderatorList?: Prisma.ModeratorListUpdateManyWithoutModeratorNestedInput
+  familyTree?: Prisma.FamilyTreeUpdateOneWithoutAuthNestedInput
   members?: Prisma.MemberUpdateManyWithoutAuthNestedInput
 }
 
@@ -354,6 +360,7 @@ export type AuthUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   moderatorList?: Prisma.ModeratorListUncheckedUpdateManyWithoutModeratorNestedInput
+  familyTree?: Prisma.FamilyTreeUncheckedUpdateOneWithoutAuthNestedInput
   members?: Prisma.MemberUncheckedUpdateManyWithoutAuthNestedInput
 }
 
@@ -493,6 +500,20 @@ export type AuthUpdateOneRequiredWithoutModeratorListNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AuthUpdateToOneWithWhereWithoutModeratorListInput, Prisma.AuthUpdateWithoutModeratorListInput>, Prisma.AuthUncheckedUpdateWithoutModeratorListInput>
 }
 
+export type AuthCreateNestedOneWithoutFamilyTreeInput = {
+  create?: Prisma.XOR<Prisma.AuthCreateWithoutFamilyTreeInput, Prisma.AuthUncheckedCreateWithoutFamilyTreeInput>
+  connectOrCreate?: Prisma.AuthCreateOrConnectWithoutFamilyTreeInput
+  connect?: Prisma.AuthWhereUniqueInput
+}
+
+export type AuthUpdateOneRequiredWithoutFamilyTreeNestedInput = {
+  create?: Prisma.XOR<Prisma.AuthCreateWithoutFamilyTreeInput, Prisma.AuthUncheckedCreateWithoutFamilyTreeInput>
+  connectOrCreate?: Prisma.AuthCreateOrConnectWithoutFamilyTreeInput
+  upsert?: Prisma.AuthUpsertWithoutFamilyTreeInput
+  connect?: Prisma.AuthWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AuthUpdateToOneWithWhereWithoutFamilyTreeInput, Prisma.AuthUpdateWithoutFamilyTreeInput>, Prisma.AuthUncheckedUpdateWithoutFamilyTreeInput>
+}
+
 export type AuthCreateWithoutMembersInput = {
   mainMemberId?: number | null
   moderatorPassword: string
@@ -502,6 +523,7 @@ export type AuthCreateWithoutMembersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   moderatorList?: Prisma.ModeratorListCreateNestedManyWithoutModeratorInput
+  familyTree?: Prisma.FamilyTreeCreateNestedOneWithoutAuthInput
 }
 
 export type AuthUncheckedCreateWithoutMembersInput = {
@@ -514,6 +536,7 @@ export type AuthUncheckedCreateWithoutMembersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   moderatorList?: Prisma.ModeratorListUncheckedCreateNestedManyWithoutModeratorInput
+  familyTree?: Prisma.FamilyTreeUncheckedCreateNestedOneWithoutAuthInput
 }
 
 export type AuthCreateOrConnectWithoutMembersInput = {
@@ -541,6 +564,7 @@ export type AuthUpdateWithoutMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   moderatorList?: Prisma.ModeratorListUpdateManyWithoutModeratorNestedInput
+  familyTree?: Prisma.FamilyTreeUpdateOneWithoutAuthNestedInput
 }
 
 export type AuthUncheckedUpdateWithoutMembersInput = {
@@ -553,6 +577,7 @@ export type AuthUncheckedUpdateWithoutMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   moderatorList?: Prisma.ModeratorListUncheckedUpdateManyWithoutModeratorNestedInput
+  familyTree?: Prisma.FamilyTreeUncheckedUpdateOneWithoutAuthNestedInput
 }
 
 export type AuthCreateWithoutModeratorListInput = {
@@ -563,6 +588,7 @@ export type AuthCreateWithoutModeratorListInput = {
   moderatorAuthId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  familyTree?: Prisma.FamilyTreeCreateNestedOneWithoutAuthInput
   members?: Prisma.MemberCreateNestedManyWithoutAuthInput
 }
 
@@ -575,6 +601,7 @@ export type AuthUncheckedCreateWithoutModeratorListInput = {
   moderatorAuthId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  familyTree?: Prisma.FamilyTreeUncheckedCreateNestedOneWithoutAuthInput
   members?: Prisma.MemberUncheckedCreateNestedManyWithoutAuthInput
 }
 
@@ -602,6 +629,7 @@ export type AuthUpdateWithoutModeratorListInput = {
   moderatorAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  familyTree?: Prisma.FamilyTreeUpdateOneWithoutAuthNestedInput
   members?: Prisma.MemberUpdateManyWithoutAuthNestedInput
 }
 
@@ -614,6 +642,73 @@ export type AuthUncheckedUpdateWithoutModeratorListInput = {
   moderatorAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  familyTree?: Prisma.FamilyTreeUncheckedUpdateOneWithoutAuthNestedInput
+  members?: Prisma.MemberUncheckedUpdateManyWithoutAuthNestedInput
+}
+
+export type AuthCreateWithoutFamilyTreeInput = {
+  mainMemberId?: number | null
+  moderatorPassword: string
+  password: string
+  memberAuthId?: string | null
+  moderatorAuthId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  moderatorList?: Prisma.ModeratorListCreateNestedManyWithoutModeratorInput
+  members?: Prisma.MemberCreateNestedManyWithoutAuthInput
+}
+
+export type AuthUncheckedCreateWithoutFamilyTreeInput = {
+  id?: number
+  mainMemberId?: number | null
+  moderatorPassword: string
+  password: string
+  memberAuthId?: string | null
+  moderatorAuthId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  moderatorList?: Prisma.ModeratorListUncheckedCreateNestedManyWithoutModeratorInput
+  members?: Prisma.MemberUncheckedCreateNestedManyWithoutAuthInput
+}
+
+export type AuthCreateOrConnectWithoutFamilyTreeInput = {
+  where: Prisma.AuthWhereUniqueInput
+  create: Prisma.XOR<Prisma.AuthCreateWithoutFamilyTreeInput, Prisma.AuthUncheckedCreateWithoutFamilyTreeInput>
+}
+
+export type AuthUpsertWithoutFamilyTreeInput = {
+  update: Prisma.XOR<Prisma.AuthUpdateWithoutFamilyTreeInput, Prisma.AuthUncheckedUpdateWithoutFamilyTreeInput>
+  create: Prisma.XOR<Prisma.AuthCreateWithoutFamilyTreeInput, Prisma.AuthUncheckedCreateWithoutFamilyTreeInput>
+  where?: Prisma.AuthWhereInput
+}
+
+export type AuthUpdateToOneWithWhereWithoutFamilyTreeInput = {
+  where?: Prisma.AuthWhereInput
+  data: Prisma.XOR<Prisma.AuthUpdateWithoutFamilyTreeInput, Prisma.AuthUncheckedUpdateWithoutFamilyTreeInput>
+}
+
+export type AuthUpdateWithoutFamilyTreeInput = {
+  mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatorAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  moderatorList?: Prisma.ModeratorListUpdateManyWithoutModeratorNestedInput
+  members?: Prisma.MemberUpdateManyWithoutAuthNestedInput
+}
+
+export type AuthUncheckedUpdateWithoutFamilyTreeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  mainMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  moderatorPassword?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  memberAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderatorAuthId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  moderatorList?: Prisma.ModeratorListUncheckedUpdateManyWithoutModeratorNestedInput
   members?: Prisma.MemberUncheckedUpdateManyWithoutAuthNestedInput
 }
 
@@ -667,6 +762,7 @@ export type AuthSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   moderatorList?: boolean | Prisma.Auth$moderatorListArgs<ExtArgs>
+  familyTree?: boolean | Prisma.Auth$familyTreeArgs<ExtArgs>
   members?: boolean | Prisma.Auth$membersArgs<ExtArgs>
   _count?: boolean | Prisma.AuthCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["auth"]>
@@ -707,6 +803,7 @@ export type AuthSelectScalar = {
 export type AuthOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "mainMemberId" | "moderatorPassword" | "password" | "memberAuthId" | "moderatorAuthId" | "createdAt" | "updatedAt", ExtArgs["result"]["auth"]>
 export type AuthInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   moderatorList?: boolean | Prisma.Auth$moderatorListArgs<ExtArgs>
+  familyTree?: boolean | Prisma.Auth$familyTreeArgs<ExtArgs>
   members?: boolean | Prisma.Auth$membersArgs<ExtArgs>
   _count?: boolean | Prisma.AuthCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -717,6 +814,7 @@ export type $AuthPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "Auth"
   objects: {
     moderatorList: Prisma.$ModeratorListPayload<ExtArgs>[]
+    familyTree: Prisma.$FamilyTreePayload<ExtArgs> | null
     members: Prisma.$MemberPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1123,6 +1221,7 @@ readonly fields: AuthFieldRefs;
 export interface Prisma__AuthClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   moderatorList<T extends Prisma.Auth$moderatorListArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Auth$moderatorListArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ModeratorListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  familyTree<T extends Prisma.Auth$familyTreeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Auth$familyTreeArgs<ExtArgs>>): Prisma.Prisma__FamilyTreeClient<runtime.Types.Result.GetResult<Prisma.$FamilyTreePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   members<T extends Prisma.Auth$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Auth$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1570,6 +1669,25 @@ export type Auth$moderatorListArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ModeratorListScalarFieldEnum | Prisma.ModeratorListScalarFieldEnum[]
+}
+
+/**
+ * Auth.familyTree
+ */
+export type Auth$familyTreeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FamilyTree
+   */
+  select?: Prisma.FamilyTreeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FamilyTree
+   */
+  omit?: Prisma.FamilyTreeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FamilyTreeInclude<ExtArgs> | null
+  where?: Prisma.FamilyTreeWhereInput
 }
 
 /**

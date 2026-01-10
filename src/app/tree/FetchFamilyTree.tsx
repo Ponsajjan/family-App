@@ -1,7 +1,7 @@
-'use server'
-
 import prisma from "@/db/db";
+import { verifyToken } from "@/utils/auth";
 import { Female, Male } from "@/utils/Icons";
+import { cookies } from "next/headers";
 
 // TreeNode Component
 const TreeNode = ({ node }: { node: any }) => {
@@ -49,80 +49,48 @@ const TreeView = ({ data }: { data: any[] }) => {
   );
 };
 
-// Fetch the family tree data and return JSX
-async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
+export default async function FetchFamilyTree() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
+
+  if (!token) {
+    return <div className="text-center text-text_color p-10">Unauthorized. Please login.</div>;
+  }
+
   try {
-    if (!memberId || memberId.length === 0) return [];
+    const decoded = await verifyToken(token);
+    const authId = decoded.authId;
 
-    let members = [];
-    try {
-      if (!prisma?.member?.findMany) {
-        throw new Error("Prisma is not initialized or 'findMany' method is unavailable.");
-      }
-
-      // Fetch members with their relationships and order field
-      members = await prisma.member.findMany({
-        where: { id: { in: memberId }, verified: true },
-        include: {
-          fatherOf: { select: { id: true, name: true, gender: true, order: true } },
-          motherOf: { select: { id: true, name: true, gender: true, order: true } },
-          partner: { select: { id: true, name: true, gender: true } },
-        }
-      });
-    } catch (error) {
-      console.error("Error fetching members:", error);
-      throw new Error("Failed to fetch members data.");
+    if (!authId) {
+      return <div className="text-center text-text_color p-10">Invalid session.</div>;
     }
 
-    // Sort members by their order value
-    members.sort((a, b) => a.order - b.order);
+    const familyTree = await prisma.familyTree.findUnique({
+      where: { authId: authId },
+      select: { data: true }
+    });
 
-    return await Promise.all(
-      members.map(async (member) => {
-        try {
-          // Combine fatherOf and motherOf children and deduplicate by ID
-          const childIds = [
-            ...member.fatherOf.map((child) => child.id),
-            ...member.motherOf.map((child) => child.id),
-          ];
+    if (!familyTree) {
+      return <div className="text-center text-text_color p-10">No chart found. Ask moderator to update chart.</div>;
+    }
 
-          // Fetch the next generation recursively
-          const nextGen = await fetchFamilyTreeData(childIds);
+    const data = familyTree.data as any[];
 
-          // Sort nextGen based on the order value of each child
-          nextGen.sort((a, b) => a.order - b.order);
+    if (data.length === 0) {
+      return <div className="text-center text-text_color p-10">No data available.</div>;
+    }
 
-          // Current generation data
-          const currentGen = [
-            { name: member.name, gender: member.gender },
-            ...(member.partner ? [{ name: member.partner.name, gender: member.partner.gender }] : []),
-          ];
-
-          return {
-            gen: currentGen,
-            next_gen: nextGen,
-          };
-        } catch (innerError) {
-          console.error(`Error processing member ${member.id}:`, innerError);
-          return null;
-        }
-      })
+    return (
+      <>
+        <div className="flex">
+          <TreeView data={data} />
+          <div className="pr-6"></div>
+        </div>
+        <div className="pb-6"></div>
+      </>
     );
   } catch (error) {
-    console.error("Error fetching family tree:", error);
-    return [];
+    console.error("Error loading family tree:", error);
+    return <div className="text-center text-text_color p-10">Failed to load family tree data.</div>;
   }
-}
-
-export default async function FetchFamilyTree({ memberId }: { memberId: number[] }) {
-  const data = await fetchFamilyTreeData(memberId);
-  return (
-    <>
-      <div className="flex">
-        <TreeView data={data} />
-        <div className="pr-6"></div>
-      </div>
-      <div className="pb-6"></div>
-    </>
-  )
 }

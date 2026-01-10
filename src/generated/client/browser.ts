@@ -42,3 +42,8 @@ export type nonDescendantRelation = Prisma.nonDescendantRelationModel
  * 
  */
 export type ModeratorList = Prisma.ModeratorListModel
+/**
+ * Model FamilyTree
+ * 
+ */
+export type FamilyTree = Prisma.FamilyTreeModel

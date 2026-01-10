@@ -388,7 +388,8 @@ export const ModelName = {
   Member: 'Member',
   RequestDetails: 'RequestDetails',
   nonDescendantRelation: 'nonDescendantRelation',
-  ModeratorList: 'ModeratorList'
+  ModeratorList: 'ModeratorList',
+  FamilyTree: 'FamilyTree'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "auth" | "member" | "requestDetails" | "nonDescendantRelation" | "moderatorList"
+    modelProps: "auth" | "member" | "requestDetails" | "nonDescendantRelation" | "moderatorList" | "familyTree"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -778,6 +779,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    FamilyTree: {
+      payload: Prisma.$FamilyTreePayload<ExtArgs>
+      fields: Prisma.FamilyTreeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FamilyTreeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FamilyTreeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>
+        }
+        findFirst: {
+          args: Prisma.FamilyTreeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FamilyTreeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>
+        }
+        findMany: {
+          args: Prisma.FamilyTreeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>[]
+        }
+        create: {
+          args: Prisma.FamilyTreeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>
+        }
+        createMany: {
+          args: Prisma.FamilyTreeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FamilyTreeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>[]
+        }
+        delete: {
+          args: Prisma.FamilyTreeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>
+        }
+        update: {
+          args: Prisma.FamilyTreeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>
+        }
+        deleteMany: {
+          args: Prisma.FamilyTreeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FamilyTreeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FamilyTreeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>[]
+        }
+        upsert: {
+          args: Prisma.FamilyTreeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FamilyTreePayload>
+        }
+        aggregate: {
+          args: Prisma.FamilyTreeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFamilyTree>
+        }
+        groupBy: {
+          args: Prisma.FamilyTreeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FamilyTreeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FamilyTreeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FamilyTreeCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -899,12 +974,30 @@ export const ModeratorListScalarFieldEnum = {
 export type ModeratorListScalarFieldEnum = (typeof ModeratorListScalarFieldEnum)[keyof typeof ModeratorListScalarFieldEnum]
 
 
+export const FamilyTreeScalarFieldEnum = {
+  id: 'id',
+  authId: 'authId',
+  data: 'data',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FamilyTreeScalarFieldEnum = (typeof FamilyTreeScalarFieldEnum)[keyof typeof FamilyTreeScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -921,6 +1014,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -975,6 +1077,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1091,6 +1207,7 @@ export type GlobalOmitConfig = {
   requestDetails?: Prisma.RequestDetailsOmit
   nonDescendantRelation?: Prisma.nonDescendantRelationOmit
   moderatorList?: Prisma.ModeratorListOmit
+  familyTree?: Prisma.FamilyTreeOmit
 }
 
 /* Types for Logging */

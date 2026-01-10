@@ -13,14 +13,13 @@ export default function AdminDashboard() {
     useEffect(() => {
         async function fetchStats() {
             try {
-                const res = await fetch('/api/moderator',
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                    }
-                )
+                const res = await fetch('/api/moderator', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+
                 const data = await res.json()
                 setUnverifiedCount(data.unverifiedMembers)
                 setPendingRequests(data.pendingRequests)
@@ -32,6 +31,28 @@ export default function AdminDashboard() {
 
         fetchStats()
     }, [toast])
+
+    const handleUpdateRelationsChart = async () => {
+        try {
+            const res = await fetch('/api/moderator/update_chart', {
+                method: 'POST',
+            })
+
+            const data = await res.json()
+
+            if (res.ok) {
+                toast?.show(data.message, 'success', 5000)
+            } else {
+                toast?.show(data.error || "Failed to update chart", 'error', 5000)
+            }
+        } catch (error: any) {
+            toast?.show(
+                "An error occurred while updating the chart",
+                'error',
+                5000
+            )
+        }
+    }
 
     return (
         <>
@@ -50,6 +71,7 @@ export default function AdminDashboard() {
                 <ButtonOutline
                     className="w-full"
                     buttonText="Update Relations Chart"
+                    onClick={handleUpdateRelationsChart}
                 />
             </div>
         </>

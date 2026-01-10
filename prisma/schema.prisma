@@ -12,6 +12,7 @@ model Auth {
   mainMemberId      Int?            @unique
   // mainMemberNameRef String?
   moderatorList     ModeratorList[]
+  familyTree        FamilyTree?
   moderatorPassword String
   password          String          @unique
   members           Member[]        @relation("AuthToMember")
@@ -100,6 +101,16 @@ model ModeratorList {
   moderatorContact String
   authId           Int
   moderator        Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FamilyTree {
+  id     Int  @id @default(autoincrement())
+  authId Int  @unique
+  data   Json
+  auth   Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
