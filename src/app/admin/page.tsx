@@ -6,6 +6,7 @@ import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import { useAuth } from "@/contexts/AuthContext";
+import { useInfiniteScroll } from "@/utils/useInfiniteScroll";
 import SlidePanel from "@/components/SlidePanel";
 import Details from "./Details";
 import { ApiResponse, AuthEntry } from "@/types/admin/types";
@@ -104,57 +105,12 @@ export default function Relatives() {
     fetchData();
   }, [fetchData, toast, logout]);
 
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
-    const handleScroll = () => {
-      if (isFetching || !hasMore) return;
-
-      // Clear any existing timeout
-      if (timeoutId) clearTimeout(timeoutId);
-
-      // Debounce the scroll event
-      timeoutId = setTimeout(() => {
-        const THRESHOLD = 200;
-
-        // Check container scroll if containerRef exists
-        if (containerRef.current) {
-          const container = containerRef.current;
-          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
-
-          if (distanceFromBottom <= THRESHOLD) {
-            setParams((prevParams) => ({
-              ...prevParams,
-              page: prevParams.page + 1,
-            }));
-            return;
-          }
-        }
-
-        // Check window scroll as fallback
-        if (typeof window !== 'undefined') {
-          const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
-
-          if (distanceFromBottom <= THRESHOLD) {
-            setParams((prevParams) => ({
-              ...prevParams,
-              page: prevParams.page + 1,
-            }));
-          }
-        }
-      }, 100);
-    };
-
-    const currentContainer = containerRef.current;
-    currentContainer?.addEventListener('scroll', handleScroll);
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      currentContainer?.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('scroll', handleScroll);
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [isFetching, hasMore]);
+  useInfiniteScroll(
+    containerRef,
+    isFetching,
+    hasMore,
+    () => setParams((prevParams) => ({ ...prevParams, page: prevParams.page + 1 }))
+  );
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;

@@ -6,6 +6,7 @@ import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import Details from './Details';
 import { useAuth } from '@/contexts/AuthContext';
+import { useInfiniteScroll } from '@/utils/useInfiniteScroll';
 import SlidePanel from '@/components/SlidePanel';
 import Container from '@/components/Container';
 import Link from 'next/link';
@@ -72,57 +73,12 @@ export default function NewMembers() {
     fetchChangeList();
   }, [fetchChangeList]);
 
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
-    const handleScroll = () => {
-      if (!hasMore || isFetching) return;
-
-      // Clear any existing timeout
-      if (timeoutId) clearTimeout(timeoutId);
-
-      // Debounce the scroll event
-      timeoutId = setTimeout(() => {
-        const THRESHOLD = 200;
-
-        // Check container scroll if containerRef exists
-        if (containerRef.current) {
-          const container = containerRef.current;
-          const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
-
-          if (distanceFromBottom <= THRESHOLD) {
-            setParams((prevParams) => ({
-              ...prevParams,
-              page: prevParams.page + 1,
-            }));
-            return;
-          }
-        }
-
-        // Check window scroll as fallback
-        if (typeof window !== 'undefined') {
-          const distanceFromBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
-
-          if (distanceFromBottom <= THRESHOLD) {
-            setParams((prevParams) => ({
-              ...prevParams,
-              page: prevParams.page + 1,
-            }));
-          }
-        }
-      }, 100);
-    };
-
-    const container = containerRef.current;
-    container?.addEventListener('scroll', handleScroll);
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      container?.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('scroll', handleScroll);
-      clearTimeout(timeoutId);
-    };
-  }, [hasMore, isFetching]);
+  useInfiniteScroll(
+    containerRef,
+    isFetching,
+    hasMore,
+    () => setParams((prevParams) => ({ ...prevParams, page: prevParams.page + 1 }))
+  );
 
   const handleShowDetails = (value: any, id: number) => {
     if (disableButton) return;
