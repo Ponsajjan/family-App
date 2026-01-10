@@ -71,7 +71,7 @@ export default async function FetchFamilyTree() {
     });
 
     if (!familyTree) {
-      return <div className="text-center text-text_color p-10">No chart found. Ask moderator to update chart.</div>;
+      return <div className="text-center text-text_color p-10">No chart found.</div>;
     }
 
     const data = familyTree.data as any[];

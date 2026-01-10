@@ -13,6 +13,7 @@ import SwitchLoginList from './SwitchLoginList'
 import LogoutList from './LogoutList'
 import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as needed
 import { deleteCookie } from 'cookies-next'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Terms() {
   const toast = useToast();
@@ -25,7 +26,9 @@ export default function Terms() {
   const [showCopiedMsg, setShowCopiedMsg] = useState(false);
   const [mainMemberName, setMainMemberName] = useState('');
   const [accounts, setAccounts] = useState([]);
+  const [isModerator, setIsModerator] = useState(false);
   const router = useRouter();
+  const { storeLoginValues } = useAuth();
 
   // Use the PWA hook
   const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
@@ -58,6 +61,7 @@ export default function Terms() {
         setModeratorList(data.moderators)
         setPassword(data.password)
         setAccounts(data.allAuthDetails)
+        setIsModerator(data.userType === 'Moderator')
 
 
       } catch (error: any) {
@@ -101,6 +105,34 @@ export default function Terms() {
     navigator.clipboard.writeText(`Link: ${window.location.origin}\nPassword: ${password}`);
     setShowCopiedMsg(true);
     setTimeout(() => setShowCopiedMsg(false), 2000);
+  };
+
+  const handleModeratorLogout = async () => {
+    if (loading) return;
+
+    try {
+      const response = await fetch('/api/auth/moderator_logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to logout from moderator');
+      }
+
+      const data = await response.json();
+      if (data.newtoken) {
+        await storeLoginValues(data.newtoken, data.userType, data.authId, data.oldAuthId);
+        toast?.show(data.message || 'Logout successfully', 'success', 5000);
+        setIsModerator(false)
+      } else {
+        toast?.show(data.error || 'Logout failed', 'error', 5000);
+      }
+    } catch (error: any) {
+      toast?.show(error.message || 'Failed to logout from moderator', 'error', 5000);
+    }
   };
 
 
@@ -183,7 +215,13 @@ export default function Terms() {
                 </div>
               </div>
               <div className='flex justify-between'>
-                <Link href="/terms/moderator_login">Login as Moderator</Link>
+                {isModerator ? (
+                  <button onClick={handleModeratorLogout} className={loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'}>
+                    Logout from Moderator
+                  </button>
+                ) : (
+                  <Link href="/terms/moderator_login">Login as Moderator</Link>
+                )}
                 <button onClick={() => handleSidePanelToggle('switchLogout')} className="px-2 flex items-center gap-2"><Logout />Logout</button>
               </div>
 

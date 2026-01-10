@@ -151,6 +151,7 @@ export async function GET(request: NextRequest) {
       moderators: authRecord.moderatorList,
       password: authRecord.password,
       currentAuthId: currentAuthId,
+      userType: userType,
       allAuthDetails: sortedAuthDetails, // Array of objects with authId, mainMemberRef, and current flag
     });
 
