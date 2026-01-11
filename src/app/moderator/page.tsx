@@ -17,7 +17,7 @@ export default function AdminDashboard() {
     const router = useRouter()
 
     useEffect(() => {
-        async function fetchStats() {
+        async function fetchData() {
             try {
                 const res = await fetch('/api/moderator', {
                     method: 'GET',
@@ -31,41 +31,30 @@ export default function AdminDashboard() {
                     return
                 }
 
+                if (!res.ok) {
+                    throw new Error("Failed to fetch dashboard data")
+                }
+
                 const data = await res.json()
                 setUnverifiedCount(data.unverifiedMembers)
                 setPendingRequests(data.pendingRequests)
-            } catch (error: any) {
-                toast?.show(error.message || "Failed to fetch stats", 'error', 5000)
-                console.error("Failed to fetch stats:", error)
-            }
-        }
+                setChartStatus(data.chartStatus)
 
-        async function fetchChartStatus() {
-            try {
-                const res = await fetch('/api/moderator/chart_status', {
-                    method: 'GET',
-                })
-
-                if (res.ok) {
-                    const data = await res.json()
-                    setChartStatus(data.status)
-
-                    if (data.status === 'building') {
-                        toast?.show('Chart build is currently in progress...', 'info', 5000)
-                    } else if (data.status === 'failed') {
-                        toast?.show('Previous chart build failed. You can retry.', 'warning', 5000)
-                    } else if (data.status === 'timeout') {
-                        toast?.show('Previous build timed out. You can retry.', 'warning', 5000)
-                    }
+                if (data.chartStatus === 'building') {
+                    toast?.show('Chart build is currently in progress...', 'info', 5000)
+                } else if (data.chartStatus === 'failed') {
+                    toast?.show('Previous chart build failed. You can retry.', 'warning', 5000)
+                } else if (data.chartStatus === 'timeout') {
+                    toast?.show('Previous build timed out. You can retry.', 'warning', 5000)
                 }
-            } catch (error) {
-                console.error("Failed to fetch chart status:", error)
+            } catch (error: any) {
+                toast?.show(error.message || "Failed to fetch data", 'error', 5000)
+                console.error("Failed to fetch data:", error)
             }
         }
 
-        fetchStats()
-        fetchChartStatus()
-    }, [toast])
+        fetchData()
+    }, [toast, logout])
 
     const handleUpdateRelationsChart = async () => {
         try {

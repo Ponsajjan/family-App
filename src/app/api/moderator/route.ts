@@ -17,25 +17,53 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const unverifiedCount = await prisma.member.count({
-      where: {
-        authId: authId,
-        verified: false,
-      },
-    });
+    // Fetch member and request counts in parallel for efficiency
+    const [unverifiedCount, pendingRequestCount, familyTree] = await Promise.all([
+      prisma.member.count({
+        where: {
+          authId: authId,
+          verified: false,
+        },
+      }),
+      prisma.requestDetails.count({
+        where: {
+          authId: authId,
+        },
+      }),
+      prisma.familyTree.findUnique({
+        where: { authId: authId },
+        select: {
+          status: true,
+          lastBuildStartedAt: true,
+          updatedAt: true
+        }
+      })
+    ]);
 
-    const pendingRequestCount = await prisma.requestDetails.count({
-      where: {
-        authId: authId,
-      },
-    });
+    let chartStatus = "not_built";
+    if (familyTree) {
+      chartStatus = familyTree.status;
+
+      // Check for timeout: if status is "building" and more than 5 minutes old
+      const TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+      if (
+        familyTree.status === "building" &&
+        familyTree.lastBuildStartedAt &&
+        Date.now() - familyTree.lastBuildStartedAt.getTime() > TIMEOUT_MS
+      ) {
+        chartStatus = "timeout";
+      }
+    }
 
     return NextResponse.json({
       unverifiedMembers: unverifiedCount,
       pendingRequests: pendingRequestCount,
+      chartStatus: chartStatus,
+      lastBuildStartedAt: familyTree?.lastBuildStartedAt || null,
+      updatedAt: familyTree?.updatedAt || null
     });
   } catch (error) {
-    console.error("Error fetching stats:", error);
+    console.error("Error fetching moderator dashboard data:", error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
