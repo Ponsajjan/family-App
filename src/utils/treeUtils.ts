@@ -1,8 +1,54 @@
 import prisma from "@/db/db";
 
-export async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
+// Type for circular relationship conflicts
+export type CircularConflict = {
+    parentMemberId: number;
+    parentMemberName: string;
+    childMemberId: number;
+    childMemberName: string;
+    conflictType: 'circular_relationship';
+    message: string;
+};
+
+export type FamilyTreeResult = {
+    tree: any[];
+    conflicts: CircularConflict[];
+};
+
+export async function fetchFamilyTreeData(
+    memberId: number[],
+    visitedIds: Set<number> = new Set(),
+    conflicts: CircularConflict[] = [],
+    parentContext?: { id: number, name: string },
+    visitedMembers: Map<number, string> = new Map()
+): Promise<FamilyTreeResult> {
     try {
-        if (!memberId || memberId.length === 0) return [];
+        if (!memberId || memberId.length === 0) return { tree: [], conflicts };
+
+        // Detect circular relationships - track which IDs are already visited
+        const circularIds = memberId.filter(id => visitedIds.has(id));
+
+        // Record conflicts for circular relationships
+        if (circularIds.length > 0 && parentContext) {
+            circularIds.forEach(childId => {
+                const childName = visitedMembers.get(childId) || `Unknown (ID: ${childId})`;
+                conflicts.push({
+                    parentMemberId: parentContext.id,
+                    parentMemberName: parentContext.name,
+                    childMemberId: childId,
+                    childMemberName: childName,
+                    conflictType: 'circular_relationship',
+                    message: `Circular relationship detected: Member "${parentContext.name}" (ID: ${parentContext.id}) has child "${childName}" (ID: ${childId}) that creates a cycle in the family tree.`
+                });
+            });
+        }
+
+        // Filter out already visited IDs to prevent infinite recursion
+        const newMemberIds = memberId.filter(id => !visitedIds.has(id));
+        if (newMemberIds.length === 0) return { tree: [], conflicts };
+
+        // Add new IDs to visited set (names will be added after fetch)
+        newMemberIds.forEach(id => visitedIds.add(id));
 
         let members = [];
         try {
@@ -12,7 +58,7 @@ export async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
 
             // Fetch members with their relationships and order field
             members = await prisma.member.findMany({
-                where: { id: { in: memberId }, verified: true },
+                where: { id: { in: newMemberIds }, verified: true },
                 include: {
                     fatherOf: { select: { id: true, name: true, gender: true, order: true } },
                     motherOf: { select: { id: true, name: true, gender: true, order: true } },
@@ -25,9 +71,15 @@ export async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
         }
 
         // Sort members by their order value
-        members.sort((a, b) => a.order - b.order);
+        // members.sort((a, b) => a.order - b.order);
+        members.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-        return await Promise.all(
+        // Add member names to visitedMembers map for conflict reporting
+        members.forEach(member => {
+            visitedMembers.set(member.id, member.name);
+        });
+
+        const treeData = await Promise.all(
             members.map(async (member) => {
                 try {
                     // Combine fatherOf and motherOf children and deduplicate by ID
@@ -36,8 +88,15 @@ export async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
                         ...member.motherOf.map((child) => child.id),
                     ];
 
-                    // Fetch the next generation recursively
-                    const nextGen = await fetchFamilyTreeData(childIds);
+                    // Fetch the next generation recursively, passing visitedIds, conflicts, and visitedMembers to prevent cycles
+                    const result = await fetchFamilyTreeData(
+                        childIds,
+                        visitedIds,
+                        conflicts,
+                        { id: member.id, name: member.name },
+                        visitedMembers
+                    );
+                    const nextGen = result.tree;
 
                     // Sort nextGen based on the order value of each child
                     nextGen.sort((a, b) => a.order - b.order);
@@ -58,8 +117,10 @@ export async function fetchFamilyTreeData(memberId: number[]): Promise<any[]> {
                 }
             })
         );
+
+        return { tree: treeData, conflicts };
     } catch (error) {
         console.error("Error fetching family tree:", error);
-        return [];
+        return { tree: [], conflicts };
     }
 }

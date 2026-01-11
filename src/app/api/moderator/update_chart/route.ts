@@ -10,9 +10,11 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    let authId: number | undefined;
+
     try {
         const decoded = await verifyToken(token);
-        const authId = decoded.authId;
+        authId = decoded.authId;
         const userType = decoded.userType;
 
         if (userType !== "Moderator") {
@@ -26,26 +28,78 @@ export async function POST(request: NextRequest) {
         // Fetch the Auth record to get the mainMemberId
         const authRecord = await prisma.auth.findUnique({
             where: { id: authId },
-            select: { mainMemberId: true }
+            select: {
+                mainMemberId: true,
+                familyTree: {
+                    select: {
+                        status: true,
+                        lastBuildStartedAt: true
+                    }
+                }
+            }
         });
 
         if (!authRecord || !authRecord.mainMemberId) {
             return NextResponse.json({ error: "Main member not found for this account" }, { status: 404 });
         }
 
-        // Generate the family tree JSON
-        const treeData = await fetchFamilyTreeData([authRecord.mainMemberId]);
+        // Check for existing building status and timeout
+        const TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+        if (
+            authRecord.familyTree?.status === "building" &&
+            authRecord.familyTree.lastBuildStartedAt &&
+            Date.now() - authRecord.familyTree.lastBuildStartedAt.getTime() < TIMEOUT_MS
+        ) {
+            return NextResponse.json({
+                error: "A chart update is already in progress. Please wait a few minutes."
+            }, { status: 409 });
+        }
 
-        // Store or update the JSON in the FamilyTree table
+        // Update status to 'building' before starting
         await prisma.familyTree.upsert({
             where: { authId: authId },
-            update: { data: treeData },
-            create: { authId: authId, data: treeData },
+            update: {
+                status: "building",
+                lastBuildStartedAt: new Date()
+            },
+            create: {
+                authId: authId,
+                status: "building",
+                lastBuildStartedAt: new Date()
+            },
         });
 
-        return NextResponse.json({ message: "Relations chart updated successfully" });
+        // Generate the family tree JSON and capture any circular relationship conflicts
+        const result = await fetchFamilyTreeData([authRecord.mainMemberId]);
+
+        // Store or update the JSON in the FamilyTree table and set status to 'completed'
+        await prisma.familyTree.update({
+            where: { authId: authId },
+            data: {
+                data: result.tree as any,
+                status: "completed"
+            },
+        });
+
+        return NextResponse.json({
+            message: "Relations chart updated successfully",
+            conflicts: result.conflicts
+        });
     } catch (error) {
         console.error("Error updating relations chart:", error);
+
+        // Attempt to set status to 'failed' on error using already available authId
+        if (authId) {
+            try {
+                await prisma.familyTree.update({
+                    where: { authId: authId },
+                    data: { status: "failed" },
+                });
+            } catch (updateError) {
+                console.error("Failed to update status to 'failed':", updateError);
+            }
+        }
+
         return NextResponse.json(
             { error: "Failed to update relations chart" },
             { status: 500 }

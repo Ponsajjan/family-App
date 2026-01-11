@@ -39,6 +39,8 @@ export type FamilyTreeSumAggregateOutputType = {
 export type FamilyTreeMinAggregateOutputType = {
   id: number | null
   authId: number | null
+  status: string | null
+  lastBuildStartedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +48,8 @@ export type FamilyTreeMinAggregateOutputType = {
 export type FamilyTreeMaxAggregateOutputType = {
   id: number | null
   authId: number | null
+  status: string | null
+  lastBuildStartedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +58,8 @@ export type FamilyTreeCountAggregateOutputType = {
   id: number
   authId: number
   data: number
+  status: number
+  lastBuildStartedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -73,6 +79,8 @@ export type FamilyTreeSumAggregateInputType = {
 export type FamilyTreeMinAggregateInputType = {
   id?: true
   authId?: true
+  status?: true
+  lastBuildStartedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -80,6 +88,8 @@ export type FamilyTreeMinAggregateInputType = {
 export type FamilyTreeMaxAggregateInputType = {
   id?: true
   authId?: true
+  status?: true
+  lastBuildStartedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +98,8 @@ export type FamilyTreeCountAggregateInputType = {
   id?: true
   authId?: true
   data?: true
+  status?: true
+  lastBuildStartedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -182,7 +194,9 @@ export type FamilyTreeGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type FamilyTreeGroupByOutputType = {
   id: number
   authId: number
-  data: runtime.JsonValue
+  data: runtime.JsonValue | null
+  status: string
+  lastBuildStartedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: FamilyTreeCountAggregateOutputType | null
@@ -213,7 +227,9 @@ export type FamilyTreeWhereInput = {
   NOT?: Prisma.FamilyTreeWhereInput | Prisma.FamilyTreeWhereInput[]
   id?: Prisma.IntFilter<"FamilyTree"> | number
   authId?: Prisma.IntFilter<"FamilyTree"> | number
-  data?: Prisma.JsonFilter<"FamilyTree">
+  data?: Prisma.JsonNullableFilter<"FamilyTree">
+  status?: Prisma.StringFilter<"FamilyTree"> | string
+  lastBuildStartedAt?: Prisma.DateTimeNullableFilter<"FamilyTree"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"FamilyTree"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FamilyTree"> | Date | string
   auth?: Prisma.XOR<Prisma.AuthScalarRelationFilter, Prisma.AuthWhereInput>
@@ -222,7 +238,9 @@ export type FamilyTreeWhereInput = {
 export type FamilyTreeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   authId?: Prisma.SortOrder
-  data?: Prisma.SortOrder
+  data?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  lastBuildStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   auth?: Prisma.AuthOrderByWithRelationInput
@@ -234,7 +252,9 @@ export type FamilyTreeWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.FamilyTreeWhereInput | Prisma.FamilyTreeWhereInput[]
   OR?: Prisma.FamilyTreeWhereInput[]
   NOT?: Prisma.FamilyTreeWhereInput | Prisma.FamilyTreeWhereInput[]
-  data?: Prisma.JsonFilter<"FamilyTree">
+  data?: Prisma.JsonNullableFilter<"FamilyTree">
+  status?: Prisma.StringFilter<"FamilyTree"> | string
+  lastBuildStartedAt?: Prisma.DateTimeNullableFilter<"FamilyTree"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"FamilyTree"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FamilyTree"> | Date | string
   auth?: Prisma.XOR<Prisma.AuthScalarRelationFilter, Prisma.AuthWhereInput>
@@ -243,7 +263,9 @@ export type FamilyTreeWhereUniqueInput = Prisma.AtLeast<{
 export type FamilyTreeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   authId?: Prisma.SortOrder
-  data?: Prisma.SortOrder
+  data?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
+  lastBuildStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FamilyTreeCountOrderByAggregateInput
@@ -259,13 +281,17 @@ export type FamilyTreeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FamilyTreeScalarWhereWithAggregatesInput | Prisma.FamilyTreeScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FamilyTree"> | number
   authId?: Prisma.IntWithAggregatesFilter<"FamilyTree"> | number
-  data?: Prisma.JsonWithAggregatesFilter<"FamilyTree">
+  data?: Prisma.JsonNullableWithAggregatesFilter<"FamilyTree">
+  status?: Prisma.StringWithAggregatesFilter<"FamilyTree"> | string
+  lastBuildStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FamilyTree"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FamilyTree"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FamilyTree"> | Date | string
 }
 
 export type FamilyTreeCreateInput = {
-  data: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  lastBuildStartedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   auth: Prisma.AuthCreateNestedOneWithoutFamilyTreeInput
@@ -274,13 +300,17 @@ export type FamilyTreeCreateInput = {
 export type FamilyTreeUncheckedCreateInput = {
   id?: number
   authId: number
-  data: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  lastBuildStartedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type FamilyTreeUpdateInput = {
-  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBuildStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   auth?: Prisma.AuthUpdateOneRequiredWithoutFamilyTreeNestedInput
@@ -289,7 +319,9 @@ export type FamilyTreeUpdateInput = {
 export type FamilyTreeUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   authId?: Prisma.IntFieldUpdateOperationsInput | number
-  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBuildStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -297,13 +329,17 @@ export type FamilyTreeUncheckedUpdateInput = {
 export type FamilyTreeCreateManyInput = {
   id?: number
   authId: number
-  data: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  lastBuildStartedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type FamilyTreeUpdateManyMutationInput = {
-  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBuildStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -311,7 +347,9 @@ export type FamilyTreeUpdateManyMutationInput = {
 export type FamilyTreeUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   authId?: Prisma.IntFieldUpdateOperationsInput | number
-  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBuildStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -325,6 +363,8 @@ export type FamilyTreeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   authId?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  lastBuildStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -337,6 +377,8 @@ export type FamilyTreeAvgOrderByAggregateInput = {
 export type FamilyTreeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   authId?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  lastBuildStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -344,6 +386,8 @@ export type FamilyTreeMaxOrderByAggregateInput = {
 export type FamilyTreeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   authId?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  lastBuildStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -385,15 +429,23 @@ export type FamilyTreeUncheckedUpdateOneWithoutAuthNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FamilyTreeUpdateToOneWithWhereWithoutAuthInput, Prisma.FamilyTreeUpdateWithoutAuthInput>, Prisma.FamilyTreeUncheckedUpdateWithoutAuthInput>
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type FamilyTreeCreateWithoutAuthInput = {
-  data: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  lastBuildStartedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type FamilyTreeUncheckedCreateWithoutAuthInput = {
   id?: number
-  data: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  lastBuildStartedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -415,14 +467,18 @@ export type FamilyTreeUpdateToOneWithWhereWithoutAuthInput = {
 }
 
 export type FamilyTreeUpdateWithoutAuthInput = {
-  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBuildStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FamilyTreeUncheckedUpdateWithoutAuthInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  data?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  data?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBuildStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -433,6 +489,8 @@ export type FamilyTreeSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   id?: boolean
   authId?: boolean
   data?: boolean
+  status?: boolean
+  lastBuildStartedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   auth?: boolean | Prisma.AuthDefaultArgs<ExtArgs>
@@ -442,6 +500,8 @@ export type FamilyTreeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   authId?: boolean
   data?: boolean
+  status?: boolean
+  lastBuildStartedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   auth?: boolean | Prisma.AuthDefaultArgs<ExtArgs>
@@ -451,6 +511,8 @@ export type FamilyTreeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   authId?: boolean
   data?: boolean
+  status?: boolean
+  lastBuildStartedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   auth?: boolean | Prisma.AuthDefaultArgs<ExtArgs>
@@ -460,11 +522,13 @@ export type FamilyTreeSelectScalar = {
   id?: boolean
   authId?: boolean
   data?: boolean
+  status?: boolean
+  lastBuildStartedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FamilyTreeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authId" | "data" | "createdAt" | "updatedAt", ExtArgs["result"]["familyTree"]>
+export type FamilyTreeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authId" | "data" | "status" | "lastBuildStartedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["familyTree"]>
 export type FamilyTreeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   auth?: boolean | Prisma.AuthDefaultArgs<ExtArgs>
 }
@@ -483,7 +547,9 @@ export type $FamilyTreePayload<ExtArgs extends runtime.Types.Extensions.Internal
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     authId: number
-    data: runtime.JsonValue
+    data: runtime.JsonValue | null
+    status: string
+    lastBuildStartedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["familyTree"]>
@@ -913,6 +979,8 @@ export interface FamilyTreeFieldRefs {
   readonly id: Prisma.FieldRef<"FamilyTree", 'Int'>
   readonly authId: Prisma.FieldRef<"FamilyTree", 'Int'>
   readonly data: Prisma.FieldRef<"FamilyTree", 'Json'>
+  readonly status: Prisma.FieldRef<"FamilyTree", 'String'>
+  readonly lastBuildStartedAt: Prisma.FieldRef<"FamilyTree", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"FamilyTree", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FamilyTree", 'DateTime'>
 }

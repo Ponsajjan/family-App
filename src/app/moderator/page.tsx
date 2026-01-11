@@ -12,6 +12,7 @@ export default function AdminDashboard() {
     const [unverifiedCount, setUnverifiedCount] = useState<number | null>(null)
     const [pendingRequests, setPendingRequests] = useState<number | null>(null)
     const [updatingChart, setUpdatingChart] = useState(false)
+    const [chartStatus, setChartStatus] = useState<string | null>(null)
     const { logout } = useAuth()
     const router = useRouter()
 
@@ -39,7 +40,31 @@ export default function AdminDashboard() {
             }
         }
 
+        async function fetchChartStatus() {
+            try {
+                const res = await fetch('/api/moderator/chart_status', {
+                    method: 'GET',
+                })
+
+                if (res.ok) {
+                    const data = await res.json()
+                    setChartStatus(data.status)
+
+                    if (data.status === 'building') {
+                        toast?.show('Chart build is currently in progress...', 'info', 5000)
+                    } else if (data.status === 'failed') {
+                        toast?.show('Previous chart build failed. You can retry.', 'warning', 5000)
+                    } else if (data.status === 'timeout') {
+                        toast?.show('Previous build timed out. You can retry.', 'warning', 5000)
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch chart status:", error)
+            }
+        }
+
         fetchStats()
+        fetchChartStatus()
     }, [toast])
 
     const handleUpdateRelationsChart = async () => {
@@ -64,6 +89,27 @@ export default function AdminDashboard() {
 
             if (res.ok) {
                 toast?.show(data.message, 'success', 5000)
+                setChartStatus('completed') // Update local status
+
+                // Display conflict warnings if any circular relationships were detected
+                if (data.conflicts && data.conflicts.length > 0) {
+                    console.warn('Circular relationship conflicts detected:', data.conflicts)
+
+                    data.conflicts.forEach((conflict: any, index: number) => {
+                        // Show warning toast for each conflict with a delay
+                        setTimeout(() => {
+                            toast?.show(
+                                `⚠️ Circular relationship: "${conflict.parentMemberName}" (ID: ${conflict.parentMemberId}) → "${conflict.childMemberName}" (ID: ${conflict.childMemberId})`,
+                                'warning',
+                                8000
+                            )
+                        }, (index + 1) * 500) // Stagger warnings by 500ms
+                    })
+                }
+            } else if (res.status === 409) {
+                // Build already in progress
+                toast?.show(data.error || "Build already in progress", 'warning', 5000)
+                setChartStatus('building')
             } else {
                 toast?.show(data.error || "Failed to update chart", 'error', 5000)
             }
@@ -94,8 +140,15 @@ export default function AdminDashboard() {
                 />
                 <ButtonOutline
                     className="w-full"
-                    buttonText={updatingChart ? "Updating..." : "Update Relations Chart"}
+                    buttonText={
+                        chartStatus === 'building'
+                            ? "Building in progress..."
+                            : updatingChart
+                                ? "Updating..."
+                                : "Update Relations Chart"
+                    }
                     onClick={handleUpdateRelationsChart}
+                    disabled={updatingChart || chartStatus === 'building'}
                 />
             </div>
         </>

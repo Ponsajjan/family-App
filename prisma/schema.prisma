@@ -106,10 +106,12 @@ model ModeratorList {
 }
 
 model FamilyTree {
-  id     Int  @id @default(autoincrement())
-  authId Int  @unique
-  data   Json
-  auth   Auth @relation(fields: [authId], references: [id], onDelete: Cascade)
+  id                 Int       @id @default(autoincrement())
+  authId             Int       @unique
+  data               Json?     // Nullable since it won't exist during "building" status
+  status             String    @default("completed") // "building", "completed", "failed"
+  lastBuildStartedAt DateTime? // Track when build started (for timeout detection)
+  auth               Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

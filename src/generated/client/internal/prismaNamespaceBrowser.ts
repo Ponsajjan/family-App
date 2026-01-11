@@ -161,6 +161,8 @@ export const FamilyTreeScalarFieldEnum = {
   id: 'id',
   authId: 'authId',
   data: 'data',
+  status: 'status',
+  lastBuildStartedAt: 'lastBuildStartedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -176,11 +178,12 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
+export const NullableJsonNullValueInput = {
+  DbNull: 'DbNull',
   JsonNull: 'JsonNull'
 } as const
 
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
