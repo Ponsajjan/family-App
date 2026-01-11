@@ -28,7 +28,7 @@ export default function Terms() {
   const [accounts, setAccounts] = useState([]);
   const [isModerator, setIsModerator] = useState(false);
   const router = useRouter();
-  const { storeLoginValues } = useAuth();
+  const { storeLoginValues, logout } = useAuth();
 
   // Use the PWA hook
   const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
@@ -47,9 +47,7 @@ export default function Terms() {
         );
         // Handle 401 Unauthorized
         if (response.status === 401) {
-          deleteCookie('token', { path: '/' });
-          deleteCookie('access', { path: '/' });
-          router.push('/login');
+          logout();
           return;
         }
 

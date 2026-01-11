@@ -108,11 +108,17 @@ export default function VerifyMember() {
     fetchMembers();
   }, [fetchMembers]);
 
+  const loadMore = () => {
+    if (hasMore) {
+      setParams((prevParams) => ({ ...prevParams, page: prevParams.page + 1 }));
+    }
+  };
+
   useInfiniteScroll(
     containerRef,
     isFetching,
     hasMore,
-    () => setParams((prevParams) => ({ ...prevParams, page: prevParams.page + 1 }))
+    loadMore
   );
 
   function highlightText(text: string, searchText: string): string {

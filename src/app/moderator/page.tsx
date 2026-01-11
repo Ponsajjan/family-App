@@ -4,11 +4,16 @@ import { useEffect, useState } from 'react'
 import Topnav from "@/components/Topnav"
 import { ButtonOutline, LinkButtonOutline } from "../../components/Button"
 import { useToast } from '@/components/Toast'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 
 export default function AdminDashboard() {
     const toast = useToast()
     const [unverifiedCount, setUnverifiedCount] = useState<number | null>(null)
     const [pendingRequests, setPendingRequests] = useState<number | null>(null)
+    const [updatingChart, setUpdatingChart] = useState(false)
+    const { logout } = useAuth()
+    const router = useRouter()
 
     useEffect(() => {
         async function fetchStats() {
@@ -19,6 +24,11 @@ export default function AdminDashboard() {
                         'Content-Type': 'application/json',
                     },
                 })
+
+                if (res.status === 401) {
+                    logout()
+                    return
+                }
 
                 const data = await res.json()
                 setUnverifiedCount(data.unverifiedMembers)
@@ -34,9 +44,21 @@ export default function AdminDashboard() {
 
     const handleUpdateRelationsChart = async () => {
         try {
+            setUpdatingChart(true)
             const res = await fetch('/api/moderator/update_chart', {
                 method: 'POST',
             })
+
+            if (res.status === 401) {
+                logout()
+                return
+            }
+
+            if (res.status === 403) {
+                router.push('/terms/moderator_login');
+                toast?.show("Unauthorized access. Please login.", "error", 5000);
+                return;
+            }
 
             const data = await res.json()
 
@@ -51,6 +73,8 @@ export default function AdminDashboard() {
                 'error',
                 5000
             )
+        } finally {
+            setUpdatingChart(false)
         }
     }
 
@@ -70,7 +94,7 @@ export default function AdminDashboard() {
                 />
                 <ButtonOutline
                     className="w-full"
-                    buttonText="Update Relations Chart"
+                    buttonText={updatingChart ? "Updating..." : "Update Relations Chart"}
                     onClick={handleUpdateRelationsChart}
                 />
             </div>

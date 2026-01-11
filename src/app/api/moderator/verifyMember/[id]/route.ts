@@ -237,14 +237,16 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    if (decoded.userType !== "Moderator") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
     const authId = decoded.authId;
     const mainMemberId = decoded.memberId
+    const userType = decoded.userType;
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    if (userType !== "Moderator") {
+      return NextResponse.json({ error: "Access denied: Moderator access required" }, { status: 403 });
     }
 
     if (memberId == mainMemberId) {
@@ -315,14 +317,16 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    if (decoded.userType !== "Moderator") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
     const authId = decoded.authId;
     const mainMemberId = decoded.memberId
+    const userType = decoded.userType;
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    if (userType !== "Moderator") {
+      return NextResponse.json({ error: "Access denied: Moderator access required" }, { status: 403 });
     }
 
     if (memberId == mainMemberId) {

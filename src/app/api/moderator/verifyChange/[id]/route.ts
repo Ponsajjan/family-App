@@ -135,13 +135,14 @@ export async function PUT(request: NextRequest) {
     // Authentication
     const decoded = await verifyToken(token);
     const authId = decoded.authId;
-
-    if (decoded.userType !== "Moderator") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const userType = decoded.userType;
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    if (userType !== "Moderator") {
+      return NextResponse.json({ error: "Access denied: Moderator access required" }, { status: 403 });
     }
 
     // Request validation
@@ -247,16 +248,15 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    if (decoded.userType !== "Moderator") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
     const authId = decoded.authId;
+    const userType = decoded.userType;
 
     if (!authId) {
-      return NextResponse.json(
-        { error: "Invalid token" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    }
+
+    if (userType !== "Moderator") {
+      return NextResponse.json({ error: "Access denied: Moderator access required" }, { status: 403 });
     }
 
     // Fetch the request with their relationships

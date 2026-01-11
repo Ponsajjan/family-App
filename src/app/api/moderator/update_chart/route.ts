@@ -13,6 +13,11 @@ export async function POST(request: NextRequest) {
     try {
         const decoded = await verifyToken(token);
         const authId = decoded.authId;
+        const userType = decoded.userType;
+
+        if (userType !== "Moderator") {
+            return NextResponse.json({ error: "Access denied: Moderator access required" }, { status: 403 });
+        }
 
         if (!authId) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });

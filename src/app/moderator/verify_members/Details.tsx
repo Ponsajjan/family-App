@@ -83,6 +83,11 @@ export default function NewMemberDetails({
 
             // Handle 401 Unauthorized
             if (response.status === 401) {
+                logout()
+                return
+            }
+
+            if (response.status === 403) {
                 router.push('/terms/moderator_login');
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
@@ -154,6 +159,11 @@ export default function NewMemberDetails({
 
             // Handle 401 Unauthorized
             if (response.status === 401) {
+                logout()
+                return
+            }
+
+            if (response.status === 403) {
                 router.push('/terms/moderator_login');
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;

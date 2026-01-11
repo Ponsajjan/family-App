@@ -2,6 +2,7 @@ import Container from '@/components/Container';
 import { HoldButton } from '@/components/HoldButton';
 import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { Approved, CloseIcon, NavIconVerified, Rejected } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -23,6 +24,7 @@ const ChangeRequestView = ({
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const toast = useToast();
+  const { logout } = useAuth()
 
   // Process request removal and move to next
   const processRequestRemoval = () => {
@@ -77,6 +79,11 @@ const ChangeRequestView = ({
           },
         });
 
+        if (response.status === 401) {
+          logout()
+          return
+        }
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch request");
@@ -127,6 +134,11 @@ const ChangeRequestView = ({
       });
 
       if (response.status === 401) {
+        logout()
+        return
+      }
+
+      if (response.status === 403) {
         router.push('/terms/moderator_login');
         toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
@@ -166,6 +178,11 @@ const ChangeRequestView = ({
       });
 
       if (response.status === 401) {
+        logout()
+        return
+      }
+
+      if (response.status === 403) {
         router.push('/terms/moderator_login');
         toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;

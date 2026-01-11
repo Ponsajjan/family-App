@@ -73,11 +73,17 @@ export default function NewMembers() {
     fetchChangeList();
   }, [fetchChangeList]);
 
+  const loadMore = () => {
+    if (hasMore) {
+      setParams((prevParams) => ({ ...prevParams, page: prevParams.page + 1 }));
+    }
+  };
+
   useInfiniteScroll(
     containerRef,
     isFetching,
     hasMore,
-    () => setParams((prevParams) => ({ ...prevParams, page: prevParams.page + 1 }))
+    loadMore
   );
 
   const handleShowDetails = (value: any, id: number) => {

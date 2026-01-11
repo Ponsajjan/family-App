@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
     // Try finding the password in the database
-    const login = await prisma.auth.findUnique({
+    const login = await prisma.auth.findFirst({
       where: {
         moderatorPassword: password,
         id: authId,
