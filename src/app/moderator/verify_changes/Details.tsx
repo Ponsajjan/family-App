@@ -3,7 +3,7 @@ import { HoldButton } from '@/components/HoldButton';
 import Loading from '@/components/Loading';
 import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Approved, CloseIcon, NavIconVerified, Rejected } from '@/utils/Icons';
+import { Approved, CloseIcon, NavIconVerified, Rejected, Warning } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -22,6 +22,7 @@ const ChangeRequestView = ({
   const [loading, setLoading] = useState(true);
   const [requestStatus, setRequestStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const router = useRouter();
   const toast = useToast();
   const { logout } = useAuth()
@@ -146,14 +147,16 @@ const ChangeRequestView = ({
 
       const result = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || result.success === false) {
         // Use the detailed message from your error response
         const errorMessage = result.message || result.error || "Failed to update relationship";
-        toast?.show(errorMessage, "error", 9000);
+        setActionError(errorMessage);
+        toast?.show(errorMessage, "error", 5000);
         return;
       }
 
       // Success case
+      setActionError(null);
       toast?.show(result.message || "Change verification approved", "success", 5000);
       setRequestStatus('approved');
       setTimeout(processRequestRemoval, 2000);
@@ -190,11 +193,14 @@ const ChangeRequestView = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to reject request");
+        const errorMessage = errorData.error || "Failed to reject request";
+        setActionError(errorMessage);
+        throw new Error(errorMessage);
       }
 
       // const result = await response.json();
       // toast?.show(result.message || "Change verification rejected", "success", 5000);
+      setActionError(null);
       setRequestStatus('rejected');
 
       // Show status for 2 second before removing
@@ -254,6 +260,7 @@ const ChangeRequestView = ({
           <div className='relative'>
             {data && <div dangerouslySetInnerHTML={{ __html: data.htmlContent }} />}
             {error && <div className='p-4'>Error: {error}</div>}
+            {actionError && <div className='bg-field_color text-text_color p-2 border border-border_color border-dashed rounded-md my-4'><span className='inline-block align-bottom pr-1'><Warning /></span>Error: {actionError}</div>}
             <div className='absolute right-4 bottom-0'>
               {requestStatus === 'approved' && <Approved />}
               {requestStatus === 'rejected' && <Rejected />}

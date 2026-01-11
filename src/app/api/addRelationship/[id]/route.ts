@@ -243,19 +243,19 @@ export async function PUT(request: NextRequest) {
 
           if (isFromFatherOf) {
             if (child.fatherId && child.fatherId !== memberId) {
-              return `${child.name} already has father ${child.father?.name}`;
+              return `${child.name} already has ${child.father?.name} assigned as father`;
             }
             if (updatedData.partnerId && child.motherId && child.motherId !== updatedData.partnerId) {
-              return `${child.name} already has mother ${child.mother?.name}`;
+              return `${child.name} already has ${child.mother?.name} assigned as mother`;
             }
           }
 
           if (isFromMotherOf) {
             if (child.motherId && child.motherId !== memberId) {
-              return `${child.name} already has mother ${child.mother?.name}`;
+              return `${child.name} already has ${child.mother?.name} assigned as mother`;
             }
             if (updatedData.partnerId && child.fatherId && child.fatherId !== updatedData.partnerId) {
-              return `${child.name} already has father ${child.father?.name}`;
+              return `${child.name} already has ${child.father?.name} assigned as father`;
             }
           }
 

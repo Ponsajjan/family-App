@@ -190,8 +190,10 @@ export async function PUT(request: NextRequest) {
 
       const result = await handler(requestData, tx);
 
-      // Delete the request after successful processing
-      await tx.requestDetails.delete({ where: { id: requestId } });
+      // Delete the request only if the operation was successful
+      if (result.success === true) {
+        await tx.requestDetails.delete({ where: { id: requestId } });
+      }
 
       return result;
     });

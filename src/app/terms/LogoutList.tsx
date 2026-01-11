@@ -76,7 +76,7 @@ function LogoutList({ mainMemberName, accounts, setAccounts }: LogoutListProps) 
                     <div className="flex flex-col">
                         <div className="font-semibold">{currentAccount?.mainMemberRef || mainMemberName}</div>
                     </div>
-                    <span onClick={logout} className='border-l border-border_color pl-3 hover:text-accent_color'>
+                    <span onClick={logout} className='border-l border-border_color pl-3 hover:text-accent_color' title="Logout">
                         <Logout />
                     </span>
                 </div>

@@ -137,7 +137,7 @@ export default function Terms() {
   return (
     <div className='flex flex-col w-full text-text_color'>
       <Topnav>
-        <div onClick={() => handleSidePanelToggle('switchLogin')} className={`ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 ${loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'}`}>
+        <div onClick={() => handleSidePanelToggle('switchLogin')} className={`ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 ${loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'}`} title="Switch Account">
           <SwitchLogin />
         </div>
       </Topnav>

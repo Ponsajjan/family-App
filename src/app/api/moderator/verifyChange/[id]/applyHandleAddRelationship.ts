@@ -149,19 +149,19 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
 
         if (isFromFatherOf) {
           if (child.fatherId && child.fatherId !== memberId) {
-            return `${child.name} already has father ${child.father?.name}`;
+            return `${child.name} already has ${child.father?.name} assigned as father`;
           }
           if (formData.partnerId && child.motherId && child.motherId !== formData.partnerId) {
-            return `${child.name} already has mother ${child.mother?.name}`;
+            return `${child.name} already has ${child.mother?.name} assigned as mother`;
           }
         }
 
         if (isFromMotherOf) {
           if (child.motherId && child.motherId !== memberId) {
-            return `${child.name} already has mother ${child.mother?.name}`;
+            return `${child.name} already has ${child.mother?.name} assigned as mother`;
           }
           if (formData.partnerId && child.fatherId && child.fatherId !== formData.partnerId) {
-            return `${child.name} already has father ${child.father?.name}`;
+            return `${child.name} already has ${child.father?.name} assigned as father`;
           }
         }
 

@@ -961,7 +961,7 @@ export const Save = () => {
 
 export const Approved = () => {
     return (
-        <svg height="150px" width="150px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg"
+        <svg height="150px" width="150px" version="1.1" xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 512 512">
             <g>
                 <path d="M96.496,276.208l2.47,68.592l10.685-3.719l-0.642-12.068l-0.298-4.957l16.168-5.628l2.779,4.093l6.913,9.885
@@ -1025,7 +1025,7 @@ export const Approved = () => {
 
 export const Rejected = () => {
     return (
-        <svg height="150px" width="150px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <svg height="150px" width="150px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
             <g>
                 <path d="M508.813,241.927l-50.58-142.975L0,261.047l53.774,152L512,250.952L508.813,241.927z M65.443,388.588
                     L24.459,272.717l422.097-149.306l40.999,115.872L65.443,388.588z"/>
@@ -1126,7 +1126,7 @@ export const Offline = () => {
 
 export const SwitchLogin = () => {
     return (
-        <svg height="28px" width="28px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <svg height="28px" width="28px" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
             <path d="M395.13,0c-31.771,0-60.614,12.749-81.702,33.391H83.478C37.448,33.391,0,70.84,0,116.87s37.448,83.478,83.478,83.478
                 h229.95c21.088,20.643,49.931,33.391,81.702,33.391c64.442,0,116.87-52.428,116.87-116.87S459.572,0,395.13,0z M289.553,166.957
                 H83.478c-27.618,0-50.087-22.469-50.087-50.087c0-27.618,22.469-50.087,50.087-50.087h206.074
@@ -1150,3 +1150,20 @@ export const InstallIcon = () => {
         </svg>
     )
 }
+
+export const SkipBack = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path fill="none" d="M3 3v5m0 0h5m-5 0l3-2.70832C7.59227 3.86656 9.69494 3 12 3c4.9706 0 9 4.02944 9 9s-4.0294 9-9 9c-4.28317 0-7.86753-2.992-8.77698-7" />
+        </svg>
+    );
+};
+
+
+export const SkipForward = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path fill="none" d="M21 3v5m0 0h-5m5 0l-3-2.70832C16.4077 3.86656 14.3051 3 12 3c-4.9706 0-9 4.02944-9 9s4.02944 9 9 9c4.2832 0 7.8675-2.992 8.777-7" />
+        </svg>
+    );
+};

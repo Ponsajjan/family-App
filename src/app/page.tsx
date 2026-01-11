@@ -1,7 +1,7 @@
 "use client";
 
 import Topnav from "@/components/Topnav";
-import { Announcement, CloseIcon } from "@/utils/Icons";
+import { Announcement, CloseIcon, SkipBack, SkipForward } from "@/utils/Icons";
 import React, { useEffect, useState } from "react";
 import moment from "moment-timezone";
 import CalendarMonthlyData from "../components/CalendarMonthlyData";
@@ -62,6 +62,13 @@ export default function Calendar() {
 
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth(); // 0-indexed
+
+  const currentMonth = currentIndiaDate.getMonth();
+  const currentYear = currentIndiaDate.getFullYear();
+
+  const totalMonthDiff = (year - currentYear) * 12 + (month - currentMonth);
+  const isFuture = totalMonthDiff >= 2;
+  const isPast = totalMonthDiff <= -2;
 
   const [selectedDate, setSelectedDate] = useState('');
   const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
@@ -158,6 +165,12 @@ export default function Calendar() {
     setCalendarDate(new Date(nextMonth));
   }
 
+  function resetToCurrentMonth() {
+    setLoading(true);
+    setShowPopup(false);
+    setCalendarDate(currentIndiaDate);
+  }
+
   useEffect(() => {
     async function fetchEventDates() {
       try {
@@ -223,6 +236,19 @@ export default function Calendar() {
   return (
     <div className="w-full">
       <Topnav>
+        {(isFuture || isPast) && (
+          <div className="ml-auto mr-0 border border-border_color rounded-md p-1 flex items-center">
+            {isFuture ? (
+              <div className="cursor-pointer hover:bg-field_color transition-colors" onClick={resetToCurrentMonth} title="Jump to Current Month">
+                <SkipBack />
+              </div>
+            ) : (
+              <div className="cursor-pointer hover:bg-field_color transition-colors" onClick={resetToCurrentMonth} title="Jump to Current Month">
+                <SkipForward />
+              </div>
+            )}
+          </div>
+        )}
       </Topnav>
 
       <div className="md:flex">
@@ -231,7 +257,6 @@ export default function Calendar() {
             <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
-
                 <div className="flex items-baseline">
                   <p className="font-medium text-xl pr-2">
                     {moment(calendarDate).tz("Asia/Kolkata").format("MMMM")}
