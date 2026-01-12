@@ -20,6 +20,7 @@ export default function AddRelationshipDetails() {
   const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string>("");
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
@@ -79,6 +80,7 @@ export default function AddRelationshipDetails() {
           return;
         }
         setError(null);
+        setSubmitError("");
         setSelectedMemberId(id);
         setSelectedPartnerId(null);
         setNewChildrenData(AddRelationDefaultFormValue)
@@ -91,12 +93,14 @@ export default function AddRelationshipDetails() {
           return;
         }
         setError(null);
+        setSubmitError("");
         setSelectedPartnerId(id);
         setShowList(false);
         break;
 
       case 'selectChildren':
         setError(null);
+        setSubmitError("");
         setNewChildrenData(updateData);
         break;
     }
@@ -116,6 +120,7 @@ export default function AddRelationshipDetails() {
     }
     try {
       setLoading(true);
+      setSubmitError("");
       setShowList(false)
       const isMale = selectedMemberData.gender === "Male";
       const isFemale = selectedMemberData.gender === "Female";
@@ -153,23 +158,29 @@ export default function AddRelationshipDetails() {
       }
       if (!response.ok) {
         const errorData = await response.json();
-        toast?.show(errorData.error || "Failed to update member", "error", 5000)
+        const errorMsg = errorData.error || "Failed to update member";
+        toast?.show(errorMsg, "error", 5000)
+        setSubmitError(errorMsg);
         return
       }
 
       const result = await response.json();
       if (!response.ok) {
+        setSubmitError(result.error || "Something went wrong");
         toast?.show(result.error || "Something went wrong", "error", 5000);
       } else {
         toast?.show(result.message, "success", 5000);
+        // Reset the form
+        setSelectedMemberId(null);
+        setSelectedPartnerId(null);
+        setNewChildrenData(AddRelationDefaultFormValue);
+        setSubmitError("");
       }
 
-      // Reset the form
-      setSelectedMemberId(null);
-      setSelectedPartnerId(null);
-      setNewChildrenData(AddRelationDefaultFormValue);
     } catch (error: any) {
-      toast?.show(error.message || "Failed to update member", "error", 5000);
+      const errorMsg = error.message || "Failed to update member";
+      toast?.show(errorMsg, "error", 5000);
+      setSubmitError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -211,6 +222,7 @@ export default function AddRelationshipDetails() {
             submitting={loading}
             showList={showList}
             error={error}
+            submitError={submitError}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
         </div>

@@ -15,6 +15,7 @@ interface AddRelationShipFormPropType {
     handleSubmit: any;
     showList: boolean;
     submitting?: boolean;
+    submitError: string | null;
     error: string | null;
 }
 
@@ -30,7 +31,8 @@ function AddRelationShipForm({
     handleSubmit,
     showList,
     submitting = false,
-    error
+    error,
+    submitError
 }: AddRelationShipFormPropType) {
 
     const dragItem = useRef<number>(0);
@@ -201,7 +203,10 @@ function AddRelationShipForm({
                     newChildrenData.children.some((child: any) => child.verified)) &&
                 <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>
             }
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" disabled={submitting} buttonText={submitting ? "Adding..." : "Add Relationship"} />
+            <div className='mt-8 mb-4'>
+                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-2"><span className='-mt-0.5'><Info /></span>{submitError}</p>}
+                <ButtonSolid type="submit" className="w-full" disabled={submitting} buttonText={submitting ? "Adding..." : "Add Relationship"} />
+            </div>
         </form>
     )
 }

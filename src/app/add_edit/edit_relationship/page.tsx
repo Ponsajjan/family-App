@@ -22,6 +22,7 @@ export default function EditRelationshipDetails() {
   const [loading, setLoading] = useState<boolean>(false);
   const [showList, setShowList] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>("");
   const [resetValue, setResetValue] = useState<any>({});
   const { logout } = useAuth();
   const router = useRouter();
@@ -61,6 +62,7 @@ export default function EditRelationshipDetails() {
           setFormData(data);
           setHasPatner(data.partner?.id);
           setNoChanges(true);
+          setSubmitError("");
         } catch (error: any) {
           toast?.show(error.message || "Error fetching member details", "error", 5000);
           router.push('/add_edit');
@@ -75,6 +77,7 @@ export default function EditRelationshipDetails() {
 
   const handleRemoveChildrenValue = (id: number) => {
     setNoChanges(false);
+    setSubmitError("");
     setFormData((prev: any) => {
       if (Array.isArray(prev['children'])) {
         // Find the child to remove
@@ -100,6 +103,7 @@ export default function EditRelationshipDetails() {
       partnerId: formData.partner?.id,
     }));
     setNoChanges(false);
+    setSubmitError("");
     setFormData((prev: any) => ({
       ...prev,
       partner: null,
@@ -112,6 +116,7 @@ export default function EditRelationshipDetails() {
       setHasPatner(resetValue.hasPartner);
       setDeleteData(editRelationshipDefaultDeleteValue)
       setNoChanges(true);
+      setSubmitError("");
       return
     }
     router.push("/add_edit?mode=edit");
@@ -120,6 +125,7 @@ export default function EditRelationshipDetails() {
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
     setShowList(false);
+    setSubmitError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,6 +137,7 @@ export default function EditRelationshipDetails() {
 
     try {
       setSubmitting(true);
+      setSubmitError("");
       const response = await fetch(`/api/editRelationship/${formData.id}`, {
         method: "PUT",
         headers: {
@@ -145,22 +152,26 @@ export default function EditRelationshipDetails() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        toast?.show(errorData.error || "Failed to update member", "error", 5000);
-        throw new Error(errorData.error || "Failed to update member");
+        const errorMsg = errorData.error || "Failed to update member";
+        toast?.show(errorMsg, "error", 5000);
+        setSubmitError(errorMsg);
+        throw new Error(errorMsg);
       }
 
       const result = await response.json();
 
       if (result) {
         toast?.show(result.message, "success", 5000);
+        setFormData(editRelationshipDefaultFormValue);
+        setDeleteData(editRelationshipDefaultDeleteValue);
+        setNoChanges(true);
+        setSubmitError("");
       }
-
-      setFormData(editRelationshipDefaultFormValue);
-      setDeleteData(editRelationshipDefaultDeleteValue);
-      setNoChanges(true);
     } catch (error: any) {
       console.error("Error updating member:", error);
-      toast?.show(error.message || "Failed to update member", "error", 5000);
+      const errorMsg = error.message || "Failed to update member";
+      toast?.show(errorMsg, "error", 5000);
+      setSubmitError(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -192,6 +203,7 @@ export default function EditRelationshipDetails() {
             setFormData={setFormData}
             setNoChanges={setNoChanges}
             submitting={submitting}
+            submitError={submitError}
           />
           <ButtonOutline buttonText={noChanges ? "Cancel" : "Reset Changes"} onClick={handleClose} className="hidden md:block w-full" />
         </div>

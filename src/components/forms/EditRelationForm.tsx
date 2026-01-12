@@ -10,7 +10,8 @@ function EditRelationShipForm({
     formData,
     setFormData,
     setNoChanges,
-    submitting
+    submitting,
+    submitError
 }: any) {
 
     const dragItem = useRef<number>(0);
@@ -157,7 +158,10 @@ function EditRelationShipForm({
                     )}
                 </>}
             {formData.hasVerified && <p><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>}
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" disabled={submitting} buttonText={submitting ? "Updating..." : "Update Details"} />
+            <div className='mt-8 mb-4'>
+                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-2"><span className='-mt-0.5'><Info /></span>{submitError}</p>}
+                <ButtonSolid type="submit" className="w-full" disabled={submitting} buttonText={submitting ? "Updating..." : "Update Details"} />
+            </div>
         </form>
     )
 }
