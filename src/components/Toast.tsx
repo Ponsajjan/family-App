@@ -73,7 +73,7 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
                     >
                         <div className="flex justify-between gap-2">
                             {toastIcons[type]}
-                            <p className="md:text-xl text-text_color w-72">{component}</p>
+                            <span className="md:text-xl text-text_color w-72" dangerouslySetInnerHTML={{ __html: component }} />
                             <button onClick={() => close(id)} className="w-6 h-6 transform rotate-45">
                                 <PlusIcon />
                             </button>

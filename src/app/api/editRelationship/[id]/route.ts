@@ -192,7 +192,7 @@ export async function PUT(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: "Update request has been added for verification.",
+        message: "Update request has been added for <b>verification</b>.",
       });
     }
 

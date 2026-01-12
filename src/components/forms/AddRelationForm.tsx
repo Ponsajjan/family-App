@@ -201,10 +201,10 @@ function AddRelationShipForm({
                 (selectedMemberData.verified ||
                     selectedPartnerData.verified ||
                     newChildrenData.children.some((child: any) => child.verified)) &&
-                <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>
+                <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require <b>moderator approval</b> before they take effect.</p>
             }
             <div className='mt-8 mb-4'>
-                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-2"><span className='-mt-0.5'><Info /></span>{submitError}</p>}
+                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-1"><span className='-mt-0.5'><Info /></span>{submitError}</p>}
                 <ButtonSolid type="submit" className="w-full" disabled={submitting} buttonText={submitting ? "Adding..." : "Add Relationship"} />
             </div>
         </form>

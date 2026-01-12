@@ -157,9 +157,9 @@ function EditRelationShipForm({
                         </div>)
                     )}
                 </>}
-            {formData.hasVerified && <p><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require moderator approval before they take effect.</p>}
+            {formData.hasVerified && <p><span className='inline-block align-bottom pr-1'><Info /></span> This change involves verified member, so updates will require <b>moderator approval</b> before they take effect.</p>}
             <div className='mt-8 mb-4'>
-                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-2"><span className='-mt-0.5'><Info /></span>{submitError}</p>}
+                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-1"><span className='-mt-0.5'><Info /></span><span dangerouslySetInnerHTML={{ __html: submitError }} /></p>}
                 <ButtonSolid type="submit" className="w-full" disabled={submitting} buttonText={submitting ? "Updating..." : "Update Details"} />
             </div>
         </form>
