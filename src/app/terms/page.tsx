@@ -190,9 +190,9 @@ export default function Terms() {
                 </div>
                 <ul>
                   {moderatorList.map((member: any, index: number) => (
-                    <li key={index} className='flex items-baseline justify-between mb-1'>
+                    <li key={index} className='flex items-end justify-between mb-1'>
                       <span>{member.moderatorName}</span>
-                      <span className='border-b border-dashed border-border_color block w-full mx-2' />
+                      <span className='border-b border-dashed border-border_color block w-full mx-2 mb-2' />
                       <span>{member.moderatorContact}</span>
                     </li>
                   ))}
