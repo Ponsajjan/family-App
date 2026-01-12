@@ -23,6 +23,7 @@ export default function EditMemberDetails() {
   const [errors, setErrors] = useState<EditMemberFormErrorTypes>(EditMemberDefaultFormErrorValue);
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const { logout } = useAuth();
   const { head } = useMemberHeadContext()
 
@@ -55,6 +56,7 @@ export default function EditMemberDetails() {
           setFormData(data.formData);
           setAllowedEdit(data.allowEdit)
           setErrors(EditMemberDefaultFormErrorValue);
+          setSubmitError("");
         } catch (error: any) {
           toast?.show(error.message || "Failed to fetch member", "error", 5000);
         } finally {
@@ -79,6 +81,7 @@ export default function EditMemberDetails() {
     }));
     // Clear error when input is updated
     setErrors((prev) => ({ ...prev, [name]: "" }));
+    setSubmitError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,6 +94,7 @@ export default function EditMemberDetails() {
     }
     try {
       setSubmitting(true);
+      setSubmitError("");
       // const capitalizeWords = (name: string) => {
       //   return name.replace(/\b\w/g, (char) => char.toUpperCase())
       //   .replace(/\b\w+\b/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); 
@@ -135,8 +139,11 @@ export default function EditMemberDetails() {
       setEditedMember('')
       setFormData(EditMemberDefaultFormValue);
       setErrors(EditMemberDefaultFormErrorValue);
+      setSubmitError("");
     } catch (error: any) {
-      toast?.show(error.message || "Failed to update member", "error", 5000);
+      const errorMsg = error.message || "Failed to update member";
+      toast?.show(errorMsg, "error", 5000);
+      setSubmitError(errorMsg);
     } finally {
       setSubmitting(false);
 
@@ -173,6 +180,7 @@ export default function EditMemberDetails() {
             allowedEdit={allowedEdit}
             submitting={submitting}
             head={head}
+            submitError={submitError}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit?mode=edit" className="hidden md:block" />
         </div>

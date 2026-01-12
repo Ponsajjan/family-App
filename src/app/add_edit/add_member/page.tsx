@@ -17,6 +17,7 @@ export default function AddMemberDetails() {
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<AddMemberFormValueTypes>(AddMemberDefaultFormValue);
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
+  const [submitError, setSubmitError] = useState<string>("");
   const { logout } = useAuth();
   const { head } = useMemberHeadContext();
 
@@ -32,6 +33,7 @@ export default function AddMemberDetails() {
       [name]: type === "checkbox" ? checked : value,
     }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
+    setSubmitError("");
   };
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -50,6 +52,7 @@ export default function AddMemberDetails() {
     }
     try {
       setLoading(true);
+      setSubmitError("");
       const deceased = formData.deceased;
       const descendant = formData.descendant === "Yes";
       const memberData = {
@@ -88,15 +91,20 @@ export default function AddMemberDetails() {
         return;
       }
       if (!response.ok) {
-        toast?.show(result.error || "Something went wrong", "error", 5000);
+        const errorMsg = result.error || "Something went wrong";
+        toast?.show(errorMsg, "error", 5000);
+        setSubmitError(errorMsg);
       } else {
         toast?.show(result.message, "success", 5000);
+        setFormData(AddMemberDefaultFormValue);
+        setErrors(AddMemberDefaultErrorValue);
+        setSubmitError("");
       }
 
-      setFormData(AddMemberDefaultFormValue);
-      setErrors(AddMemberDefaultErrorValue);
     } catch (error: any) {
-      toast?.show(error.message || "An unexpected error occurred.", "error", 5000);
+      const errorMsg = error.message || "An unexpected error occurred.";
+      toast?.show(errorMsg, "error", 5000);
+      setSubmitError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -121,6 +129,7 @@ export default function AddMemberDetails() {
           handleInputChange={handleInputChange}
           handleFormSubmit={handleFormSubmit}
           head={head}
+          submitError={submitError}
         />
         <LinkButtonOutline buttonText="Cancel" disabled={loading} linkto="/add_edit" className="hidden md:block" />
       </div>

@@ -1,9 +1,10 @@
 import React from 'react'
-import { ButtonSolid, LinkButtonOutline } from "@/components/Button";
+import { ButtonSolid } from "@/components/Button";
 import Input from "@/components/Input";
 import TextArea from "@/components/TextArea";
 import RadioButton from "@/components/RadioButton";
 import { AddMemberFormValueTypes, AddMemberFormErrorTypes } from '@/types/add__edit/add_member/types';
+import { Info } from '@/utils/Icons';
 
 interface AddMemberFormProps {
     formData: AddMemberFormValueTypes;
@@ -12,9 +13,10 @@ interface AddMemberFormProps {
     errors: AddMemberFormErrorTypes;
     loading: boolean;
     head: string | null;
+    submitError: string;
 }
 
-function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, loading, head }: AddMemberFormProps) {
+function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, loading, head, submitError }: AddMemberFormProps) {
     const showDeathDetails = formData?.deceased ? "peer-checked:block" : "hidden";
     const getCurrentISTYear = () => {
         return new Date().toLocaleString("en-US", {
@@ -257,7 +259,10 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                     />
                 </div>
             </div>}
-            <ButtonSolid type="submit" disabled={loading} className="w-full mt-8 mb-4" buttonText={loading ? "Adding..." : "Add Member"} />
+            <div className='mt-8 mb-4'>
+                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-2"><span className='-mt-0.5'><Info /></span>{submitError}</p>}
+                <ButtonSolid type="submit" disabled={loading} className="w-full" buttonText={loading ? "Adding..." : "Add Member"} />
+            </div>
         </form>
     )
 }

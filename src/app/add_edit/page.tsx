@@ -20,7 +20,7 @@ export default function AdminDashboard() {
 
     return (
         <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
-            <div className="relative flex mx-auto mb-8 md:mb-10 border-2 border-text_color rounded-2xl overflow-hidden w-fit">
+            <div className="relative flex mx-auto mb-8 md:mb-10 border-2 border-text_color rounded-2xl overflow-hidden w-fit select-none">
                 <p
                     onClick={() => handleModeChange('add')}
                     className={`px-8 md:px-10 z-10 py-1 md:py-2 cursor-pointer ${isAddMode ? 'text-accent_contrast' : 'text-text_color'}  transition-all duration-500 font-semibold ease-in-out`}

@@ -1,6 +1,5 @@
 'use client'
 import { ChangeMember, Info } from '@/utils/Icons'
-import React from 'react'
 import Input from '@/components/Input'
 import TextArea from '@/components/TextArea'
 import { ButtonSolid } from '@/components/Button'
@@ -15,7 +14,8 @@ function EditMemberForm({
     errors,
     allowedEdit,
     submitting,
-    head
+    head,
+    submitError
 }: any) {
 
     const toast = useToast();
@@ -247,7 +247,11 @@ function EditMemberForm({
                         />
                     </div>
                 </div>}
-            <ButtonSolid type="submit" className="w-full mt-8 mb-4" disabled={submitting} buttonText={submitting ? "Updating..." : "Update Details"} />
+            <div className='mt-8 mb-4'>
+                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-2"><span className='-mt-0.5'><Info /></span>{submitError}</p>}
+                <ButtonSolid type="submit" className="w-full" disabled={submitting} buttonText={submitting ? "Updating..." : "Update Details"} />
+            </div>
+
         </form>
     )
 }
