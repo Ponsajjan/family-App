@@ -4,7 +4,7 @@ import Input from "@/components/Input";
 import TextArea from "@/components/TextArea";
 import RadioButton from "@/components/RadioButton";
 import { AddMemberFormValueTypes, AddMemberFormErrorTypes } from '@/types/add__edit/add_member/types';
-import { Info } from '@/utils/Icons';
+import { Error } from '@/utils/Icons';
 
 interface AddMemberFormProps {
     formData: AddMemberFormValueTypes;
@@ -260,7 +260,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 </div>
             </div>}
             <div className='mt-8 mb-4'>
-                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-1"><span className='-mt-0.5'><Info /></span>{submitError}</p>}
+                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-1"><span className='-mt-0.5'><Error /></span><span dangerouslySetInnerHTML={{ __html: submitError }} /></p>}
                 <ButtonSolid type="submit" disabled={loading} className="w-full" buttonText={loading ? "Adding..." : "Add Member"} />
             </div>
         </form>

@@ -1,5 +1,5 @@
 'use client'
-import { ChangeMember, Info } from '@/utils/Icons'
+import { ChangeMember, Error, Info } from '@/utils/Icons'
 import Input from '@/components/Input'
 import TextArea from '@/components/TextArea'
 import { ButtonSolid } from '@/components/Button'
@@ -248,7 +248,7 @@ function EditMemberForm({
                     </div>
                 </div>}
             <div className='mt-8 mb-4'>
-                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-1"><span className='-mt-0.5'><Info /></span><span dangerouslySetInnerHTML={{ __html: submitError }} /></p>}
+                {submitError && <p className="text-text_color text-sm mb-2 flex items-start gap-1"><span className='-mt-0.5'><Error /></span><span dangerouslySetInnerHTML={{ __html: submitError }} /></p>}
                 <ButtonSolid type="submit" className="w-full" disabled={submitting} buttonText={submitting ? "Updating..." : "Update Details"} />
             </div>
 
