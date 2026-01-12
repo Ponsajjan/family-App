@@ -24,6 +24,14 @@ export async function POST(request: Request) {
     // Try finding the password in the database
     let login = await prisma.auth.findUnique({
       where: { password },
+      include: {
+        moderatorList: {
+          select: {
+            moderatorName: true,
+            moderatorContact: true,
+          },
+        },
+      },
     });
 
 
@@ -61,6 +69,7 @@ export async function POST(request: Request) {
       authId: login.memberAuthId,
       mainMemberName,
       password: login.password,
+      moderators: login.moderatorList,
     });
   } catch (error) {
     console.error("Error logging in:", error);

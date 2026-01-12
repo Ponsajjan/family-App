@@ -19,6 +19,14 @@ export async function POST(request: Request) {
     // FIRST: Try moderator login (with full account string)
     const moderatorAccount = await prisma.auth.findUnique({
       where: { moderatorAuthId: account },
+      include: {
+        moderatorList: {
+          select: {
+            moderatorName: true,
+            moderatorContact: true,
+          },
+        },
+      },
     });
 
     if (moderatorAccount) {
@@ -27,6 +35,14 @@ export async function POST(request: Request) {
     } else {
       const memberAccount = await prisma.auth.findUnique({
         where: { memberAuthId: account },
+        include: {
+          moderatorList: {
+            select: {
+              moderatorName: true,
+              moderatorContact: true,
+            },
+          },
+        },
       });
 
       if (memberAccount) {
@@ -65,7 +81,8 @@ export async function POST(request: Request) {
       userType,
       authId: account,
       mainMemberName,
-      password: login.password
+      password: login.password,
+      moderators: login.moderatorList
     });
   } catch (error) {
     console.error("Login error:", error);
