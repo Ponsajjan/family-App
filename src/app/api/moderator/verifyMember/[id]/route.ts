@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     }
     // Fetch data in parallel using transaction
     const [member, siblings] = await prisma.$transaction([
-      prisma.member.findUnique({
+      prisma.member.findFirst({
         where: { id, authId: authId },
         select: {
           id: true,
@@ -253,7 +253,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "Main member cannot be unverified" }, { status: 400 });
     }
 
-    const member = await prisma.member.findUnique({
+    const member = await prisma.member.findFirst({
       where: {
         id: memberId,
         authId: authId
@@ -334,7 +334,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Fetch the member with their relationships
-    const member = await prisma.member.findUnique({
+    const member = await prisma.member.findFirst({
       where: {
         id: memberId,
         authId: authId

@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const dbData: any = await prisma.member.findUnique({
+    const dbData: any = await prisma.member.findFirst({
       where: {
         id: id,
         authId: authId
@@ -135,7 +135,7 @@ export async function PUT(request: NextRequest) {
     const { deleteData, hasPartner, childrenOrder } = await request.json();
 
     // Check if any of the members are verified
-    const member = await prisma.member.findUnique({
+    const member = await prisma.member.findFirst({
       where: {
         id: memberId,
         authId: authId

@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch member with all relations in a single query using transactions
     const [member, siblings] = await prisma.$transaction([
-      prisma.member.findUnique({
+      prisma.member.findFirst({
         where: { id, authId: authId },
         select: {
           id: true,

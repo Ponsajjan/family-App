@@ -156,7 +156,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify member exists and belongs to the lineage
-    const member = await prisma.member.findUnique({
+    const member = await prisma.member.findFirst({
       where: {
         id: requestData.memberId,
         authId: authId
@@ -262,7 +262,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Fetch the request with their relationships
-    const requestData = await prisma.requestDetails.findUnique({
+    const requestData = await prisma.requestDetails.findFirst({
       where: {
         id: editDataId,
         authId: authId
