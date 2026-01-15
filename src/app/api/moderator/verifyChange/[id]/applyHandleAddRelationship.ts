@@ -166,10 +166,10 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
         return `${child.name} has parent conflict`;
       });
 
-      return {
+      throw {
         success: false,
         message: Array.from(new Set(errorMessages)).join(', '),
-        data: "Some children already have parents assigned",
+        error: "Some children already have parents assigned",
       };
     }
   }
