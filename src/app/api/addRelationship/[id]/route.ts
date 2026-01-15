@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const fetchedData = await prisma.member.findUnique({
+    const fetchedData = await prisma.member.findFirst({
       where: {
         id: id,
         authId: authId
@@ -114,16 +114,16 @@ export async function GET(request: NextRequest) {
       childrenData: childrenData,
       pendingVerification: dbData.pendingVerification?.length,
       excludeIds: [
-        dbData?.id ? dbData.id : null,
-        dbData.father?.id ? dbData.father?.id : null,
-        dbData.mother?.id ? dbData.mother?.id : null,
-        dbData.partner?.id ? dbData.partner.id : null,
-        dbData.partner?.fatherId ? dbData.partner?.fatherId : null,
-        dbData.partner?.motherId ? dbData.partner?.motherId : null,
-        ...(siblingData ? siblingData.map((sibling: any) => sibling.id) : []),
-        ...(childrenData ? childrenData.map((child: any) => child.id) : []),
-        ...(childrenData ? childrenData.map((child: any) => child.partnerId) : []),
-      ].filter(Boolean), // Remove null values from the array
+        dbData.id,
+        dbData.father?.id,
+        dbData.mother?.id,
+        dbData.partner?.id,
+        dbData.partner?.fatherId,
+        dbData.partner?.motherId,
+        ...(siblingData?.map((sibling: any) => sibling.id) || []),
+        ...(childrenData?.map((child: any) => child.id) || []),
+        ...(childrenData?.map((child: any) => child.partnerId) || []),
+      ].filter(Boolean), // Remove null/undefined values
     };
 
     return NextResponse.json({ data });
@@ -165,20 +165,53 @@ export async function PUT(request: NextRequest) {
     if (!authId) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
     const updatedData: UpdateData = await request.json();
-    if (!updatedData || Object.keys(updatedData).length === 0) {
-      return NextResponse.json({ error: "No data provided" }, { status: 400 });
-    }
+    const currentMember = await prisma.member.findFirst({
+      where: {
+        id: memberId,
+        authId: authId
+      },
+      select: {
+        id: true,
+        gender: true,
+        fatherOf: {
+          select: {
+            id: true,
+            name: true,
+            motherId: true,
+            mother: { select: { id: true, name: true } }
+          }
+        },
+        motherOf: {
+          select: {
+            id: true,
+            name: true,
+            fatherId: true,
+            father: { select: { id: true, name: true } }
+          }
+        },
+        partnerId: true
+      }
+    });
+
+    if (!currentMember) return NextResponse.json({ error: "Member not found" }, { status: 404 });
 
     // Enhanced Child Validation - Check if children already have parents
-    const allChildIds = [
+    const existingChildren = currentMember?.gender === 'Male' ? currentMember.fatherOf : currentMember.motherOf;
+    const newChildIds = [
       ...(updatedData.fatherOf?.map(c => c.id) || []),
       ...(updatedData.motherOf?.map(c => c.id) || [])
     ];
 
-    if (allChildIds.length > 0) {
+    // All children that need to be checked (newly added + existing children if a partner is being added/changed)
+    const childrenToCheckIds = [...new Set([
+      ...newChildIds,
+      ...(updatedData.partnerId ? (existingChildren?.map(c => c.id) || []) : [])
+    ])];
+
+    if (childrenToCheckIds.length > 0) {
       const childrenWithParents = await prisma.member.findMany({
         where: {
-          id: { in: allChildIds },
+          id: { in: childrenToCheckIds },
           OR: [
             { fatherId: { not: null } },
             { motherId: { not: null } }
@@ -189,47 +222,45 @@ export async function PUT(request: NextRequest) {
           name: true,
           fatherId: true,
           motherId: true,
-          father: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
-          mother: {
-            select: {
-              id: true,
-              name: true
-            }
-          }
+          father: { select: { id: true, name: true } },
+          mother: { select: { id: true, name: true } }
         }
       });
 
       // Filter children that have conflicting parents
       const conflictingChildren = childrenWithParents.filter(child => {
-        const isFromFatherOf = updatedData.fatherOf?.some(c => c.id === child.id);
-        const isFromMotherOf = updatedData.motherOf?.some(c => c.id === child.id);
+        const isFromFatherOf = updatedData.fatherOf?.some(c => c.id === child.id) ||
+          (currentMember?.gender === 'Male' && existingChildren?.some(c => c.id === child.id) && updatedData.partnerId);
+        const isFromMotherOf = updatedData.motherOf?.some(c => c.id === child.id) ||
+          (currentMember?.gender === 'Female' && existingChildren?.some(c => c.id === child.id) && updatedData.partnerId);
 
-        // If adding as father
+        // If adding/updating as father (member is father or new partner is father)
         if (isFromFatherOf) {
           // Check if child has a different father
-          if (child.fatherId && child.fatherId !== memberId) {
+          const targetFatherId = currentMember?.gender === 'Male' ? memberId : updatedData.partnerId;
+          if (child.fatherId && child.fatherId !== targetFatherId && targetFatherId) {
             return true; // Conflict: Child already has a different father
           }
-          // Check if child has a different mother (when partner is specified)
-          if (updatedData.partnerId && child.motherId && child.motherId !== updatedData.partnerId) {
+        }
+
+        // If adding/updating as mother (member is mother or new partner is mother)
+        if (isFromMotherOf) {
+          // Check if child has a different mother
+          const targetMotherId = currentMember?.gender === 'Female' ? memberId : updatedData.partnerId;
+          if (child.motherId && child.motherId !== targetMotherId && targetMotherId) {
             return true; // Conflict: Child already has a different mother
           }
         }
 
-        // If adding as mother
-        if (isFromMotherOf) {
-          // Check if child has a different mother
-          if (child.motherId && child.motherId !== memberId) {
-            return true; // Conflict: Child already has a different mother
-          }
-          // Check if child has a different father (when partner is specified)
-          if (updatedData.partnerId && child.fatherId && child.fatherId !== updatedData.partnerId) {
-            return true; // Conflict: Child already has a different father
+        // Special case: if we are adding a partner, they will be the OTHER parent for existing children
+        if (updatedData.partnerId && existingChildren?.some(c => c.id === child.id)) {
+          const isMemberMale = currentMember?.gender === 'Male';
+          if (isMemberMale) {
+            // Partner will be mother
+            if (child.motherId && child.motherId !== updatedData.partnerId) return true;
+          } else {
+            // Partner will be father
+            if (child.fatherId && child.fatherId !== updatedData.partnerId) return true;
           }
         }
 
@@ -238,20 +269,17 @@ export async function PUT(request: NextRequest) {
 
       if (conflictingChildren.length > 0) {
         const errorMessages = conflictingChildren.map(child => {
-          const isFromFatherOf = updatedData.fatherOf?.some(c => c.id === child.id);
-          const isFromMotherOf = updatedData.motherOf?.some(c => c.id === child.id);
+          const isMemberMale = currentMember?.gender === 'Male';
 
-          if (isFromFatherOf) {
-            if (child.fatherId && child.fatherId !== memberId) {
+          if (isMemberMale) {
+            if (child.fatherId && child.fatherId !== memberId && updatedData.fatherOf?.some(c => c.id === child.id)) {
               return `${child.name} already has ${child.father?.name} assigned as father`;
             }
             if (updatedData.partnerId && child.motherId && child.motherId !== updatedData.partnerId) {
               return `${child.name} already has ${child.mother?.name} assigned as mother`;
             }
-          }
-
-          if (isFromMotherOf) {
-            if (child.motherId && child.motherId !== memberId) {
+          } else {
+            if (child.motherId && child.motherId !== memberId && updatedData.motherOf?.some(c => c.id === child.id)) {
               return `${child.name} already has ${child.mother?.name} assigned as mother`;
             }
             if (updatedData.partnerId && child.fatherId && child.fatherId !== updatedData.partnerId) {
@@ -264,7 +292,7 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json({
           success: false,
-          error: errorMessages.join(', '),
+          error: Array.from(new Set(errorMessages)).join(', '),
         }, { status: 400 });
       }
     }
@@ -281,20 +309,6 @@ export async function PUT(request: NextRequest) {
       where: { id: { in: allIds }, verified: true },
       select: { id: true }
     });
-
-    const currentMember = await prisma.member.findUnique({
-      where: {
-        id: memberId,
-        authId: authId
-      },
-      select: {
-        fatherOf: { select: { id: true } },
-        motherOf: { select: { id: true } },
-        partnerId: true
-      }
-    });
-
-    if (!currentMember) return NextResponse.json({ error: "Member not found" }, { status: 404 });
 
     if (!currentMember.partnerId && !updatedData.partnerId) {
       return NextResponse.json({ error: "Partner not defined" }, { status: 400 })
@@ -330,7 +344,7 @@ export async function PUT(request: NextRequest) {
         });
         return NextResponse.json({
           success: true,
-          message: "New relationships added for verification",
+          message: "New relationships added for <b>verification</b>",
         });
       }
       return NextResponse.json({
@@ -363,13 +377,19 @@ export async function PUT(request: NextRequest) {
 
     if (updatedData.fatherOf) {
       childrenUpdates.push(...updatedData.fatherOf.map(child =>
-        prisma.member.update({ where: { id: child.id }, data: { order: child.order } })
+        prisma.member.update({
+          where: { id: child.id },
+          data: { order: child.order }
+        })
       ));
     }
 
     if (updatedData.motherOf) {
       childrenUpdates.push(...updatedData.motherOf.map(child =>
-        prisma.member.update({ where: { id: child.id }, data: { order: child.order } })
+        prisma.member.update({
+          where: { id: child.id },
+          data: { order: child.order }
+        })
       ));
     }
 
@@ -383,8 +403,10 @@ export async function PUT(request: NextRequest) {
         where: { id: effectivePartnerId },
         data: {
           partnerId: memberId,
-          ...(updatedData.fatherOf && { motherOf: { connect: updatedData.fatherOf.map(({ id }) => ({ id })) } }),
-          ...(updatedData.motherOf && { fatherOf: { connect: updatedData.motherOf.map(({ id }) => ({ id })) } })
+          ...(currentMember.gender === 'Male'
+            ? { motherOf: { connect: [...(updatedData.fatherOf?.map(({ id }) => ({ id })) || []), ...(currentMember.fatherOf.map(({ id }) => ({ id })))] } }
+            : { fatherOf: { connect: [...(updatedData.motherOf?.map(({ id }) => ({ id })) || []), ...(currentMember.motherOf.map(({ id }) => ({ id })))] } }
+          )
         }
       });
     }

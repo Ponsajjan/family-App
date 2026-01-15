@@ -19,6 +19,7 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
     select: {
       id: true,
       name: true,
+      gender: true,
       partnerId: true,
       partner: {
         select: {
@@ -28,12 +29,18 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
       },
       fatherOf: {
         select: {
-          id: true
+          id: true,
+          name: true,
+          motherId: true,
+          mother: { select: { id: true, name: true } }
         }
       },
       motherOf: {
         select: {
-          id: true
+          id: true,
+          name: true,
+          fatherId: true,
+          father: { select: { id: true, name: true } }
         }
       }
     }
@@ -76,15 +83,22 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
   }
 
   // Enhanced Child Validation - Check if children already have parents
-  const allChildIds = [
-    ...(formData.fatherOf?.map(c => c.id) || []),
-    ...(formData.motherOf?.map(c => c.id) || [])
+  const existingChildren = currentMember?.gender === 'Male' ? currentMember.fatherOf : currentMember.motherOf;
+  const newChildIds = [
+    ...(formData.fatherOf?.map((c: any) => c.id) || []),
+    ...(formData.motherOf?.map((c: any) => c.id) || [])
   ];
 
-  if (allChildIds.length > 0) {
+  // All children that need to be checked (newly added + existing children if a partner is being added/changed)
+  const childrenToCheckIds = [...new Set([
+    ...newChildIds,
+    ...(formData.partnerId ? (existingChildren?.map((c: any) => c.id) || []) : [])
+  ])];
+
+  if (childrenToCheckIds.length > 0) {
     const childrenWithParents = await tx.member.findMany({
       where: {
-        id: { in: allChildIds },
+        id: { in: childrenToCheckIds },
         OR: [
           { fatherId: { not: null } },
           { motherId: { not: null } }
@@ -95,82 +109,69 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
         name: true,
         fatherId: true,
         motherId: true,
-        father: {
-          select: {
-            id: true,
-            name: true
-          }
-        },
-        mother: {
-          select: {
-            id: true,
-            name: true
-          }
-        }
+        father: { select: { id: true, name: true } },
+        mother: { select: { id: true, name: true } }
       }
     });
 
     // Filter children that have conflicting parents
     const conflictingChildren = childrenWithParents.filter((child: any) => {
-      const isFromFatherOf = formData.fatherOf?.some(c => c.id === child.id);
-      const isFromMotherOf = formData.motherOf?.some(c => c.id === child.id);
+      const isFromFatherOf = formData.fatherOf?.some((c: any) => c.id === child.id) ||
+        (currentMember?.gender === 'Male' && existingChildren?.some((c: any) => c.id === child.id) && formData.partnerId);
+      const isFromMotherOf = formData.motherOf?.some((c: any) => c.id === child.id) ||
+        (currentMember?.gender === 'Female' && existingChildren?.some((c: any) => c.id === child.id) && formData.partnerId);
 
-      // If adding as father
+      // If adding/updating as father
       if (isFromFatherOf) {
-        // Check if child has a different father
-        if (child.fatherId && child.fatherId !== memberId) {
-          return true; // Conflict: Child already has a different father
-        }
-        // Check if child has a different mother (when partner is specified)
-        if (formData.partnerId && child.motherId && child.motherId !== formData.partnerId) {
-          return true; // Conflict: Child already has a different mother
-        }
+        const targetFatherId = currentMember?.gender === 'Male' ? memberId : formData.partnerId;
+        if (child.fatherId && child.fatherId !== targetFatherId && targetFatherId) return true;
       }
 
-      // If adding as mother
+      // If adding/updating as mother
       if (isFromMotherOf) {
-        // Check if child has a different mother
-        if (child.motherId && child.motherId !== memberId) {
-          return true; // Conflict: Child already has a different mother
-        }
-        // Check if child has a different father (when partner is specified)
-        if (formData.partnerId && child.fatherId && child.fatherId !== formData.partnerId) {
-          return true; // Conflict: Child already has a different father
+        const targetMotherId = currentMember?.gender === 'Female' ? memberId : formData.partnerId;
+        if (child.motherId && child.motherId !== targetMotherId && targetMotherId) return true;
+      }
+
+      // Special case for existing children when partner is added
+      if (formData.partnerId && existingChildren?.some((c: any) => c.id === child.id)) {
+        const isMemberMale = currentMember?.gender === 'Male';
+        if (isMemberMale) {
+          // Partner is mother
+          if (child.motherId && child.motherId !== formData.partnerId) return true;
+        } else {
+          // Partner is father
+          if (child.fatherId && child.fatherId !== formData.partnerId) return true;
         }
       }
 
-      return false; // No conflicts
+      return false;
     });
 
     if (conflictingChildren.length > 0) {
       const errorMessages = conflictingChildren.map((child: any) => {
-        const isFromFatherOf = formData.fatherOf?.some(c => c.id === child.id);
-        const isFromMotherOf = formData.motherOf?.some(c => c.id === child.id);
-
-        if (isFromFatherOf) {
-          if (child.fatherId && child.fatherId !== memberId) {
+        const isMemberMale = currentMember?.gender === 'Male';
+        if (isMemberMale) {
+          if (child.fatherId && child.fatherId !== memberId && formData.fatherOf?.some((c: any) => c.id === child.id)) {
             return `${child.name} already has ${child.father?.name} assigned as father`;
           }
           if (formData.partnerId && child.motherId && child.motherId !== formData.partnerId) {
             return `${child.name} already has ${child.mother?.name} assigned as mother`;
           }
-        }
-
-        if (isFromMotherOf) {
-          if (child.motherId && child.motherId !== memberId) {
+        } else {
+          if (child.motherId && child.motherId !== memberId && formData.motherOf?.some((c: any) => c.id === child.id)) {
             return `${child.name} already has ${child.mother?.name} assigned as mother`;
           }
           if (formData.partnerId && child.fatherId && child.fatherId !== formData.partnerId) {
             return `${child.name} already has ${child.father?.name} assigned as father`;
           }
         }
-
         return `${child.name} has parent conflict`;
       });
 
       return {
         success: false,
-        message: errorMessages.join(', '),
+        message: Array.from(new Set(errorMessages)).join(', '),
         data: "Some children already have parents assigned",
       };
     }
@@ -180,10 +181,10 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
   const sanitizedUpdateData = {
     ...(formData.partnerId !== undefined && { partnerId: formData.partnerId }),
     ...(formData.fatherOf && {
-      fatherOf: { connect: formData.fatherOf.map(({ id }) => ({ id })) }
+      fatherOf: { connect: formData.fatherOf.map(({ id }: any) => ({ id })) }
     }),
     ...(formData.motherOf && {
-      motherOf: { connect: formData.motherOf.map(({ id }) => ({ id })) }
+      motherOf: { connect: formData.motherOf.map(({ id }: any) => ({ id })) }
     })
   };
 
@@ -199,7 +200,7 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
   const childrenUpdates: Promise<any>[] = [];
 
   if (formData.fatherOf) {
-    childrenUpdates.push(...formData.fatherOf.map(child =>
+    childrenUpdates.push(...formData.fatherOf.map((child: any) =>
       tx.member.update({
         where: { id: child.id },
         data: { order: child.order }
@@ -208,7 +209,7 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
   }
 
   if (formData.motherOf) {
-    childrenUpdates.push(...formData.motherOf.map(child =>
+    childrenUpdates.push(...formData.motherOf.map((child: any) =>
       tx.member.update({
         where: { id: child.id },
         data: { order: child.order }
@@ -226,8 +227,10 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
       where: { id: effectivePartnerId },
       data: {
         partnerId: memberId,
-        ...(formData.fatherOf && { motherOf: { connect: formData.fatherOf.map(({ id }) => ({ id })) } }),
-        ...(formData.motherOf && { fatherOf: { connect: formData.motherOf.map(({ id }) => ({ id })) } })
+        ...(currentMember.gender === 'Male'
+          ? { motherOf: { connect: [...(formData.fatherOf?.map(({ id }: any) => ({ id })) || []), ...(currentMember.fatherOf.map(({ id }: any) => ({ id })))] } }
+          : { fatherOf: { connect: [...(formData.motherOf?.map(({ id }: any) => ({ id })) || []), ...(currentMember.motherOf.map(({ id }: any) => ({ id })))] } }
+        )
       }
     });
   }
