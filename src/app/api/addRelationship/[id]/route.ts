@@ -202,6 +202,9 @@ export async function PUT(request: NextRequest) {
       ...(updatedData.motherOf?.map(c => c.id) || [])
     ];
 
+    // Use provided partnerId or fall back to existing partner
+    const effectivePartnerId = updatedData.partnerId !== undefined ? updatedData.partnerId : currentMember.partnerId;
+
     // All children that need to be checked (newly added + existing children if a partner is being added/changed)
     const childrenToCheckIds = [...new Set([
       ...newChildIds,
@@ -227,44 +230,42 @@ export async function PUT(request: NextRequest) {
         }
       });
 
+
+
       // Filter children that have conflicting parents
       const conflictingChildren = childrenWithParents.filter(child => {
-        const isFromFatherOf = updatedData.fatherOf?.some(c => c.id === child.id) ||
-          (currentMember?.gender === 'Male' && existingChildren?.some(c => c.id === child.id) && updatedData.partnerId);
-        const isFromMotherOf = updatedData.motherOf?.some(c => c.id === child.id) ||
-          (currentMember?.gender === 'Female' && existingChildren?.some(c => c.id === child.id) && updatedData.partnerId);
+        // Determine expected parents for this family unit
+        let expectedFatherId: number | null | undefined;
+        let expectedMotherId: number | null | undefined;
 
-        // If adding/updating as father (member is father or new partner is father)
-        if (isFromFatherOf) {
-          // Check if child has a different father
-          const targetFatherId = currentMember?.gender === 'Male' ? memberId : updatedData.partnerId;
-          if (child.fatherId && child.fatherId !== targetFatherId && targetFatherId) {
-            return true; // Conflict: Child already has a different father
-          }
+        if (currentMember.gender === 'Male') {
+          expectedFatherId = memberId;
+          expectedMotherId = effectivePartnerId;
+        } else {
+          expectedMotherId = memberId;
+          expectedFatherId = effectivePartnerId;
         }
 
-        // If adding/updating as mother (member is mother or new partner is mother)
-        if (isFromMotherOf) {
-          // Check if child has a different mother
-          const targetMotherId = currentMember?.gender === 'Female' ? memberId : updatedData.partnerId;
-          if (child.motherId && child.motherId !== targetMotherId && targetMotherId) {
-            return true; // Conflict: Child already has a different mother
-          }
+        // Check for conflicts
+        // 1. Check Father Conflict
+        // We only check if we expect a father (it's part of the new state) AND the child already has a DIFFERENT father
+        if (expectedFatherId && child.fatherId && child.fatherId !== expectedFatherId) {
+          // Only flag as conflict if this child is actually being touched/added in a way that implies this parentage
+          // If we are just adding a child, we imply BOTH parents (if partner exists)
+          // If we are changing partner, we imply existing children get new partner
+
+          // If this child is in the 'to be added/updated' list for this operation:
+          // - It's in updatedData.fatherOf/motherOf
+          // - OR it's an existing child and we are changing partner (which affects the other parent role)
+          return true;
         }
 
-        // Special case: if we are adding a partner, they will be the OTHER parent for existing children
-        if (updatedData.partnerId && existingChildren?.some(c => c.id === child.id)) {
-          const isMemberMale = currentMember?.gender === 'Male';
-          if (isMemberMale) {
-            // Partner will be mother
-            if (child.motherId && child.motherId !== updatedData.partnerId) return true;
-          } else {
-            // Partner will be father
-            if (child.fatherId && child.fatherId !== updatedData.partnerId) return true;
-          }
+        // 2. Check Mother Conflict
+        if (expectedMotherId && child.motherId && child.motherId !== expectedMotherId) {
+          return true;
         }
 
-        return false; // No conflicts
+        return false;
       });
 
       if (conflictingChildren.length > 0) {
@@ -365,7 +366,7 @@ export async function PUT(request: NextRequest) {
     };
 
     // Use provided partnerId or fall back to existing partner
-    const effectivePartnerId = updatedData.partnerId !== undefined ? updatedData.partnerId : currentMember.partnerId;
+
 
     await prisma.member.update({
       where: { id: memberId },

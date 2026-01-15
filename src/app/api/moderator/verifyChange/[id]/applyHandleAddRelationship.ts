@@ -82,6 +82,9 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
     }
   }
 
+  // Calculate effective partner ID early for validation
+  const effectivePartnerId = formData.partnerId !== undefined ? formData.partnerId : currentMember.partnerId;
+
   // Enhanced Child Validation - Check if children already have parents
   const existingChildren = currentMember?.gender === 'Male' ? currentMember.fatherOf : currentMember.motherOf;
   const newChildIds = [
@@ -116,33 +119,27 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
 
     // Filter children that have conflicting parents
     const conflictingChildren = childrenWithParents.filter((child: any) => {
-      const isFromFatherOf = formData.fatherOf?.some((c: any) => c.id === child.id) ||
-        (currentMember?.gender === 'Male' && existingChildren?.some((c: any) => c.id === child.id) && formData.partnerId);
-      const isFromMotherOf = formData.motherOf?.some((c: any) => c.id === child.id) ||
-        (currentMember?.gender === 'Female' && existingChildren?.some((c: any) => c.id === child.id) && formData.partnerId);
+      // Determine expected parents for this family unit
+      let expectedFatherId: number | null | undefined;
+      let expectedMotherId: number | null | undefined;
 
-      // If adding/updating as father
-      if (isFromFatherOf) {
-        const targetFatherId = currentMember?.gender === 'Male' ? memberId : formData.partnerId;
-        if (child.fatherId && child.fatherId !== targetFatherId && targetFatherId) return true;
+      if (currentMember.gender === 'Male') {
+        expectedFatherId = memberId;
+        expectedMotherId = effectivePartnerId;
+      } else {
+        expectedMotherId = memberId;
+        expectedFatherId = effectivePartnerId;
       }
 
-      // If adding/updating as mother
-      if (isFromMotherOf) {
-        const targetMotherId = currentMember?.gender === 'Female' ? memberId : formData.partnerId;
-        if (child.motherId && child.motherId !== targetMotherId && targetMotherId) return true;
+      // Check for conflicts
+      // 1. Check Father Conflict
+      if (expectedFatherId && child.fatherId && child.fatherId !== expectedFatherId) {
+        return true;
       }
 
-      // Special case for existing children when partner is added
-      if (formData.partnerId && existingChildren?.some((c: any) => c.id === child.id)) {
-        const isMemberMale = currentMember?.gender === 'Male';
-        if (isMemberMale) {
-          // Partner is mother
-          if (child.motherId && child.motherId !== formData.partnerId) return true;
-        } else {
-          // Partner is father
-          if (child.fatherId && child.fatherId !== formData.partnerId) return true;
-        }
+      // 2. Check Mother Conflict
+      if (expectedMotherId && child.motherId && child.motherId !== expectedMotherId) {
+        return true;
       }
 
       return false;
@@ -188,8 +185,7 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
     })
   };
 
-  // Use provided partnerId or fall back to existing partner
-  const effectivePartnerId = formData.partnerId !== undefined ? formData.partnerId : currentMember.partnerId;
+
 
   const updatedMember = await tx.member.update({
     where: { id: memberId },
