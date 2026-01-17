@@ -24,6 +24,9 @@ export default function EditRelationshipDetails() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>("");
   const [resetValue, setResetValue] = useState<any>({});
+  const [showPartnerSwitchPanel, setShowPartnerSwitchPanel] = useState<boolean>(false);
+  const [removedPartnerData, setRemovedPartnerData] = useState<{ id: number, name: string } | null>(null);
+  const [isPendingRemoval, setIsPendingRemoval] = useState<boolean>(false);
   const { logout } = useAuth();
   const router = useRouter();
 
@@ -56,6 +59,16 @@ export default function EditRelationshipDetails() {
           if (data.children && Array.isArray(data.children)) {
             data.children.sort((a: any, b: any) => a.order - b.order);
           }
+
+          // If we switched to the partner who is pending removal, simulate their partner (us) being removed/hidden
+          if (isPendingRemoval && removedPartnerData && data.id === removedPartnerData.id) {
+            setDeleteData((prev: any) => ({
+              ...prev,
+              partnerId: data.partner?.id,
+            }));
+            data.partner = null;
+          }
+
           // Deep copy the data to prevent mutations from affecting reset state
           setResetValue({ 'data': JSON.parse(JSON.stringify(data)), 'hasPartner': data.partner?.id })
 
@@ -128,6 +141,13 @@ export default function EditRelationshipDetails() {
     setSubmitError("");
   };
 
+  const handleSkip = () => {
+    setShowList(false);
+    setShowPartnerSwitchPanel(false);
+    setRemovedPartnerData(null);
+    setIsPendingRemoval(false);
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (noChanges) {
@@ -162,6 +182,19 @@ export default function EditRelationshipDetails() {
 
       if (result) {
         toast?.show(result.message, "success", 5000);
+
+        // Handle Partner Removal Flow
+        if (result.partnerRemoved && !removedPartnerData) {
+          setRemovedPartnerData(result.removedPartnerData);
+          setIsPendingRemoval(!!result.isPendingVerification);
+          setShowPartnerSwitchPanel(true);
+          setShowList(true);
+        }
+
+        if (result.partnerRemoved && removedPartnerData) {
+          handleSkip();
+        }
+
         setFormData(editRelationshipDefaultFormValue);
         setDeleteData(editRelationshipDefaultDeleteValue);
         setNoChanges(true);
@@ -195,6 +228,7 @@ export default function EditRelationshipDetails() {
           </div>
           {(formData.pendingVerification > 0) && <p className="w-full py-1 px-2 my-6 border border-border_color border-dashed rounded-md bg-field_color"><span className='inline-block align-bottom pr-2'><Warning /></span>{formData.pendingVerification} pending verification</p>}
           <EditRelationShipForm
+            allowSwitch={removedPartnerData === null}
             handleShowList={handleShowList}
             handleDivorcePartner={handleDivorcePartner}
             handleRemoveChildrenValue={handleRemoveChildrenValue}
@@ -208,15 +242,42 @@ export default function EditRelationshipDetails() {
           <ButtonOutline buttonText={noChanges ? "Cancel" : "Reset Changes"} onClick={handleClose} className="hidden md:block w-full" />
         </div>
       </Container>
-      <SlidePanel setShowDetails={setShowList} showDetails={showList} >
-        <MemberList
-          forType={'editRelationship'}
-          getSelectedValues={formData}
-          setSelectedValue={handleSelectedValue}
-          openList={setShowList}
-          multiselect={false}
-          descendant={null}
-        />
+      <SlidePanel setShowDetails={(val) => { setShowList(val); if (!val) setShowPartnerSwitchPanel(false) }} showDetails={showList} >
+        {showPartnerSwitchPanel && removedPartnerData ? (
+          <div className="p-4">
+            <h3 className="tex-lg font-semibold mb-4 text-text_color">Partner Removed</h3>
+            <p className="text-sm text-text_color mb-6">
+              {isPendingRemoval
+                ? <>You have requested to remove <strong>{removedPartnerData.name}</strong>. Since this requires <strong>moderator approval</strong>, the change is verified. Do you want to switch to their profile to edits their children/details?</>
+                : <>You have removed <strong>{removedPartnerData.name}</strong>. Do you want to switch to their profile to edits their children/details?</>
+              }
+            </p>
+            <div className="flex gap-4">
+              <ButtonOutline
+                buttonText="Skip"
+                onClick={() => { handleSkip(); }}
+                className="w-full"
+              />
+              <ButtonOutline
+                buttonText="Continue"
+                onClick={() => {
+                  handleSelectedValue(removedPartnerData.name, removedPartnerData.id);
+                  setShowPartnerSwitchPanel(false);
+                }}
+                className="w-full bg-field_hover"
+              />
+            </div>
+          </div>
+        ) : (
+          <MemberList
+            forType={'editRelationship'}
+            getSelectedValues={formData}
+            setSelectedValue={handleSelectedValue}
+            openList={setShowList}
+            multiselect={false}
+            descendant={null}
+          />
+        )}
       </SlidePanel>
     </div>
   );

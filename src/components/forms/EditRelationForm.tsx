@@ -11,7 +11,8 @@ function EditRelationShipForm({
     setFormData,
     setNoChanges,
     submitting,
-    submitError
+    submitError,
+    allowSwitch
 }: any) {
 
     const dragItem = useRef<number>(0);
@@ -106,7 +107,7 @@ function EditRelationShipForm({
                 {formData.name && formData.name !== 'undefined' ?
                     <>
                         <span className="py-2 w-full">{formData.name}</span>
-                        <span><ChangeMember /></span>
+                        {allowSwitch && <span><ChangeMember /></span>}
                     </> :
                     <span className='py-2 w-full text-gray-400'>Select Member</span>}
             </div>
