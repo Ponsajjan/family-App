@@ -179,6 +179,18 @@ export async function PUT(request: NextRequest) {
       member?.fatherOf.some((child) => child.verified) || // Check if any child in fatherOf is verified
       member?.motherOf.some((child) => child.verified); // Check if any child in motherOf is verified
 
+    // Fetch partner details if partner is being removed to return in response
+    let removedPartnerData = null;
+    if (deleteData.partnerId) {
+      const partner = await prisma.member.findUnique({
+        where: { id: deleteData.partnerId },
+        select: { id: true, name: true }
+      });
+      if (partner) {
+        removedPartnerData = partner;
+      }
+    }
+
     // If any verified members are found, add the update request to pending verification
     if (hasVerified) {
       await prisma.requestDetails.create({
@@ -193,6 +205,8 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: "Update request has been added for <b>verification</b>.",
+        partnerRemoved: !!removedPartnerData,
+        removedPartnerData
       });
     }
 
@@ -200,20 +214,6 @@ export async function PUT(request: NextRequest) {
 
     // Start processing updates
     const updatePromises: Promise<any>[] = [];
-
-    // Get all children of the member to determine custody split
-    const memberChildren = await prisma.member.findUnique({
-      where: { id: memberId },
-      select: {
-        fatherOf: { select: { id: true } },
-        motherOf: { select: { id: true } }
-      }
-    });
-
-    const allMemberChildren = [
-      ...(memberChildren?.fatherOf?.map(child => child.id) || []),
-      ...(memberChildren?.motherOf?.map(child => child.id) || [])
-    ];
 
     // Handle partner removal (divorce)
     if (deleteData.partnerId) {
@@ -232,13 +232,9 @@ export async function PUT(request: NextRequest) {
         }),
       );
 
-      // If no children specified during divorce, keep all children with both parents
-      // Children maintain relationships with both parents after divorce
-
-      // Custody split during divorce (only if children specified)
+      // Standardised logic: If children are selected for removal.
       if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
         const memberRemovedChildren: number[] = Array.from(new Set(deleteData.childrenId)); // Children removed from member
-        const memberKeptChildren: number[] = allMemberChildren.filter(childId => !memberRemovedChildren.includes(childId)); // Children kept by member
 
         // Remove specified children from MEMBER (member loses custody)
         if (memberRemovedChildren.length > 0) {
@@ -251,23 +247,6 @@ export async function PUT(request: NextRequest) {
                 },
                 motherOf: {
                   disconnect: memberRemovedChildren.map((childId) => ({ id: childId })),
-                },
-              },
-            })
-          );
-        }
-
-        // Remove kept children from PARTNER (partner loses custody of the ones member keeps)
-        if (memberKeptChildren.length > 0) {
-          updatePromises.push(
-            prisma.member.update({
-              where: { id: deleteData.partnerId },
-              data: {
-                fatherOf: {
-                  disconnect: memberKeptChildren.map((childId) => ({ id: childId })),
-                },
-                motherOf: {
-                  disconnect: memberKeptChildren.map((childId) => ({ id: childId })),
                 },
               },
             })
@@ -328,6 +307,8 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Member updated successfully",
+      partnerRemoved: !!removedPartnerData,
+      removedPartnerData
     });
   } catch (error: any) {
     console.error("Error updating member:", error);

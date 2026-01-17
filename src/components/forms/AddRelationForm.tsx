@@ -134,7 +134,7 @@ function AddRelationShipForm({
 
             <div className="flex gap-1 items-center">
                 <h3 className="text-sm">Partner</h3>
-                {error && <p className="text-sm text-text_color">{error}</p>}
+                {error && <p className="text-sm text-red-500">{error}</p>}
             </div>
             <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
                 {(selectedMemberData?.partner?.name)
