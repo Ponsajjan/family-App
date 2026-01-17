@@ -26,14 +26,14 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
   const changeDetails: {
     member: string | null;
     partner?: { name: string | null; isNew: boolean };
-    children?: { 
-      all: {id: number, name: string, order: number}[];  // All children (existing + new)
+    children?: {
+      all: { id: number, name: string, order: number }[];  // All children (existing + new)
       newIds: number[];                   // IDs of new children only
     };
   } = { member: member.name };
 
   const details: RelationshipDetails = JSON.parse(changeData?.details || '{}');
-  
+
   if (!details.partnerId && !details.motherOf?.length && !details.fatherOf?.length) {
     return NextResponse.json(
       { error: "No valid relationship changes found in request" },
@@ -48,7 +48,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
         where: { id: details.partnerId },
         select: { name: true }
       });
-      
+
       changeDetails.partner = {
         name: partner?.name ?? null,
         isNew: details.partnerId !== currentRelationships?.partnerId
@@ -68,9 +68,9 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
     const processUpdates = async (relations: ChildRelation[] | undefined) => {
       if (!relations) return;
 
-      for (const {id, order} of relations) {
+      for (const { id, order } of relations) {
         const existingIndex = allChildren.findIndex(c => c.id === id);
-        
+
         if (existingIndex >= 0) {
           // Update order for existing child
           allChildren[existingIndex].order = order;
@@ -81,10 +81,10 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
             where: { id },
             select: { name: true }
           });
-          allChildren.push({ 
-            id, 
+          allChildren.push({
+            id,
             name: child?.name || `Unknown (${id})`,
-            order 
+            order
           });
         }
       }
@@ -111,7 +111,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
   // Generate HTML response
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
-      <div class="italic mb-4">---- ${changeData.type} ----</div>
+      <div class="italic mb-4">---- ${changeData.type || 'Add Relationship'} ----</div>
       
       <div class="flex">
         <div class="font-medium md:font-semibold min-w-[100px]">
@@ -157,7 +157,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
     </div>
   `;
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     data: {
       submitData: {
         memberId: changeData.memberId,

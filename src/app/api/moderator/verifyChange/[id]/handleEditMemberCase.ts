@@ -62,7 +62,7 @@ export async function handleEditMemberCase(member: any, changeData: any) {
         formData: { ...formData, ...changeDetails },
       },
       htmlContent: `<div class="space-y-2 bg-main_background text-text_color">
-        <div class="italic mb-4">---- ${changeData.type} ----</div>
+        <div class="italic mb-4">---- ${changeData.type || 'Edit Member'} ----</div>
         ${changesJsx}
       </div>`
     },

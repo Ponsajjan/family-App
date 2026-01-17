@@ -47,7 +47,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
     );
   }
 
-  try {  
+  try {
     // Handle partner changes
     const currentPartnerId = currentRelationships?.partnerId;
     const newPartnerId = details.hasPartner;
@@ -59,7 +59,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
         where: { id: currentPartnerId },
         select: { name: true }
       });
-      
+
       changeDetails.partner = {
         name: currentPartner?.name ?? null,
         isRemoved: true
@@ -70,7 +70,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
         where: { id: newPartnerId },
         select: { name: true }
       });
-      
+
       changeDetails.partner = {
         name: partner?.name ?? null,
         isRemoved: false
@@ -98,9 +98,9 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
       const currentOrder = currentChildren
         .sort((a, b) => (a.order || 0) - (b.order || 0))
         .map(c => c.id);
-      
+
       const newOrder = details.childrenOrder.map(c => c.id);
-      
+
       // Only consider it a reorder if the sequence has changed
       if (JSON.stringify(currentOrder) !== JSON.stringify(newOrder)) {
         const newOrders = new Map<number, number>();
@@ -135,7 +135,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
   // Generate HTML
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
-      <div class="italic mb-4">---- ${changeData.type} ----</div>
+      <div class="italic mb-4">---- ${changeData.type || 'Edit Relationship'} ----</div>
       <div class="flex">
         <div class="font-medium md:font-semibold min-w-[100px]">
             <div class="flex">
@@ -177,9 +177,9 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                   <div class="font-semibold">New Order:</div>
                   <div class="flex flex-col gap-1 pl-4 mt-1">
                     ${changeDetails.children.all
-                      .filter(child => changeDetails.children?.reorderedIds.includes(child.id))
-                      .sort((a, b) => (a.newOrder || 0) - (b.newOrder || 0))
-                      .map(child => `
+            .filter(child => changeDetails.children?.reorderedIds.includes(child.id))
+            .sort((a, b) => (a.newOrder || 0) - (b.newOrder || 0))
+            .map(child => `
                         <div class="flex gap-1 items-center flex-wrap">
                           <span>${child.newOrder}. ${child.name}</span>
                           <span class="text-blue-600 font-medium">
@@ -188,10 +188,10 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                         </div>
                       `).join('')}
                     ${changeDetails.children.all
-                      .filter(child => !changeDetails.children?.reorderedIds.includes(child.id) && 
-                                      !changeDetails.children?.removedIds.includes(child.id))
-                      .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
-                      .map(child => `
+            .filter(child => !changeDetails.children?.reorderedIds.includes(child.id) &&
+              !changeDetails.children?.removedIds.includes(child.id))
+            .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
+            .map(child => `
                         <div class="flex gap-1 items-center flex-wrap">
                           <span>${child.currentOrder}. ${child.name}</span>
                         </div>
@@ -201,9 +201,9 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
               ` : `
                 <div class="flex flex-col gap-1">
                   ${changeDetails.children.all
-                    .filter(child => !changeDetails.children?.removedIds.includes(child.id))
-                    .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
-                    .map(child => `
+          .filter(child => !changeDetails.children?.removedIds.includes(child.id))
+          .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
+          .map(child => `
                       <div class="flex gap-1 items-center flex-wrap">
                         <span>${child.currentOrder}. ${child.name}</span>
                       </div>
@@ -216,9 +216,9 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                   <div class="font-semibold">Removed Children:</div>
                   <div class="flex flex-col gap-1 pl-4 mt-1">
                     ${changeDetails.children.all
-                      .filter(child => changeDetails.children?.removedIds.includes(child.id)).length > 0 
-                      ? changeDetails.children.all
-                      .filter(child => changeDetails.children?.removedIds.includes(child.id)).map((child, index) => `
+            .filter(child => changeDetails.children?.removedIds.includes(child.id)).length > 0
+            ? changeDetails.children.all
+              .filter(child => changeDetails.children?.removedIds.includes(child.id)).map((child, index) => `
                         <div class="flex gap-1 items-center flex-wrap">
                           <span>${index + 1}.</span>
                           <span class="line-through ">
@@ -227,8 +227,8 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                           <span class="text-blue-600 font-medium"> (Removed order ${child.currentOrder})</span>
                         </div>
                       `).join('')
-                      : `<div class="text-blue-600 font-medium">Already Applied changes</div>`
-                    }
+            : `<div class="text-blue-600 font-medium">Already Applied changes</div>`
+          }
                   </div>
                 </div>
               ` : ''}
@@ -236,8 +236,8 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
           ` : `
             <div class="flex flex-col gap-1">
               ${changeDetails.children.all
-                .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
-                .map(child => `
+        .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
+        .map(child => `
                   <div class="flex gap-1 items-center flex-wrap">
                     <span>${child.currentOrder}. ${child.name}</span>
                   </div>
@@ -249,7 +249,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
     </div>
   `;
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     data: {
       submitData: {
         memberId: changeData.memberId,
