@@ -311,9 +311,9 @@ export async function PUT(request: NextRequest) {
       select: { id: true }
     });
 
-    if (!currentMember.partnerId && !updatedData.partnerId) {
-      return NextResponse.json({ error: "Partner not defined" }, { status: 400 })
-    }
+    // if (!currentMember.partnerId && !updatedData.partnerId) {
+    //   return NextResponse.json({ error: "Partner not defined" }, { status: 400 })
+    // }
 
     // Handle Verified Relationships
     if (verifiedMembers.length > 0) {

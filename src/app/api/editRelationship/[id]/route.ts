@@ -207,7 +207,6 @@ export async function PUT(request: NextRequest) {
         message: "Update request has been added for <b>verification</b>.",
         partnerRemoved: !!removedPartnerData,
         removedPartnerData,
-        isPendingVerification: true
       });
     }
 
@@ -310,7 +309,6 @@ export async function PUT(request: NextRequest) {
       message: "Member updated successfully",
       partnerRemoved: !!removedPartnerData,
       removedPartnerData,
-      isPendingVerification: false
     });
   } catch (error: any) {
     console.error("Error updating member:", error);

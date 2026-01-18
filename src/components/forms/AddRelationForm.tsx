@@ -16,7 +16,7 @@ interface AddRelationShipFormPropType {
     showList: boolean;
     submitting?: boolean;
     submitError: string | null;
-    error: string | null;
+    allowChildrenSelect: boolean;
 }
 
 function AddRelationShipForm({
@@ -31,7 +31,7 @@ function AddRelationShipForm({
     handleSubmit,
     showList,
     submitting = false,
-    error,
+    allowChildrenSelect,
     submitError
 }: AddRelationShipFormPropType) {
 
@@ -134,7 +134,6 @@ function AddRelationShipForm({
 
             <div className="flex gap-1 items-center">
                 <h3 className="text-sm">Partner</h3>
-                {error && <p className="text-sm text-red-500">{error}</p>}
             </div>
             <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
                 {(selectedMemberData?.partner?.name)
@@ -191,7 +190,7 @@ function AddRelationShipForm({
                         )}
                     </>
                 </div>}
-            {(selectedMemberData.partner?.name || selectedPartnerData?.name) &&
+            {(selectedMemberData.partner?.name || selectedPartnerData?.name || allowChildrenSelect) &&
                 <div onClick={() => handleShowList('selectChildren')} className={`flex items-center bg-field_color cursor-pointer ${(showListFor === 'selectChildren' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} text-xs ml-0 mr-auto py-1 px-4 border border-border_color rounded-full w-fit mb-2`}>
                     <span className="pr-2">Add Children</span>
                     <span className="w-4 h-4"><PlusIcon /></span>

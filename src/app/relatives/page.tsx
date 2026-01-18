@@ -190,17 +190,17 @@ export default function Relatives() {
                               }}
                             />
                           </div>
-                          <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                          <div className="flex text-xs md:text-sm opacity-65 flex-wrap">
                             {(member.father || member.mother) ? (
                               <>
                                 <span className="pr-0.5 font-medium md:font-semibold">Parents:</span>
-                                {member.father && <span className="pr-0.5">{member.father.name},</span>}
-                                {member.mother && <span>{member.mother.name}</span>}
+                                {member.father && <span>{member.father.name}</span>}
+                                {member.mother && <span>, {member.mother.name}</span>}
                               </>
                             ) : member.partner ? (
                               <div>
                                 <span className="pr-0.5 font-medium md:font-semibold">Partner:</span>
-                                <span className="pr-0.5">{member.partner.name}</span>
+                                <span>{member.partner.name}</span>
                               </div>
                             ) : 'No family relationship assigned yet'}
                           </div>

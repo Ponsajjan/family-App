@@ -346,19 +346,19 @@ export default function MemberList({
                             }}
                           />
                         </div>
-                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap gap-1">
+                        <div className="flex text-xs md:text-sm opacity-65 flex-wrap">
                           {member.id == mainMemberID ?
                             <span className='font-medium md:font-semibold'>Main Member</span>
                             : (member.father || member.mother ? (
                               <>
                                 <span className="pr-1 font-medium md:font-semibold">Parents: </span>
-                                {member.father && <span className="pr-1">{member.father.name},</span>}
-                                {member.mother && <span className="pr-1">{member.mother.name}</span>}
+                                {member.father && <span>{member.father.name}</span>}
+                                {member.mother && <span>, {member.mother.name}</span>}
                               </>
                             ) : (member.partner) ? (
                               <div>
                                 <span className="pr-1 font-medium md:font-semibold">Partner: </span>
-                                <span className="pr-1">{member.partner.name}</span>
+                                <span>{member.partner.name}</span>
                               </div>
                             ) : (
                               'No family relationship assigned yet'

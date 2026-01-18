@@ -27,7 +27,6 @@ export default function EditRelationshipDetails() {
   const [resetValue, setResetValue] = useState<any>({});
   const [showPartnerSwitchPanel, setShowPartnerSwitchPanel] = useState<boolean>(false);
   const [removedPartnerData, setRemovedPartnerData] = useState<{ id: number, name: string } | null>(null);
-  const [isPendingRemoval, setIsPendingRemoval] = useState<boolean>(false);
   const { logout } = useAuth();
   const router = useRouter();
 
@@ -62,7 +61,7 @@ export default function EditRelationshipDetails() {
           }
 
           // If we switched to the partner who is pending removal, simulate their partner (us) being removed/hidden
-          if (isPendingRemoval && removedPartnerData && data.id === removedPartnerData.id) {
+          if (removedPartnerData && data.id === removedPartnerData.id) {
             setDeleteDataDefault({
               partnerId: data.partner?.id,
               childrenId: [],
@@ -154,7 +153,6 @@ export default function EditRelationshipDetails() {
     setShowList(false);
     setShowPartnerSwitchPanel(false);
     setRemovedPartnerData(null);
-    setIsPendingRemoval(false);
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -195,7 +193,6 @@ export default function EditRelationshipDetails() {
         // Handle Partner Removal Flow
         if (result.partnerRemoved && !removedPartnerData) {
           setRemovedPartnerData(result.removedPartnerData);
-          setIsPendingRemoval(!!result.isPendingVerification);
           setShowPartnerSwitchPanel(true);
           setShowList(true);
         }
@@ -256,10 +253,7 @@ export default function EditRelationshipDetails() {
           <div className="p-4">
             <h3 className="tex-lg font-semibold mb-4 text-text_color">Partner Removed</h3>
             <p className="text-sm text-text_color mb-6">
-              {isPendingRemoval
-                ? <>Since change involves verified member, your request to remove <strong>{removedPartnerData.name}</strong> as partner is pending <b>verification</b>. Switch to {removedPartnerData.name} profile to edit their children/details?</>
-                : <>You have removed <strong>{removedPartnerData.name}</strong> as partner. Switch to {removedPartnerData.name} profile to edit their children/details?</>
-              }
+              Switch to {removedPartnerData.name} profile to edit their details?
             </p>
             <div className="flex gap-4">
               <ButtonOutline

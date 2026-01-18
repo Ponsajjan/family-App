@@ -18,9 +18,9 @@ export async function handleEditMemberCase(member: any, changeData: any) {
     education: member.education || null,
     address: member.address || null,
     descendant: member.descendant ? 'Yes' : 'No',
-    father: member.nonDescendantRelation?.[0]?.fatherName,
-    mother: member.nonDescendantRelation?.[0]?.motherName,
-    siblings: member.nonDescendantRelation?.[0]?.siblingNames,
+    ...member.descendant ? null : { father: member.nonDescendantRelation?.[0]?.fatherName },
+    ...member.descendant ? null : { mother: member.nonDescendantRelation?.[0]?.motherName },
+    ...member.descendant ? null : { siblings: member.nonDescendantRelation?.[0]?.siblingNames },
     additionalInfo: member.additionalInfo || null,
   };
 

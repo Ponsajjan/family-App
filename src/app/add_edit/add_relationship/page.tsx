@@ -19,7 +19,7 @@ export default function AddRelationshipDetails() {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>();
   const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [allowChildrenSelect, setAllowChildrenSelect] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>("");
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
@@ -79,7 +79,6 @@ export default function AddRelationshipDetails() {
           setShowList(false);
           return;
         }
-        setError(null);
         setSubmitError("");
         setSelectedMemberId(id);
         setSelectedPartnerId(null);
@@ -92,14 +91,12 @@ export default function AddRelationshipDetails() {
           setShowList(false);
           return;
         }
-        setError(null);
         setSubmitError("");
         setSelectedPartnerId(id);
         setShowList(false);
         break;
 
       case 'selectChildren':
-        setError(null);
         setSubmitError("");
         setNewChildrenData(updateData);
         break;
@@ -110,8 +107,7 @@ export default function AddRelationshipDetails() {
     e.preventDefault();
 
     if (selectedPartnerData.id === undefined && selectedMemberData.partner === null) { // No partner selected
-      setError('Select partner');
-      return
+      setAllowChildrenSelect(true);
     }
 
     if (!selectedPartnerData.id && newChildrenData.children?.length === 0) { // No changes made
@@ -221,7 +217,7 @@ export default function AddRelationshipDetails() {
             handleSubmit={handleSubmit}
             submitting={loading}
             showList={showList}
-            error={error}
+            allowChildrenSelect={allowChildrenSelect}
             submitError={submitError}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
