@@ -71,15 +71,17 @@ export default function EditRelationshipDetails() {
               ...prev,
               partnerId: data.partner?.id,
             }));
-            data.partner = null;
+            // Deep copy the data to prevent mutations from affecting reset state
+            setResetValue({ 'data': JSON.parse(JSON.stringify({ ...data, partner: null })), 'hasPartner': data.partner?.id })
+            setFormData({ ...data, partner: null });
           } else {
             setDeleteDataDefault(editRelationshipDefaultDeleteValue);
+            // Deep copy the data to prevent mutations from affecting reset state
+            setResetValue({ 'data': JSON.parse(JSON.stringify(data)), 'hasPartner': data.partner?.id })
+            setFormData(data);
           }
 
-          // Deep copy the data to prevent mutations from affecting reset state
-          setResetValue({ 'data': JSON.parse(JSON.stringify(data)), 'hasPartner': data.partner?.id })
 
-          setFormData(data);
           setHasPatner(data.partner?.id);
           setNoChanges(true);
           setSubmitError("");
@@ -255,8 +257,8 @@ export default function EditRelationshipDetails() {
             <h3 className="tex-lg font-semibold mb-4 text-text_color">Partner Removed</h3>
             <p className="text-sm text-text_color mb-6">
               {isPendingRemoval
-                ? <>Your request to remove <strong>{removedPartnerData.name}</strong> as partner is pending verification, since change involves verified member. Do you want to switch to {removedPartnerData.name} profile to edit their children/details?</>
-                : <>You have removed <strong>{removedPartnerData.name}</strong> as partner. Do you want to switch to {removedPartnerData.name} profile to edit their children/details?</>
+                ? <>Since change involves verified member, your request to remove <strong>{removedPartnerData.name}</strong> as partner is pending <b>verification</b>. Switch to {removedPartnerData.name} profile to edit their children/details?</>
+                : <>You have removed <strong>{removedPartnerData.name}</strong> as partner. Switch to {removedPartnerData.name} profile to edit their children/details?</>
               }
             </p>
             <div className="flex gap-4">
