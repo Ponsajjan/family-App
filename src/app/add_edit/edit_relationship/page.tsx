@@ -17,6 +17,7 @@ export default function EditRelationshipDetails() {
   const toast = useToast();
   const [noChanges, setNoChanges] = useState<boolean>(true);
   const [formData, setFormData] = useState<EditRelationshipValueTypes>(editRelationshipDefaultFormValue);
+  const [deleteDataDefault, setDeleteDataDefault] = useState<DeleteValueTypes>(editRelationshipDefaultDeleteValue);
   const [deleteData, setDeleteData] = useState<DeleteValueTypes>(editRelationshipDefaultDeleteValue);
   const [hasPartner, setHasPatner] = useState<number | undefined | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -62,11 +63,17 @@ export default function EditRelationshipDetails() {
 
           // If we switched to the partner who is pending removal, simulate their partner (us) being removed/hidden
           if (isPendingRemoval && removedPartnerData && data.id === removedPartnerData.id) {
+            setDeleteDataDefault({
+              partnerId: data.partner?.id,
+              childrenId: [],
+            });
             setDeleteData((prev: any) => ({
               ...prev,
               partnerId: data.partner?.id,
             }));
             data.partner = null;
+          } else {
+            setDeleteDataDefault(editRelationshipDefaultDeleteValue);
           }
 
           // Deep copy the data to prevent mutations from affecting reset state
@@ -127,7 +134,7 @@ export default function EditRelationshipDetails() {
     if (!noChanges) {
       setFormData(resetValue.data);
       setHasPatner(resetValue.hasPartner);
-      setDeleteData(editRelationshipDefaultDeleteValue)
+      setDeleteData(deleteDataDefault)
       setNoChanges(true);
       setSubmitError("");
       return
@@ -248,8 +255,8 @@ export default function EditRelationshipDetails() {
             <h3 className="tex-lg font-semibold mb-4 text-text_color">Partner Removed</h3>
             <p className="text-sm text-text_color mb-6">
               {isPendingRemoval
-                ? <>You have requested to remove <strong>{removedPartnerData.name}</strong>. Since this requires <strong>moderator approval</strong>, the change is verified. Do you want to switch to their profile to edits their children/details?</>
-                : <>You have removed <strong>{removedPartnerData.name}</strong>. Do you want to switch to their profile to edits their children/details?</>
+                ? <>Your request to remove <strong>{removedPartnerData.name}</strong> as partner is pending verification, since change involves verified member. Do you want to switch to {removedPartnerData.name} profile to edit their children/details?</>
+                : <>You have removed <strong>{removedPartnerData.name}</strong> as partner. Do you want to switch to {removedPartnerData.name} profile to edit their children/details?</>
               }
             </p>
             <div className="flex gap-4">
