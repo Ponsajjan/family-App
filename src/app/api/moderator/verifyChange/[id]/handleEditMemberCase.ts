@@ -3,6 +3,15 @@ import { NextResponse } from "next/server";
 
 // GET request handler for Edit Member
 export async function handleEditMemberCase(member: any, changeData: any) {
+  let changeDetails: any = {};
+  try {
+    changeDetails = JSON.parse(changeData?.details || '{}');
+  } catch (e) {
+    console.error('Error parsing change details:', e);
+  }
+
+  const showNonDescendant = member.descendant && (changeDetails.descendant === 'Yes' || changeDetails.descendant === undefined)
+
   const formData = {
     name: member.name,
     gender: member.gender,
@@ -18,18 +27,11 @@ export async function handleEditMemberCase(member: any, changeData: any) {
     education: member.education || null,
     address: member.address || null,
     descendant: member.descendant ? 'Yes' : 'No',
-    ...member.descendant ? null : { father: member.nonDescendantRelation?.[0]?.fatherName },
-    ...member.descendant ? null : { mother: member.nonDescendantRelation?.[0]?.motherName },
-    ...member.descendant ? null : { siblings: member.nonDescendantRelation?.[0]?.siblingNames },
+    ...showNonDescendant ? null : { father: member.nonDescendantRelation?.[0]?.fatherName },
+    ...showNonDescendant ? null : { mother: member.nonDescendantRelation?.[0]?.motherName },
+    ...showNonDescendant ? null : { siblings: member.nonDescendantRelation?.[0]?.siblingNames },
     additionalInfo: member.additionalInfo || null,
   };
-
-  let changeDetails: any = {};
-  try {
-    changeDetails = JSON.parse(changeData?.details || '{}');
-  } catch (e) {
-    console.error('Error parsing change details:', e);
-  }
 
   const changesJsx = Object.entries(formData).map(([key, value]) => {
     const newValue = key in changeDetails ? changeDetails[key] : value;
