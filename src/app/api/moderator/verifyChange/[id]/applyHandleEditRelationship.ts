@@ -60,7 +60,7 @@ export const applyHandleEditRelationship = async (data: RequestData, tx: any) =>
         );
       }
     }
-    // If no children specified during divorce, children automatically stay with both parents
+
   } else {
     // Handle children relations removal (NOT during divorce)
     if (!!data.formData.deleteData?.childrenId?.length) {
@@ -103,16 +103,34 @@ export const applyHandleEditRelationship = async (data: RequestData, tx: any) =>
     );
   }
 
-  // Wait for all updates to complete
-  await Promise.all(updatePromises);
+  // Wait for all updates to complete and handle errors gracefully
+  try {
+    await Promise.all(updatePromises);
 
-  revalidatePath('/api/relatives');
-  revalidatePath('/api/calendar/[month]/[year]');
-  revalidatePath('/api/relatives/[id]');
-  revalidatePath('/tree');
+    revalidatePath('/api/relatives');
+    revalidatePath('/api/calendar/[month]/[year]');
+    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/tree');
 
-  return {
-    success: true,
-    message: "Successfully Updated Member Relationship Edit",
-  };
+    return {
+      success: true,
+      message: "Successfully Updated Member Relationship Edit",
+    };
+  } catch (error: any) {
+    console.error("Error applying relationship changes:", error);
+
+    let errorMessage = "Failed to apply relationship changes.";
+
+    // P2025 is Prisma's error for "An operation failed because it depends on one or more records that were required but not found."
+    if (error.code === 'P2025') {
+      errorMessage = "One or more members involved in this relationship change no longer exist.";
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
 };

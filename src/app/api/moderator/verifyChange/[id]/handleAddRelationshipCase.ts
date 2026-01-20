@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { formatDate } from "./utils";
 
 interface ChildRelation {
   id: number;
@@ -16,7 +17,7 @@ type ChangeDetails = {
   member: string | null;
   partner?: { name: string | null; isNew: boolean };
   children?: {
-    all: { id: number, name: string, order: number }[];  // All children (existing + new)
+    all: { id: number, name: string | null, order: number | null }[];  // All children (existing + new)
     newIds: number[];                   // IDs of new children only
   };
   isAlreadyApplied?: boolean;
@@ -45,7 +46,10 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
     );
   }
 
+  let currentChildren: { id: number; name: string | null; order: number | null }[] = [];
+
   try {
+
     // Process partner changes
     if (currentRelationships?.partnerId) {
       changeDetails.partner = {
@@ -65,7 +69,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
     }
 
     // Process children changes
-    const currentChildren = [
+    currentChildren = [
       ...(currentRelationships?.fatherOf || []),
       ...(currentRelationships?.motherOf || [])
     ].map(c => ({ id: c.id, name: c.name, order: c.order }));
@@ -104,14 +108,16 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
 
     if (allChildren.length > 0) {
       changeDetails.children = {
-        all: allChildren.sort((a, b) => a.order - b.order), // Sort by order
+        all: allChildren.sort((a, b) => (a.order || 0) - (b.order || 0)), // Sort by order
         newIds: newChildrenIds
       };
     }
 
-    const isPartnerRedundant = !!currentRelationships?.partnerId || !details.partnerId;
-    const isChildrenRedundant = newChildrenIds.length === 0;
-    changeDetails.isAlreadyApplied = isPartnerRedundant && isChildrenRedundant;
+    const isPartnerNew = !currentRelationships?.partnerId && !!details.partnerId;
+    const hasNewChildren = newChildrenIds.length > 0;
+
+    const hasAnyChanges = isPartnerNew || hasNewChildren;
+    changeDetails.isAlreadyApplied = !hasAnyChanges;
 
   } catch (error) {
     console.error('Error processing relationships:', error);
@@ -124,6 +130,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
   // Generate HTML response
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
+      <div class="text-sm text-gray-500 mb-4 italic">Assigned on: ${formatDate(changeData.createdAt)}</div>
       <div class="italic mb-4">---- ${changeData.type || 'Add Relationship'} ----</div>
       
       <div class="flex">
@@ -159,23 +166,30 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
             </div>
           </div>
           <div class="flex flex-col gap-1">
-            ${changeDetails.children.all.map((child, index) => `
-              <span class="${changeDetails.children!.newIds.includes(child.id) ? 'text-blue-600 font-medium' : ''}">
-                ${index + 1}. ${child.name}
-              </span>
-            `).join('')}
+            ${changeDetails.children.all.map((child, index) => {
+    const isNew = changeDetails.children!.newIds.includes(child.id);
+
+    return `
+                <div class="flex gap-1 items-center flex-wrap">
+                  <span class="${isNew ? 'text-blue-600 font-medium' : ''}">
+                    ${index + 1}. ${child.name}
+                  </span>
+                </div>
+              `;
+  }).join('')}
           </div>
         </div>
       ` : ''}
 
       ${changeDetails.isAlreadyApplied ? `
-        <div class="text-blue-600 font-medium mt-4">Already Applied changes</div>
+        <div class="text-blue-600 font-semibold py-2">Outdated changes / Already applied changes</div>
       ` : ''}
     </div>
   `;
 
   return NextResponse.json({
     data: {
+      newChange: !changeDetails.isAlreadyApplied,
       submitData: {
         memberId: changeData.memberId,
         type: changeData.type,

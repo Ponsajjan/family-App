@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/db/db";
+import { formatDate } from "./utils";
 
 interface EditRelationshipDetails {
   deleteData?: {
@@ -39,7 +40,6 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
   });
 
   const changeDetails: ChangeDetails = { member: member.name };
-
   const details: EditRelationshipDetails = JSON.parse(changeData?.details || '{}');
 
   if (!details.deleteData && !details.hasPartner && !details.childrenOrder) {
@@ -52,73 +52,80 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
   try {
     // Handle partner changes
     const currentPartnerId = currentRelationships?.partnerId;
-    const removedPartnerId = details.hasPartner;
     const isRemovingPartner = !!details.deleteData?.partnerId;
 
-    if (isRemovingPartner) {
-      if (removedPartnerId === currentPartnerId) {
-        const removedPartner = await prisma.member.findUnique({
-          where: { id: removedPartnerId },
-          select: { name: true }
-        });
-        changeDetails.partner = {
-          name: removedPartner?.name ?? null,
-          isRemoved: true
-        };
-      } else {
-        const currentPartner = await prisma.member.findUnique({
-          where: { id: currentPartnerId || -1 },
-          select: { name: true }
-        });
-        changeDetails.partner = {
-          name: currentPartner?.name ?? "-",
-          isRemoved: false
-        };
-      }
+    if (currentPartnerId) {
+      const currentPartner = await prisma.member.findUnique({
+        where: { id: currentPartnerId },
+        select: { name: true }
+      });
+
+      const isRemoved = isRemovingPartner && details.deleteData?.partnerId === currentPartnerId;
+
+      changeDetails.partner = {
+        name: currentPartner?.name ?? "-",
+        isRemoved: isRemoved
+      };
+    } else {
+      changeDetails.partner = {
+        name: "-",
+        isRemoved: false
+      };
     }
+
+    const currentChildren = [
+      ...(currentRelationships?.fatherOf || []),
+      ...(currentRelationships?.motherOf || [])
+    ];
 
     if (details.childrenOrder || details.deleteData?.childrenId) {
       // Process children changes
-      const currentChildren = [
-        ...(currentRelationships?.fatherOf || []),
-        ...(currentRelationships?.motherOf || [])
-      ];
-
       const childrenData: ChildrenData = {
         all: currentChildren.map(child => ({
           id: child.id,
           name: child.name || `Unknown (${child.id})`,
           currentOrder: child.order
         })),
-        removedIds: details.deleteData?.childrenId || [],
+        removedIds: (details.deleteData?.childrenId || []).filter(id =>
+          currentChildren.some(c => c.id === id)
+        ),
         reorderedIds: []
       };
 
       // Check if children order has actually changed
       if (details.childrenOrder) {
-        const currentOrder = currentChildren
+        const availableChildrenIds = new Set(currentChildren.map(c => c.id));
+
+        // Filter out children that are being removed from current order to check relative reordering
+        const removedIdsSet = new Set(details.deleteData?.childrenId || []);
+        const relativeCurrentOrder = currentChildren
+          .filter(c => !removedIdsSet.has(c.id))
           .sort((a, b) => (a.order || 0) - (b.order || 0))
           .map(c => c.id);
 
-        const newOrder = details.childrenOrder.map(c => c.id);
+        const newOrder = details.childrenOrder
+          .map(c => c.id)
+          .filter(id => availableChildrenIds.has(id));
 
-        // Only consider it a reorder if the sequence has changed
-        if (JSON.stringify(currentOrder) !== JSON.stringify(newOrder)) {
-          const newOrders = new Map<number, number>();
-          details.childrenOrder.forEach((child, index) => {
-            newOrders.set(child.id, index + 1);
+        // Only consider it a reorder if the sequence of REMAINING children has changed
+        if (JSON.stringify(relativeCurrentOrder) !== JSON.stringify(newOrder)) {
+          const newOrdersMap = new Map<number, number>();
+          newOrder.forEach((id, index) => {
+            newOrdersMap.set(id, index + 1);
           });
 
           childrenData.all.forEach(child => {
-            if (newOrders.has(child.id)) {
-              child.newOrder = newOrders.get(child.id);
-              childrenData.reorderedIds.push(child.id);
+            if (newOrdersMap.has(child.id)) {
+              child.newOrder = newOrdersMap.get(child.id);
+              if (child.newOrder !== child.currentOrder) {
+                childrenData.reorderedIds.push(child.id);
+              }
             }
           });
         }
       }
 
-      // Only add children to changeDetails if there are any
+      // Only add children to changeDetails if there are any current children or removed ones
       changeDetails.children = childrenData;
     }
 
@@ -127,14 +134,15 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
   }
 
   // Determine what changes exist
-  const hasOrderChanges = changeDetails.children?.reorderedIds && changeDetails.children?.reorderedIds.length > 0;
-  const hasRemovedChildren = changeDetails.children?.removedIds && changeDetails.children?.removedIds.length > 0;
+  const hasOrderChanges = (changeDetails.children?.reorderedIds?.length ?? 0) > 0;
+  const hasRemovedChildren = (changeDetails.children?.removedIds?.length ?? 0) > 0;
   const hasPartnerChanges = !!changeDetails.partner?.isRemoved;
   const hasAnyChanges = hasPartnerChanges || hasOrderChanges || hasRemovedChildren;
 
   // Generate HTML
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
+      <div class="text-sm text-gray-500 mb-4 italic">Assigned on: ${formatDate(changeData.createdAt)}</div>
       <div class="italic mb-4">---- ${changeData.type || 'Edit Relationship'} ----</div>
       <div class="flex">
         <div class="font-medium md:font-semibold min-w-[100px]">
@@ -168,72 +176,28 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
           </div>
         </div>
           
-          ${hasAnyChanges ? `
-            <div class="flex flex-col gap-2">
-              ${hasOrderChanges ? `
-                <div>
-                  <div class="font-semibold">New Order:</div>
-                  <div class="flex flex-col gap-1 pl-4 mt-1">
-                    ${changeDetails.children?.all
-            .filter(child => changeDetails.children?.reorderedIds.includes(child.id))
-            .sort((a, b) => (a.newOrder || 0) - (b.newOrder || 0))
-            .map(child => `
-                        <div class="flex gap-1 items-center flex-wrap">
-                          <span>${child.newOrder}. ${child.name}</span>
-                          <span class="text-blue-600 font-medium">
-                            ${child.newOrder !== child.currentOrder ? `(Moved from ${child.currentOrder})` : ''}
-                          </span>
-                        </div>
-                      `).join('')}
-                    ${changeDetails.children?.all
-            .filter(child => !changeDetails.children?.reorderedIds.includes(child.id) &&
-              !changeDetails.children?.removedIds.includes(child.id))
-            .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
-            .map(child => `
-                        <div class="flex gap-1 items-center flex-wrap">
-                          <span>${child.currentOrder}. ${child.name}</span>
-                        </div>
-                      `).join('')}
-                  </div>
-                </div>
-              ` : `
-                <div class="flex flex-col gap-1">
-                  ${changeDetails.children?.all
-          .filter(child => !changeDetails.children?.removedIds.includes(child.id))
-          .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
+        <div class="flex flex-col gap-2">
+          ${hasOrderChanges ? `
+            <div>
+              <div class="font-semibold">New Order:</div>
+              <div class="flex flex-col gap-1 pl-4 mt-1">
+                ${changeDetails.children?.all
+          .filter(child => !(changeDetails.children?.removedIds || []).includes(child.id))
+          .sort((a, b) => (a.newOrder || a.currentOrder || 0) - (b.newOrder || b.currentOrder || 0))
           .map(child => `
-                      <div class="flex gap-1 items-center flex-wrap">
-                        <span>${child.currentOrder}. ${child.name}</span>
-                      </div>
-                    `).join('')}
-                </div>
-              `}
-              
-              ${hasRemovedChildren ? `
-                <div>
-                  <div class="font-semibold">Removed Children:</div>
-                  <div class="flex flex-col gap-1 pl-4 mt-1">
-                    ${changeDetails.children?.all && changeDetails.children?.all
-            .filter(child => changeDetails.children?.removedIds.includes(child.id)).length > 0
-            ? changeDetails.children?.all
-              .filter(child => changeDetails.children?.removedIds.includes(child.id)).map((child, index) => `
-                        <div class="flex gap-1 items-center flex-wrap">
-                          <span>${index + 1}.</span>
-                          <span class="line-through ">
-                             ${child.name}
-                          </span>
-                          <span class="text-blue-600 font-medium"> (Removed order ${child.currentOrder})</span>
-                        </div>
-                      `).join('')
-            : `<div class="text-blue-600 font-medium">Already Applied changes</div>`
-          }
-                  </div>
-                </div>
-              ` : ''}
+                    <div class="flex gap-1 items-center flex-wrap">
+                      <span>${child.newOrder || child.currentOrder}. ${child.name}</span>
+                      <span class="text-blue-600 font-medium">
+                        ${child.newOrder && child.newOrder !== child.currentOrder ? `(Moved from ${child.currentOrder})` : ''}
+                      </span>
+                    </div>
+                  `).join('')}
+              </div>
             </div>
           ` : `
             <div class="flex flex-col gap-1">
               ${changeDetails.children?.all
+        .filter(child => !(changeDetails.children?.removedIds || []).includes(child.id))
         .sort((a, b) => (a.currentOrder || 0) - (b.currentOrder || 0))
         .map(child => `
                   <div class="flex gap-1 items-center flex-wrap">
@@ -242,13 +206,35 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
                 `).join('')}
             </div>
           `}
+          
+          ${hasRemovedChildren ? `
+            <div>
+              <div class="font-semibold">Removed Children:</div>
+              <div class="flex flex-col gap-1 pl-4 mt-1">
+                ${changeDetails.children?.all
+          .filter(child => (changeDetails.children?.removedIds || []).includes(child.id)).map((child, index) => `
+                    <div class="flex gap-1 items-center flex-wrap">
+                      <span>${index + 1}.</span>
+                      <span class="line-through ">
+                         ${child.name}
+                      </span>
+                      <span class="text-blue-600 font-medium"> (Removed order ${child.currentOrder})</span>
+                    </div>
+                  `).join('')
+        }
+              </div>
+            </div>
+          ` : ''}
         </div>
+      </div>
       ` : ''}
+      ${!hasAnyChanges ? '<div class="text-blue-600 font-semibold py-2">Outdated changes / Already applied changes</div>' : ''}
     </div>
   `;
 
   return NextResponse.json({
     data: {
+      newChange: hasAnyChanges,
       submitData: {
         memberId: changeData.memberId,
         type: changeData.type,

@@ -1,4 +1,4 @@
-import { displayValue, formatFieldName, normalizeValue } from "./utils";
+import { displayValue, formatDate, formatFieldName, normalizeValue } from "./utils";
 import { NextResponse } from "next/server";
 
 // GET request handler for Edit Member
@@ -69,9 +69,10 @@ export async function handleEditMemberCase(member: any, changeData: any) {
         formData: { ...formData, ...changeDetails },
       },
       htmlContent: `<div class="space-y-2 bg-main_background text-text_color">
+        <div class="text-sm text-gray-500 mb-4 italic">Assigned on: ${formatDate(changeData.createdAt)}</div>
         <div class="italic mb-4">---- ${changeData.type || 'Edit Member'} ----</div>
         ${changesJsx}
-        ${!anyFieldChanged ? '<div class="text-blue-600 font-semibold py-2">Already Applied changes</div>' : ''}
+        ${!anyFieldChanged ? '<div class="text-blue-600 font-semibold py-2">Outdated changes / Already applied changes</div>' : ''}
       </div>`
     },
   });

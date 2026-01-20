@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
         type: true,
         details: true,
         memberId: true,
+        createdAt: true,
       },
     });
 

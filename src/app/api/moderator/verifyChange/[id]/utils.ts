@@ -22,3 +22,16 @@ export function displayValue(val: any, key: string): string {
   }
   return String(val);
 }
+
+export function formatDate(date: Date | string | null): string {
+  if (!date) return '-';
+  const d = new Date(date);
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+}
