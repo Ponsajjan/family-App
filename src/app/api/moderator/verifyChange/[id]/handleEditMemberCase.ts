@@ -33,12 +33,16 @@ export async function handleEditMemberCase(member: any, changeData: any) {
     additionalInfo: member.additionalInfo || null,
   };
 
+  let anyFieldChanged = false;
+
   const changesJsx = Object.entries(formData).map(([key, value]) => {
     const newValue = key in changeDetails ? changeDetails[key] : value;
     const hasChanged =
       (value == null && newValue != null) ||
       (value != null && newValue == null) ||
       normalizeValue(value, key) !== normalizeValue(newValue, key);
+
+    if (hasChanged) anyFieldChanged = true;
 
     return `
       <div class="flex" key="${key}">
@@ -58,6 +62,7 @@ export async function handleEditMemberCase(member: any, changeData: any) {
 
   return NextResponse.json({
     data: {
+      newChange: anyFieldChanged,
       submitData: {
         memberId: changeData.memberId,
         type: changeData.type,
@@ -66,6 +71,7 @@ export async function handleEditMemberCase(member: any, changeData: any) {
       htmlContent: `<div class="space-y-2 bg-main_background text-text_color">
         <div class="italic mb-4">---- ${changeData.type || 'Edit Member'} ----</div>
         ${changesJsx}
+        ${!anyFieldChanged ? '<div class="text-blue-600 font-semibold py-2">Already Applied changes</div>' : ''}
       </div>`
     },
   });
