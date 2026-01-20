@@ -267,17 +267,28 @@ const ChangeRequestView = ({
             </div>
           </div>
           <div className='flex flex-col mt-6 gap-2'>
-            <HoldButton
-              disabled={disableButton || requestStatus !== 'pending'}
-              buttonText='Approve changes'
-              onClick={handleApproveChanges}
-            />
-            <HoldButton
-              disabled={disableButton || requestStatus !== 'pending'}
-              type='outline'
-              buttonText='Reject changes'
-              onClick={handleRejectChanges}
-            />
+            {data?.newChange === false ? (
+              <HoldButton
+                disabled={disableButton || requestStatus !== 'pending'}
+                buttonText='Discard change'
+                onClick={handleRejectChanges}
+                holdDuration={2000}
+              />
+            ) : (
+              <>
+                <HoldButton
+                  disabled={disableButton || requestStatus !== 'pending'}
+                  buttonText='Approve changes'
+                  onClick={handleApproveChanges}
+                />
+                <HoldButton
+                  disabled={disableButton || requestStatus !== 'pending'}
+                  type='outline'
+                  buttonText='Reject changes'
+                  onClick={handleRejectChanges}
+                />
+              </>
+            )}
           </div>
         </>
       )}

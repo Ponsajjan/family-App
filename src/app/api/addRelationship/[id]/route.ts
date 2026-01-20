@@ -195,6 +195,13 @@ export async function PUT(request: NextRequest) {
 
     if (!currentMember) return NextResponse.json({ error: "Member not found" }, { status: 404 });
 
+    if (updatedData.partnerId === memberId) {
+      return NextResponse.json({
+        success: false,
+        message: "Cannot set self as partner",
+        error: "Self-referential relationship"
+      }, { status: 400 });
+    }
     // Enhanced Child Validation - Check if children already have parents
     const existingChildren = currentMember?.gender === 'Male' ? currentMember.fatherOf : currentMember.motherOf;
     const newChildIds = [
@@ -299,6 +306,39 @@ export async function PUT(request: NextRequest) {
     }
 
     // Relationship Validation
+    // Prevent overwriting existing partner
+    if (updatedData.partnerId && updatedData.partnerId !== currentMember.partnerId) {
+      if (currentMember.partnerId) {
+        return NextResponse.json({
+          success: false,
+          error: "Member already has a partner",
+        }, { status: 400 });
+      }
+
+      // Check if the partner-to-be already has a partner
+      const partnerMember = await prisma.member.findUnique({
+        where: { id: updatedData.partnerId },
+        select: {
+          id: true,
+          name: true,
+          partnerId: true,
+          partner: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      });
+
+      if (partnerMember?.partnerId) {
+        return NextResponse.json({
+          success: false,
+          error: `New Partner already has ${partnerMember.partner?.name} as a partner`,
+        }, { status: 400 });
+      }
+    }
+
     const allIds = [
       memberId,
       ...(updatedData.partnerId ? [updatedData.partnerId] : []),
@@ -356,7 +396,7 @@ export async function PUT(request: NextRequest) {
 
     // Update Member (mirror applyHandleAddRelationship)
     const sanitizedUpdateData = {
-      ...(updatedData.partnerId !== undefined && { partnerId: updatedData.partnerId }),
+      ...(updatedData.partnerId !== undefined && !currentMember.partnerId && { partnerId: updatedData.partnerId }),
       ...(updatedData.fatherOf && {
         fatherOf: { connect: updatedData.fatherOf.map(({ id }) => ({ id })) }
       }),

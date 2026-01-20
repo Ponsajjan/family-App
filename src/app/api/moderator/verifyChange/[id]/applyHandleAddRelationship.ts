@@ -13,6 +13,14 @@ interface AddRelationshipDataRequetData {
 export const applyHandleAddRelationship = async (data: AddRelationshipDataRequetData, tx: any) => {
   const { memberId, formData } = data;
 
+  if (formData.partnerId === memberId) {
+    throw {
+      success: false,
+      message: "Cannot set self as partner",
+      error: "Self-referential relationship"
+    };
+  }
+
   // Get current member data to check existing relationships
   const currentMember = await tx.member.findUnique({
     where: { id: memberId },
