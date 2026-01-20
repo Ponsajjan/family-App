@@ -83,7 +83,8 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
   }
 
   // Calculate effective partner ID early for validation
-  const effectivePartnerId = formData.partnerId !== undefined ? formData.partnerId : currentMember.partnerId;
+  // If member has partner, use existing. Otherwise use requested partner if provided.
+  const effectivePartnerId = currentMember.partnerId || formData.partnerId;
 
   // Enhanced Child Validation - Check if children already have parents
   const existingChildren = currentMember?.gender === 'Male' ? currentMember.fatherOf : currentMember.motherOf;
@@ -176,7 +177,7 @@ export const applyHandleAddRelationship = async (data: AddRelationshipDataRequet
 
   // Convert to Prisma's expected format
   const sanitizedUpdateData = {
-    ...(formData.partnerId !== undefined && { partnerId: formData.partnerId }),
+    ...(formData.partnerId !== undefined && !currentMember.partnerId && { partnerId: formData.partnerId }),
     ...(formData.fatherOf && {
       fatherOf: { connect: formData.fatherOf.map(({ id }: any) => ({ id })) }
     }),

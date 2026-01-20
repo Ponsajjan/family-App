@@ -11,6 +11,17 @@ interface RelationshipDetails {
   motherOf?: ChildRelation[];
   fatherOf?: ChildRelation[];
 }
+
+type ChangeDetails = {
+  member: string | null;
+  partner?: { name: string | null; isNew: boolean };
+  children?: {
+    all: { id: number, name: string, order: number }[];  // All children (existing + new)
+    newIds: number[];                   // IDs of new children only
+  };
+  isAlreadyApplied?: boolean;
+}
+
 // GET request handler for Add Relationship
 export async function handleAddRelationshipCase(member: any, changeData: any) {
   // Get current relationships with proper typing
@@ -18,20 +29,13 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
     where: { id: member.id },
     select: {
       partnerId: true,
+      partner: { select: { name: true } },
       fatherOf: { select: { id: true, name: true, order: true } },
       motherOf: { select: { id: true, name: true, order: true } },
     },
   });
 
-  const changeDetails: {
-    member: string | null;
-    partner?: { name: string | null; isNew: boolean };
-    children?: {
-      all: { id: number, name: string, order: number }[];  // All children (existing + new)
-      newIds: number[];                   // IDs of new children only
-    };
-  } = { member: member.name };
-
+  const changeDetails: ChangeDetails = { member: member.name };
   const details: RelationshipDetails = JSON.parse(changeData?.details || '{}');
 
   if (!details.partnerId && !details.motherOf?.length && !details.fatherOf?.length) {
@@ -43,7 +47,12 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
 
   try {
     // Process partner changes
-    if (details.partnerId) {
+    if (currentRelationships?.partnerId) {
+      changeDetails.partner = {
+        name: currentRelationships.partner?.name ?? null,
+        isNew: false
+      };
+    } else if (details.partnerId) {
       const partner = await prisma.member.findUnique({
         where: { id: details.partnerId },
         select: { name: true }
@@ -51,7 +60,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
 
       changeDetails.partner = {
         name: partner?.name ?? null,
-        isNew: details.partnerId !== currentRelationships?.partnerId
+        isNew: true
       };
     }
 
@@ -99,6 +108,10 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
         newIds: newChildrenIds
       };
     }
+
+    const isPartnerRedundant = !!currentRelationships?.partnerId || !details.partnerId;
+    const isChildrenRedundant = newChildrenIds.length === 0;
+    changeDetails.isAlreadyApplied = isPartnerRedundant && isChildrenRedundant;
 
   } catch (error) {
     console.error('Error processing relationships:', error);
@@ -153,6 +166,10 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
             `).join('')}
           </div>
         </div>
+      ` : ''}
+
+      ${changeDetails.isAlreadyApplied ? `
+        <div class="text-blue-600 font-medium mt-4">Already Applied changes</div>
       ` : ''}
     </div>
   `;
