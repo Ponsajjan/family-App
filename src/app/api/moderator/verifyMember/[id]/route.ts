@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { revalidatePath } from "next/cache";
+import eventEmitter from "@/utils/events";
 
 interface MemberResponse {
   generalInformation: {
@@ -281,6 +282,7 @@ export async function PATCH(request: NextRequest) {
     revalidatePath('/api/calendar/[month]/[year]');
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
+    eventEmitter.emit('moderatorUpdate');
 
     return NextResponse.json({
       success: true,
@@ -369,6 +371,7 @@ export async function DELETE(request: NextRequest) {
     revalidatePath('/api/calendar/[month]/[year]');
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
+    eventEmitter.emit('moderatorUpdate');
 
     return NextResponse.json({
       success: true,

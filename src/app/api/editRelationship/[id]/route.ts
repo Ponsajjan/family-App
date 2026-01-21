@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { revalidatePath } from "next/cache";
+import eventEmitter from "@/utils/events";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -202,6 +203,7 @@ export async function PUT(request: NextRequest) {
         },
       });
 
+      eventEmitter.emit('moderatorUpdate');
       return NextResponse.json({
         success: true,
         message: "Update request has been added for <b>verification</b>.",
@@ -304,6 +306,7 @@ export async function PUT(request: NextRequest) {
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
 
+    eventEmitter.emit('moderatorUpdate');
     return NextResponse.json({
       success: true,
       message: "Member updated successfully",

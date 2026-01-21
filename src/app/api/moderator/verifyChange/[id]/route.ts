@@ -8,6 +8,7 @@ import { handleEditRelationshipCase } from "./handleEditRelationshipCase";
 import { handleAddRelationshipCase } from "./handleAddRelationshipCase";
 import { handleEditMemberCase } from "./handleEditMemberCase";
 import { revalidatePath } from "next/cache";
+import eventEmitter from "@/utils/events";
 
 interface RequestData {
   formData: any;
@@ -203,6 +204,7 @@ export async function PUT(request: NextRequest) {
     revalidatePath('/api/calendar/[month]/[year]');
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
+    eventEmitter.emit('moderatorUpdate');
 
     return NextResponse.json(result);
 
@@ -290,6 +292,7 @@ export async function DELETE(request: NextRequest) {
     revalidatePath('/api/calendar/[month]/[year]');
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
+    eventEmitter.emit('moderatorUpdate');
 
     return NextResponse.json({
       success: true,

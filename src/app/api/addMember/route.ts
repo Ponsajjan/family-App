@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { revalidatePath } from "next/cache";
+import eventEmitter from "@/utils/events";
 
 export async function POST(request: NextRequest) {
   const formData = await request.json();
@@ -84,6 +85,7 @@ export async function POST(request: NextRequest) {
     });
 
     revalidatePath('/api/relatives');
+    eventEmitter.emit('moderatorUpdate');
 
     return NextResponse.json({
       success: true,

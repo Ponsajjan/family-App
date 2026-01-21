@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { fetchFamilyTreeData } from "@/utils/treeUtils";
+import eventEmitter from "@/utils/events";
 
 export async function POST(request: NextRequest) {
     const token = request.cookies.get("token")?.value;
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
                 lastBuildStartedAt: new Date()
             },
         });
+        eventEmitter.emit('moderatorUpdate');
 
         // Generate the family tree JSON and capture any circular relationship conflicts
         const result = await fetchFamilyTreeData([authRecord.mainMemberId]);
@@ -80,6 +82,7 @@ export async function POST(request: NextRequest) {
                 status: "completed"
             },
         });
+        eventEmitter.emit('moderatorUpdate');
 
         return NextResponse.json({
             message: "Relations chart updated successfully",
@@ -95,6 +98,7 @@ export async function POST(request: NextRequest) {
                     where: { authId: authId },
                     data: { status: "failed" },
                 });
+                eventEmitter.emit('moderatorUpdate');
             } catch (updateError) {
                 console.error("Failed to update status to 'failed':", updateError);
             }

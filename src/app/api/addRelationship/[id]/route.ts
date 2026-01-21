@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { revalidatePath } from "next/cache";
+import eventEmitter from "@/utils/events";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -383,6 +384,7 @@ export async function PUT(request: NextRequest) {
             memberId: memberId,
           },
         });
+        eventEmitter.emit('moderatorUpdate');
         return NextResponse.json({
           success: true,
           message: "New relationships added for <b>verification</b>",
@@ -453,6 +455,8 @@ export async function PUT(request: NextRequest) {
     }
 
     revalidatePath('/api/relatives');
+
+    eventEmitter.emit('moderatorUpdate');
 
     return NextResponse.json({
       success: true,

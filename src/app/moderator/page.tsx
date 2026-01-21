@@ -17,43 +17,37 @@ export default function AdminDashboard() {
     const router = useRouter()
 
     useEffect(() => {
-        async function fetchData() {
+        const eventSource = new EventSource('/api/moderator');
+
+        eventSource.onmessage = (event) => {
             try {
-                const res = await fetch('/api/moderator', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                })
-
-                if (res.status === 401) {
-                    logout()
-                    return
-                }
-
-                if (!res.ok) {
-                    throw new Error("Failed to fetch dashboard data")
-                }
-
-                const data = await res.json()
-                setUnverifiedCount(data.unverifiedMembers)
-                setPendingRequests(data.pendingRequests)
-                setChartStatus(data.chartStatus)
+                const data = JSON.parse(event.data);
+                setUnverifiedCount(data.unverifiedMembers);
+                setPendingRequests(data.pendingRequests);
+                setChartStatus(data.chartStatus);
 
                 if (data.chartStatus === 'building') {
-                    toast?.show('Chart build is currently in progress...', 'info', 5000)
+                    toast?.show('Chart build is currently in progress...', 'info', 5000);
                 } else if (data.chartStatus === 'failed') {
-                    toast?.show('Previous chart build failed. You can retry.', 'warning', 5000)
+                    toast?.show('Previous chart build failed. You can retry.', 'warning', 5000);
                 } else if (data.chartStatus === 'timeout') {
-                    toast?.show('Previous build timed out. You can retry.', 'warning', 5000)
+                    toast?.show('Previous build timed out. You can retry.', 'warning', 5000);
                 }
-            } catch (error: any) {
-                toast?.show(error.message || "Failed to fetch data", 'error', 5000)
-                console.error("Failed to fetch data:", error)
+            } catch (error) {
+                console.error("Error parsing SSE data:", error);
             }
-        }
+        };
 
-        fetchData()
+        eventSource.onerror = (error) => {
+            console.error("SSE connection error:", error);
+            // Optionally check for 401 status here if possible, 
+            // but EventSource doesn't easily provide HTTP status codes.
+            // If it fails, it will attempt to reconnect automatically.
+        };
+
+        return () => {
+            eventSource.close();
+        };
     }, [toast, logout])
 
     const handleUpdateRelationsChart = async () => {
