@@ -1,7 +1,7 @@
 'use client'
 
 import { Female, Male } from '@/utils/Icons';
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import Details from './Details';
@@ -32,6 +32,7 @@ export default function NewMembers() {
   useEffect(() => {
     const fetchChangeList = async () => {
       if (isFetching || !hasMore) return;
+
       try {
         setIsFetching(true);
         setLoadingList(true);
@@ -54,6 +55,7 @@ export default function NewMembers() {
           throw new Error('Network response was not ok');
         }
         const { data, totalCount } = await response.json();
+
         if (params.page === 1) {
           setChangeList(data);
         } else {
@@ -71,7 +73,7 @@ export default function NewMembers() {
     };
 
     fetchChangeList();
-  }, [params.page, params.limit, isFetching, hasMore, logout, toast]);
+  }, [params, hasMore, logout, toast]);
 
   const loadMore = () => {
     if (hasMore) {

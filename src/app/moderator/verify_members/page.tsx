@@ -2,7 +2,7 @@
 
 import { CloseIcon, Filter, SearchIcon, Verified } from "@/utils/Icons";
 import { Female, Male } from '@/utils/Icons';
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
@@ -61,52 +61,52 @@ export default function VerifyMember() {
     handleSetSearchFilter(input);
   };
 
-  const fetchMembers = useCallback(async () => {
-    if (isFetching || !hasMore) return;
-
-    try {
-      setIsFetching(true);
-      setLoadingList(true);
-
-      const response = await fetch(`/api/moderator/verifyMember?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&filter=${params.filter}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          cache: 'no-store',
-        }
-      );
-
-      // Handle 401 Unauthorized
-      if (response.status === 401) {
-        logout();
-        return;
-      }
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const { data, totalCount } = await response.json();
-
-      if (params.page === 1) {
-        setMembers(data);
-      } else {
-        setMembers((prev) => [...new Set([...prev, ...data])]);
-      }
-
-      const totalPages = Math.ceil(totalCount / params.limit);
-      setHasMore(params.page < totalPages);
-    } catch (error: any) {
-      toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-    } finally {
-      setLoadingList(false);
-      setIsFetching(false);
-    }
-  }, [params, logout, toast]);
-
   useEffect(() => {
+    const fetchMembers = async () => {
+      if (isFetching || !hasMore) return;
+
+      try {
+        setIsFetching(true);
+        setLoadingList(true);
+
+        const response = await fetch(`/api/moderator/verifyMember?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&filter=${params.filter}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            cache: 'no-store',
+          }
+        );
+
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const { data, totalCount } = await response.json();
+
+        if (params.page === 1) {
+          setMembers(data);
+        } else {
+          setMembers((prev) => [...new Set([...prev, ...data])]);
+        }
+
+        const totalPages = Math.ceil(totalCount / params.limit);
+        setHasMore(params.page < totalPages);
+      } catch (error: any) {
+        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+      } finally {
+        setLoadingList(false);
+        setIsFetching(false);
+      }
+    };
+
     fetchMembers();
-  }, [fetchMembers]);
+  }, [params, hasMore, logout, toast]);
 
   const loadMore = () => {
     if (hasMore) {
