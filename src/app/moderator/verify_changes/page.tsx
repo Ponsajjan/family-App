@@ -29,49 +29,49 @@ export default function NewMembers() {
   });
   const [isFetching, setIsFetching] = useState(false);
 
-  const fetchChangeList = useCallback(async () => {
-    if (isFetching || !hasMore) return;
-    try {
-      setIsFetching(true);
-      setLoadingList(true);
-
-      const response = await fetch(`/api/moderator/verifyChange?page=${params.page}&limit=${params.limit}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          cache: 'no-store',
-        }
-      );
-      // Handle 401 Unauthorized
-      if (response.status === 401) {
-        logout();
-        return;
-      }
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const { data, totalCount } = await response.json();
-      if (params.page === 1) {
-        setChangeList(data);
-      } else {
-        setChangeList((prev) => [...new Set([...prev, ...data])]);
-      }
-
-      const totalPages = Math.ceil(totalCount / params.limit);
-      setHasMore(params.page < totalPages);
-    } catch (error: any) {
-      toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-    } finally {
-      setLoadingList(false);
-      setIsFetching(false);
-    }
-  }, [params, hasMore, isFetching, logout, toast]);
-
   useEffect(() => {
+    const fetchChangeList = async () => {
+      if (isFetching || !hasMore) return;
+      try {
+        setIsFetching(true);
+        setLoadingList(true);
+
+        const response = await fetch(`/api/moderator/verifyChange?page=${params.page}&limit=${params.limit}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            cache: 'no-store',
+          }
+        );
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const { data, totalCount } = await response.json();
+        if (params.page === 1) {
+          setChangeList(data);
+        } else {
+          setChangeList((prev) => [...new Set([...prev, ...data])]);
+        }
+
+        const totalPages = Math.ceil(totalCount / params.limit);
+        setHasMore(params.page < totalPages);
+      } catch (error: any) {
+        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+      } finally {
+        setLoadingList(false);
+        setIsFetching(false);
+      }
+    };
+
     fetchChangeList();
-  }, [fetchChangeList]);
+  }, [params.page, params.limit, isFetching, hasMore, logout, toast]);
 
   const loadMore = () => {
     if (hasMore) {
