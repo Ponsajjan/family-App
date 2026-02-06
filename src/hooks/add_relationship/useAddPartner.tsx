@@ -8,11 +8,11 @@ interface AddPartnerPropType {
     selectedMemberData: any
 }
 
-function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropType) {
+function useAddPartner({ selectedPartnerId, selectedMemberData }: AddPartnerPropType) {
     const [patnerLoading, setPartnerLoading] = useState(false);
     const [selectedPartnerData, setSelectedPartnerData] = useState<any>([]);
     const [excludePartnerRelation, setExcludePartnerRelation] = useState<number[]>([]);
-    const router = useRouter(); 
+    const router = useRouter();
     const toast = useToast();
 
     useEffect(() => {
@@ -23,23 +23,23 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                     const response = await fetch(`/api/addRelationship/${selectedPartnerId}`,
                         {
                             method: 'GET',
-                            headers: { 
-                              'Content-Type': 'application/json'
+                            headers: {
+                                'Content-Type': 'application/json'
                             },
                         }
                     );
                     if (!response.ok) throw new Error('Failed to fetch member details');
-                
+
                     const { data } = await response.json();
-                    
+
                     let uniqueChildren = data.childrenData;
                     if (data.childrenData.length > 0 && Array.isArray(data.childrenData)) {
-                    // In case partner seperates and reunites with the same member
-                    const memberChildren = new Set(selectedMemberData.children.map((child:any) => child.id));
-                    uniqueChildren = [
-                        ...data.childrenData.filter((child: {id: number, name:string}) => !memberChildren.has(child.id)),
-                    ];
-        
+                        // In case partner seperates and reunites with the same member
+                        const memberChildren = new Set(selectedMemberData.children.map((child: any) => child.id));
+                        uniqueChildren = [
+                            ...data.childrenData.filter((child: { id: number, name: string }) => !memberChildren.has(child.id)),
+                        ];
+
                     }
                     const formatedDbData = {
                         id: data.id || undefined,
@@ -49,7 +49,7 @@ function useAddPartner({selectedPartnerId, selectedMemberData}:AddPartnerPropTyp
                         partner: null,
                         children: uniqueChildren ? uniqueChildren : [],
                     }
-        
+
                     setSelectedPartnerData(formatedDbData);
                     setExcludePartnerRelation(data.excludeIds);
 

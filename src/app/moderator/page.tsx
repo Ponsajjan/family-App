@@ -32,7 +32,7 @@ export default function AdminDashboard() {
                 }
 
                 if (!res.ok) {
-                    throw new Error("Failed to fetch dashboard data")
+                    throw new Error("Failed to fetch moderator data")
                 }
 
                 const data = await res.json()

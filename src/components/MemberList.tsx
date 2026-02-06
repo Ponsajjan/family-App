@@ -1,7 +1,7 @@
 'use client';
 
 import { Cross, Female, FilterSelect, Male, SearchIcon, Tick } from '@/utils/Icons';
-import React, { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
@@ -127,7 +127,7 @@ export default function MemberList({
     }
   }
 
-  useEffect(() => {
+  useCallback(() => {
     setParams((prevParams) => ({
       ...prevParams,
       search: '',

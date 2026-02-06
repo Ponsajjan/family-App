@@ -6,13 +6,13 @@ import { useEffect, useState } from 'react'
 interface AddMemberPropType {
     selectedMemberId: number | null | undefined;
 }
-function useAddMember({selectedMemberId}: AddMemberPropType) {
+function useAddMember({ selectedMemberId }: AddMemberPropType) {
     const [memberloading, setMemberloading] = useState(false);
     const [descendant, setDescendant] = useState<boolean | null>(null);
     const [selectedMemberData, setSelectedMemberData] = useState(AddRelationDefaultFormValue);
     const [excludeMemberRelation, setExcludeMemberRelation] = useState<number[]>([]);
     const [pendingVerification, setPendingVerification] = useState<number>(0)
-    const router = useRouter(); 
+    const router = useRouter();
     const toast = useToast();
 
     useEffect(() => {
@@ -23,8 +23,8 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                     const response = await fetch(`/api/addRelationship/${selectedMemberId}`,
                         {
                             method: 'GET',
-                            headers: { 
-                              'Content-Type': 'application/json'
+                            headers: {
+                                'Content-Type': 'application/json'
                             },
                         }
                     );
@@ -32,13 +32,13 @@ function useAddMember({selectedMemberId}: AddMemberPropType) {
                         throw new Error('Failed to fetch member details');
                     }
                     const { data } = await response.json();
-                    
+
                     const formatedDbData = {
                         id: data.id || undefined,
-                        name:  data.name || undefined,
+                        name: data.name || undefined,
                         gender: data.gender || undefined,
                         verified: data.verified,
-                        partner: data.partner ? {id: data.partner.id, name: data.partner.name} : null,
+                        partner: data.partner ? { id: data.partner.id, name: data.partner.name } : null,
                         children: data.childrenData ? data.childrenData : [],
                     }
 
