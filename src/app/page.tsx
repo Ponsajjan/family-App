@@ -1,5 +1,3 @@
-"use client";
-
 import Topnav from "@/components/Topnav";
 import { Announcement, CloseIcon, SkipBack, SkipForward } from "@/utils/Icons";
 import React, { useEffect, useState } from "react";
@@ -13,7 +11,7 @@ import { useToast } from '@/components/Toast';
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import CalendarMemberDetail from "../components/CalendarMemberDetail";
-// import { useDailyNotifications } from "@/utils/notificationUtils";
+import { useGetCalendarEventsQuery } from "@/store/services/calendarApi";
 
 // Helper function to get current date in IST
 const getCurrentIndiaDate = () => {
@@ -30,34 +28,12 @@ const isToday = (date: Date) => {
   );
 };
 
-interface CalendarMonthlyEvent {
-  id: string;
-  name: string;
-  date: Date;
-  type: 'birthday' | 'deathday';
-  hasDate: boolean;
-  age: number | string;
-}
-
-interface EventDatesValue {
-  pastEvents: CalendarMonthlyEvent[];
-  todayEvents: CalendarMonthlyEvent[];
-  tomorrowEvents: CalendarMonthlyEvent[];
-  thisWeekEvents: CalendarMonthlyEvent[];
-  upcomingEvents: CalendarMonthlyEvent[];
-  selectedMonthEvents: CalendarMonthlyEvent[];
-  datesList: number[];
-}
-
 export default function Calendar() {
   const toast = useToast();
   const router = useRouter();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentIndiaDate = getCurrentIndiaDate();
   const [calendarDate, setCalendarDate] = useState(currentIndiaDate);
-  const [eventDatesValue, setEventDatesValue] = useState<EventDatesValue | any>({});
-  const [datesList, setDatesList] = useState<number[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
 
   const year = calendarDate.getFullYear();
@@ -71,13 +47,27 @@ export default function Calendar() {
   const isPast = totalMonthDiff <= -2;
 
   const [selectedDate, setSelectedDate] = useState('');
-  const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
+  const [eventForDate, setEventForDate] = useState<any[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [showPopupFor, setShowPopupFor] = useState<'member' | 'date' | null>(null);
   const { logout } = useAuth();
 
-  // Use the notification hook
-  // const { checkAndSendNotifications } = useDailyNotifications();
+  const { data, isLoading, isFetching, error } = useGetCalendarEventsQuery({
+    month: month + 1,
+    year
+  });
+
+  const eventDatesValue = data?.eventDates || {
+    pastEvents: [],
+    todayEvents: [],
+    tomorrowEvents: [],
+    thisWeekEvents: [],
+    upcomingEvents: [],
+    selectedMonthEvents: [],
+    datesList: []
+  };
+  const datesList = data?.datesList || [];
+
 
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year: number, month: number) {
@@ -119,7 +109,7 @@ export default function Calendar() {
       thisWeekEvents = [],
       upcomingEvents = [],
       selectedMonthEvents = [],
-    } = eventDatesValue;
+    } = eventDatesValue as any;
 
     // Combine all events from different categories
     const allEvents = [
@@ -143,14 +133,12 @@ export default function Calendar() {
         return false;
       }
     });
-    // setSelectedMemberId(null)
     setEventForDate(filtered);
     setShowPopup(true);
   };
 
   // Handlers for previous/next month navigation
   function getPreviousMonth() {
-    setLoading(true);
     setShowPopup(false);
     const previousMonth = new Date(calendarDate);
     previousMonth.setMonth(previousMonth.getMonth() - 1);
@@ -158,7 +146,6 @@ export default function Calendar() {
   }
 
   function getNextMonth() {
-    setLoading(true);
     setShowPopup(false);
     const nextMonth = new Date(calendarDate);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
@@ -166,58 +153,30 @@ export default function Calendar() {
   }
 
   function resetToCurrentMonth() {
-    setLoading(true);
     setShowPopup(false);
     setCalendarDate(currentIndiaDate);
   }
 
   useEffect(() => {
-    async function fetchEventDates() {
-      try {
-        // Use month+1 since the API expects 1-12 but Date uses 0-11
-        const response = await fetch(`/api/calendar/${month + 1}/${year}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
-          logout();
-          return;
-        }
-        // Check if the response was successful
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const { eventDates, datesList } = await response.json();
-        setEventDatesValue(eventDates);
-        setDatesList(datesList);
-
-        // Check for today's events and send notification once per day
-        const todayEvents = eventDates.todayEvents || [];
-        if (todayEvents.length > 0) {
-          // Use the notification hook to handle daily notifications
-          // checkAndSendNotifications(todayEvents);
-
-          // Show popup if there is event today
-          const todayDateObj = new Date();
-          setSelectedDate(todayDateObj.toISOString());
-          setEventForDate(todayEvents);
-          setShowPopupFor('date');
-          setShowPopup(true);
-        }
-
-      } catch (error: any) {
-        toast?.show(error.message || "Failed to fetch event dates.", "error", 5000);
-      } finally {
-        setLoading(false);
+    if (error) {
+      const message = (error as any)?.data?.message || "Failed to fetch event dates.";
+      toast?.show(message, "error", 5000);
+      if ((error as any)?.status === 401) {
+        logout();
       }
     }
+  }, [error, toast, logout]);
 
-    fetchEventDates();
-  }, [month, year, toast, logout, router]); //checkAndSendNotifications
+  useEffect(() => {
+    if (data && data.eventDates.todayEvents?.length > 0) {
+      const todayEvents = data.eventDates.todayEvents;
+      const todayDateObj = getCurrentIndiaDate();
+      setSelectedDate(todayDateObj.toISOString());
+      setEventForDate(todayEvents);
+      setShowPopupFor('date');
+      setShowPopup(true);
+    }
+  }, [data]);
 
   const HandlePopupData = (event: 'member' | 'date', data: any) => {
     if (event === 'member') {
@@ -295,7 +254,7 @@ export default function Calendar() {
                     className={`date-cell ${cellIsToday ? "bg-accent_color text-accent_contrast" : ""
                       } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
                   >
-                    {datesList?.includes(date) && !loading && <p className={`${cellIsToday ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
+                    {datesList?.includes(date) && !(isLoading || isFetching) && <p className={`${cellIsToday ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
                     <p className={`absolute p-0.5`}>{date}</p>
                   </div>
                 );
@@ -343,7 +302,7 @@ export default function Calendar() {
           </div>
         </Container>
         <div className="w-full lg:max-w-[580px] mx-auto">
-          {loading ? <Loading /> :
+          {(isLoading || isFetching) ? <Loading /> :
             datesList?.length > 0
               ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} />
               : <p className="text-center pt-4 text-text_color">No events in this month...</p>}

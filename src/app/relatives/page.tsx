@@ -12,41 +12,26 @@ import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 import Container from "@/components/Container";
 import { useInfiniteScroll } from '@/utils/useInfiniteScroll';
-
-interface EachMember {
-  id: number;
-  name: string;
-}
-interface Member {
-  id: number;
-  name: string;
-  gender: 'Male' | 'Female' | 'Letter';
-  verified: boolean;
-  father: EachMember | null;
-  mother: EachMember | null;
-  children: EachMember[];
-  partner?: { name: string } | null;
-  birthYear?: number;
-  parentNames?: string;
-  phoneNumber?: string;
-}
+import { useGetRelativesQuery } from '@/store/services/membersApi';
+import { Member } from '@/types/member';
 
 export default function Relatives() {
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
-  const [members, setMembers] = useState<Member[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [showMember, setShowMember] = useState<number | null>(null);
-  const [loadingList, setLoadingList] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [hasMore, setHasMore] = useState(true);
   const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 40,
     search: "",
   });
-  const [isFetching, setIsFetching] = useState(false);
+
+  const { data, isLoading, isFetching, error, refetch } = useGetRelativesQuery(params);
+
+  const members = data?.data || [];
+  const hasMore = data ? members.length < data.totalCount : true;
 
   const handleSetSearchFilter = useDebounce((value) => {
     setParams((prevParams) => ({
@@ -54,7 +39,6 @@ export default function Relatives() {
       search: value,
       page: 1,
     }));
-    setHasMore(true);
   }, 900);
 
   const handleMemberSearch = (input: string) => {
@@ -64,63 +48,25 @@ export default function Relatives() {
 
   const resetSearch = () => {
     setSearchInput("");
-    setMembers([]);
-    setParams(prev => ({
-      ...prev,
+    setParams({
       search: "",
       page: 1,
-    }));
-    setHasMore(true);
+      limit: 40,
+    });
   };
 
-  const fetchMembers = useCallback(async () => {
-    if (isFetching || !hasMore) return;
-    try {
-      setIsFetching(true);
-      setLoadingList(true);
-
-      const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-      );
-
-      // Handle 401 Unauthorized
-      if (response.status === 401) {
-        logout();
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const { data, totalCount } = await response.json();
-      if (params.page === 1) {
-        setMembers(data);
-      } else {
-        setMembers((prev) => [...new Set([...prev, ...data])]);
-      }
-
-      const totalPages = Math.ceil(totalCount / params.limit);
-      setHasMore(params.page < totalPages);
-    } catch (error: any) {
-      toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-    } finally {
-      setLoadingList(false);
-      setIsFetching(false);
-    }
-  }, [params, logout, toast]);
-
   useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
+    if (error) {
+      const message = (error as any)?.data?.message || 'Failed to fetch members';
+      toast?.show(message, 'error', 5000);
+      if ((error as any)?.status === 401) {
+        logout();
+      }
+    }
+  }, [error, toast, logout]);
 
   const loadMore = () => {
-    if (hasMore) {
+    if (hasMore && !isFetching) {
       setParams((prevParams) => ({ ...prevParams, page: prevParams.page + 1 }));
     }
   };
@@ -215,11 +161,11 @@ export default function Relatives() {
                   </div>
               ))}
               <div className="min-h-10 px-4 py-2">
-                {loadingList && <p className="px-4 text-text_color">Loading...</p>}
-                {(!loadingList && members.length === 0) && (
+                {(isLoading || isFetching) && <p className="px-4 text-text_color">Loading...</p>}
+                {(!isLoading && !isFetching && members.length === 0) && (
                   params.search ? <p className="p-4 text-text_color">No member found for &lsquo;{params.search}&lsquo;</p> : ''
                 )}
-                {!hasMore && <p className="text-text_color">, , ,</p>}
+                {!hasMore && members.length > 0 && <p className="text-text_color">, , ,</p>}
               </div>
             </div>
           </div>

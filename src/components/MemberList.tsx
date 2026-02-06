@@ -9,23 +9,8 @@ import { useToast } from '@/components/Toast';
 import { useDebounce } from '@/utils/debounce';
 import Container from './Container';
 import { useAuth } from '@/contexts/AuthContext';
-
-interface EachMember {
-  id: number;
-  name: string;
-}
-interface Member {
-  id: number;
-  name: string;
-  gender: 'Male' | 'Female' | 'Letter';
-  verified: boolean;
-  father: EachMember | null;
-  mother: EachMember | null;
-  children: EachMember[];
-  partner?: { name: string } | null;
-  birthYear?: number;
-  parentNames?: string;
-}
+import { useGetMembersQuery } from '@/store/services/membersApi';
+import { EachMember, Member } from '@/types/member';
 
 enum ForType {
   SelectMember = 'selectMember',
@@ -57,22 +42,35 @@ export default function MemberList({
   multiselect,
 }: MemberListProps) {
   const toast = useToast();
-  const [members, setMembers] = useState<Member[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState('');
-  const [loadingList, setLoadingList] = useState(false);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [mainMemberID, setMainMemberID] = useState(-1);
   const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 25,
     search: '',
     type: forType,
-    showCousin: false
+    showCousin: false,
+    gender,
+    excludeId,
+    descendant
   });
+
+  const { data, isLoading, isFetching, error } = useGetMembersQuery({
+    search: params.search,
+    page: params.page,
+    limit: params.limit,
+    for: params.type,
+    gender: params.gender,
+    excludeId: params.excludeId,
+    descendant: params.descendant,
+    showCousin: params.showCousin,
+  });
+
+  const members = data?.data || [];
+  const mainMemberID = data?.mainMemberId ?? -1;
+  const hasMore = data ? members.length < data.totalCount : true;
 
   const handleSetSearchFilter = useDebounce((value: string) => {
     setParams((prevParams) => ({
@@ -80,33 +78,20 @@ export default function MemberList({
       search: value,
       page: 1,
     }));
-    setHasMore(true);
   }, 900);
 
   const handleShowCousin = () => {
-    setMembers([])
     setParams((prevParams) => ({
       ...prevParams,
       showCousin: !prevParams.showCousin,
       page: 1,
     }));
-    setHasMore(true);
   }
 
   const handleMemberSearch = (input: string) => {
     setSearchInput(input);
     handleSetSearchFilter(input);
   };
-
-  // const keyMap: { [key in ForType]: string } = {
-  //   [ForType.SelectMember]: 'name',
-  //   [ForType.SelectPartner]: 'partner',
-  //   [ForType.SelectChildren]: 'children',
-  //   [ForType.EditRelationship]: 'edit',
-  //   [ForType.EditMember]: 'name',
-  // };
-
-  // const selectedValues = getSelectedValues[keyMap[forType]] || [];
 
   const selectedValues = getSelectedValues['children'] || [];
 
@@ -127,76 +112,29 @@ export default function MemberList({
     }
   }
 
-  useCallback(() => {
-    setParams((prevParams) => ({
-      ...prevParams,
-      search: '',
-      type: forType,
-      showCousin: false,
-      page: 1,
-    }));
-    setSearchInput('');
-    setMembers([]);
-    setHasMore(true);
+  useEffect(() => {
     setAppliedFilters(getFiltersFor(forType, gender));
-  }, [forType, gender]);
+    setParams(prev => ({
+      ...prev,
+      type: forType,
+      gender,
+      excludeId,
+      descendant,
+      page: 1
+    }));
+  }, [forType, gender, excludeId, descendant]);
 
   useEffect(() => {
-
-    let isFetching = false;
-
-    async function fetchMembers() {
-      if (isFetching) return;
-      try {
-        setLoadingList(true);
-        isFetching = true;
-        setError(null);
-
-        if (hasMore === false) {
-          return;
-        }
-        const excludeIdSet = [...new Set(excludeId)];
-        const response = await fetch(
-          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${params.showCousin}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            cache: 'no-store',
-          }
-        );
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
-          logout();
-          return;
-        }
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const { data, totalCount, mainMemberId } = await response.json();
-
-        setMainMemberID(mainMemberId)
-        if (params.page === 1) {
-          setMembers(data);
-        } else {
-          setMembers((prev) => [...new Set([...prev, ...data])]);
-        }
-        const totalPages = Math.ceil(totalCount / params.limit);
-        setHasMore(params.page < totalPages);
-      } catch (error: any) {
-        setError(error.message || 'Failed to fetch members. Please try again later.');
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-      } finally {
-        setLoadingList(false);
-        isFetching = false;
+    if (error) {
+      const message = (error as any)?.data?.message || 'Failed to fetch members';
+      toast?.show(message, 'error', 5000);
+      if ((error as any)?.status === 401) {
+        logout();
       }
     }
+  }, [error, toast, logout]);
 
-    fetchMembers();
-
+  useEffect(() => {
     const handleScroll = () => {
       if (
         listContainerRef.current &&
@@ -218,8 +156,7 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, descendant, excludeId, gender, logout]);
-  // Do not add letterId in dependency for list to work properly
+  }, [hasMore, isFetching]);
 
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
     setSelectedValue(item, id, select, verified);
@@ -371,12 +308,12 @@ export default function MemberList({
               )
             )}
             <div className="min-h-10 px-4 py-2">
-              {loadingList && <p className="py-2 px-4 text-text_color">Loading...</p>}
-              {!loadingList && !hasMore && <p>, , ,</p>}
+              {(isLoading || isFetching) && <p className="py-2 px-4 text-text_color">Loading...</p>}
+              {!isLoading && !isFetching && !hasMore && members.length > 0 && <p>, , ,</p>}
             </div>
           </>
-          : loadingList ? <p className="py-4 text-center text-text_color loading-text">Loading....</p>
-            : error ? <div className="p-6 text-center">{error}</div>
+          : (isLoading || isFetching) ? <p className="py-4 text-center text-text_color loading-text">Loading....</p>
+            : (error as any) ? <div className="p-6 text-center">{(error as any)?.data?.message || 'Failed to fetch members'}</div>
               : <div>{renderNoMembersMessage()}</div>}
       </div>
 

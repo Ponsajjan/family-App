@@ -2,29 +2,15 @@ import Container from "@/components/Container";
 import { Birthday2, Deathday, Deathday2 } from "@/utils/Icons";
 import { format } from 'date-fns';
 
-interface CalendarMonthlyEvent {
-  id: string;
-  name: string;
-  date: Date;
-  type: 'birthday' | 'deathday';
-  hasDate: boolean;
-  age: number | string;
-}
+import { CalendarMonthlyEvent, EventDatesValue } from "@/store/services/calendarApi";
 
 interface CalendarMonthlyDataProps {
-  eventDatesValue: {
-    pastEvents: CalendarMonthlyEvent[];
-    todayEvents: CalendarMonthlyEvent[];
-    tomorrowEvents: CalendarMonthlyEvent[];
-    thisWeekEvents: CalendarMonthlyEvent[];
-    upcomingEvents: CalendarMonthlyEvent[];
-    selectedMonthEvents: CalendarMonthlyEvent[];
-    datesList: number[];
-  }
+  eventDatesValue: EventDatesValue;
   month: number;
   year: number;
   setSelectedMemberId: (event: "member" | "date", id: string | number) => void;
 }
+
 
 export default function CalendarMonthlyData({ eventDatesValue, month, year, setSelectedMemberId }: CalendarMonthlyDataProps) {
   // Destructure all values from eventDatesValue
@@ -36,7 +22,7 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year, setS
     upcomingEvents = [],
     selectedMonthEvents = [],
   } = eventDatesValue;
-  
+
   const renderEventList = (events: CalendarMonthlyEvent[], title: string) => {
     if (!events?.length) return null;
 
@@ -50,13 +36,13 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year, setS
           {events.map((item, index) => {
             const date = new Date(item.date);
             const displayDate = new Date(year, month, date.getDate());
-            
+
             return (
               <div key={`${item.id}-${index}`} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3 cursor-pointer">
                 <div onClick={() => setSelectedMemberId('member', item.id ?? null)} className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]">
                   {item.hasDate ? (
                     <div className={`border-t border-dashed ${title === "Earlier This Month" ? 'opacity-60' : ''} border-text_color w-14 ml-2 mr-3`}>
-                      <div className="flex flex-col border border-text_color rounded-b-sm">          
+                      <div className="flex flex-col border border-text_color rounded-b-sm">
                         <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
                           {format(displayDate, 'EEE').toUpperCase()}
                         </span>
@@ -65,7 +51,7 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year, setS
                     </div>
                   ) : (
                     <div className="w-14 ml-2 mr-3">
-                      <div className={`flex justify-center ${title === "Earlier This Month" ? 'opacity-60' : ''} items-center`}>          
+                      <div className={`flex justify-center ${title === "Earlier This Month" ? 'opacity-60' : ''} items-center`}>
                         <Deathday />
                       </div>
                     </div>
@@ -75,11 +61,11 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year, setS
                       <div className='font-medium md:font-semibold capitalize leading-5'>{item.name}</div>
                       <div className='text-xs font-light capitalize flex items-end gap-2'>
                         <span className="leading-3">
-                          {item.type === 'birthday' ? 'Born At: ' : 'Died At: '} 
-                          {date.getFullYear() === 1600 
-                            ? format(date, 'd MMM') 
-                            : !item.hasDate 
-                              ? format(date, 'MMM yyyy') 
+                          {item.type === 'birthday' ? 'Born At: ' : 'Died At: '}
+                          {date.getFullYear() === 1600
+                            ? format(date, 'd MMM')
+                            : !item.hasDate
+                              ? format(date, 'MMM yyyy')
                               : format(date, 'd MMM yyyy')}
                         </span>
                         {item.hasDate && (item.type === 'birthday' ? <Birthday2 /> : <Deathday2 />)}

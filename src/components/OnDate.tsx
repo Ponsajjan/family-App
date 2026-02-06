@@ -1,20 +1,16 @@
 import { Birthday, Deathday } from '@/utils/Icons';
 import { format } from 'date-fns';
+import { CalendarMonthlyEvent } from '@/store/services/calendarApi';
 
-interface CalendarMonthlyEvent {
-  id: string;
-  name: string;
-  date: Date;
-  type: 'birthday' | 'deathday';
-  hasDate: boolean;
-  age: number | string;
+interface OnDateProps {
+    events: CalendarMonthlyEvent[];
 }
 
-function OnDate({ events }: { events: CalendarMonthlyEvent[] }) {
-
+function OnDate({ events }: OnDateProps) {
     return (
         <>
             {events.map((item, index) => {
+                const eventDate = new Date(item.date);
                 return (
                     <div
                         key={index}
@@ -29,12 +25,12 @@ function OnDate({ events }: { events: CalendarMonthlyEvent[] }) {
                                 <div className="text-xs font-light capitalize">
                                     {item.type === 'birthday' ? 'Born At:' : 'Died At:'}{' '}
                                     {item.hasDate ?
-                                    new Date(item.date).getFullYear() === 1600
-                                        ? format(item.date, 'd MMM')
-                                        : format(item.date, 'd MMM yyyy') :
-                                    new Date(item.date).getFullYear() === 1600
-                                        ? format(item.date, '-- MMM')
-                                        : format(item.date, '-- MM yyyy')
+                                        eventDate.getFullYear() === 1600
+                                            ? format(eventDate, 'd MMM')
+                                            : format(eventDate, 'd MMM yyyy') :
+                                        eventDate.getFullYear() === 1600
+                                            ? format(eventDate, '-- MMM')
+                                            : format(eventDate, '-- MM yyyy')
                                     }
                                 </div>
                             </div>
