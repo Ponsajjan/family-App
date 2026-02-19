@@ -45,6 +45,35 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    const selectedAuthId = request.cookies.get("selectedAuthId")?.value;
+    let allAuthIds: number[] = [];
+
+    if (selectedAuthId) {
+      try {
+        let loginAuthIds: string[] = [];
+        if (selectedAuthId.startsWith('[') && selectedAuthId.endsWith(']')) {
+          loginAuthIds = JSON.parse(selectedAuthId);
+        } else {
+          loginAuthIds = [selectedAuthId.replace(/^\["|"\]$/g, '')];
+        }
+        const authRecords = await prisma.auth.findMany({
+          where: {
+            OR: [
+              { memberAuthId: { in: loginAuthIds } },
+              { moderatorAuthId: { in: loginAuthIds } }
+            ]
+          },
+          select: {
+            id: true,
+          }
+        });
+        allAuthIds = authRecords.map(record => record.id);
+      } catch (e) {
+        console.error("Error parsing authId cookie", e);
+        allAuthIds = [authId];
+      }
+    }
+
     // Calculate skip with one extra item for letter detection
     const baseSkip = (page - 1) * limit;
     const skip = page === 1 ? baseSkip : baseSkip - 1;
@@ -54,7 +83,7 @@ export async function GET(request: NextRequest) {
 
     const members = await prisma.member.findMany({
       where: {
-        authId: authId,
+        authId: { in: allAuthIds },
         ...(searchQuery && {
           name: {
             contains: searchQuery,
@@ -79,7 +108,7 @@ export async function GET(request: NextRequest) {
     // Total count for pagination
     const totalCount = await prisma.member.count({
       where: {
-        authId: authId,
+        authId: { in: allAuthIds },
         ...(searchQuery && {
           name: {
             contains: searchQuery,

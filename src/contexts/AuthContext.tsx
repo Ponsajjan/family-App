@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getCookie, deleteCookie, setCookie } from 'cookies-next';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { updateToken } from '@/utils/auth';
 
 interface AuthContextType {
@@ -15,6 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     // Initialize auth state on mount
@@ -81,7 +82,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Update the cookie using setCookie
     setCookie('authId', JSON.stringify(accounts), { maxAge, path: '/' });
-    router.push('/terms');
+
+    if (pathname === '/login') {
+      router.push('/terms');
+    }
+    if (pathname === '/terms/moderator_login') {
+      router.push('/moderator');
+    }
   };
 
   const logout = () => {

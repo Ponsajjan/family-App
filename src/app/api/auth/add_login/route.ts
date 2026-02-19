@@ -8,8 +8,6 @@ interface LoginRequestBody {
   password: string;
 }
 
-
-
 export async function POST(request: Request) {
   try {
     const { password }: LoginRequestBody = await request.json();

@@ -55,55 +55,73 @@ export async function GET(request: NextRequest) {
     const authId = decoded.authId;
     if (!authId) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-    // Fetch member with all relations in a single query using transactions
-    const [member, siblings] = await prisma.$transaction([
-      prisma.member.findFirst({
-        where: { id, authId: authId },
-        select: {
-          id: true,
-          name: true,
-          gender: true,
-          verified: true,
-          phoneNumber: true,
-          address: true,
-          occupation: true,
-          education: true,
-          additionalInfo: true,
-          birthDate: true,
-          birthMonth: true,
-          birthYear: true,
-          deceased: true,
-          deathDate: true,
-          deathMonth: true,
-          deathYear: true,
-          descendant: true,
-          father: { select: { id: true, name: true } },
-          mother: { select: { id: true, name: true } },
-          partner: { select: { name: true } },
-          fatherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
-          motherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
-          nonDescendantRelation: {
-            select: { fatherName: true, motherName: true, siblingNames: true }
-          },
+    // Fetch member with all relations and auth info in a single query
+    const member = await prisma.member.findFirst({
+      where: { id },
+      select: {
+        id: true,
+        authId: true,
+        name: true,
+        gender: true,
+        verified: true,
+        phoneNumber: true,
+        address: true,
+        occupation: true,
+        education: true,
+        additionalInfo: true,
+        birthDate: true,
+        birthMonth: true,
+        birthYear: true,
+        deceased: true,
+        deathDate: true,
+        deathMonth: true,
+        deathYear: true,
+        descendant: true,
+        fatherId: true,
+        motherId: true,
+        father: { select: { id: true, name: true } },
+        mother: { select: { id: true, name: true } },
+        partner: { select: { name: true } },
+        fatherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
+        motherOf: { select: { name: true, order: true }, orderBy: { order: 'asc' } },
+        nonDescendantRelation: {
+          select: { fatherName: true, motherName: true, siblingNames: true }
         },
-      }),
-      // Fetch siblings in parallel
-      prisma.member.findMany({
-        where: {
-          OR: [
-            { fatherId: { not: null, in: await getParentIds(id) } },
-            { motherId: { not: null, in: await getParentIds(id) } }
-          ],
-          id: { not: id },
-          authId: authId
+        auth: {
+          select: { mainMemberId: true }
         },
-        select: { name: true, order: true },
-        orderBy: { order: 'asc' },
-        distinct: ['name'], // Ensure unique siblings
-      })
-    ]);
+      },
+    });
 
     if (!member) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+
+    // Use parent IDs from the already-fetched member instead of a separate query
+    const parentIds = [member.fatherId, member.motherId].filter(Boolean) as number[];
+
+    // Only fetch siblings if the member has parents
+    const siblings = parentIds.length > 0
+      ? await prisma.member.findMany({
+          where: {
+            OR: [
+              { fatherId: { in: parentIds } },
+              { motherId: { in: parentIds } }
+            ],
+            id: { not: id },
+            authId: authId
+          },
+          select: { name: true, order: true },
+          orderBy: { order: 'asc' },
+          distinct: ['name'],
+        })
+      : [];
+
+    const mainMemberId = member.auth?.mainMemberId;
+    const mainMemberName = mainMemberId
+      ? (await prisma.member.findUnique({
+          where: { id: mainMemberId },
+          select: { name: true }
+        }))?.name || null
+      : null;
 
     // Build response data
     const responseData: MemberResponse = {
@@ -112,7 +130,8 @@ export async function GET(request: NextRequest) {
       contactInformation: buildContactInfo(member),
       personalInformation: buildPersonalInfo(member),
       additionalInformation: buildAdditionalInfo(member),
-      ...(member.descendant !== undefined && { descendant: member.descendant })
+      ...(member.descendant !== undefined && { descendant: member.descendant }),
+      ...(mainMemberName && { mainMemberName })
     };
 
     return NextResponse.json({ data: responseData });
@@ -126,15 +145,6 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
   }
-}
-
-// Helper function to get parent IDs
-async function getParentIds(memberId: number): Promise<number[]> {
-  const member = await prisma.member.findUnique({
-    where: { id: memberId },
-    select: { fatherId: true, motherId: true }
-  });
-  return [member?.fatherId, member?.motherId].filter(Boolean) as number[];
 }
 
 // Helper functions to build specific sections

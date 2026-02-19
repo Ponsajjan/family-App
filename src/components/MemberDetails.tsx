@@ -35,6 +35,7 @@ function MemberDetails({ data }: { data: any }) {
                             fallback="Deceased"
                         />
                     )}
+                    <div className='mr-0 ml-auto -mb-3 text-xs text-gray-500 w-fit'>--- {data.mainMemberName} Family</div>
                 </div>
             </div>
 

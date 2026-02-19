@@ -3,19 +3,14 @@ import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 
 interface CalendarMonthlyEvent {
-    id: string;
+    id: number;
     name: string;
-    date: Date;
+    day: number;
+    date: string;
     type: 'birthday' | 'deathday';
     hasDate: boolean;
     age: number | string;
 }
-
-// Helper function to convert any date to IST
-const toIST = (date: Date | string) => {
-    const d = new Date(date);
-    return new Date(d.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-};
 
 export async function GET(request: NextRequest) {
     const token = request.cookies.get("token")?.value;
@@ -32,6 +27,38 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
+        const selectedAuthId = request.cookies.get("selectedAuthId")?.value;
+        let allAuthIds: number[] = [];
+
+        if (selectedAuthId) {
+            try {
+                let loginAuthIds: string[] = [];
+                if (selectedAuthId.startsWith('[') && selectedAuthId.endsWith(']')) {
+                    loginAuthIds = JSON.parse(selectedAuthId);
+                } else {
+                    loginAuthIds = [selectedAuthId.replace(/^\["|"\]$/g, '')];
+                }
+                const authRecords = await prisma.auth.findMany({
+                    where: {
+                        OR: [
+                            { memberAuthId: { in: loginAuthIds } },
+                            { moderatorAuthId: { in: loginAuthIds } }
+                        ]
+                    },
+                    select: {
+                        id: true,
+                    }
+                });
+                allAuthIds = authRecords.map(record => record.id);
+            } catch (e) {
+                console.error("Error parsing authId cookie", e);
+                allAuthIds = [authId];
+            }
+        }
+
+        if (!allAuthIds.includes(authId)) {
+            allAuthIds.push(authId);
+        }
         // Extract month and year from URL
         const url = new URL(request.url);
         const pathParts = url.pathname.split('/');
@@ -45,7 +72,7 @@ export async function GET(request: NextRequest) {
         // Fetch data from Prisma
         const members = await prisma.member.findMany({
             where: {
-                authId: authId,
+                authId: { in: allAuthIds },
                 verified: true,
                 OR: [
                     { birthMonth: month },
@@ -64,11 +91,20 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        // Process events with IST
-        const today = toIST(new Date());
+        // Compute IST "today" once
+        const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
         const todayDate = today.getDate();
+
+        // Pre-compute week boundaries once (not per event)
+        const isCurrentMonth = currentMonth === month && currentYear === year;
+        let weekEndDate = 0;
+        if (isCurrentMonth) {
+            const currentDayOfWeek = today.getDay();
+            const weekStartDate = todayDate - (currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1);
+            weekEndDate = weekStartDate + 6;
+        }
 
         const categorise = {
             pastEvents: [] as CalendarMonthlyEvent[],
@@ -80,77 +116,66 @@ export async function GET(request: NextRequest) {
             datesList: new Set<number>()
         };
 
-        members.forEach(member => {
+        const calcAge = (eventYear: number | null, refYear: number): number | 'n/a' =>
+            eventYear && eventYear < refYear ? refYear - eventYear : 'n/a';
+
+        // Build ISO string from components without toIST or Date construction
+        const makeDate = (y: number | null, m: number, d: number) =>
+            new Date(y || 1600, m - 1, d).toISOString();
+
+        for (const member of members) {
             if (member.birthMonth === month) {
-                const date = member.birthDate || 1;
-                const eventDate = toIST(new Date(member.birthYear || 1600, member.birthMonth - 1, date));
+                const day = member.birthDate || 1;
+                categorise.datesList.add(day);
 
-                categorise.datesList.add(date);
-
-                // Calculate age based on the year parameter for selectedMonthEvents
-                const ageForSelectedMonth = member.birthYear ? member.birthYear >= year ? 'n/a' : year - member.birthYear : 'n/a';
-                const ageForCurrentEvents = member.birthYear ? member.birthYear == currentYear ? 'n/a' : currentYear - member.birthYear : 'n/a';
-
-                const event = {
+                const event: CalendarMonthlyEvent = {
                     id: member.id,
                     name: member.name,
-                    date: eventDate.toISOString(),
+                    day,
+                    date: makeDate(member.birthYear, month, day),
                     type: 'birthday',
                     hasDate: member.birthDate !== null,
-                    age: ageForCurrentEvents // Default age for current month events
+                    age: calcAge(member.birthYear, currentYear)
                 };
 
-                categorizeEvent(
-                    event,
-                    categorise,
-                    month,
-                    year,
-                    todayDate,
-                    currentMonth,
-                    currentYear,
-                    ageForSelectedMonth
-                );
+                if (isCurrentMonth) {
+                    categorizeCurrentMonth(event, categorise, todayDate, weekEndDate);
+                } else {
+                    categorise.selectedMonthEvents.push({ ...event, age: calcAge(member.birthYear, year) });
+                }
             }
 
-            // Process deathday with IST
             if (member.deathMonth === month) {
-                const date = member.deathDate || 1;
-                const eventDate = toIST(new Date(member.deathYear || 1600, member.deathMonth - 1, date));
+                const day = member.deathDate || 1;
+                categorise.datesList.add(day);
 
-                categorise.datesList.add(date);
-
-                // Calculate age based on the year parameter for selectedMonthEvents
-                const ageForSelectedMonth = member.deathYear ? member.deathYear >= year ? 'n/a' : year - member.deathYear : 'n/a';
-                const ageForCurrentEvents = member.deathYear ? member.deathYear == currentYear ? 'n/a' : currentYear - member.deathYear : 'n/a';
-
-                const event = {
+                const event: CalendarMonthlyEvent = {
                     id: member.id,
                     name: member.name,
-                    date: eventDate.toISOString(),
+                    day,
+                    date: makeDate(member.deathYear, month, day),
                     type: 'deathday',
                     hasDate: member.deathDate !== null,
-                    age: ageForCurrentEvents // Default age for current month events
+                    age: calcAge(member.deathYear, currentYear)
                 };
 
-                categorizeEvent(
-                    event,
-                    categorise,
-                    month,
-                    year,
-                    todayDate,
-                    currentMonth,
-                    currentYear,
-                    ageForSelectedMonth
-                );
+                if (isCurrentMonth) {
+                    categorizeCurrentMonth(event, categorise, todayDate, weekEndDate);
+                } else {
+                    categorise.selectedMonthEvents.push({ ...event, age: calcAge(member.deathYear, year) });
+                }
             }
-        });
+        }
 
-        categorise.pastEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(b.date).getDate() - new Date(a.date).getDate());
-        categorise.todayEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
-        categorise.tomorrowEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
-        categorise.thisWeekEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
-        categorise.upcomingEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
-        categorise.selectedMonthEvents.sort((a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => new Date(a.date).getDate() - new Date(b.date).getDate());
+        // Sort by day number directly — no Date parsing needed
+        const sortAsc = (a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => a.day - b.day;
+        const sortDesc = (a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => b.day - a.day;
+        categorise.pastEvents.sort(sortDesc);
+        categorise.todayEvents.sort(sortAsc);
+        categorise.tomorrowEvents.sort(sortAsc);
+        categorise.thisWeekEvents.sort(sortAsc);
+        categorise.upcomingEvents.sort(sortAsc);
+        categorise.selectedMonthEvents.sort(sortAsc);
 
         return NextResponse.json({
             eventDates: { ...categorise },
@@ -169,41 +194,22 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// Updated helper function with ageForSelectedMonth parameter
-function categorizeEvent(
-    event: any,
-    categories: any,
-    month: number,
-    year: number,
+function categorizeCurrentMonth(
+    event: CalendarMonthlyEvent,
+    categories: { pastEvents: CalendarMonthlyEvent[], todayEvents: CalendarMonthlyEvent[], tomorrowEvents: CalendarMonthlyEvent[], thisWeekEvents: CalendarMonthlyEvent[], upcomingEvents: CalendarMonthlyEvent[] },
     todayDate: number,
-    currentMonth: number,
-    currentYear: number,
-    ageForSelectedMonth: number | 'n/a'
+    weekEndDate: number
 ) {
-    const eventDate = toIST(new Date(event.date));
-    const eventDay = eventDate.getDate();
-
-    if (currentMonth === month && currentYear === year) {
-        const currentDayOfWeek = toIST(new Date()).getDay();
-        const weekStartDate = todayDate - (currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1);
-        const weekEndDate = weekStartDate + 6;
-
-        if (eventDay < todayDate) {
-            categories.pastEvents.push(event);
-        } else if (eventDay === todayDate) {
-            categories.todayEvents.push(event);
-        } else if (eventDay === todayDate + 1) {
-            categories.tomorrowEvents.push(event);
-        } else if (eventDay > todayDate && eventDay <= weekEndDate) {
-            categories.thisWeekEvents.push(event);
-        } else {
-            categories.upcomingEvents.push(event);
-        }
+    const day = event.day;
+    if (day < todayDate) {
+        categories.pastEvents.push(event);
+    } else if (day === todayDate) {
+        categories.todayEvents.push(event);
+    } else if (day === todayDate + 1) {
+        categories.tomorrowEvents.push(event);
+    } else if (day <= weekEndDate) {
+        categories.thisWeekEvents.push(event);
     } else {
-        // For selected month events, use the age calculated based on the year parameter
-        categories.selectedMonthEvents.push({
-            ...event,
-            age: ageForSelectedMonth
-        });
+        categories.upcomingEvents.push(event);
     }
 }

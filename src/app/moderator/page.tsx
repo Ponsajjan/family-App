@@ -6,6 +6,8 @@ import { ButtonOutline, LinkButtonOutline } from "../../components/Button"
 import { useToast } from '@/components/Toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import { SwitchIcon } from '@/utils/Icons'
+import { ChoosePopup } from '@/components/ChoosePopup'
 
 export default function AdminDashboard() {
     const toast = useToast()
@@ -13,6 +15,7 @@ export default function AdminDashboard() {
     const [pendingRequests, setPendingRequests] = useState<number | null>(null)
     const [updatingChart, setUpdatingChart] = useState(false)
     const [chartStatus, setChartStatus] = useState<string | null>(null)
+    const [showChoosePopup, setShowChoosePopup] = useState(false)
     const { logout } = useAuth()
     const router = useRouter()
 
@@ -115,20 +118,33 @@ export default function AdminDashboard() {
 
     return (
         <>
-            <Topnav />
-            <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto gap-4">
+            <Topnav>
+
+            </Topnav>
+            <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
+                <div className="flex items-center gap-2 mb-6">
+                    <span className="text-text_color/60 text-sm w-10 border-b border-border_color border-dashed" />
+                    <span className="text-text_color/60 text-sm whitespace-nowrap">Moderator Panel</span>
+                    <span className="text-text_color/60 text-sm w-full border-b border-border_color border-dashed" />
+                    <div
+                        onClick={() => setShowChoosePopup(true)}
+                        className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors"
+                    >
+                        <SwitchIcon />
+                    </div>
+                </div>
                 <LinkButtonOutline
                     linkto={`moderator/verify_members`}
-                    className="w-full"
+                    className="w-full mb-4"
                     buttonText={`Verify Members (${unverifiedCount ?? '..'})`}
                 />
                 <LinkButtonOutline
                     linkto={`moderator/verify_changes`}
-                    className="w-full"
+                    className="w-full mb-4"
                     buttonText={`Verify Changes (${pendingRequests ?? '..'})`}
                 />
                 <ButtonOutline
-                    className="w-full"
+                    className="w-full mb-4"
                     buttonText={
                         chartStatus === 'building'
                             ? "Building in progress..."
@@ -140,6 +156,10 @@ export default function AdminDashboard() {
                     disabled={updatingChart || chartStatus === 'building'}
                 />
             </div>
+
+            {showChoosePopup && (
+                <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} />
+            )}
         </>
     )
 }

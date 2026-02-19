@@ -1,7 +1,8 @@
-import prisma from "@/db/db";
-import { verifyToken } from "@/utils/auth";
+'use client'
+
 import { Female, Male } from "@/utils/Icons";
-import { cookies } from "next/headers";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // TreeNode Component
 const TreeNode = ({ node }: { node: any }) => {
@@ -49,48 +50,58 @@ const TreeView = ({ data }: { data: any[] }) => {
   );
 };
 
-export default async function FetchFamilyTree() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
+export default function FetchFamilyTree() {
+  const [data, setData] = useState<any[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { logout } = useAuth();
 
-  if (!token) {
-    return <div className="text-center text-text_color p-10">Unauthorized. Please login.</div>;
+  useEffect(() => {
+    async function fetchTree() {
+      try {
+        const res = await fetch('/api/tree/get_chart');
+
+        if (res.status === 401) {
+          logout();
+          return;
+        }
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to fetch family tree");
+        }
+
+        const treeData = await res.json();
+        setData(treeData);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTree();
+  }, [logout]);
+
+  if (loading) {
+    return <div className="text-center text-text_color p-10">Loading family tree...</div>;
   }
 
-  try {
-    const decoded = await verifyToken(token);
-    const authId = decoded.authId;
-
-    if (!authId) {
-      return <div className="text-center text-text_color p-10">Invalid session.</div>;
-    }
-
-    const familyTree = await prisma.familyTree.findUnique({
-      where: { authId: authId },
-      select: { data: true }
-    });
-
-    if (!familyTree) {
-      return <div className="text-center text-text_color p-10">No chart found.</div>;
-    }
-
-    const data = familyTree.data as any[];
-
-    if (data.length === 0) {
-      return <div className="text-center text-text_color p-10">No data available.</div>;
-    }
-
-    return (
-      <>
-        <div className="flex">
-          <TreeView data={data} />
-          <div className="pr-6"></div>
-        </div>
-        <div className="pb-6"></div>
-      </>
-    );
-  } catch (error) {
-    console.error("Error loading family tree:", error);
-    return <div className="text-center text-text_color p-10">Failed to load family tree data.</div>;
+  if (error) {
+    return <div className="text-center text-text_color p-10">{error}</div>;
   }
+
+  if (!data || data.length === 0) {
+    return <div className="text-center text-text_color p-10">No data available.</div>;
+  }
+
+  return (
+    <>
+      <div className="flex">
+        <TreeView data={data} />
+        <div className="pr-6"></div>
+      </div>
+      <div className="pb-6"></div>
+    </>
+  );
 }
