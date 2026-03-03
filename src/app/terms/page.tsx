@@ -149,13 +149,13 @@ export default function Terms() {
                 {/* The {mainMemberName} Family, Birthdays & Remembrances */}
                 Family, Birthdays & Remembrances Calendar
               </h1>
-              <p className="text-base sm:text-lg text-center mb-4">
+              {/* <p className="text-base sm:text-lg text-center mb-4">
                 இந்த Web App, பிறந்தநாள் மற்றும் நினைவு நாட்கள் போன்ற முக்கிய நிகழ்வுகளைக் குடும்ப உறுப்பினர்கள் நினைவுகூரவும், சிறப்பிக்கவும் பிரத்யேகமாக உருவாக்கப்பட்டது.
-              </p>
-
-              {/* <p className="text-base sm:text-lg text-center mb-3 md:px-10">
-                This web app is exclusively for the {mainMemberName} family to honor and remember significant dates, such as birthdays and remembrances
               </p> */}
+
+              <p className="text-base sm:text-lg text-center mb-3 md:px-10">
+                This web app is exclusively for the {mainMemberName} family to honor and remember significant dates, such as birthdays and remembrances
+              </p>
 
               <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
                 <h2 className="text-xl flex items-center font-medium md:font-semibold mb-4">
@@ -188,7 +188,7 @@ export default function Terms() {
                 </div>
               </div>
 
-              {moderatorList.length > 0 && <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
+              <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
                 <div className="text-xl font-medium md:font-semibold mb-4">
                   {(moderatorList.length > 1) ? 'Moderators:' : 'Moderator:'}
                 </div>
@@ -201,7 +201,7 @@ export default function Terms() {
                     </li>
                   ))}
                 </ul>
-              </div>}
+              </div>
               {/* <div className="relative">
                 <div
                   onClick={handleCopy}

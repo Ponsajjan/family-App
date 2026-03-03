@@ -45,7 +45,8 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const id = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
-
+  const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+  const loginAuthIds = JSON.parse(selectedAuthId);
   // Validate inputs
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (isNaN(id)) return NextResponse.json({ error: "Invalid Member ID" }, { status: 400 });
@@ -101,26 +102,26 @@ export async function GET(request: NextRequest) {
     // Only fetch siblings if the member has parents
     const siblings = parentIds.length > 0
       ? await prisma.member.findMany({
-          where: {
-            OR: [
-              { fatherId: { in: parentIds } },
-              { motherId: { in: parentIds } }
-            ],
-            id: { not: id },
-            authId: authId
-          },
-          select: { name: true, order: true },
-          orderBy: { order: 'asc' },
-          distinct: ['name'],
-        })
+        where: {
+          OR: [
+            { fatherId: { in: parentIds } },
+            { motherId: { in: parentIds } }
+          ],
+          id: { not: id },
+          authId: authId
+        },
+        select: { name: true, order: true },
+        orderBy: { order: 'asc' },
+        distinct: ['name'],
+      })
       : [];
 
     const mainMemberId = member.auth?.mainMemberId;
     const mainMemberName = mainMemberId
       ? (await prisma.member.findUnique({
-          where: { id: mainMemberId },
-          select: { name: true }
-        }))?.name || null
+        where: { id: mainMemberId },
+        select: { name: true }
+      }))?.name || null
       : null;
 
     // Build response data
@@ -131,7 +132,7 @@ export async function GET(request: NextRequest) {
       personalInformation: buildPersonalInfo(member),
       additionalInformation: buildAdditionalInfo(member),
       ...(member.descendant !== undefined && { descendant: member.descendant }),
-      ...(mainMemberName && { mainMemberName })
+      ...(mainMemberName && loginAuthIds.length > 1 && { mainMemberName })
     };
 
     return NextResponse.json({ data: responseData });
