@@ -50,12 +50,7 @@ export async function GET(request: NextRequest) {
 
     if (selectedAuthId) {
       try {
-        let loginAuthIds: string[] = [];
-        if (selectedAuthId.startsWith('[') && selectedAuthId.endsWith(']')) {
-          loginAuthIds = JSON.parse(selectedAuthId);
-        } else {
-          loginAuthIds = [selectedAuthId.replace(/^\["|"\]$/g, '')];
-        }
+        const loginAuthIds = JSON.parse(selectedAuthId);
         const authRecords = await prisma.auth.findMany({
           where: {
             OR: [
@@ -70,8 +65,10 @@ export async function GET(request: NextRequest) {
         allAuthIds = authRecords.map(record => record.id);
       } catch (e) {
         console.error("Error parsing authId cookie", e);
-        allAuthIds = [authId];
+        allAuthIds.push(authId);
       }
+    } else {
+      allAuthIds.push(authId);
     }
 
     // Calculate skip with one extra item for letter detection
