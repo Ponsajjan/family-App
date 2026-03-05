@@ -1,5 +1,46 @@
 import prisma from "@/db/db";
 
+/**
+ * Resolves all numeric Auth IDs that a user has access to,
+ * taking into account any switched accounts stored in the selectedAuthId cookie.
+ *
+ * @param authId          - The numeric auth ID of the currently logged-in user (from JWT).
+ * @param selectedAuthId  - Raw cookie value of "selectedAuthId" (a JSON-stringified string[]).
+ * @returns               - A deduplicated array of numeric Auth `id`s to use in DB queries.
+ */
+export async function getAllAuthIds(authId: number, selectedAuthId: string): Promise<number[]> {
+    let loginAuthIds: string[] = [];
+    try {
+        const parsed = JSON.parse(selectedAuthId);
+        if (Array.isArray(parsed)) {
+            loginAuthIds = parsed;
+        }
+    } catch (e) {
+        console.error("Error parsing selectedAuthId cookie", e);
+    }
+
+    if (loginAuthIds.length > 0) {
+        try {
+            const authRecords = await prisma.auth.findMany({
+                where: {
+                    OR: [
+                        { memberAuthId: { in: loginAuthIds } },
+                        { moderatorAuthId: { in: loginAuthIds } }
+                    ]
+                },
+                select: { id: true }
+            });
+            const switchedIds = authRecords.map(record => record.id);
+            return [...new Set(switchedIds)];
+        } catch (e) {
+            return [authId];
+        }
+    }
+
+    return [authId];
+}
+
+
 export async function getSelectedMembersData(mainMemberId: number, loginAuthIds: string[]) {
     let switchAccounts: { authId: string; name: string | null }[] = [];
     let member: { name: string | null } | null = null;

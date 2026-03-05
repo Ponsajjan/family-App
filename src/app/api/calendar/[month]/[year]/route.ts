@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
+import { getAllAuthIds } from "@/utils/switcAccountHelpers";
 
 interface CalendarMonthlyEvent {
     id: number;
@@ -28,30 +29,8 @@ export async function GET(request: NextRequest) {
         }
 
         const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
-        const loginAuthIds = JSON.parse(selectedAuthId);
-        let allAuthIds: number[] = [];
+        const allAuthIds = await getAllAuthIds(authId, selectedAuthId);
 
-        if (loginAuthIds) {
-            try {
-                const authRecords = await prisma.auth.findMany({
-                    where: {
-                        OR: [
-                            { memberAuthId: { in: loginAuthIds } },
-                            { moderatorAuthId: { in: loginAuthIds } }
-                        ]
-                    },
-                    select: {
-                        id: true,
-                    }
-                });
-                allAuthIds = authRecords.map(record => record.id);
-            } catch (e) {
-                console.error("Error parsing authId cookie", e);
-                allAuthIds.push(authId);
-            }
-        } else {
-            allAuthIds.push(authId);
-        }
         // Extract month and year from URL
         const url = new URL(request.url);
         const pathParts = url.pathname.split('/');
