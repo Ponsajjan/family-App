@@ -27,17 +27,12 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
-        const selectedAuthId = request.cookies.get("selectedAuthId")?.value;
+        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+        const loginAuthIds = JSON.parse(selectedAuthId);
         let allAuthIds: number[] = [];
 
-        if (selectedAuthId) {
+        if (loginAuthIds) {
             try {
-                let loginAuthIds: string[] = [];
-                if (selectedAuthId.startsWith('[') && selectedAuthId.endsWith(']')) {
-                    loginAuthIds = JSON.parse(selectedAuthId);
-                } else {
-                    loginAuthIds = [selectedAuthId.replace(/^\["|"\]$/g, '')];
-                }
                 const authRecords = await prisma.auth.findMany({
                     where: {
                         OR: [
@@ -52,11 +47,9 @@ export async function GET(request: NextRequest) {
                 allAuthIds = authRecords.map(record => record.id);
             } catch (e) {
                 console.error("Error parsing authId cookie", e);
-                allAuthIds = [authId];
+                allAuthIds.push(authId);
             }
-        }
-
-        if (!allAuthIds.includes(authId)) {
+        } else {
             allAuthIds.push(authId);
         }
         // Extract month and year from URL

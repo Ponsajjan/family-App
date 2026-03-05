@@ -45,12 +45,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const selectedAuthId = request.cookies.get("selectedAuthId")?.value;
+    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+    const loginAuthIds = JSON.parse(selectedAuthId);
     let allAuthIds: number[] = [];
 
-    if (selectedAuthId) {
+    if (loginAuthIds) {
       try {
-        const loginAuthIds = JSON.parse(selectedAuthId);
         const authRecords = await prisma.auth.findMany({
           where: {
             OR: [
