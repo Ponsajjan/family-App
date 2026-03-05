@@ -3,35 +3,35 @@
 import { useSearchParams, useRouter } from "next/navigation"
 import { LinkButtonOutline } from "../../components/Button"
 import { SwitchIcon } from "@/utils/Icons"
-import { useEffect, useState } from "react"
-import { useAuth } from "@/contexts/AuthContext"
+import { useEffect, useState, Suspense } from "react"
 import { useToast } from "@/components/Toast"
 import { ChoosePopup } from "@/components/ChoosePopup"
 
-interface AccountDetail {
+interface SwitchAccount {
     authId: string;
-    mainMemberRef: string;
-    current: boolean;
+    name: string;
 }
 
-export default function AdminDashboard() {
+interface SelectedMembersData {
+    member: { name: string } | null;
+    switchAccounts: SwitchAccount[];
+}
+
+export default function AddEditPage() {
     const [showChoosePopup, setShowChoosePopup] = useState(false);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
-    const { storeLoginValues } = useAuth();
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [accounts, setAccounts] = useState<AccountDetail[]>([]);
     const toast = useToast();
     const [loading, setLoading] = useState<boolean>(true);
+    const [data, setData] = useState<SelectedMembersData | null>(null);
 
     useEffect(() => {
         const fetchAccounts = async () => {
             try {
-                const res = await fetch('/api/terms');
+                const res = await fetch('/api/selectedMembers');
                 if (!res.ok) throw new Error("Failed to fetch accounts");
-                const data = await res.json();
-                setAccounts(data.allAuthDetails || []);
+                const json = await res.json();
+                setData(json);
             } catch (error: any) {
                 toast?.show(error.message || "Failed to load accounts", "error", 5000);
             } finally {
@@ -40,6 +40,7 @@ export default function AdminDashboard() {
         };
         fetchAccounts();
     }, [toast]);
+
     // Get the 'mode' parameter from URL, default to 'add'
     const currentMode = searchParams.get('mode') || 'add'
     const isAddMode = currentMode === 'add'
@@ -51,37 +52,6 @@ export default function AdminDashboard() {
         router.push(`?${params.toString()}`)
     }
 
-    const handleSwitchAccount = async (account: AccountDetail) => {
-        if (switchingAccount) {
-            return;
-        }
-
-        try {
-            setSelectedId(account.authId);
-            setSwitchingAccount(true);
-            const res = await fetch("/api/auth/switchLogin", {
-                method: "POST",
-                headers: {
-                    "Content-Type": 'application/json'
-                },
-                body: JSON.stringify({ account: account.authId }),
-            });
-
-            const data = await res.json();
-            if (data.newtoken) {
-                storeLoginValues(data.newtoken, data.userType, data.authId);
-                setShowChoosePopup(false);
-            } else {
-                toast?.show(data.error || "An unexpected error occurred.", "error", 5000);
-                setSelectedId(null);
-            }
-        } catch (error: any) {
-            toast?.show(error.message || "An unexpected error occurred.", "error", 5000);
-            setSelectedId(null);
-        } finally {
-            setSwitchingAccount(false);
-        }
-    };
 
     return (
         <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
@@ -101,31 +71,53 @@ export default function AdminDashboard() {
                 <span className={`absolute top-0 bottom-0 rounded-xl w-1/2 ${isAddMode ? 'left-0' : 'transform translate-x-full'} bg-accent_color transition-all duration-500 ease-in-out`}></span>
             </div>
 
-            <div className="flex items-center gap-2">
-                <span className="text-text_color/60 text-sm w-10 border-b border-border_color border-dashed" />
-                <span className="text-text_color/60 text-sm whitespace-nowrap">Moderator Panel</span>
-                <span className="text-text_color/60 text-sm w-full border-b border-border_color border-dashed" />
-                <div
-                    onClick={() => setShowChoosePopup(true)}
-                    className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
-                    <SwitchIcon />
-                </div>
-            </div>
-            <div className="pt-6">
-                <LinkButtonOutline
-                    linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_member`}
-                    className="w-full mb-4"
-                    buttonText={`${isAddMode ? 'Add' : 'Edit'} Member`}
-                />
+            {!loading && data ? (
+                <>
+                    <div className="flex items-center gap-2 h-10">
+                        <span className="text-text_color/60 text-sm w-10 border-b border-border_color border-dashed" />
+                        <span className="text-text_color/60 text-sm whitespace-nowrap">
+                            {data.member?.name} Family
+                        </span>
+                        <span className="text-text_color/60 text-sm w-full border-b border-border_color border-dashed" />
+                        <div
+                            onClick={() => setShowChoosePopup(true)}
+                            className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
+                            <SwitchIcon />
+                        </div>
+                    </div>
+                    <div className="pt-6">
+                        <LinkButtonOutline
+                            linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_member`}
+                            className="w-full mb-4"
+                            buttonText={`${isAddMode ? 'Add' : 'Edit'} Member`}
+                        />
 
-                <LinkButtonOutline
-                    linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_relationship`}
-                    className="w-full"
-                    buttonText={`${isAddMode ? 'Add' : 'Edit'} Relationship`}
-                />
-            </div>
+                        <LinkButtonOutline
+                            linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_relationship`}
+                            className="w-full"
+                            buttonText={`${isAddMode ? 'Add' : 'Edit'} Relationship`}
+                        />
+                    </div>
+                </>
+            ) : (
+                <>
+                    <div className="flex items-center gap-2 h-10">
+                    </div>
+                    <div className="pt-6">
+                        <LinkButtonOutline
+                            className="w-full mb-4 opacity-50"
+                            buttonText=""
+                        />
+
+                        <LinkButtonOutline
+                            className="w-full opacity-50"
+                            buttonText=""
+                        />
+                    </div>
+                </>
+            )}
             {showChoosePopup && (
-                <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} />
+                <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} data={data?.switchAccounts || undefined} />
             )}
         </div>
     )

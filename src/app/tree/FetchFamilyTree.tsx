@@ -3,6 +3,7 @@
 import { Female, Male } from "@/utils/Icons";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { type AccountDetail } from "@/components/ChoosePopup";
 
 // TreeNode Component
 const TreeNode = ({ node }: { node: any }) => {
@@ -50,7 +51,11 @@ const TreeView = ({ data }: { data: any[] }) => {
   );
 };
 
-export default function FetchFamilyTree() {
+interface FetchFamilyTreeProps {
+  onSwitchAccounts?: (accounts: AccountDetail[]) => void;
+}
+
+export default function FetchFamilyTree({ onSwitchAccounts }: FetchFamilyTreeProps) {
   const [data, setData] = useState<any[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,8 +76,11 @@ export default function FetchFamilyTree() {
           throw new Error(errorData.error || "Failed to fetch family tree");
         }
 
-        const treeData = await res.json();
-        setData(treeData);
+        const result = await res.json();
+        setData(result.treeData);
+        if (onSwitchAccounts) {
+          onSwitchAccounts(result.switchAccounts || []);
+        }
       } catch (err: any) {
         setError(err.message);
       } finally {

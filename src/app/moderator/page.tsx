@@ -11,10 +11,8 @@ import { ChoosePopup } from '@/components/ChoosePopup'
 
 export default function AdminDashboard() {
     const toast = useToast()
-    const [unverifiedCount, setUnverifiedCount] = useState<number | null>(null)
-    const [pendingRequests, setPendingRequests] = useState<number | null>(null)
+    const [data, setData] = useState<any>(null)
     const [updatingChart, setUpdatingChart] = useState(false)
-    const [chartStatus, setChartStatus] = useState<string | null>(null)
     const [showChoosePopup, setShowChoosePopup] = useState(false)
     const { logout } = useAuth()
     const router = useRouter()
@@ -39,9 +37,7 @@ export default function AdminDashboard() {
                 }
 
                 const data = await res.json()
-                setUnverifiedCount(data.unverifiedMembers)
-                setPendingRequests(data.pendingRequests)
-                setChartStatus(data.chartStatus)
+                setData(data)
 
                 if (data.chartStatus === 'building') {
                     toast?.show('Chart build is currently in progress...', 'info', 5000)
@@ -81,7 +77,7 @@ export default function AdminDashboard() {
 
             if (res.ok) {
                 toast?.show(data.message, 'success', 5000)
-                setChartStatus('completed') // Update local status
+                setData((prevData: any) => ({ ...prevData, chartStatus: 'completed' })) // Update local status
 
                 // Display conflict warnings if any circular relationships were detected
                 if (data.conflicts && data.conflicts.length > 0) {
@@ -101,7 +97,7 @@ export default function AdminDashboard() {
             } else if (res.status === 409) {
                 // Build already in progress
                 toast?.show(data.error || "Build already in progress", 'warning', 5000)
-                setChartStatus('building')
+                setData((prevData: any) => ({ ...prevData, chartStatus: 'building' }))
             } else {
                 toast?.show(data.error || "Failed to update chart", 'error', 5000)
             }
@@ -116,49 +112,70 @@ export default function AdminDashboard() {
         }
     }
 
+    console.log(data)
     return (
         <>
             <Topnav>
 
             </Topnav>
-            <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
-                <div className="flex items-center gap-2 mb-6">
-                    <span className="text-text_color/60 text-sm w-10 border-b border-border_color border-dashed" />
-                    <span className="text-text_color/60 text-sm whitespace-nowrap">Moderator Panel</span>
-                    <span className="text-text_color/60 text-sm w-full border-b border-border_color border-dashed" />
-                    <div
-                        onClick={() => setShowChoosePopup(true)}
-                        className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors"
-                    >
-                        <SwitchIcon />
-                    </div>
+            {data ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
+                <div className="flex items-center gap-2 mb-6 h-9">
+                    {data?.mainMemberName && <>
+                        <span className="text-text_color/60 text-sm w-10 border-b border-border_color border-dashed" />
+                        <span className="text-text_color/60 text-sm whitespace-nowrap">{data.mainMemberName} Family</span>
+                        <span className="text-text_color/60 text-sm w-full border-b border-border_color border-dashed" />
+                        <div
+                            onClick={() => setShowChoosePopup(true)}
+                            className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors"
+                        >
+                            <SwitchIcon />
+                        </div>
+                    </>}
                 </div>
                 <LinkButtonOutline
                     linkto={`moderator/verify_members`}
                     className="w-full mb-4"
-                    buttonText={`Verify Members (${unverifiedCount ?? '..'})`}
+                    buttonText={`Verify Members (${data?.unverifiedMembers ?? '..'})`}
                 />
                 <LinkButtonOutline
                     linkto={`moderator/verify_changes`}
                     className="w-full mb-4"
-                    buttonText={`Verify Changes (${pendingRequests ?? '..'})`}
+                    buttonText={`Verify Changes (${data?.pendingRequests ?? '..'})`}
                 />
                 <ButtonOutline
                     className="w-full mb-4"
                     buttonText={
-                        chartStatus === 'building'
+                        data?.chartStatus === 'building'
                             ? "Building in progress..."
                             : updatingChart
                                 ? "Updating..."
                                 : "Update Relations Chart"
                     }
                     onClick={handleUpdateRelationsChart}
-                    disabled={updatingChart || chartStatus === 'building'}
+                    disabled={updatingChart || data?.chartStatus === 'building'}
                 />
-            </div>
+            </div> :
+                <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
+                    <div className="mb-6 h-9">
+                    </div>
+                    <LinkButtonOutline
+                        linkto={`moderator/verify_members`}
+                        className="w-full mb-4 opacity-50"
+                        buttonText=""
+                    />
+                    <LinkButtonOutline
+                        linkto={`moderator/verify_changes`}
+                        className="w-full mb-4 opacity-50"
+                        buttonText=""
+                    />
+                    <ButtonOutline
+                        className="w-full mb-4 opacity-50"
+                        buttonText=""
+                    />
+                </div>}
 
             {showChoosePopup && (
-                <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} />
+                <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} data={data?.switchAccounts || []} />
             )}
         </>
     )

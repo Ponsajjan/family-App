@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
-import { getAllAuthIds } from "@/utils/switcAccountHelpers";
+import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 
 interface Member {
   id: string | number;

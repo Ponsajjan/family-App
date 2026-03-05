@@ -6,10 +6,12 @@ import DragScroll from "@/components/DragScroll";
 import { getCookie } from 'cookies-next';
 import { SwitchIcon } from "@/utils/Icons";
 import { useState } from "react";
-import { ChoosePopup } from "@/components/ChoosePopup";
+import { ChoosePopup, type AccountDetail } from "@/components/ChoosePopup";
+
 
 export default function FamilyTreePage() {
-  const [showChoosePopup, setShowChoosePopup] = useState(false)
+  const [showChoosePopup, setShowChoosePopup] = useState(false);
+  const [switchAccounts, setSwitchAccounts] = useState<AccountDetail[]>([]);
   const token = getCookie('token');
 
   if (!token) {
@@ -31,11 +33,11 @@ export default function FamilyTreePage() {
         </div>
       </Topnav>
       <DragScroll>
-        <FetchFamilyTree />
+        <FetchFamilyTree onSwitchAccounts={setSwitchAccounts} />
       </DragScroll>
 
       {showChoosePopup && (
-        <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} />
+        <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} data={switchAccounts} />
       )}
     </div>
   );

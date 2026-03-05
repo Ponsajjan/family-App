@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
-import { getAllAuthIds } from "@/utils/switcAccountHelpers";
+import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 
 interface CalendarMonthlyEvent {
     id: number;

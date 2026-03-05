@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import prisma from "@/db/db";
 import { verifyToken } from '@/utils/auth';
+import { getSelectedMembersData } from '@/utils/switchAccountHelpers';
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
@@ -12,11 +13,17 @@ export async function GET(request: NextRequest) {
   try {
     const decoded = await verifyToken(token);
     const authId = decoded.authId;
+    const mainMemberId = decoded.memberId;
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    const selectedAuthId = request.cookies.get("authId")?.value || "[]";
+    const loginAuthIds = JSON.parse(selectedAuthId);
+
+    const { member, switchAccounts } = await getSelectedMembersData(mainMemberId, loginAuthIds);
+    const mainMemberName = member?.name || "";
     // Fetch member and request counts in parallel for efficiency
     const [unverifiedCount, pendingRequestCount, familyTree] = await Promise.all([
       prisma.member.count({
@@ -60,7 +67,9 @@ export async function GET(request: NextRequest) {
       pendingRequests: pendingRequestCount,
       chartStatus: chartStatus,
       lastBuildStartedAt: familyTree?.lastBuildStartedAt || null,
-      updatedAt: familyTree?.updatedAt || null
+      updatedAt: familyTree?.updatedAt || null,
+      mainMemberName: mainMemberName,
+      switchAccounts: switchAccounts
     });
   } catch (error) {
     console.error("Error fetching moderator dashboard data:", error);

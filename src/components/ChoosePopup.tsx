@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ReactDom from 'react-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import Radio from '@/components/RadioButton';
 
-interface AccountDetail {
+export interface AccountDetail {
     authId: string;
-    name: string;
+    name: string | null;
 }
 
 interface ChoosePopupProps {
@@ -25,8 +25,6 @@ export const ChoosePopup = ({
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const { storeLoginValues } = useAuth();
     const toast = useToast();
-
-
 
     const handleSwitchAccount = async (account: AccountDetail) => {
         if (switchingAccount) {
