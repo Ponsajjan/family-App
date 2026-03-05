@@ -1168,7 +1168,7 @@ export const SkipForward = () => {
     );
 };
 
-export const OptionsIcon = () => {
+export const SwitchIcon = () => {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="25px" height="25px" viewBox="0 0 32 32">
             <circle cx="10" cy="9" r="3" />
@@ -1183,14 +1183,3 @@ export const OptionsIcon = () => {
     );
 };
 
-export const SwitchIcon = () => {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24" fill="none">
-            <circle fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" cx="12" cy="5.16" r="3.91" />
-            <path fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M17.34,12.52c3.24.66,5.41,1.93,5.41,3.39,0,1.91-3.79,3.51-8.8,3.84" />
-            <path fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6.66,12.52c-3.24.66-5.41,1.93-5.41,3.39,0,2,4.28,3.71,9.75,3.89" />
-            <polyline fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points="8.09 16.89 11.02 19.82 8.09 22.75" />
-            <path fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M17.86,15.91v-1h0A5.86,5.86,0,0,0,12,9.07h0a5.86,5.86,0,0,0-5.86,5.86h0v1" />
-        </svg>
-    );
-};

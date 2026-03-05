@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ReactDom from 'react-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
@@ -6,41 +6,27 @@ import Radio from '@/components/RadioButton';
 
 interface AccountDetail {
     authId: string;
-    mainMemberRef: string;
-    current: boolean;
+    name: string;
 }
 
 interface ChoosePopupProps {
     showPopup: boolean;
     setShowPopup: (show: boolean) => void;
+    data: AccountDetail[] | undefined;
 }
 
 export const ChoosePopup = ({
     showPopup,
-    setShowPopup
+    setShowPopup,
+    data
 }: ChoosePopupProps) => {
-    const [accounts, setAccounts] = useState<AccountDetail[]>([]);
+    const accounts: AccountDetail[] = data || [];
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
     const { storeLoginValues } = useAuth();
     const toast = useToast();
 
-    useEffect(() => {
-        const fetchAccounts = async () => {
-            try {
-                const res = await fetch('/api/terms');
-                if (!res.ok) throw new Error("Failed to fetch accounts");
-                const data = await res.json();
-                setAccounts(data.allAuthDetails || []);
-            } catch (error: any) {
-                toast?.show(error.message || "Failed to load accounts", "error", 5000);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchAccounts();
-    }, [toast]);
+
 
     const handleSwitchAccount = async (account: AccountDetail) => {
         if (switchingAccount) {
@@ -103,13 +89,11 @@ export const ChoosePopup = ({
                         </div>
 
                         <div className="space-y-3 mb-4">
-                            {loading ? (
-                                <div className="text-center py-4">Loading accounts...</div>
-                            ) : accounts.length > 0 ? (
+                            {accounts.length > 0 ? (
                                 accounts.map((account) => (
                                     <div
                                         key={account.authId}
-                                        className={`flex items-center p-3 rounded-md border transition-all duration-200 ${account.authId === selectedId || (account.current && !selectedId)
+                                        className={`flex items-center p-3 rounded-md border transition-all duration-200 ${account.authId === selectedId
                                             ? 'bg-field_color border-border_active'
                                             : 'border-border_color hover:bg-field_hover cursor-pointer'
                                             }`}
@@ -119,7 +103,7 @@ export const ChoosePopup = ({
                                             checked={selectedId === account.authId}
                                             readOnly={true}
                                             disabled={switchingAccount}
-                                            label={account.mainMemberRef || 'Anonymous Account'}
+                                            label={account.name || 'Anonymous Account'}
                                             className="w-full !justify-start"
                                         />
                                     </div>
