@@ -12,6 +12,7 @@ import { ChoosePopup, type AccountDetail } from "@/components/ChoosePopup";
 export default function FamilyTreePage() {
   const [showChoosePopup, setShowChoosePopup] = useState(false);
   const [switchAccounts, setSwitchAccounts] = useState<AccountDetail[]>([]);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
   const token = getCookie('token');
 
   if (!token) {
@@ -33,11 +34,16 @@ export default function FamilyTreePage() {
         </div>
       </Topnav>
       <DragScroll>
-        <FetchFamilyTree onSwitchAccounts={setSwitchAccounts} />
+        <FetchFamilyTree key={fetchTrigger} onSwitchAccounts={setSwitchAccounts} />
       </DragScroll>
 
       {showChoosePopup && (
-        <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} data={switchAccounts} />
+        <ChoosePopup
+          showPopup={showChoosePopup}
+          setShowPopup={setShowChoosePopup}
+          data={switchAccounts}
+          onSwitchSuccess={() => setFetchTrigger(prev => prev + 1)}
+        />
       )}
     </div>
   );

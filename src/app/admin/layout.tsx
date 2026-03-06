@@ -8,20 +8,19 @@ import { useRouter } from 'next/navigation';
 import React from 'react'
 
 function AdminLayout({
-    children,
-  }: Readonly<{
-    children: React.ReactNode;
-  }>) {
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
 
   return (
     <>
-        <AdminSidenav />
-        <div className="w-full relative">
-          <ToastProvider>
+      <AdminSidenav />
+      <div className="w-full relative">
+        <ToastProvider>
           {children}
-          <div id='portal'></div>
-          </ToastProvider>
-        </div>
+        </ToastProvider>
+      </div>
     </>
   )
 }

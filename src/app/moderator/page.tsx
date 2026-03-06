@@ -14,6 +14,7 @@ export default function AdminDashboard() {
     const [data, setData] = useState<any>(null)
     const [updatingChart, setUpdatingChart] = useState(false)
     const [showChoosePopup, setShowChoosePopup] = useState(false)
+    const [fetchTrigger, setFetchTrigger] = useState(0)
     const { logout } = useAuth()
     const router = useRouter()
 
@@ -53,7 +54,7 @@ export default function AdminDashboard() {
         }
 
         fetchData()
-    }, [toast, logout])
+    }, [toast, logout, fetchTrigger])
 
     const handleUpdateRelationsChart = async () => {
         try {
@@ -121,9 +122,9 @@ export default function AdminDashboard() {
             {data ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
                 <div className="flex items-center gap-2 mb-6 h-9">
                     {data?.mainMemberName && <>
-                        <span className="text-text_color/60 text-sm w-10 border-b border-border_color border-dashed" />
-                        <span className="text-text_color/60 text-sm whitespace-nowrap">{data.mainMemberName} Family</span>
-                        <span className="text-text_color/60 text-sm w-full border-b border-border_color border-dashed" />
+                        <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
+                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap w-56 text-ellipsis overflow-clip">{data.mainMemberName} Family</span>
+                        <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
                         <div
                             onClick={() => setShowChoosePopup(true)}
                             className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors"
@@ -175,7 +176,12 @@ export default function AdminDashboard() {
                 </div>}
 
             {showChoosePopup && (
-                <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} data={data?.switchAccounts || []} />
+                <ChoosePopup
+                    showPopup={showChoosePopup}
+                    setShowPopup={setShowChoosePopup}
+                    data={data?.switchAccounts || []}
+                    onSwitchSuccess={() => setFetchTrigger(prev => prev + 1)}
+                />
             )}
         </>
     )

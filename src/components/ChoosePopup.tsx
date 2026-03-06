@@ -13,12 +13,14 @@ interface ChoosePopupProps {
     showPopup: boolean;
     setShowPopup: (show: boolean) => void;
     data: AccountDetail[] | undefined;
+    onSwitchSuccess?: () => void;
 }
 
 export const ChoosePopup = ({
     showPopup,
     setShowPopup,
-    data
+    data,
+    onSwitchSuccess
 }: ChoosePopupProps) => {
     const accounts: AccountDetail[] = data || [];
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -45,6 +47,7 @@ export const ChoosePopup = ({
             const data = await res.json();
             if (data.newtoken) {
                 storeLoginValues(data.newtoken, data.userType, data.authId);
+                onSwitchSuccess?.();
                 setShowPopup(false);
             } else {
                 toast?.show(data.error || "An unexpected error occurred.", "error", 5000);

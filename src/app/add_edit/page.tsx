@@ -24,6 +24,7 @@ export default function AddEditPage() {
     const toast = useToast();
     const [loading, setLoading] = useState<boolean>(true);
     const [data, setData] = useState<SelectedMembersData | null>(null);
+    const [fetchTrigger, setFetchTrigger] = useState(0);
 
     useEffect(() => {
         const fetchAccounts = async () => {
@@ -39,7 +40,7 @@ export default function AddEditPage() {
             }
         };
         fetchAccounts();
-    }, [toast]);
+    }, [toast, fetchTrigger]);
 
     // Get the 'mode' parameter from URL, default to 'add'
     const currentMode = searchParams.get('mode') || 'add'
@@ -74,11 +75,9 @@ export default function AddEditPage() {
             {!loading && data ? (
                 <>
                     <div className="flex items-center gap-2 h-10">
-                        <span className="text-text_color/60 text-sm w-10 border-b border-border_color border-dashed" />
-                        <span className="text-text_color/60 text-sm whitespace-nowrap">
-                            {data.member?.name} Family
-                        </span>
-                        <span className="text-text_color/60 text-sm w-full border-b border-border_color border-dashed" />
+                        <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
+                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap w-56 text-ellipsis overflow-clip">{data.member?.name} Family</span>
+                        <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
                         <div
                             onClick={() => setShowChoosePopup(true)}
                             className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
@@ -117,7 +116,12 @@ export default function AddEditPage() {
                 </>
             )}
             {showChoosePopup && (
-                <ChoosePopup showPopup={showChoosePopup} setShowPopup={setShowChoosePopup} data={data?.switchAccounts || undefined} />
+                <ChoosePopup
+                    showPopup={showChoosePopup}
+                    setShowPopup={setShowChoosePopup}
+                    data={data?.switchAccounts || undefined}
+                    onSwitchSuccess={() => setFetchTrigger(prev => prev + 1)}
+                />
             )}
         </div>
     )

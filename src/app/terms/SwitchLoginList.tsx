@@ -128,7 +128,7 @@ function SwitchLoginList({ setMainMemberName, setModeratorList, accounts, setAcc
     return (
         <>
             <div className='relative px-2 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-start'>
-                <div className='z-10'>{switchingAccount ? "Switching..." : "Switch Login"}</div>
+                <div className='z-10'>{switchingAccount ? "Adding..." : "Multi-login"}</div>
             </div>
 
             <div className='px-4 pt-4 pb-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
