@@ -19,10 +19,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const selectedAuthId = request.cookies.get("authId")?.value || "[]";
+    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
     const loginAuthIds = JSON.parse(selectedAuthId);
 
-    const { member, switchAccounts } = await getSelectedMembersData(mainMemberId, loginAuthIds);
+    let member = null;
+    let switchAccounts: { authId: string; name: string | null }[] = [];
+
+    if (loginAuthIds.length > 1) {
+      const data = await getSelectedMembersData(mainMemberId, loginAuthIds);
+      member = data.member;
+      switchAccounts = data.switchAccounts;
+    }
+
     const mainMemberName = member?.name || "";
     // Fetch member and request counts in parallel for efficiency
     const [unverifiedCount, pendingRequestCount, familyTree] = await Promise.all([

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const authRecord = await prisma.auth.findUnique({
       where: { id },
       select: {
-        password: true,
+        // password: true,
         memberAuthId: true,
         moderatorAuthId: true,
         mainMemberId: true,
@@ -126,6 +126,15 @@ export async function GET(request: NextRequest) {
       authRecords.some(record => record.memberAuthId === authId || record.moderatorAuthId === authId)
     );
 
+    // Get selected authIds from cookies for UI state
+    const selectedAuthIdCookie = request.cookies.get("selectedAuthId")?.value || "[]";
+    let selectedAuthIds: string[] = [];
+    try {
+      selectedAuthIds = JSON.parse(selectedAuthIdCookie);
+    } catch (e) {
+      selectedAuthIds = [currentAuthId];
+    }
+
     // Map authIds to their details with current flag
     const authDetails = validAuthIds.map(authId => {
       const record = authRecords.find(record =>
@@ -135,7 +144,7 @@ export async function GET(request: NextRequest) {
       return {
         authId,
         mainMemberRef: record?.mainMemberId ? memberMap.get(record.mainMemberId) || null : null,
-        current: authId === authRecord.memberAuthId || authId === authRecord.moderatorAuthId
+        current: selectedAuthIds.length > 0 ? selectedAuthIds.includes(authId) : (authId === currentAuthId)
       };
     });
 
@@ -149,7 +158,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       mainMemberName: mainMemberName,
       moderators: authRecord.moderatorList,
-      password: authRecord.password,
+      // password: authRecord.password,
       currentAuthId: currentAuthId,
       userType: userType,
       allAuthDetails: sortedAuthDetails, // Array of objects with authId, mainMemberRef, and current flag

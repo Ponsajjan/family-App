@@ -1,5 +1,7 @@
 import ToggleSwitch from '@/components/ToggleSwitch';
 import React, { useState } from 'react';
+import { setCookie } from 'cookies-next';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 
@@ -24,43 +26,33 @@ function SwitchLoginList({ setMainMemberName, setModeratorList, accounts, setAcc
     const { storeLoginValues } = useAuth();
     const toast = useToast();
 
-    const handleToggleChange = async (account: AccountDetail) => {
-        // Don't switch if it's already the current account or switching is in progress
-        if (account.current || switchingAccount) {
-            return;
-        }
+    const handleToggleChange = (account: AccountDetail) => {
+        setAccounts((prev: AccountDetail[]) => {
+            // Find current account in the latest state
+            const target = prev.find(acc => String(acc.authId) === String(account.authId));
+            if (!target) return prev;
 
-        try {
-            setSwitchingAccount(true);
-            const res = await fetch("/api/auth/switchLogin", {
-                method: "POST",
-                headers: {
-                    "Content-Type": 'application/json'
-                },
-                body: JSON.stringify({ account: account.authId }), // Send the authId
-            });
-
-            const data = await res.json();
-            if (data.newtoken) {
-                // Pass the old authId (current one) and new authId to storeLoginValues
-                storeLoginValues(data.newtoken, data.userType, data.authId);
-                setAccounts((prev: AccountDetail[]) =>
-                    prev.map(acc => ({
-                        ...acc,
-                        current: acc.authId === account.authId
-                    }))
-                );
-                setMainMemberName(data.mainMemberName);
-                // setPassword(data.password);
-                setModeratorList(data.moderators);
-            } else {
-                toast?.show(data.error || "An unexpected error occurred.", "error", 5000);
+            // Prevent toggling off the last selected account
+            if (target.current) {
+                const activeCount = prev.filter(acc => acc.current).length;
+                if (activeCount === 1) {
+                    toast?.show("At least one account must remain selected.", "warning", 3000);
+                    return prev;
+                }
             }
-        } catch (error: any) {
-            toast?.show(error.message || "An unexpected error occurred.", "error", 5000);
-        } finally {
-            setSwitchingAccount(false);
-        }
+
+            const updated = prev.map(acc =>
+                String(acc.authId) === String(account.authId) ? { ...acc, current: !acc.current } : acc
+            );
+
+            const selectedAuthIds = updated
+                .filter(acc => acc.current)
+                .map(acc => acc.authId);
+
+            setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 }); // 30 days
+
+            return updated;
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -109,6 +101,7 @@ function SwitchLoginList({ setMainMemberName, setModeratorList, accounts, setAcc
                 ];
 
                 storeLoginValues(data.token, data.userType, data.authId);
+                setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge: 60 * 60 * 24 * 30 });
                 setForm({ password: "" });
                 setAccounts(updatedAccounts);
                 setError("");
@@ -137,16 +130,16 @@ function SwitchLoginList({ setMainMemberName, setModeratorList, accounts, setAcc
                     return (
                         <div key={account.authId} className='py-0.5 md:py-1 w-full'>
                             <div
-                                onClick={() => !isCurrentAccount && handleToggleChange(account)}
+                                onClick={() => handleToggleChange(account)}
                                 className={`flex items-center justify-between transform transition-all duration-200 min-h-[40px] bg-field_color border border-l-4 ${isCurrentAccount
-                                    ? 'border-gray-500 text-gray-border-gray-500 cursor-default'
+                                    ? 'border-gray-500 text-gray-500 cursor-pointer hover:bg-field_color/80'
                                     : 'border-border_color text-text_color/45 cursor-pointer hover:bg-field_color/80'
                                     } rounded-md`}
                             >
-                                <div className="font-medium px-3">{account.mainMemberRef}</div>
+                                <div className="font-medium px-3 pointer-events-none">{account.mainMemberRef}</div>
                                 <ToggleSwitch
                                     isActive={isCurrentAccount}
-                                    className={isCurrentAccount ? '' : 'opacity-45'}
+                                    className='pointer-events-none'
                                 />
                             </div>
                         </div>

@@ -1,9 +1,6 @@
 'use client'
 
 import { Female, Male } from "@/utils/Icons";
-import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { type AccountDetail } from "@/components/ChoosePopup";
 
 // TreeNode Component
 const TreeNode = ({ node }: { node: any }) => {
@@ -52,53 +49,10 @@ const TreeView = ({ data }: { data: any[] }) => {
 };
 
 interface FetchFamilyTreeProps {
-  onSwitchAccounts?: (accounts: AccountDetail[]) => void;
+  data: any[] | null;
 }
 
-export default function FetchFamilyTree({ onSwitchAccounts }: FetchFamilyTreeProps) {
-  const [data, setData] = useState<any[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { logout } = useAuth();
-
-  useEffect(() => {
-    async function fetchTree() {
-      try {
-        const res = await fetch('/api/tree/get_chart');
-
-        if (res.status === 401) {
-          logout();
-          return;
-        }
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Failed to fetch family tree");
-        }
-
-        const result = await res.json();
-        setData(result.treeData);
-        if (onSwitchAccounts) {
-          onSwitchAccounts(result.switchAccounts || []);
-        }
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchTree();
-  }, [logout]);
-
-  if (loading) {
-    return <div className="text-center text-text_color p-10">Loading family tree...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-text_color p-10">{error}</div>;
-  }
-
+export default function FetchFamilyTree({ data }: FetchFamilyTreeProps) {
   if (!data || data.length === 0) {
     return <div className="text-center text-text_color p-10">No data available.</div>;
   }

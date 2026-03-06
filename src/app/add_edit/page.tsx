@@ -56,7 +56,7 @@ export default function AddEditPage() {
 
     return (
         <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
-            <div className="relative flex mx-auto mb-6 border-2 border-text_color rounded-2xl overflow-hidden w-fit select-none">
+            <div className="relative flex mx-auto border-2 border-text_color rounded-2xl overflow-hidden w-fit select-none">
                 <p
                     onClick={() => handleModeChange('add')}
                     className={`px-8 md:px-10 z-10 py-1 md:py-2 cursor-pointer ${isAddMode ? 'text-accent_contrast' : 'text-text_color'}  transition-all duration-500 font-semibold ease-in-out`}
@@ -75,16 +75,19 @@ export default function AddEditPage() {
             {!loading && data ? (
                 <>
                     <div className="flex items-center gap-2 h-10">
-                        <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
-                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap w-56 text-ellipsis overflow-clip">{data.member?.name} Family</span>
-                        <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
-                        <div
-                            onClick={() => setShowChoosePopup(true)}
-                            className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
-                            <SwitchIcon />
-                        </div>
+                        {data?.switchAccounts.length > 1 &&
+                            <>
+                                <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
+                                <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap w-56 text-ellipsis overflow-clip">{data.member?.name} Family</span>
+                                <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
+                                <div
+                                    onClick={() => setShowChoosePopup(true)}
+                                    className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
+                                    <SwitchIcon />
+                                </div>
+                            </>}
                     </div>
-                    <div className="pt-6">
+                    <div className="pt-2">
                         <LinkButtonOutline
                             linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_member`}
                             className="w-full mb-4"
@@ -102,7 +105,7 @@ export default function AddEditPage() {
                 <>
                     <div className="flex items-center gap-2 h-10">
                     </div>
-                    <div className="pt-6">
+                    <div className="pt-2">
                         <LinkButtonOutline
                             className="w-full mb-4 opacity-50"
                             buttonText=""

@@ -19,10 +19,14 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
-        const selectedAuthId = request.cookies.get("authId")?.value || "[]";
+        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
         const loginAuthIds = JSON.parse(selectedAuthId);
 
-        const { switchAccounts } = await getSelectedMembersData(mainMemberId, loginAuthIds);
+        let switchAccounts: { authId: string; name: string | null }[] = [];
+        if (loginAuthIds.length > 1) {
+            const data = await getSelectedMembersData(mainMemberId, loginAuthIds);
+            switchAccounts = data.switchAccounts;
+        }
 
         const familyTree = await prisma.familyTree.findUnique({
             where: { authId: authId },

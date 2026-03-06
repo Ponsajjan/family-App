@@ -120,7 +120,7 @@ export default function AdminDashboard() {
 
             </Topnav>
             {data ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
-                <div className="flex items-center gap-2 mb-6 h-9">
+                <div className="flex items-center gap-2 mb-2 h-9">
                     {data?.mainMemberName && <>
                         <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
                         <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap w-56 text-ellipsis overflow-clip">{data.mainMemberName} Family</span>
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
                 />
             </div> :
                 <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
-                    <div className="mb-6 h-9">
+                    <div className="mb-2 h-9">
                     </div>
                     <LinkButtonOutline
                         linkto={`moderator/verify_members`}
