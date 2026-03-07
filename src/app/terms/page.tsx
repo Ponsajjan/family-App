@@ -14,6 +14,12 @@ import LogoutList from './LogoutList'
 import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as needed
 import { useAuth } from '@/contexts/AuthContext'
 
+interface AccountDetail {
+  authId: string;
+  mainMemberRef: string;
+  current: boolean;
+}
+
 export default function Terms() {
   const toast = useToast();
   const [loading, setLoading] = useState(true);
@@ -24,7 +30,7 @@ export default function Terms() {
   const [showSidePanel, setShowSidePanel] = useState(false);
   // const [showCopiedMsg, setShowCopiedMsg] = useState(false);
   const [mainMemberName, setMainMemberName] = useState('');
-  const [accounts, setAccounts] = useState([]);
+  const [accounts, setAccounts] = useState<AccountDetail[]>([]);
   const [currentAuthId, setCurrentAuthId] = useState('');
   const [isModerator, setIsModerator] = useState(false);
   const router = useRouter();
@@ -243,6 +249,7 @@ export default function Terms() {
           {showLogin &&
             <SwitchLoginList
               currentAuthId={currentAuthId}
+              setCurrentAuthId={setCurrentAuthId}
               setMainMemberName={setMainMemberName}
               // setPassword={setPassword}
               setModeratorList={setModeratorList}
@@ -251,7 +258,10 @@ export default function Terms() {
             />}
           {showLogout &&
             <LogoutList
-              mainMemberName={mainMemberName}
+              currentAuthId={currentAuthId}
+              setCurrentAuthId={setCurrentAuthId}
+              setMainMemberName={setMainMemberName}
+              setModeratorList={setModeratorList}
               accounts={accounts}
               setAccounts={setAccounts}
             />}

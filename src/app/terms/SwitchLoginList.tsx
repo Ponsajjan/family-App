@@ -1,7 +1,6 @@
 import ToggleSwitch from '@/components/ToggleSwitch';
 import React, { useState } from 'react';
 import { setCookie } from 'cookies-next';
-
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 
@@ -18,9 +17,10 @@ interface SwitchLoginListProps {
     setModeratorList: (value: any) => void;
     accounts: AccountDetail[];
     setAccounts: any;
+    setCurrentAuthId: (value: string) => void;
 }
 
-function SwitchLoginList({ currentAuthId, setMainMemberName, setModeratorList, accounts, setAccounts }: SwitchLoginListProps) {
+function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, setModeratorList, accounts, setAccounts }: SwitchLoginListProps) {
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const [isToggling, setIsToggling] = useState<boolean>(false);
     const [form, setForm] = useState({ password: "" });
@@ -33,6 +33,17 @@ function SwitchLoginList({ currentAuthId, setMainMemberName, setModeratorList, a
         setIsToggling(true);
         console.log(account.authId, currentAuthId);
         try {
+            let nextAuthId: string | null = null;
+
+            // If we are toggling OFF the current active session account
+            if (account.current && String(account.authId) === String(currentAuthId)) {
+                // Find another account that is currently toggled ON
+                const otherActiveAccount = accounts.find(acc => acc.current && String(acc.authId) !== String(account.authId));
+                if (otherActiveAccount) {
+                    nextAuthId = otherActiveAccount.authId;
+                }
+            }
+
             setAccounts((prev: AccountDetail[]) => {
                 // Find current account in the latest state
                 const target = prev.find(acc => String(acc.authId) === String(account.authId));
@@ -41,7 +52,6 @@ function SwitchLoginList({ currentAuthId, setMainMemberName, setModeratorList, a
                 // Prevent toggling off the last selected account
                 if (target.current) {
                     const activeCount = prev.filter(acc => acc.current).length;
-                    // console.log('before', activeCount, account.authId, target.authId, prev);
                     if (activeCount === 1) {
                         toast?.show("At least one account must remain selected.", "warning", 3000);
                         return prev;
@@ -52,14 +62,32 @@ function SwitchLoginList({ currentAuthId, setMainMemberName, setModeratorList, a
                     String(acc.authId) === String(account.authId) ? { ...acc, current: !acc.current } : acc
                 );
 
-                // console.log('after', account.authId, target.authId, updated);
-
                 const selectedAuthIds = updated.filter(acc => acc.current).map(acc => acc.authId);
-
                 setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 }); // 30 days
 
                 return updated;
             });
+
+            // If we need to switch the active session account because current one was toggled off
+            if (nextAuthId) {
+                try {
+                    const response = await fetch("/api/auth/switchLogin", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ account: nextAuthId }),
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        storeLoginValues(data.newtoken, data.userType, data.authId);
+                        setCurrentAuthId(data.authId);
+                        setMainMemberName(data.mainMemberName || 'Account');
+                        setModeratorList(data.moderators);
+                    }
+                } catch (err) {
+                    console.error("Auto-switch error:", err);
+                    // toast?.show("Error switching account", "error", 3000);
+                }
+            }
 
             // Delay to prevent immediate repeated toggles and allow state/cookies to settle
             await new Promise(resolve => setTimeout(resolve, 300));
@@ -117,6 +145,7 @@ function SwitchLoginList({ currentAuthId, setMainMemberName, setModeratorList, a
                 setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge: 60 * 60 * 24 * 30 });
                 setForm({ password: "" });
                 setAccounts(updatedAccounts);
+                setCurrentAuthId(data.authId);
                 setError("");
                 setMainMemberName(data.mainMemberName || 'New Account');
                 // setPassword(data.password);
