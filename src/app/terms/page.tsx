@@ -153,8 +153,7 @@ export default function Terms() {
           {loading ? <Loading /> :
             <div className="max-w-4xl mx-auto p-4 md:py-10">
               <h1 className="text-2xl md:text-3xl font-bold text-center mb-1 sm:mb-4">
-                {/* The {mainMemberName} Family, Birthdays & Remembrances */}
-                Family, Birthdays & Remembrances Calendar
+                The {mainMemberName} Family, Birthdays & Remembrances
               </h1>
               {/* <p className="text-base sm:text-lg text-center mb-4">
                 இந்த Web App, பிறந்தநாள் மற்றும் நினைவு நாட்கள் போன்ற முக்கிய நிகழ்வுகளைக் குடும்ப உறுப்பினர்கள் நினைவுகூரவும், சிறப்பிக்கவும் பிரத்யேகமாக உருவாக்கப்பட்டது.

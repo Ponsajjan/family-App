@@ -12,6 +12,7 @@ import { ChoosePopup } from '@/components/ChoosePopup'
 export default function AdminDashboard() {
     const toast = useToast();
     const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
     const [updatingChart, setUpdatingChart] = useState(false);
     const [disabledButtons, setDisabledButtons] = useState(false);
     const [showChoosePopup, setShowChoosePopup] = useState(false);
@@ -22,6 +23,7 @@ export default function AdminDashboard() {
     useEffect(() => {
         async function fetchData() {
             try {
+
                 const res = await fetch('/api/moderator', {
                     method: 'GET',
                     headers: {
@@ -51,6 +53,8 @@ export default function AdminDashboard() {
             } catch (error: any) {
                 toast?.show(error.message || "Failed to fetch data", 'error', 5000)
                 console.error("Failed to fetch data:", error)
+            } finally {
+                setLoading(false)
             }
         }
 
@@ -119,7 +123,7 @@ export default function AdminDashboard() {
             <Topnav>
 
             </Topnav>
-            {data ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
+            {!loading ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
                 <div className="flex items-center gap-2 mb-2 h-9">
                     {data?.mainMemberName && <>
                         <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
