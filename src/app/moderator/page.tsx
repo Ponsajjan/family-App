@@ -10,13 +10,14 @@ import { SwitchIcon } from '@/utils/Icons'
 import { ChoosePopup } from '@/components/ChoosePopup'
 
 export default function AdminDashboard() {
-    const toast = useToast()
-    const [data, setData] = useState<any>(null)
-    const [updatingChart, setUpdatingChart] = useState(false)
-    const [showChoosePopup, setShowChoosePopup] = useState(false)
-    const [fetchTrigger, setFetchTrigger] = useState(0)
-    const { logout } = useAuth()
-    const router = useRouter()
+    const toast = useToast();
+    const [data, setData] = useState<any>(null);
+    const [updatingChart, setUpdatingChart] = useState(false);
+    const [disabledButtons, setDisabledButtons] = useState(false);
+    const [showChoosePopup, setShowChoosePopup] = useState(false);
+    const [fetchTrigger, setFetchTrigger] = useState(0);
+    const { logout } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
         async function fetchData() {
@@ -58,7 +59,6 @@ export default function AdminDashboard() {
 
     const handleUpdateRelationsChart = async () => {
         try {
-            setUpdatingChart(true)
             const res = await fetch('/api/moderator/update_chart', {
                 method: 'POST',
             })
@@ -69,11 +69,12 @@ export default function AdminDashboard() {
             }
 
             if (res.status === 403) {
+                setDisabledButtons(true);
                 router.push('/terms/moderator_login');
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }
-
+            setUpdatingChart(true)
             const data = await res.json()
 
             if (res.ok) {
@@ -113,7 +114,6 @@ export default function AdminDashboard() {
         }
     }
 
-    console.log(data)
     return (
         <>
             <Topnav>
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center gap-2 mb-2 h-9">
                     {data?.mainMemberName && <>
                         <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
-                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap w-56 text-ellipsis overflow-clip">{data.mainMemberName} Family</span>
+                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{data.mainMemberName} Family</span>
                         <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
                         <div
                             onClick={() => setShowChoosePopup(true)}
@@ -137,11 +137,13 @@ export default function AdminDashboard() {
                     linkto={`moderator/verify_members`}
                     className="w-full mb-4"
                     buttonText={`Verify Members (${data?.unverifiedMembers ?? '..'})`}
+                    disabled={disabledButtons}
                 />
                 <LinkButtonOutline
                     linkto={`moderator/verify_changes`}
                     className="w-full mb-4"
                     buttonText={`Verify Changes (${data?.pendingRequests ?? '..'})`}
+                    disabled={disabledButtons}
                 />
                 <ButtonOutline
                     className="w-full mb-4"
@@ -153,7 +155,7 @@ export default function AdminDashboard() {
                                 : "Update Relations Chart"
                     }
                     onClick={handleUpdateRelationsChart}
-                    disabled={updatingChart || data?.chartStatus === 'building'}
+                    disabled={updatingChart || data?.chartStatus === 'building' || disabledButtons}
                 />
             </div> :
                 <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">

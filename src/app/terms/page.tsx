@@ -12,7 +12,6 @@ import SlidePanel from '@/components/SlidePanel'
 import SwitchLoginList from './SwitchLoginList'
 import LogoutList from './LogoutList'
 import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as needed
-import { deleteCookie } from 'cookies-next'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Terms() {
@@ -26,6 +25,7 @@ export default function Terms() {
   // const [showCopiedMsg, setShowCopiedMsg] = useState(false);
   const [mainMemberName, setMainMemberName] = useState('');
   const [accounts, setAccounts] = useState([]);
+  const [currentAuthId, setCurrentAuthId] = useState('');
   const [isModerator, setIsModerator] = useState(false);
   const router = useRouter();
   const { storeLoginValues, logout } = useAuth();
@@ -58,6 +58,7 @@ export default function Terms() {
         setMainMemberName(data.mainMemberName)
         setModeratorList(data.moderators)
         // setPassword(data.password)
+        setCurrentAuthId(data.currentAuthId)
         setAccounts(data.allAuthDetails)
         setIsModerator(data.userType === 'Moderator')
 
@@ -241,6 +242,7 @@ export default function Terms() {
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
           {showLogin &&
             <SwitchLoginList
+              currentAuthId={currentAuthId}
               setMainMemberName={setMainMemberName}
               // setPassword={setPassword}
               setModeratorList={setModeratorList}

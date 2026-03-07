@@ -78,7 +78,7 @@ export default function AddEditPage() {
                         {data?.switchAccounts.length > 1 &&
                             <>
                                 <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
-                                <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap w-56 text-ellipsis overflow-clip">{data.member?.name} Family</span>
+                                <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{data.member?.name} Family</span>
                                 <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
                                 <div
                                     onClick={() => setShowChoosePopup(true)}

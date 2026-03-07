@@ -62,14 +62,8 @@ export async function GET(request: NextRequest) {
 
     if (existingCookie) {
       try {
-        const decodedValue = existingCookie;
-        if (decodedValue.startsWith('[') && decodedValue.endsWith(']')) {
-          allAuthIds = JSON.parse(decodedValue);
-        } else {
-          allAuthIds = [decodedValue.replace(/^\["|"\]$/g, '')];
-        }
-      } catch (e) {
-        console.error("Error parsing authId cookie", e);
+        allAuthIds = JSON.parse(existingCookie);
+      } catch {
         allAuthIds = [currentAuthId];
       }
     }
