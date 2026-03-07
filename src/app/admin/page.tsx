@@ -1,7 +1,7 @@
 'use client'
 
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
@@ -54,56 +54,56 @@ export default function Relatives() {
     setHasMore(true);
   };
 
-  const fetchData = useCallback(async () => {
-    if (isFetching || !hasMore) return;
-
-    try {
-      setIsFetching(true);
-      setLoading(true);
-
-      const queryParams = new URLSearchParams({
-        page: params.page.toString(),
-        limit: params.limit.toString(),
-        ...(params.search && { search: params.search })
-      });
-
-      const response = await fetch(`/api/admin?${queryParams}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      // Handle 401 Unauthorized
-      if (response.status === 401) {
-        logout();
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const { data, totalCount }: ApiResponse = await response.json();
-      if (params.page === 1) {
-        setData(data);
-      } else {
-        setData(prev => [...prev, ...data]);
-      }
-
-      const totalPages = Math.ceil(totalCount / params.limit);
-      setHasMore(params.page < totalPages);
-    } catch (error: any) {
-      toast?.show(error.message || 'Error fetching data', "error", 5000);
-    } finally {
-      setLoading(false);
-      setIsFetching(false);
-    }
-  }, [params, logout, toast]);
-
   useEffect(() => {
+    const fetchData = async () => {
+      if (isFetching || !hasMore) return;
+
+      try {
+        setIsFetching(true);
+        setLoading(true);
+
+        const queryParams = new URLSearchParams({
+          page: params.page.toString(),
+          limit: params.limit.toString(),
+          ...(params.search && { search: params.search })
+        });
+
+        const response = await fetch(`/api/admin?${queryParams}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const { data, totalCount }: ApiResponse = await response.json();
+        if (params.page === 1) {
+          setData(data);
+        } else {
+          setData(prev => [...prev, ...data]);
+        }
+
+        const totalPages = Math.ceil(totalCount / params.limit);
+        setHasMore(params.page < totalPages);
+      } catch (error: any) {
+        toast?.show(error.message || 'Error fetching data', "error", 5000);
+      } finally {
+        setLoading(false);
+        setIsFetching(false);
+      }
+    };
+
     fetchData();
-  }, [fetchData, toast, logout]);
+  }, [params, toast, logout]);
 
   const loadMore = () => {
     if (hasMore) {

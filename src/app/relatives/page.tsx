@@ -2,7 +2,7 @@
 
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Details from './Details';
 import Link from 'next/link';
 import { useToast } from '@/components/Toast';
@@ -73,51 +73,51 @@ export default function Relatives() {
     setHasMore(true);
   };
 
-  const fetchMembers = useCallback(async () => {
-    if (isFetching || !hasMore) return;
-    try {
-      setIsFetching(true);
-      setLoadingList(true);
-
-      const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-      );
-
-      // Handle 401 Unauthorized
-      if (response.status === 401) {
-        logout();
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const { data, totalCount } = await response.json();
-      if (params.page === 1) {
-        setMembers(data);
-      } else {
-        setMembers((prev) => [...new Set([...prev, ...data])]);
-      }
-
-      const totalPages = Math.ceil(totalCount / params.limit);
-      setHasMore(params.page < totalPages);
-    } catch (error: any) {
-      toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-    } finally {
-      setLoadingList(false);
-      setIsFetching(false);
-    }
-  }, [params, logout, toast]);
-
   useEffect(() => {
+    const fetchMembers = async () => {
+      if (isFetching || !hasMore) return;
+      try {
+        setIsFetching(true);
+        setLoadingList(true);
+
+        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+          }
+        );
+
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const { data, totalCount } = await response.json();
+        if (params.page === 1) {
+          setMembers(data);
+        } else {
+          setMembers((prev) => [...new Set([...prev, ...data])]);
+        }
+
+        const totalPages = Math.ceil(totalCount / params.limit);
+        setHasMore(params.page < totalPages);
+      } catch (error: any) {
+        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+      } finally {
+        setLoadingList(false);
+        setIsFetching(false);
+      }
+    };
+
     fetchMembers();
-  }, [fetchMembers]);
+  }, [params, logout, toast]);
 
   const loadMore = () => {
     if (hasMore) {

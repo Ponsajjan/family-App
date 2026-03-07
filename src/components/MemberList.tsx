@@ -1,7 +1,7 @@
 'use client';
 
 import { Cross, Female, FilterSelect, Male, SearchIcon, Tick } from '@/utils/Icons';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Checkbox from '@/components/CheckBox';
 import Input from '@/components/Input';
 import { ButtonSolid } from './Button';
@@ -127,7 +127,7 @@ export default function MemberList({
     }
   }
 
-  useCallback(() => {
+  useEffect(() => {
     setParams((prevParams) => ({
       ...prevParams,
       search: '',
@@ -236,7 +236,8 @@ export default function MemberList({
       return <p className="text-center pt-10 pb-4 px-2">No member found for &#39;{params.search}&#39;</p>;
     }
     switch (forType) {
-      case ForType.SelectMember || ForType.EditMember:
+      case ForType.SelectMember:
+      case ForType.EditMember:
         return <p className="text-center pt-10 pb-4 px-2">No Member Available</p>;
       case ForType.SelectChildren:
         return <p className="text-center pt-10 pb-4 px-2">No family descendant with parents unassigned</p>;
