@@ -80,7 +80,6 @@ export default function EditRelationshipDetails() {
             setFormData(data);
           }
 
-
           setHasPatner(data.partner?.id);
           setNoChanges(true);
           setSubmitError("");

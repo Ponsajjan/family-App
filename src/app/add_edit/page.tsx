@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation"
 import { LinkButtonOutline } from "../../components/Button"
 import { SwitchIcon } from "@/utils/Icons"
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState } from "react"
 import { useToast } from "@/components/Toast"
 import { ChoosePopup } from "@/components/ChoosePopup"
 

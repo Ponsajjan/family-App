@@ -35,6 +35,23 @@ enum ForType {
   EditMember = 'editMember'
 }
 
+function getFiltersFor(forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editMember' | 'editRelationship', gender: string | null): string[] {
+  switch (forType) {
+    case ForType.SelectMember:
+      return ['All Members'];
+    case ForType.SelectPartner:
+      return [gender === 'Male' ? 'Female' : 'Male', 'Partner Unassigned'];
+    case ForType.SelectChildren:
+      return ['Descendant', 'Parents Unassigned'];
+    case ForType.EditRelationship:
+      return ['Partner Assigned', 'Children Assigned'];
+    case ForType.EditMember:
+      return ['All Members']
+    default:
+      return ['All'];
+  }
+}
+
 interface MemberListProps {
   forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship' | 'editMember';
   gender?: 'Male' | 'Female' | null;
@@ -59,7 +76,7 @@ export default function MemberList({
   const toast = useToast();
   const [members, setMembers] = useState<Member[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
+  const [appliedFilters, setAppliedFilters] = useState<string[]>(getFiltersFor(forType, gender || null));
   const [searchInput, setSearchInput] = useState('');
   const [loadingList, setLoadingList] = useState(false);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
@@ -71,6 +88,9 @@ export default function MemberList({
     limit: 25,
     search: '',
     type: forType,
+    gender: gender,
+    excludeId: excludeId,
+    descendant: descendant,
     showCousin: false
   });
 
@@ -110,54 +130,50 @@ export default function MemberList({
 
   const selectedValues = getSelectedValues['children'] || [];
 
-  function getFiltersFor(forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editMember' | 'editRelationship', gender: string | null): string[] {
-    switch (forType) {
-      case ForType.SelectMember:
-        return ['All Members'];
-      case ForType.SelectPartner:
-        return [gender === 'Male' ? 'Female' : 'Male', 'Partner Unassigned'];
-      case ForType.SelectChildren:
-        return ['Descendant', 'Parents Unassigned'];
-      case ForType.EditRelationship:
-        return ['Partner Assigned', 'Children Assigned'];
-      case ForType.EditMember:
-        return ['All Members']
-      default:
-        return ['All'];
+
+
+  useEffect(() => {
+    // 1. Sync props to state and reset list if structural props changed
+    // We compare props against the current params state
+    const isStructuralChange =
+      params.type !== forType ||
+      params.gender !== gender ||
+      params.descendant !== descendant ||
+      JSON.stringify(params.excludeId) !== JSON.stringify(excludeId);
+
+    if (isStructuralChange) {
+      setParams((prev) => ({
+        ...prev,
+        type: forType,
+        gender: gender,
+        descendant: descendant,
+        excludeId: excludeId,
+        page: 1,
+        search: '',
+        showCousin: false,
+      }));
+      setSearchInput('');
+      setMembers([]);
+      setHasMore(true);
+      setAppliedFilters(getFiltersFor(forType, gender));
+      // Return early; the setParams call will trigger this effect again with synced values
+      return;
     }
-  }
 
-  useEffect(() => {
-    setParams((prevParams) => ({
-      ...prevParams,
-      search: '',
-      type: forType,
-      showCousin: false,
-      page: 1,
-    }));
-    setSearchInput('');
-    setMembers([]);
-    setHasMore(true);
-    setAppliedFilters(getFiltersFor(forType, gender));
-  }, [forType, gender]);
-
-  useEffect(() => {
-
+    // 2. Data fetching and scroll handling
     let isFetching = false;
 
     async function fetchMembers() {
-      if (isFetching) return;
+      if (isFetching || hasMore === false) return;
+
       try {
         setLoadingList(true);
         isFetching = true;
         setError(null);
 
-        if (hasMore === false) {
-          return;
-        }
-        const excludeIdSet = [...new Set(excludeId)];
+        const excludeIdSet = [...new Set(params.excludeId || [])];
         const response = await fetch(
-          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${gender}&excludeId=${excludeIdSet}&descendant=${descendant}&showCousin=${params.showCousin}`,
+          `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${params.gender}&excludeId=${excludeIdSet}&descendant=${params.descendant}&showCousin=${params.showCousin}`,
           {
             method: 'GET',
             headers: {
@@ -166,6 +182,7 @@ export default function MemberList({
             cache: 'no-store',
           }
         );
+
         // Handle 401 Unauthorized
         if (response.status === 401) {
           logout();
@@ -178,7 +195,7 @@ export default function MemberList({
 
         const { data, totalCount, mainMemberId } = await response.json();
 
-        setMainMemberID(mainMemberId)
+        setMainMemberID(mainMemberId);
         if (params.page === 1) {
           setMembers(data);
         } else {
@@ -218,7 +235,7 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, descendant, excludeId, gender, logout]);
+  }, [params, hasMore, toast, descendant, excludeId, gender, forType, logout]);
   // Do not add letterId in dependency for list to work properly
 
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
@@ -236,8 +253,7 @@ export default function MemberList({
       return <p className="text-center pt-10 pb-4 px-2">No member found for &#39;{params.search}&#39;</p>;
     }
     switch (forType) {
-      case ForType.SelectMember:
-      case ForType.EditMember:
+      case (ForType.SelectMember || ForType.EditMember):
         return <p className="text-center pt-10 pb-4 px-2">No Member Available</p>;
       case ForType.SelectChildren:
         return <p className="text-center pt-10 pb-4 px-2">No family descendant with parents unassigned</p>;
