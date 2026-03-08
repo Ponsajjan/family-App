@@ -234,121 +234,180 @@ export default function Calendar() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full min-h-screen bg-transparent">
       <Topnav>
         {(isFuture || isPast) && (
-          <div className="ml-auto mr-0 border border-border_color rounded-md p-1 flex items-center">
-            {isFuture ? (
-              <div className="cursor-pointer hover:bg-field_color transition-colors" onClick={resetToCurrentMonth} title="Jump to Current Month">
-                <SkipBack />
-              </div>
-            ) : (
-              <div className="cursor-pointer hover:bg-field_color transition-colors" onClick={resetToCurrentMonth} title="Jump to Current Month">
-                <SkipForward />
-              </div>
-            )}
-          </div>
+          <button
+            onClick={resetToCurrentMonth}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-dark border-accent_color/30 text-accent_color hover:bg-accent_color hover:text-accent_contrast transition-all duration-300 text-sm font-medium shadow-sm hover:shadow-accent_color/20"
+            title="Jump to Current Month"
+          >
+            {isFuture ? <SkipBack /> : <SkipForward />}
+            <span>Current Month</span>
+          </button>
         )}
       </Topnav>
 
-      <div className="md:flex">
-        <Container className='px-3 md:border-r md:border-border_color pb-3 w-full'>
-          <div className="w-full max-w-3xl mx-auto mt-6">
-            <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
-              <div className="flex items-center justify-between">
-                <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
-                <div className="flex items-baseline">
-                  <p className="font-medium text-xl pr-2">
-                    {moment(calendarDate).tz("Asia/Kolkata").format("MMMM")}
-                  </p>
-                  <p className="font-medium text-base">
-                    {moment(calendarDate).tz("Asia/Kolkata").format("YYYY")}
-                  </p>
-                </div>
+      <div className="lg:flex p-4 md:p-8 gap-8">
+        <div className="flex-1 max-w-4xl">
+          <div className="glass rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/10 border border-white/10">
+            {/* Calendar Header */}
+            <div className="px-6 py-8 flex items-center justify-between border-b border-border_color/20 bg-accent_color/5 backdrop-blur-md">
+              <div className="flex flex-col">
+                <h2 className="text-3xl font-bold tracking-tight text-text_color">
+                  {moment(calendarDate).tz("Asia/Kolkata").format("MMMM")}
+                </h2>
+                <span className="text-accent_color font-medium tracking-widest text-sm uppercase">
+                  {moment(calendarDate).tz("Asia/Kolkata").format("YYYY")}
+                </span>
+              </div>
 
-                <div className="font-light py-2 px-3 cursor-pointer" onClick={getNextMonth}>{">"}</div>
+              <div className="flex gap-2">
+                <button
+                  onClick={getPreviousMonth}
+                  className="p-2.5 rounded-xl glass hover:bg-accent_color hover:text-accent_contrast transition-all duration-300 shadow-sm active:scale-95"
+                >
+                  <SkipBack />
+                </button>
+                <button
+                  onClick={getNextMonth}
+                  className="p-2.5 rounded-xl glass hover:bg-accent_color hover:text-accent_contrast transition-all duration-300 shadow-sm active:scale-95"
+                >
+                  <SkipForward />
+                </button>
               </div>
             </div>
-            <div className="grid grid-cols-7 cursor-default text-text_color bg-field_color border-l border-border_color text-sm">
-              {daysOfWeek.map((day) => (
-                <div key={day} className="py-1 md:font-medium text-center border-r border-b border-border_color">{day}</div>
-              ))}
 
-              {/* Render Empty Cells Before 1st of Month */}
-              {Array.from({ length: firstDayOfMonth }, (_, index) => (
-                <div key={index} className="h-12 border-r border-b border-border_color">
-                  <p className="bg-main_background opacity-25 h-full">&nbsp;</p>
-                </div>
-              ))}
-
-              {/* Render Days of Month with Events */}
-              {Array.from({ length: lastDayOfMonth.getDate() }, (_, index) => {
-                const date = index + 1;
-                const cellDate = new Date(year, month, date);
-                const cellIsToday = isToday(cellDate);
-
-                return (
-                  <div
-                    key={date}
-                    onClick={() => HandlePopupData('date', date)}
-                    style={{ viewTransitionName: `item${date}` }}
-                    className={`date-cell ${cellIsToday ? "bg-accent_color text-accent_contrast" : ""
-                      } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
-                  >
-                    {datesList?.includes(date) && !loading && <p className={`${cellIsToday ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
-                    <p className={`absolute p-0.5`}>{date}</p>
+            {/* Calendar Grid */}
+            <div className="p-4 md:p-6 bg-transparent">
+              {/* Day Headers */}
+              <div className="grid grid-cols-7 mb-4">
+                {daysOfWeek.map((day) => (
+                  <div key={day} className="text-center text-xs font-bold uppercase tracking-widest text-text_color/40 pb-2">
+                    {day}
                   </div>
-                );
-              })}
+                ))}
+              </div>
 
-              {/* Render Empty Cells After Last Day of Month */}
-              {Array.from({ length: emptyCellsCount }, (_, index) => (
-                <div key={index} className="h-12 border-r border-b border-border_color">
-                  <p className="bg-main_background opacity-25 h-full">&nbsp;</p>
-                </div>
-              ))}
-            </div>
+              <div className="grid grid-cols-7 gap-2 md:gap-3">
+                {/* Render Empty Cells Before 1st of Month */}
+                {Array.from({ length: firstDayOfMonth }, (_, index) => (
+                  <div key={`empty-prev-${index}`} className="aspect-square rounded-2xl bg-field_hover/30 opacity-40"></div>
+                ))}
 
-            <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-[600ms] bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
-            <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
-              <div className="relative">
-                <span onClick={() => setShowPopup(false)} className="absolute top-4 right-4 hidden md:block border border-border_color rounded-md cursor-pointer z-10"><CloseIcon /></span>
-                {showPopupFor === 'date' && (() => {
-                  const selected = new Date(selectedDate);
-                  const selectedIsToday = isToday(selected);
+                {/* Render Days of Month */}
+                {Array.from({ length: lastDayOfMonth.getDate() }, (_, index) => {
+                  const date = index + 1;
+                  const cellDate = new Date(year, month, date);
+                  const cellIsToday = isToday(cellDate);
+                  const hasEvents = datesList?.includes(date);
 
                   return (
-                    <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 pt-3 pb-2`}>
-                      <p className="flex flex-wrap text-lg md:text-xl font-medium md:font-semibold text-text_color items-end min-h-[1.875rem]">
-                        {selectedIsToday &&
-                          <>
-                            <Announcement />
-                            <span className="px-1 font-semibold text-accent_color">Today - </span>
-                          </>
+                    <div
+                      key={date}
+                      onClick={() => HandlePopupData('date', date)}
+                      className={`
+                        relative aspect-square flex flex-col items-center justify-center rounded-2xl cursor-pointer transition-all duration-300 group
+                        ${cellIsToday
+                          ? "bg-accent_color text-accent_contrast shadow-lg shadow-accent_color/30 ring-4 ring-accent_color/10 scale-105 z-10"
+                          : "glass-dark hover:bg-field_hover hover:scale-105 hover:shadow-md"
                         }
-                        {format(selected, 'd MMM yyyy')}
-                        <span className="font-normal pl-2">
-                          ({format(selected, 'EEEE')})
-                        </span>
-                      </p>
+                      `}
+                    >
+                      <span className={`text-base md:text-xl font-semibold ${cellIsToday ? "text-accent_contrast" : "text-text_color"}`}>
+                        {date}
+                      </span>
+
+                      {hasEvents && !loading && (
+                        <div className={`
+                          absolute bottom-3 w-1.5 h-1.5 rounded-full
+                          ${cellIsToday ? "bg-white shadow-[0_0_8px_white]" : "bg-accent_color shadow-[0_0_8px_rgba(var(--accent-color),0.5)]"}
+                        `} />
+                      )}
+
+                      {/* Hover effect highlight */}
+                      {!cellIsToday && (
+                        <div className="absolute inset-0 rounded-2xl bg-accent_color/0 group-hover:bg-accent_color/5 transition-colors duration-300" />
+                      )}
                     </div>
                   );
-                })()}
-                <div className={`p-4 ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
-                  {showPopupFor === 'date' && <OnDate events={eventForDate} />}
-                  {showPopupFor === 'member' && <CalendarMemberDetail memberId={selectedMemberId} />}
-                </div>
+                })}
+
+                {/* Render Empty Cells After Last Day of Month */}
+                {Array.from({ length: emptyCellsCount }, (_, index) => (
+                  <div key={`empty-next-${index}`} className="aspect-square rounded-2xl bg-field_hover/30 opacity-40"></div>
+                ))}
               </div>
             </div>
           </div>
-        </Container>
-        <div className="w-full lg:max-w-[36.25rem] mx-auto">
-          {loading ? <Loading /> :
-            datesList?.length > 0
-              ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} />
-              : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
+
+          {/* Mobile Overlay Background */}
+          <div onClick={() => setShowPopup(false)} className={`fixed md:hidden inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm transition-opacity duration-500 ease-in-out ${showPopup ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} />
+
+          {/* Popup Panel */}
+          <div className={`
+            md:static z-[101] fixed left-0 right-0 bottom-0 bg-transparent md:mt-12 transition-all duration-500 ease-in-out
+            ${showPopup
+              ? 'translate-y-0 opacity-100 visible'
+              : 'translate-y-full opacity-0 invisible md:translate-y-0 md:opacity-100 md:visible'
+            }
+          `}>
+            <div className="glass border-t md:border border-border_color/20 rounded-t-[2.5rem] md:rounded-[2.5rem] p-6 shadow-2xl">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-border_color/10">
+                {showPopupFor === 'date' && (() => {
+                  const selected = new Date(selectedDate);
+                  const selectedIsToday = isToday(selected);
+                  return (
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-2xl bg-accent_color/10 text-accent_color">
+                        <Announcement />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold uppercase tracking-widest text-accent_color">
+                          {selectedIsToday ? "Occurring Today" : "Events for Date"}
+                        </span>
+                        <h3 className="text-xl font-bold text-text_color">
+                          {format(selected, 'EEEE, d MMM yyyy')}
+                        </h3>
+                      </div>
+                    </div>
+                  );
+                })()}
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="p-2 rounded-xl hover:bg-field_hover transition-colors text-text_color/60"
+                >
+                  <CloseIcon />
+                </button>
+              </div>
+
+              <div className="max-h-[60vh] md:max-h-none overflow-y-auto custom-scrollbar">
+                {showPopupFor === 'date' && <OnDate events={eventForDate} />}
+                {showPopupFor === 'member' && <CalendarMemberDetail memberId={selectedMemberId} />}
+              </div>
+            </div>
+          </div>
         </div>
+
+        <aside className="w-full lg:w-[400px] mt-12 lg:mt-0">
+          <div className="sticky top-24">
+            <h3 className="text-lg font-bold text-text_color/60 uppercase tracking-widest mb-6 px-2">
+              All Monthly Events
+            </h3>
+            {loading ? (
+              <div className="flex flex-col gap-4">
+                {[1, 2, 3].map(i => <div key={i} className="h-24 glass rounded-3xl animate-pulse" />)}
+              </div>
+            ) : datesList?.length > 0 ? (
+              <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} />
+            ) : (
+              <div className="glass rounded-[2rem] p-8 text-center text-text_color/50 border-dashed border-2 border-border_color/30">
+                No events scheduled for this month
+              </div>
+            )}
+          </div>
+        </aside>
       </div>
     </div>
-  )
+  );
 }

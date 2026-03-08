@@ -90,7 +90,7 @@ export const PlusIcon = () => {
 export const MinusIcon = () => {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="1.375rem" height="1.375rem" viewBox="0 0 24 24" fill="none">
-            <path d="M6 12L18 12" stroke="rgba(var(--text_color))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M6 12L18 12" stroke="rgba(var(--text-color))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
@@ -122,7 +122,7 @@ export const Warning = () => {
 export const WarningCircle = () => {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none">
-            <path fill="none" d="M12 16.99V17M12 7V14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="rgba(var(--text_color))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path fill="none" d="M12 16.99V17M12 7V14M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="rgba(var(--text-color))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
@@ -185,7 +185,7 @@ export const DarkMode = () => {
 
 export const Filter = () => {
     return (
-        <svg width="1.5625rem" height="1.5625rem" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="rgba(var(--text_color))" className="size-6">
+        <svg width="1.5625rem" height="1.5625rem" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="rgba(var(--text-color))" className="size-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
         </svg>
     )
@@ -557,7 +557,7 @@ export const Date = () => {
 export const AddMember = () => {
     return (
         <svg width="2.5rem" height="2.5rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 18L17 18M17 18L14 18M17 18V15M17 18V21M11 21H4C4 17.134 7.13401 14 11 14C11.695 14 12.3663 14.1013 13 14.2899M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" fill="none" stroke="rgba(var(--text_color))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M20 18L17 18M17 18L14 18M17 18V15M17 18V21M11 21H4C4 17.134 7.13401 14 11 14C11.695 14 12.3663 14.1013 13 14.2899M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" fill="none" stroke="rgba(var(--text-color))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
@@ -565,7 +565,7 @@ export const AddMember = () => {
 export const EditMember = () => {
     return (
         <svg width="2.5rem" height="2.5rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8.5 21H4C4 17.134 7.13401 14 11 14C11.1681 14 11.3348 14.0059 11.5 14.0176M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7ZM12.5898 21L14.6148 20.595C14.7914 20.5597 14.8797 20.542 14.962 20.5097C15.0351 20.4811 15.1045 20.4439 15.1689 20.399C15.2414 20.3484 15.3051 20.2848 15.4324 20.1574L19.5898 16C20.1421 15.4477 20.1421 14.5523 19.5898 14C19.0376 13.4477 18.1421 13.4477 17.5898 14L13.4324 18.1574C13.3051 18.2848 13.2414 18.3484 13.1908 18.421C13.1459 18.4853 13.1088 18.5548 13.0801 18.6279C13.0478 18.7102 13.0302 18.7985 12.9948 18.975L12.5898 21Z" fill="none" stroke="rgba(var(--text_color))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M8.5 21H4C4 17.134 7.13401 14 11 14C11.1681 14 11.3348 14.0059 11.5 14.0176M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7ZM12.5898 21L14.6148 20.595C14.7914 20.5597 14.8797 20.542 14.962 20.5097C15.0351 20.4811 15.1045 20.4439 15.1689 20.399C15.2414 20.3484 15.3051 20.2848 15.4324 20.1574L19.5898 16C20.1421 15.4477 20.1421 14.5523 19.5898 14C19.0376 13.4477 18.1421 13.4477 17.5898 14L13.4324 18.1574C13.3051 18.2848 13.2414 18.3484 13.1908 18.421C13.1459 18.4853 13.1088 18.5548 13.0801 18.6279C13.0478 18.7102 13.0302 18.7985 12.9948 18.975L12.5898 21Z" fill="none" stroke="rgba(var(--text-color))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
@@ -573,7 +573,7 @@ export const EditMember = () => {
 export const AddRelationship = () => {
     return (
         <svg width="2.5rem" height="2.5rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11 21H4C4 17.4735 6.60771 14.5561 10 14.0709M19.8726 15.2038C19.8044 15.2079 19.7357 15.21 19.6667 15.21C18.6422 15.21 17.7077 14.7524 17 14C16.2923 14.7524 15.3578 15.2099 14.3333 15.2099C14.2643 15.2099 14.1956 15.2078 14.1274 15.2037C14.0442 15.5853 14 15.9855 14 16.3979C14 18.6121 15.2748 20.4725 17 21C18.7252 20.4725 20 18.6121 20 16.3979C20 15.9855 19.9558 15.5853 19.8726 15.2038ZM15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" fill="none" stroke="rgba(var(--text_color))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M11 21H4C4 17.4735 6.60771 14.5561 10 14.0709M19.8726 15.2038C19.8044 15.2079 19.7357 15.21 19.6667 15.21C18.6422 15.21 17.7077 14.7524 17 14C16.2923 14.7524 15.3578 15.2099 14.3333 15.2099C14.2643 15.2099 14.1956 15.2078 14.1274 15.2037C14.0442 15.5853 14 15.9855 14 16.3979C14 18.6121 15.2748 20.4725 17 21C18.7252 20.4725 20 18.6121 20 16.3979C20 15.9855 19.9558 15.5853 19.8726 15.2038ZM15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z" fill="none" stroke="rgba(var(--text-color))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
@@ -647,10 +647,10 @@ export const Community = () => {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="1.875rem" height="1.875rem" viewBox="0 0 24 24" version="1.1">
             <polygon fill="none" fillOpacity="0.01" fillRule="nonzero" points="26 0 0 0 0 26 26 26" />
-            <path d="M13,21.6666667 L19.5,15.1666667 L17.3333333,17.3333333 L15.1666667,19.5 L13,21.6666667 Z M13,21.6666667 L2.16666667,10.8333333 L8.66666667,4.33333333 L13,8.66666667" stroke="rgba(var(--text_color))" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-            <path d="M9.20833333,12.4583333 L17.3333333,4.33333333 L23.8333333,10.8333333 L19.5,15.1666667 L15.1666667,10.8333333 L11.9166667,14.0833333 L9.20833333,12.4583333 Z M9.20833333,12.4583333 L13,8.66666667" stroke="rgba(var(--text_color))" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-            <line stroke="rgba(var(--text_color))" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" x1="15.1666667" x2="13.5416667" y1="19.5" y2="17.875" />
-            <line stroke="rgba(var(--text_color))" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" x1="17.3333333" x2="15.7083333" y1="17.3333333" y2="15.7083333" />
+            <path d="M13,21.6666667 L19.5,15.1666667 L17.3333333,17.3333333 L15.1666667,19.5 L13,21.6666667 Z M13,21.6666667 L2.16666667,10.8333333 L8.66666667,4.33333333 L13,8.66666667" stroke="rgba(var(--text-color))" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+            <path d="M9.20833333,12.4583333 L17.3333333,4.33333333 L23.8333333,10.8333333 L19.5,15.1666667 L15.1666667,10.8333333 L11.9166667,14.0833333 L9.20833333,12.4583333 Z M9.20833333,12.4583333 L13,8.66666667" stroke="rgba(var(--text-color))" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+            <line stroke="rgba(var(--text-color))" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" x1="15.1666667" x2="13.5416667" y1="19.5" y2="17.875" />
+            <line stroke="rgba(var(--text-color))" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" x1="17.3333333" x2="15.7083333" y1="17.3333333" y2="15.7083333" />
         </svg>
     )
 }
@@ -907,10 +907,10 @@ export const Login = () => {
 export const LoginList = () => {
     return (
         <svg width="1.875rem" height="1.875rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill="none" stroke="rgba(var(--text_color))" d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path fill="none" stroke="rgba(var(--text_color))" d="M12 12H15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path fill="none" stroke="rgba(var(--text_color))" d="M12 16H15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path fill="none" stroke="rgba(var(--text_color))" d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path fill="none" stroke="rgba(var(--text-color))" d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path fill="none" stroke="rgba(var(--text-color))" d="M12 12H15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path fill="none" stroke="rgba(var(--text-color))" d="M12 16H15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path fill="none" stroke="rgba(var(--text-color))" d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             <circle cx="9" cy="12" r="1" />
             <circle cx="9" cy="16" r="1" />
         </svg>
@@ -920,7 +920,7 @@ export const LoginList = () => {
 export const Edit = () => {
     return (
         <svg width="1.875rem" height="1.875rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8.56078 20.2501L20.5608 8.25011L15.7501 3.43945L3.75012 15.4395V20.2501H8.56078ZM15.7501 5.56077L18.4395 8.25011L16.5001 10.1895L13.8108 7.50013L15.7501 5.56077ZM12.7501 8.56079L15.4395 11.2501L7.93946 18.7501H5.25012L5.25012 16.0608L12.7501 8.56079Z" fill="rgba(var(--text_color))" />
+            <path d="M8.56078 20.2501L20.5608 8.25011L15.7501 3.43945L3.75012 15.4395V20.2501H8.56078ZM15.7501 5.56077L18.4395 8.25011L16.5001 10.1895L13.8108 7.50013L15.7501 5.56077ZM12.7501 8.56079L15.4395 11.2501L7.93946 18.7501H5.25012L5.25012 16.0608L12.7501 8.56079Z" fill="rgba(var(--text-color))" />
         </svg>
     )
 }
@@ -936,8 +936,8 @@ export const Delete = () => {
 export const Add = () => {
     return (
         <svg width="1.875rem" height="1.875rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill="none" stroke="rgba(var(--text_color))" d="M12 5V19" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path fill="none" stroke="rgba(var(--text_color))" d="M5 12H19" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path fill="none" stroke="rgba(var(--text-color))" d="M12 5V19" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path fill="none" stroke="rgba(var(--text-color))" d="M5 12H19" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
@@ -945,8 +945,8 @@ export const Add = () => {
 export const Cancel = () => {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="1.875rem" height="1.875rem" viewBox="0 0 24 24" fill="none">
-            <path stroke="rgba(var(--text_color))" fill="none" d="M7.12988 18.3101H15.1299C17.8899 18.3101 20.1299 16.0701 20.1299 13.3101C20.1299 10.5501 17.8899 8.31006 15.1299 8.31006H4.12988" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path stroke="rgba(var(--text_color))" d="M6.43012 10.8099L3.87012 8.24994L6.43012 5.68994" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path stroke="rgba(var(--text-color))" fill="none" d="M7.12988 18.3101H15.1299C17.8899 18.3101 20.1299 16.0701 20.1299 13.3101C20.1299 10.5501 17.8899 8.31006 15.1299 8.31006H4.12988" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path stroke="rgba(var(--text-color))" d="M6.43012 10.8099L3.87012 8.24994L6.43012 5.68994" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }

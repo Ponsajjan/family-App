@@ -14,19 +14,19 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors: {
-        main_background: "rgba(var(--main_background))",
+        main_background: "rgba(var(--main-background))",
 
-        field_color: "rgba(var(--field_color))",
-        field_hover: "rgba(var(--field_hover))",
+        field_color: "rgba(var(--field-color))",
+        field_hover: "rgba(var(--field-hover))",
 
-        accent_color: "rgba(var(--accent_color), 0.8)",
-        accent_color_hover: "rgba(var(--accent_color))",
+        accent_color: "rgba(var(--accent-color), 0.8)",
+        accent_color_hover: "rgba(var(--accent-color))",
 
-        accent_contrast: "rgba(var(--accent_contrast))",
-        text_color: "rgba(var(--text_color))",
-        
-        border_color: "rgba(var(--border_color), 0.6)",
-        border_active: "rgba(var(--border_color))",
+        accent_contrast: "rgba(var(--accent-contrast))",
+        text_color: "rgba(var(--text-color))",
+
+        border_color: "rgba(var(--border-color), 0.6)",
+        border_active: "rgba(var(--border-color))",
       },
     },
   },

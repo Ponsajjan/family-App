@@ -75,7 +75,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} font-inter-fallback h-full bg-main_background`} suppressHydrationWarning={true}>
+      <body className={`${inter.className} font-inter-fallback min-h-screen bg-main_background relative overflow-x-hidden`} suppressHydrationWarning={true}>
+        {/* Background Glows */}
+        <div className="fixed inset-0 pointer-events-none -z-10">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent_color/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[10%] right-[-10%] w-[30%] h-[30%] bg-indigo-500/5 rounded-full blur-[100px]" />
+        </div>
+
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
