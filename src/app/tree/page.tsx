@@ -71,7 +71,7 @@ export default function FamilyTreePage() {
       </Topnav>
 
       {loading ? (
-        <div className="text-center text-text_color p-10">Loading family tree...</div>
+        <div className="text-center text-text_color p-10 loading-text">Loading family tree...</div>
       ) : error ? (
         <div className="text-center text-text_color p-10">{error}</div>
       ) : (
