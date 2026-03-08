@@ -49,7 +49,7 @@ export default function Page() {
     return (
         <div className="w-full">
             <Topnav>
-                <div className="ml-auto mr-0 w-fit md:min-w-[170px] block">
+                <div className="ml-auto mr-0 w-fit md:min-w-[10.625rem] block">
                     <button
                         className="group flex items-center text-xs md:text-sm text-text_color"
                         onClick={() => router.push("/moderator")}

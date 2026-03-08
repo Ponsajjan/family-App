@@ -22,7 +22,7 @@ const TextArea: React.FC<TextAreaProps> = ({
                 <textarea
                     placeholder={placeholder}
                     name={label}
-                    className={`p-2 border border-border_color outline-none focus:border-border_active text-sm rounded-md w-full bg-field_color disabled:cursor-not-allowed resize-vertical min-h-[80px] ${className}`}
+                    className={`p-2 border border-border_color outline-none focus:border-border_active text-sm rounded-md w-full bg-field_color disabled:cursor-not-allowed resize-vertical min-h-[5rem] ${className}`}
                     {...restProps}
                 />
             </label>

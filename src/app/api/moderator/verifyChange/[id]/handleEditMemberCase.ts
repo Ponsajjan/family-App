@@ -46,7 +46,7 @@ export async function handleEditMemberCase(member: any, changeData: any) {
 
     return `
       <div class="flex" key="${key}">
-        <div class="font-medium md:font-semibold min-w-[150px]">
+        <div class="font-medium md:font-semibold min-w-[9.375rem]">
             <div class="flex">
                 <span class="whitespace-nowrap">${formatFieldName(key)}</span>
                 <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>

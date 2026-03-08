@@ -161,11 +161,11 @@ export default function VerifyMember() {
             onChange={(e) => handleMemberSearch(e.target.value)}
             type="text"
             placeholder="All Members"
-            className="peer p-1 block w-[calc(100%-1px)] pl-10 border border-border_color focus:outline-none font-normal rounded-md bg-main_background"
+            className="peer p-1 block w-full pl-10 border border-border_color focus:outline-none font-normal rounded-md bg-main_background"
           />
           <button
             onClick={() => resetPrams()}
-            className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
+            className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
             aria-label="Clear search"
           >
             <CloseIcon />
@@ -212,7 +212,7 @@ export default function VerifyMember() {
               <div className="bg-main_background w-full sticky pt-4 top-12 md:top-0 z-20 flex">
                 <div className="border border-border_color -mb-3 rounded-md flex justify-center items-center shadow-sm ml-2 text-text_color bg-field_color whitespace-nowrap">
                   <Link href="/moderator" className="px-1 border-r border-border_color">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="20px" height="20px" viewBox="-8.5 0 32 32" version="1.1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="1.25rem" height="1.25rem" viewBox="-8.5 0 32 32" version="1.1">
                       <path d="M15.281 7.188v17.594l-15.281-8.781z" />
                     </svg>
                   </Link>

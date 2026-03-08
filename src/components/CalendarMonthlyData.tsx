@@ -53,11 +53,11 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year, setS
             
             return (
               <div key={`${item.id}-${index}`} className="border-l border-border_color pt-2 pb-1 pl-4 pr-3 cursor-pointer">
-                <div onClick={() => setSelectedMemberId('member', item.id ?? null)} className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px]">
+                <div onClick={() => setSelectedMemberId('member', item.id ?? null)} className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[3.75rem]">
                   {item.hasDate ? (
                     <div className={`border-t border-dashed ${title === "Earlier This Month" ? 'opacity-60' : ''} border-text_color w-14 ml-2 mr-3`}>
                       <div className="flex flex-col border border-text_color rounded-b-sm">          
-                        <span className="text-[9px] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
+                        <span className="text-[0.5625rem] font-semibold border-b bg-text_color border-text_color text-center text-field_color">
                           {format(displayDate, 'EEE').toUpperCase()}
                         </span>
                         <span className="text-center font-semibold leading-5 py-0.5">{date.getDate()}</span>

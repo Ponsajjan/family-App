@@ -149,12 +149,12 @@ export default function Relatives() {
             placeholder="Search"
             className="ml-auto peer mr-0 input-not-placeholder cursor-pointer block p-1 pl-4 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
           />
-          <span className="absolute right-[5px] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
+          <span className="absolute right-[0.3125rem] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
             <SearchIcon />
           </span>
           <button
             onClick={resetSearch}
-            className="absolute right-[9px] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
+            className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
             aria-label="Clear search"
           >
             <CloseIcon />
@@ -167,7 +167,7 @@ export default function Relatives() {
             <div className='max-w-xl mx-auto'>
               {members?.map((member: any) => (
                 member.gender === "Letter" ?
-                  <div key={member.id} className="flex text-text_color items-center px-[10px] md:pt-1 bg-main_background sticky top-12 md:top-0 z-10">
+                  <div key={member.id} className="flex text-text_color items-center px-[0.625rem] md:pt-1 bg-main_background sticky top-12 md:top-0 z-10">
                     <span className="font-medium md:font-semibold pr-1">{member.name}</span>
                     <span className="border-t border-border_color block w-full"></span>
                   </div> :
@@ -217,7 +217,7 @@ export default function Relatives() {
               <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loadingList && members.length === 0) && (
-                  params.search ? <p className="p-4 text-text_color">No member found for &lsquo;{params.search}&lsquo;</p> : ''
+                  params.search ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for &lsquo;{params.search}&lsquo;</p> : ''
                 )}
                 {!hasMore && <p className="text-text_color">, , ,</p>}
               </div>

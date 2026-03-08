@@ -64,15 +64,15 @@ export const ChoosePopup = ({
     return ReactDom.createPortal(
         <div className='fixed z-[100] inset-0 overflow-hidden'>
             <div
-                className={`lg:pl-40 lg:mt-12 absolute max-w-[2600px] mx-auto inset-0 transition-all duration-500 ease-in-out backdrop-blur-sm 
+                className={`lg:pl-40 lg:mt-12 absolute max-w-[162.5rem] mx-auto inset-0 transition-all duration-500 ease-in-out backdrop-blur-sm 
                     ${showPopup ? 'bg-gray-500/60 top-0' : 'bottom-full delay-[600ms]'}`}
             />
-            <div className="lg:pl-40 w-full h-full max-w-[2600px] mx-auto relative z-20 pointer-events-none">
+            <div className="lg:pl-40 w-full h-full max-w-[162.5rem] mx-auto relative z-20 pointer-events-none">
                 <div className={`md:w-full md:h-full fixed top-full left-0 right-0 md:static md:flex md:flex-col md:justify-center md:items-center transition-all duration-500 ease-in-out
                     ${showPopup ? '-translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden slidpanel-hide'}`}>
                     <div className={`
                         w-full max-h-[80vh] md:max-h-[90%] text-text_color overflow-y-auto cursor-default
-                        md:max-w-[95%] lg:max-w-[450px] mx-auto bg-main_background overflow-x-hidden 
+                        md:max-w-[95%] lg:max-w-[28.125rem] mx-auto bg-main_background overflow-x-hidden 
                         rounded-t-md md:rounded-lg text-left md:shadow-xl p-6 pointer-events-auto
                         ${showPopup ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}
                     `}>

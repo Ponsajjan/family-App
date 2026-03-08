@@ -122,7 +122,7 @@ function AddRelationShipForm({
             <h3 className="text-sm">Member</h3>
             <div
                 onClick={() => handleShowList('selectMember')}
-                className={`w-full flex justify-between items-center ${(selectedMemberData?.name == undefined || (showListFor === 'selectMember' && showList)) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-[10px] cursor-pointer`}
+                className={`w-full flex justify-between items-center ${(selectedMemberData?.name == undefined || (showListFor === 'selectMember' && showList)) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm placeholder:text-xs rounded-md mb-[0.625rem] cursor-pointer`}
             >
                 {selectedMemberData?.name ?
                     <>
@@ -135,7 +135,7 @@ function AddRelationShipForm({
             <div className="flex gap-1 items-center">
                 <h3 className="text-sm">Partner</h3>
             </div>
-            <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px]`} >
+            <div className={`w-full flex justify-between items-center ${(showListFor === 'selectPartner' && showList) ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} px-2 border bg-field_color border-border_color text-sm rounded-md mb-[0.625rem]`} >
                 {(selectedMemberData?.partner?.name)
                     ? <span className="py-2 w-full cursor-not-allowed">{selectedMemberData.partner?.name}</span>
                     : (selectedPartnerData?.name)
@@ -155,21 +155,21 @@ function AddRelationShipForm({
                     <h3 className="text-sm">Children</h3>
                     <>
                         {selectedMemberData.children?.map((item: { id: any, name: string }) => (
-                            <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-not-allowed" >
+                            <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[0.625rem] cursor-not-allowed" >
                                 <span className="py-2 w-full">{item?.name}</span>
                             </div>)
                         )}
                     </>
                     <>
                         {selectedPartnerData?.children.map((item: { id: any, name: string }) => (
-                            <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-not-allowed" >
+                            <div key={item?.id} className="w-full flex justify-between items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[0.625rem] cursor-not-allowed" >
                                 <span className="py-2 w-full">{item?.name}</span>
                             </div>)
                         )}
                     </>
                     <>
                         {newChildrenData?.children.map((item: { id: any, name: string, verified: boolean }, index) => (
-                            <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-[10px] ${newChildrenData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} ${draggedOverIndex === index ? 'bg-field_hover' : ''} `}
+                            <div key={index} className={`w-full flex justify-between items-center px-2 border active:border-dashed bg-field_color border-border_color text-sm rounded-md mb-[0.625rem] ${newChildrenData.children.length > 1 ? 'cursor-grab' : 'cursor-pointer'} ${draggedOverIndex === index ? 'bg-field_hover' : ''} `}
                                 ref={(el) => { itemRefs.current[index] = el; }}
                                 draggable={true}
                                 onDragStart={() => handleDragStart(index)}

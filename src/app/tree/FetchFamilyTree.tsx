@@ -5,21 +5,21 @@ import { Female, Male } from "@/utils/Icons";
 // TreeNode Component
 const TreeNode = ({ node }: { node: any }) => {
   return (
-    <div className="bg-main_background pt-4 md:pt-[26px] last:-ml-[3px] last:pl-[3px]">
+    <div className="bg-main_background pt-4 md:pt-[1.625rem] last:-ml-[0.1875rem] last:pl-[0.1875rem]">
       <div className="flex">
         {node.gen.map((data: any, index: number) => (
           <div
             key={index}
-            className={`flex items-start -ml-[2px] ${index === 0 ? "first:pt-0 pt-4 md:pt-6" : ""}`}
+            className={`flex items-start -ml-[0.125rem] ${index === 0 ? "first:pt-0 pt-4 md:pt-6" : ""}`}
           >
             {index === 0 ? (
-              <div className="-mt-[18px] md:-mt-[28px] block relative w-[30px] md:w-[60px] h-[40px] md:h-[55px] border-l-2 border-b-2 border-text_color rounded-bl-lg">
-                <span className="absolute right-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-l-black border-main_background border-r-0" />
+              <div className="-mt-[1.125rem] md:-mt-[1.75rem] block relative w-[1.875rem] md:w-[3.75rem] h-[2.5rem] md:h-[3.4375rem] border-l-2 border-b-2 border-text_color rounded-bl-lg">
+                <span className="absolute right-0 -bottom-[0.0625rem] transform translate-y-1/2 border-[0.375rem] border-l-black border-main_background border-r-0" />
               </div>
             ) : (
-              <div className="ml-[2px] mt-[18px] md:mt-6 block relative w-[30px] md:w-[60px] border-b-2 border-text_color">
-                <span className="absolute right-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-l-black border-main_background border-r-0" />
-                <span className="absolute left-0 -bottom-[1px] transform translate-y-1/2 border-[6px] border-r-black border-main_background border-l-0" />
+              <div className="ml-[0.125rem] mt-[1.125rem] md:mt-6 block relative w-[1.875rem] md:w-[3.75rem] border-b-2 border-text_color">
+                <span className="absolute right-0 -bottom-[0.0625rem] transform translate-y-1/2 border-[0.375rem] border-l-black border-main_background border-r-0" />
+                <span className="absolute left-0 -bottom-[0.0625rem] transform translate-y-1/2 border-[0.375rem] border-r-black border-main_background border-l-0" />
               </div>
             )}
             <div className="p-2 flex gap-2 justify-between items-center text-sm z-10 md:text-base md:px-4 md:py-3 bg-field_color text-text_color border-2 border-text_color text-nowrap whitespace-nowrap rounded-lg">

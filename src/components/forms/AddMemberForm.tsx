@@ -120,7 +120,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                     <p className="text-sm font-medium">
                         Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
                     </p>
-                    <p className="text-xs font-extralight absolute top-[14px] left-[100px]">
+                    <p className="text-xs font-extralight absolute top-[0.875rem] left-[6.25rem]">
                         (Remove checkmark if not Deceased)
                     </p>
                     <div className="w-full flex gap-2">

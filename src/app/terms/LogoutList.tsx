@@ -47,7 +47,7 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
                         setModeratorList(data.moderators);
                         // toast?.show(`Switched to ${data.mainMemberName || 'Account'}`, "success", 3000);
                     } else {
-                        // toast?.show(data.error || "Failed to switch account automatically", "error", 3000);
+                        toast?.show(data.error || "Failed to switch account automatically", "error", 3000);
                         return; // Don't remove if switch failed? Or just continue? 
                         // User requirement says switch with another active account. If switch fails, maybe we shouldn't remove it yet to avoid breaking session.
                     }
@@ -67,14 +67,21 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
         const updatedAccounts = accounts.filter(account => account.authId !== accountToRemove);
         setAccounts(updatedAccounts);
 
-        // Update the cookie with only authIds
-        const maxAge = 180 * 24 * 60 * 60;
+        // Update the cookies
+        const maxAge = 180 * 24 * 60 * 90;
+        const selectedMaxAge = 60 * 60 * 24 * 90; // 90 days, matching SwitchLoginList
+
         if (updatedAccounts.length === 0) {
             deleteCookie('authId', { path: '/' });
+            deleteCookie('selectedAuthId', { path: '/' });
         } else {
-            // Extract only authIds for the cookie
+            // Update authId cookie
             const authIdsOnly = updatedAccounts.map(account => account.authId);
             setCookie('authId', JSON.stringify(authIdsOnly), { maxAge, path: '/' });
+
+            // Update selectedAuthId cookie (only those that are still 'current')
+            const selectedAuthIds = updatedAccounts.filter(acc => acc.current).map(acc => acc.authId);
+            setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: selectedMaxAge, path: '/' });
         }
     };
 
@@ -104,8 +111,8 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
             </div>
 
             {/* Current Account Section */}
-            <div className='pl-4 pt-4 border-b border-dashed pb-2 pr-[22px] w-full'>
-                <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[45px] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
+            <div className='pl-4 pt-4 border-b border-dashed pb-2 pr-[1.375rem] w-full'>
+                <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[2.8125rem] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
                     <div className="flex flex-col">
                         <div className="font-semibold">Logout</div>
                     </div>
@@ -120,15 +127,15 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
                 {accounts.map((account) => {
                     return (
                         <div key={account.authId} className='py-0.5 md:py-1 w-full'>
-                            <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[40px] bg-field_color text-text_color border border-l-4 border-border_color rounded-md`}>
+                            <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[2.5rem] bg-field_color text-text_color border border-l-4 border-border_color rounded-md`}>
                                 <div>{account.mainMemberRef}</div>
-                                <span
+                                {accounts.length > 1 && <span
                                     onClick={() => handleRemoveAccount(account.authId)}
                                     className="hover:text-accent_color border-l border-border_color pl-3 cursor-pointer"
                                     title="Remove from list"
                                 >
                                     <CloseIcon />
-                                </span>
+                                </span>}
                             </div>
                         </div>
                     );

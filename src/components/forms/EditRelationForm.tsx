@@ -102,7 +102,7 @@ function EditRelationShipForm({
             <p className="text-sm">Member</p>
             <div
                 onClick={() => handleShowList()}
-                className={`w-full flex justify-between ${!formData.name || formData.name == 'undefined' ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-pointer`}
+                className={`w-full flex justify-between ${!formData.name || formData.name == 'undefined' ? 'outline-2 outline-dashed outline-offset-2 outline-border_active' : ''} items-center px-2 border bg-field_color border-border_color text-sm rounded-md mb-[0.625rem] cursor-pointer`}
             >
                 {formData.name && formData.name !== 'undefined' ?
                     <>
@@ -114,14 +114,14 @@ function EditRelationShipForm({
             {!formData.name || formData.name === 'undefined' ?
                 <>
                     <p className="text-sm">Partner</p>
-                    <div className="w-full px-2 border bg-field_color border-border_color text-sm rounded-md mb-[10px] cursor-pointer" >
+                    <div className="w-full px-2 border bg-field_color border-border_color text-sm rounded-md mb-[0.625rem] cursor-pointer" >
                         <span className='block py-2 w-full text-gray-400'>Select Partner</span>
                     </div>
                 </> :
                 formData.partner && formData.partner?.name !== 'undefined' ?
                     <>
                         <p className="text-sm">Partner</p>
-                        <div className="w-full flex justify-between items-center pl-2 pr-[3px] border bg-field_color border-border_color text-sm rounded-md mb-2" >
+                        <div className="w-full flex justify-between items-center pl-2 pr-[0.1875rem] border bg-field_color border-border_color text-sm rounded-md mb-2" >
                             <span className="py-2 w-full">{formData.partner?.name}</span>
                             <div className="flex gap-2 items-center border border-border_color px-1 py-0.5 rounded-md">
                                 <span

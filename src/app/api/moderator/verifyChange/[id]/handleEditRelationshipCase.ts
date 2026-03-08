@@ -145,7 +145,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
       <div class="text-sm text-gray-500 mb-4 italic">Assigned on: ${formatDate(changeData.createdAt)}</div>
       <div class="italic mb-4">---- ${changeData.type || 'Edit Relationship'} ----</div>
       <div class="flex">
-        <div class="font-medium md:font-semibold min-w-[100px]">
+        <div class="font-medium md:font-semibold min-w-[6.25rem]">
             <div class="flex">
                 <span>Member</span>
                 <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>
@@ -155,7 +155,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
       </div>
     
       <div class="flex">
-        <div class="font-medium md:font-semibold min-w-[100px]">
+        <div class="font-medium md:font-semibold min-w-[6.25rem]">
           <div class="flex">
               <span>Partner</span>
               <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>
@@ -169,7 +169,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
    
       ${changeDetails.children ? `
       <div class="flex gap-2">
-        <div class="font-medium md:font-semibold min-w-[100px]">
+        <div class="font-medium md:font-semibold min-w-[6.25rem]">
           <div class="flex">
               <span>Children</span>
               <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>

@@ -134,7 +134,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
       <div class="italic mb-4">---- ${changeData.type || 'Add Relationship'} ----</div>
       
       <div class="flex">
-        <div class="font-medium md:font-semibold min-w-[100px]">
+        <div class="font-medium md:font-semibold min-w-[6.25rem]">
             <div class="flex">
                 <span>Member</span>
                 <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>
@@ -145,7 +145,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
       
       ${changeDetails.partner ? `
         <div class="flex">
-          <div class="font-medium md:font-semibold min-w-[100px]">
+          <div class="font-medium md:font-semibold min-w-[6.25rem]">
             <div class="flex">
                 <span>Partner</span>
                 <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>
@@ -159,7 +159,7 @@ export async function handleAddRelationshipCase(member: any, changeData: any) {
       
       ${changeDetails.children ? `
         <div class="flex">
-          <div class="font-medium md:font-semibold min-w-[100px]">
+          <div class="font-medium md:font-semibold min-w-[6.25rem]">
             <div class="flex">
                 <span>Children</span>
                 <span class="border-b border-dotted border-border_color w-full mb-1 mx-1"></span>

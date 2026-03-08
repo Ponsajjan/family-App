@@ -173,7 +173,7 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
                         <div key={account.authId} className='py-0.5 md:py-1 w-full'>
                             <div
                                 onClick={() => handleToggleChange(account)}
-                                className={`flex items-center justify-between transform transition-all duration-200 min-h-[40px] bg-field_color border border-l-4 ${isCurrentAccount
+                                className={`flex items-center justify-between transform transition-all duration-200 min-h-[2.5rem] bg-field_color border border-l-4 ${isCurrentAccount
                                     ? 'border-gray-500 text-gray-500'
                                     : 'border-border_color text-text_color/45'
                                     } ${isToggling ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:bg-field_color/80'} rounded-md`}
@@ -190,7 +190,7 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
                 }
             </div>
 
-            <div className='px-4 pb-4 border-t border-dashed pt-2 mr-[6px]'>
+            <div className='px-4 pb-4 border-t border-dashed pt-2 mr-[0.375rem]'>
                 <form onSubmit={handleSubmit}>
                     <div className='flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2 relative'>
                         <label className='flex items-center w-full relative'>

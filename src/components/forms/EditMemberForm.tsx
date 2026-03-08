@@ -48,7 +48,7 @@ function EditMemberForm({
                         value={formData.name || ''}
                         onChange={handleInputChange}
                     />
-                    <div onClick={() => setShowList(true)} className="cursor-pointer bg-main_background z-50 border border-border_color px-1 flex justify-center items-center rounded-md w-fit h-8 mr-[2px]">
+                    <div onClick={() => setShowList(true)} className="cursor-pointer bg-main_background z-50 border border-border_color px-1 flex justify-center items-center rounded-md w-fit h-8 mr-[0.125rem]">
                         <ChangeMember />
                     </div>
                 </div>
@@ -125,7 +125,7 @@ function EditMemberForm({
                 </div>
                 <div className={`${showDeathDetails} pt-2`}>
                     <p className="text-sm font-medium">Date Of Death</p>
-                    <p className='text-xs font-extralight absolute top-[14px] left-[100px]'>(Remove checkmark if not Deceased)</p>
+                    <p className='text-xs font-extralight absolute top-[0.875rem] left-[6.25rem]'>(Remove checkmark if not Deceased)</p>
                     <div className="w-full flex gap-2">
                         <Input
                             type="number"

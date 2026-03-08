@@ -304,13 +304,13 @@ export default function MemberList({
       </div>
       <div
         ref={listContainerRef}
-        className={`${forType === ForType.SelectChildren && 'pb-14'} h-[60vh] md:h-[calc(100vh-154px)] overflow-y-auto scroll-stable`}
+        className={`${forType === ForType.SelectChildren && 'pb-14'} h-[60vh] md:h-[calc(100vh-9.625rem)] overflow-y-auto scroll-stable`}
       >
         {forType === ForType.SelectPartner && descendant === true && (
           <div className="py-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm border-b border-border_color">
             <p>Show Cousins List</p>
             <label className="relative inline-flex items-center cursor-pointer p-1">
-              <span className="absolute left-[4px] z-10">
+              <span className="absolute left-[0.25rem] z-10">
                 <Cross />
               </span>
               <input
@@ -319,16 +319,16 @@ export default function MemberList({
                 checked={params.showCousin}
                 onChange={handleShowCousin}
               />
-              <span className="absolute right-[4px] z-10">
+              <span className="absolute right-[0.25rem] z-10">
                 <Tick />
               </span>
               <div className={`
               peer ring-1 bg-black ring-gray-600 rounded-full outline-none duration-300 after:duration-500 
-              w-[31.5px] h-[14px] peer-focus:outline-none after:content-[''] after:rounded-full after:absolute
+              w-[1.96875rem] h-[0.875rem] peer-focus:outline-none after:content-[''] after:rounded-full after:absolute
               after:outline-none after:h-4 after:w-4 after:bg-main_background after:top-1/2 
               after:-translate-y-1/2 after:flex after:justify-center after:items-center 
               after:border-2 after:border-gray-600 
-              ${params.showCousin ? 'after:translate-x-[16px]' : 'after:translate-x-0'} 
+              ${params.showCousin ? 'after:translate-x-[1rem]' : 'after:translate-x-0'} 
             `} />
             </label>
           </div>

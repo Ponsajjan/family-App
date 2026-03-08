@@ -18,7 +18,7 @@ function OnDate({ events }: { events: CalendarMonthlyEvent[] }) {
                 return (
                     <div
                         key={index}
-                        className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[60px] mb-2"
+                        className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[3.75rem] mb-2"
                     >
                         <span className="p-2">
                             {item.type === 'birthday' ? <Birthday /> : <Deathday />}
