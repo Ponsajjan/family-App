@@ -28,19 +28,22 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
     startTimeRef.current = Date.now();
     holdTimerRef.current = window.setInterval(() => {
       const elapsedTime = Date.now() - (startTimeRef.current || 0);
-      setHoldProgress((elapsedTime / holdDuration) * 100);
+      setHoldProgress(Math.min((elapsedTime / holdDuration) * 100, 100));
 
       if (elapsedTime >= holdDuration) {
-        clearInterval(holdTimerRef.current!);
+        if (holdTimerRef.current) {
+          clearInterval(holdTimerRef.current);
+        }
         onClick();
         resetHold();
       }
-    }, 10); // Update progress every 10ms
+    }, 16); // ~60fps for smoother animation without redundant updates
   };
 
   const resetHold = () => {
     if (holdTimerRef.current) {
       clearInterval(holdTimerRef.current);
+      holdTimerRef.current = null;
     }
     setIsHolding(false);
     setHoldProgress(0);
@@ -49,7 +52,10 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
 
   return (
     <button
-      className={`relative min-w-[9.375rem] disabled:cursor-not-allowed disabled:opacity-45 ${type == 'solid' ? 'bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast' : 'bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color'} h-10 md:h-12 px-2 md:px-4 py-2 md:py-3 text-base md:text-lg shadow-md rounded-md font-medium  overflow-hidden flex items-center justify-center ${className}`}
+      className={`relative min-w-[9.375rem] disabled:cursor-not-allowed disabled:opacity-45 ${type === 'solid'
+        ? 'bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast'
+        : 'bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color'
+        } h-10 md:h-12 px-2 md:px-4 py-2 md:py-3 text-base md:text-lg shadow-md rounded-md font-medium overflow-hidden flex items-center justify-center ${className}`}
       onMouseDown={startHold}
       onMouseUp={resetHold}
       onMouseLeave={resetHold}
@@ -58,17 +64,24 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
       onTouchCancel={resetHold}
       disabled={disabled}
     >
+      {/* Progress Overlay */}
       {isHolding && (
         <div
-          className="absolute inset-0 bg-blue-500 transition-all duration-100 ease-linear"
+          className='absolute top-0 left-0 bottom-0 bg-blue-600 z-10'
           style={{ width: `${holdProgress}%` }}
         />
       )}
-      {isHolding ? (
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          {Math.round((holdProgress / 100) * (holdDuration / 1000))}s
-        </div>
-      ): <div>{buttonText}</div>}
+
+      {/* Button Content */}
+      <div className="relative z-20 flex items-center justify-center w-full h-full pointer-events-none">
+        {isHolding ? (
+          <span className="font-mono">
+            {((holdDuration - (holdProgress / 100 * holdDuration)) / 1000).toFixed(1)}s
+          </span>
+        ) : (
+          buttonText
+        )}
+      </div>
     </button>
   );
 };
@@ -89,19 +102,20 @@ export const HoldTextButton: React.FC<HoldButtonProps> = ({
     startTimeRef.current = Date.now();
     holdTimerRef.current = window.setInterval(() => {
       const elapsedTime = Date.now() - (startTimeRef.current || 0);
-      setHoldProgress((elapsedTime / holdDuration) * 100);
+      setHoldProgress(Math.min((elapsedTime / holdDuration) * 100, 100));
 
       if (elapsedTime >= holdDuration) {
-        clearInterval(holdTimerRef.current!);
+        if (holdTimerRef.current) clearInterval(holdTimerRef.current);
         onClick();
         resetHold();
       }
-    }, 10); // Update progress every 10ms
+    }, 16);
   };
 
   const resetHold = () => {
     if (holdTimerRef.current) {
       clearInterval(holdTimerRef.current);
+      holdTimerRef.current = null;
     }
     setIsHolding(false);
     setHoldProgress(0);
@@ -110,7 +124,7 @@ export const HoldTextButton: React.FC<HoldButtonProps> = ({
 
   return (
     <button
-      className={`relative min-w-[3.3125rem]  overflow-hidden flex items-center justify-center ${className}`}
+      className={`relative min-w-[3.3125rem] overflow-hidden flex items-center justify-center ${className}`}
       onMouseDown={startHold}
       onMouseUp={resetHold}
       onMouseLeave={resetHold}
@@ -120,15 +134,19 @@ export const HoldTextButton: React.FC<HoldButtonProps> = ({
     >
       {isHolding && (
         <div
-          className="absolute inset-0 bg-blue-500 transition-all duration-100 ease-linear"
+          className="absolute top-0 left-0 bottom-0 bg-blue-500 z-10"
           style={{ width: `${holdProgress}%` }}
         />
       )}
-      {isHolding ? (
-        <div className="absolute inset-0 flex items-center justify-center z-20">
-          {Math.round((holdProgress / 100) * (holdDuration / 1000))}s
-        </div>
-      ): <div>{buttonText}</div>}
+      <div className="relative z-20 flex items-center justify-center w-full h-full text-sm pointer-events-none">
+        {isHolding ? (
+          <span className="font-mono">
+            {((holdDuration - (holdProgress / 100 * holdDuration)) / 1000).toFixed(1)}s
+          </span>
+        ) : (
+          buttonText
+        )}
+      </div>
     </button>
   );
 };
