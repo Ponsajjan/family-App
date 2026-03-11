@@ -108,7 +108,6 @@ export async function GET(request: NextRequest) {
             { motherId: { in: parentIds } }
           ],
           id: { not: id },
-          authId: authId
         },
         select: { name: true, order: true },
         orderBy: { order: 'asc' },
