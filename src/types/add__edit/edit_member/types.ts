@@ -60,8 +60,10 @@ export const EditMemberDefaultFormErrorValue: EditMemberFormErrorTypes = {
 };
 
 export interface AllowedEditTypes {
+    // editGender: boolean,   ----- New World Order gone wrong -----
     editDescendant: boolean
 }
 export const DefaultAllowedEdits: AllowedEditTypes = {
+    // editGender: false,     ----- New World Order gone wrong -----
     editDescendant: false
 }

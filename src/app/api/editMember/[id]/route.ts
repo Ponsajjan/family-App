@@ -104,7 +104,8 @@ export async function GET(request: NextRequest) {
         siblings: member.nonDescendantRelation?.[0]?.siblingNames,
       },
       allowEdit: {
-        editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
+        //----- New World Order gone wrong -----
+        // editGender: member.fatherOf.length > 0 || member.motherOf.length > 0 || member.partnerId,
         editDescendant: member.fatherId || member.motherId || member.id == mainMemberId,
       },
     };
@@ -207,29 +208,31 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    if (member.partner) {
-      const currentGender = member.gender;
-      const updatedGender = updatedData.gender;
+    //----- New World Order gone wrong -----
 
-      if (updatedGender && (currentGender !== updatedGender)) {
-        return NextResponse.json(
-          { error: "Gender mismatch: Cannot update gender." },
-          { status: 400 }
-        );
-      }
-    }
+    // if (member.partner) {
+    //   const currentGender = member.gender;
+    //   const updatedGender = updatedData.gender;
 
-    if (member.fatherOf.length > 0 || member.motherOf.length > 0) {
-      const currentGender = member.gender;
-      const updatedGender = updatedData.gender;
+    //   if (updatedGender && (currentGender !== updatedGender)) {
+    //     return NextResponse.json(
+    //       { error: "Gender mismatch: Cannot update gender." },
+    //       { status: 400 }
+    //     );
+    //   }
+    // }
 
-      if (updatedGender && (currentGender !== updatedGender)) {
-        return NextResponse.json(
-          { error: "Update not allowed." },
-          { status: 400 }
-        );
-      }
-    }
+    // if (member.fatherOf.length > 0 || member.motherOf.length > 0) {
+    //   const currentGender = member.gender;
+    //   const updatedGender = updatedData.gender;
+
+    //   if (updatedGender && (currentGender !== updatedGender)) {
+    //     return NextResponse.json(
+    //       { error: "Update not allowed." },
+    //       { status: 400 }
+    //     );
+    //   }
+    // }
 
     if (member.father || member.mother) {
       const currentDescendant = member.descendant;
