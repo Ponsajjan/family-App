@@ -5,51 +5,45 @@ import FetchFamilyTree from "./FetchFamilyTree";
 import DragScroll from "@/components/DragScroll";
 import { getCookie } from 'cookies-next';
 import { SwitchIcon } from "@/utils/Icons";
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { ChoosePopup, type AccountDetail } from "@/components/ChoosePopup";
 import { useAuth } from "@/contexts/AuthContext";
+import useSWR from 'swr';
 
 
 export default function FamilyTreePage() {
   const [showChoosePopup, setShowChoosePopup] = useState(false);
-  const [switchAccounts, setSwitchAccounts] = useState<AccountDetail[]>([]);
-  const [fetchTrigger, setFetchTrigger] = useState(0);
-  const [data, setData] = useState<any[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { logout } = useAuth();
   const token = getCookie('token');
 
-  useEffect(() => {
-    async function fetchTree() {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/tree/get_chart');
+  const fetcher = async (url: string) => {
+    const res = await fetch(url);
 
-        if (res.status === 401) {
-          logout();
-          return;
-        }
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Failed to fetch family tree");
-        }
-
-        const result = await res.json();
-        setData(result.treeData);
-        setSwitchAccounts(result.switchAccounts || []);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+    if (res.status === 401) {
+      logout();
+      throw new Error("Unauthorized");
     }
 
-    if (token) {
-      fetchTree();
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Failed to fetch family tree");
     }
-  }, [logout, fetchTrigger, token]);
+
+    return res.json();
+  };
+
+  const { data: swrResult, error, isLoading, mutate } = useSWR(
+    token ? '/api/tree/get_chart' : null,
+    fetcher,
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  const data = swrResult?.treeData || null;
+  const switchAccounts = swrResult?.switchAccounts || [];
 
   if (!token) {
     return (
@@ -70,10 +64,10 @@ export default function FamilyTreePage() {
         </div>}
       </Topnav>
 
-      {loading ? (
+      {isLoading ? (
         <div className="text-center text-text_color p-10 loading-text">Loading family tree...</div>
       ) : error ? (
-        <div className="text-center text-text_color p-10">{error}</div>
+        <div className="text-center text-text_color p-10">{error.message || "An error occurred"}</div>
       ) : (
         <DragScroll>
           <FetchFamilyTree data={data} />
@@ -85,7 +79,7 @@ export default function FamilyTreePage() {
           showPopup={showChoosePopup}
           setShowPopup={setShowChoosePopup}
           data={switchAccounts}
-          onSwitchSuccess={() => setFetchTrigger(prev => prev + 1)}
+          onSwitchSuccess={() => mutate()} // Refresh tree data on account switch
         />
       )}
     </div>

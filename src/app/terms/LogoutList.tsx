@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { setCookie, deleteCookie } from 'cookies-next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
+import { useSWRConfig } from 'swr';
 
 interface AccountDetail {
     authId: string;
@@ -25,6 +26,20 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
     const router = useRouter();
     const { storeLoginValues } = useAuth();
     const toast = useToast();
+    const { cache, mutate: globalMutate } = useSWRConfig();
+
+    const clearFamilyCache = () => {
+        const allKeys = Array.from(cache.keys());
+        allKeys.forEach(key => {
+            if (typeof key === 'string' && (
+                key.startsWith('/api/calendar/') || 
+                key.startsWith('/api/tree/') || 
+                key.startsWith('/api/relatives')
+            )) {
+                globalMutate(key, undefined, { revalidate: false });
+            }
+        });
+    };
 
     const handleRemoveAccount = async (accountToRemove: string) => {
         // If removing the currently logged-in account
@@ -45,6 +60,7 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
                         setCurrentAuthId(data.authId);
                         setMainMemberName(data.mainMemberName || 'Account');
                         setModeratorList(data.moderators);
+                        clearFamilyCache();
                         // toast?.show(`Switched to ${data.mainMemberName || 'Account'}`, "success", 3000);
                     } else {
                         toast?.show(data.error || "Failed to switch account automatically", "error", 3000);
@@ -82,6 +98,7 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
             // Update selectedAuthId cookie (only those that are still 'current')
             const selectedAuthIds = updatedAccounts.filter(acc => acc.current).map(acc => acc.authId);
             setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: selectedMaxAge, path: '/' });
+            clearFamilyCache();
         }
     };
 
@@ -93,6 +110,7 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
             setLoggingOut(true);
             const response = await fetch('/api/logout', { method: 'GET' });
             if (response.ok) {
+                clearFamilyCache();
                 router.push('/login');
             } else {
                 console.error("Logout failed");

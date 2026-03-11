@@ -2,7 +2,8 @@
 
 import Topnav from "@/components/Topnav";
 import { Announcement, CloseIcon, SkipBack, SkipForward } from "@/utils/Icons";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import useSWR from 'swr';
 import moment from "moment-timezone";
 import CalendarMonthlyData from "../components/CalendarMonthlyData";
 import Container from "@/components/Container";
@@ -55,9 +56,7 @@ export default function Calendar() {
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentIndiaDate = getCurrentIndiaDate();
   const [calendarDate, setCalendarDate] = useState(currentIndiaDate);
-  const [eventDatesValue, setEventDatesValue] = useState<EventDatesValue | any>({});
-  const [datesList, setDatesList] = useState<number[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingInitialToday, setLoadingInitialToday] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
 
   const year = calendarDate.getFullYear();
@@ -150,7 +149,6 @@ export default function Calendar() {
 
   // Handlers for previous/next month navigation
   function getPreviousMonth() {
-    setLoading(true);
     setShowPopup(false);
     const previousMonth = new Date(calendarDate);
     previousMonth.setMonth(previousMonth.getMonth() - 1);
@@ -158,7 +156,6 @@ export default function Calendar() {
   }
 
   function getNextMonth() {
-    setLoading(true);
     setShowPopup(false);
     const nextMonth = new Date(calendarDate);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
@@ -166,58 +163,48 @@ export default function Calendar() {
   }
 
   function resetToCurrentMonth() {
-    setLoading(true);
     setShowPopup(false);
     setCalendarDate(currentIndiaDate);
   }
 
-  useEffect(() => {
-    async function fetchEventDates() {
-      try {
-        // Use month+1 since the API expects 1-12 but Date uses 0-11
-        const response = await fetch(`/api/calendar/${month + 1}/${year}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
-          logout();
-          return;
-        }
-        // Check if the response was successful
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
+  const fetcher = async (url: string) => {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (response.status === 401) { logout(); throw new Error("Unauthorized"); }
+    if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+    return response.json();
+  };
 
-        const { eventDates, datesList } = await response.json();
-        setEventDatesValue(eventDates);
-        setDatesList(datesList);
-
-        // Check for today's events and send notification once per day
-        const todayEvents = eventDates.todayEvents || [];
-        if (todayEvents.length > 0) {
-          // Use the notification hook to handle daily notifications
-          // checkAndSendNotifications(todayEvents);
-
-          // Show popup if there is event today
-          const todayDateObj = new Date();
-          setSelectedDate(todayDateObj.toISOString());
-          setEventForDate(todayEvents);
-          setShowPopupFor('date');
-          setShowPopup(true);
-        }
-
-      } catch (error: any) {
-        toast?.show(error.message || "Failed to fetch event dates.", "error", 5000);
-      } finally {
-        setLoading(false);
-      }
+  const { data: calendarData, error, isLoading } = useSWR(
+    `/api/calendar/${month + 1}/${year}`,
+    fetcher,
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
     }
+  );
 
-    fetchEventDates();
-  }, [month, year, toast, logout, router]); //checkAndSendNotifications
+  const eventDatesValue = useMemo(() => calendarData?.eventDates || {}, [calendarData]);
+  const datesList = useMemo(() => calendarData?.datesList || [], [calendarData]);
+  const loading = isLoading;
+
+  useEffect(() => {
+    if (calendarData && loadingInitialToday) {
+      const todayEvents = calendarData.eventDates?.todayEvents || [];
+      // Only show popup for today's events if we are looking at the current month/year
+      if (todayEvents.length > 0 && month === currentMonth && year === currentYear) {
+        const todayDateObj = new Date();
+        setSelectedDate(todayDateObj.toISOString());
+        setEventForDate(todayEvents);
+        setShowPopupFor('date');
+        setShowPopup(true);
+      }
+      setLoadingInitialToday(false);
+    }
+  }, [calendarData, loadingInitialToday, month, year, currentMonth, currentYear]);
 
   const HandlePopupData = (event: 'member' | 'date', data: any) => {
     if (event === 'member') {

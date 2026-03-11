@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { setCookie } from 'cookies-next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
+import { useSWRConfig } from 'swr';
 
 interface AccountDetail {
     authId: string;
@@ -27,6 +28,20 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
     const [error, setError] = useState("");
     const { storeLoginValues } = useAuth();
     const toast = useToast();
+    const { cache, mutate: globalMutate } = useSWRConfig();
+
+    const clearFamilyCache = () => {
+        const allKeys = Array.from(cache.keys());
+        allKeys.forEach(key => {
+            if (typeof key === 'string' && (
+                key.startsWith('/api/calendar/') || 
+                key.startsWith('/api/tree/') || 
+                key.startsWith('/api/relatives')
+            )) {
+                globalMutate(key, undefined, { revalidate: false });
+            }
+        });
+    };
 
     const handleToggleChange = async (account: AccountDetail) => {
         if (isToggling) return;
@@ -64,7 +79,7 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
 
                 const selectedAuthIds = updated.filter(acc => acc.current).map(acc => acc.authId);
                 setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 }); // 30 days
-
+                clearFamilyCache();
                 return updated;
             });
 
@@ -82,6 +97,7 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
                         setCurrentAuthId(data.authId);
                         setMainMemberName(data.mainMemberName || 'Account');
                         setModeratorList(data.moderators);
+                        clearFamilyCache();
                     }
                 } catch (err) {
                     console.error("Auto-switch error:", err);
@@ -150,6 +166,7 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
                 setMainMemberName(data.mainMemberName || 'New Account');
                 // setPassword(data.password);
                 setModeratorList(data.moderators);
+                clearFamilyCache();
             } else {
                 setError(data.error || "Failed to add account");
             }

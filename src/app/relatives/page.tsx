@@ -2,10 +2,10 @@
 
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
+import useSWRInfinite from 'swr/infinite';
 import Details from './Details';
 import Link from 'next/link';
-import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,21 +32,16 @@ interface Member {
 }
 
 export default function Relatives() {
-  const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
-  const [members, setMembers] = useState<Member[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [showMember, setShowMember] = useState<number | null>(null);
-  const [loadingList, setLoadingList] = useState(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [hasMore, setHasMore] = useState(true);
   const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 40,
     search: "",
   });
-  const [isFetching, setIsFetching] = useState(false);
 
   const handleSetSearchFilter = useDebounce((value) => {
     setParams((prevParams) => ({
@@ -54,7 +49,6 @@ export default function Relatives() {
       search: value,
       page: 1,
     }));
-    setHasMore(true);
   }, 900);
 
   const handleMemberSearch = (input: string) => {
@@ -64,73 +58,77 @@ export default function Relatives() {
 
   const resetSearch = () => {
     setSearchInput("");
-    setMembers([]);
     setParams(prev => ({
       ...prev,
       search: "",
       page: 1,
     }));
-    setHasMore(true);
   };
 
-  useEffect(() => {
-    const fetchMembers = async () => {
-      if (isFetching || !hasMore) return;
-      try {
-        setIsFetching(true);
-        setLoadingList(true);
+  const fetcher = async (url: string) => {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
 
-        const response = await fetch(`/api/relatives?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          }
-        );
+    if (response.status === 401) {
+      logout();
+      throw new Error("Unauthorized");
+    }
 
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
-          logout();
-          return;
-        }
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+    return response.json();
+  };
 
-        const { data, totalCount } = await response.json();
-        if (params.page === 1) {
-          setMembers(data);
-        } else {
-          setMembers((prev) => [...new Set([...prev, ...data])]);
-        }
+  const getKey = (pageIndex: number, previousPageData: any) => {
+    if (previousPageData && !previousPageData.data.length) return null;
+    return `/api/relatives?search=${encodeURIComponent(params.search)}&page=${pageIndex + 1}&limit=${params.limit}`;
+  };
 
-        const totalPages = Math.ceil(totalCount / params.limit);
-        setHasMore(params.page < totalPages);
-      } catch (error: any) {
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
-      } finally {
-        setLoadingList(false);
-        setIsFetching(false);
-      }
-    };
+  const {
+    data: swrData,
+    size,
+    setSize,
+    isLoading,
+    isValidating,
+  } = useSWRInfinite(getKey, fetcher, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
 
-    fetchMembers();
-  }, [params, logout, toast]);
+  const members = useMemo(() => {
+    if (!swrData) return [];
+    const allMembers = swrData.flatMap((page) => page.data);
+    // Remove duplicates based on ID if any (similar to your previous logic)
+    const seen = new Set();
+    return allMembers.filter((member) => {
+      const duplicate = seen.has(member.id);
+      seen.add(member.id);
+      return !duplicate;
+    });
+  }, [swrData]);
+
+  const hasMore = useMemo(() => {
+    if (!swrData) return true;
+    const lastPage = swrData[swrData.length - 1];
+    const totalCount = lastPage.totalCount || 0;
+    return members.length < totalCount;
+  }, [swrData, members]);
+
+  const loadingList = isLoading || (size > 0 && swrData && typeof swrData[size - 1] === "undefined");
+  const isFetching = isValidating;
 
   const loadMore = () => {
-    if (hasMore) {
-      setParams((prevParams) => ({ ...prevParams, page: prevParams.page + 1 }));
+    if (hasMore && !isFetching) {
+      setSize(size + 1);
     }
   };
 
-  useInfiniteScroll(
-    containerRef,
-    isFetching,
-    hasMore,
-    loadMore,
-  );
+  useInfiniteScroll(containerRef, isFetching, hasMore, loadMore);
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;
