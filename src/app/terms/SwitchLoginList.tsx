@@ -33,15 +33,18 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
     const clearFamilyCache = () => {
         const allKeys = Array.from(cache.keys());
         allKeys.forEach(key => {
-            if (typeof key === 'string' && (
-                key.startsWith('/api/calendar/') || 
-                key.startsWith('/api/tree/') || 
-                key.startsWith('/api/relatives') ||
-                key.startsWith('/api/selectedMembers') ||
-                key.startsWith('/api/moderator') ||
-                key.startsWith('/api/terms')
-            )) {
-                globalMutate(key, undefined, { revalidate: false });
+            if (typeof key === 'string') {
+                const isApiMatch = (path: string) =>
+                    path.startsWith('/api/calendar/') ||
+                    path.startsWith('/api/tree/') ||
+                    path.startsWith('/api/relatives') ||
+                    path.startsWith('/api/selectedMembers') ||
+                    path.startsWith('/api/moderator') ||
+                    path.startsWith('/api/terms');
+
+                if (isApiMatch(key) || (key.startsWith('$inf$') && isApiMatch(key.substring(5)))) {
+                    globalMutate(key, undefined, { revalidate: false });
+                }
             }
         });
     };
