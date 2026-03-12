@@ -36,7 +36,10 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
             if (typeof key === 'string' && (
                 key.startsWith('/api/calendar/') || 
                 key.startsWith('/api/tree/') || 
-                key.startsWith('/api/relatives')
+                key.startsWith('/api/relatives') ||
+                key.startsWith('/api/selectedMembers') ||
+                key.startsWith('/api/moderator') ||
+                key.startsWith('/api/terms')
             )) {
                 globalMutate(key, undefined, { revalidate: false });
             }

@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+import useSWR from 'swr';
 import Topnav from "@/components/Topnav"
 import { ButtonOutline, LinkButtonOutline } from "../../components/Button"
 import { useToast } from '@/components/Toast'
@@ -11,55 +12,52 @@ import { ChoosePopup } from '@/components/ChoosePopup'
 
 export default function AdminDashboard() {
     const toast = useToast();
-    const [data, setData] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
     const [updatingChart, setUpdatingChart] = useState(false);
     const [disabledButtons, setDisabledButtons] = useState(false);
     const [showChoosePopup, setShowChoosePopup] = useState(false);
-    const [fetchTrigger, setFetchTrigger] = useState(0);
     const { logout } = useAuth();
     const router = useRouter();
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
+    const fetcher = async (url: string) => {
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        });
 
-                const res = await fetch('/api/moderator', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                })
-
-                if (res.status === 401) {
-                    logout()
-                    return
-                }
-
-                if (!res.ok) {
-                    throw new Error("Failed to fetch moderator data")
-                }
-
-                const data = await res.json()
-                setData(data)
-
-                if (data.chartStatus === 'building') {
-                    toast?.show('Chart build is currently in progress...', 'info', 5000)
-                } else if (data.chartStatus === 'failed') {
-                    toast?.show('Previous chart build failed. You can retry.', 'warning', 5000)
-                } else if (data.chartStatus === 'timeout') {
-                    toast?.show('Previous build timed out. You can retry.', 'warning', 5000)
-                }
-            } catch (error: any) {
-                toast?.show(error.message || "Failed to fetch data", 'error', 5000)
-                console.error("Failed to fetch data:", error)
-            } finally {
-                setLoading(false)
-            }
+        if (res.status === 401) {
+            logout();
+            throw new Error("Unauthorized");
         }
 
-        fetchData()
-    }, [toast, logout, fetchTrigger])
+        if (!res.ok) {
+            throw new Error("Failed to fetch moderator data");
+        }
+
+        return res.json();
+    };
+
+    const { data, isLoading: loading, mutate } = useSWR(
+        '/api/moderator',
+        fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        }
+    );
+
+    // Effect for Toasts based on chartStatus
+    useEffect(() => {
+        if (data) {
+            if (data.chartStatus === 'building') {
+                toast?.show('Chart build is currently in progress...', 'info', 5000);
+            } else if (data.chartStatus === 'failed') {
+                toast?.show('Previous chart build failed. You can retry.', 'warning', 5000);
+            } else if (data.chartStatus === 'timeout') {
+                toast?.show('Previous build timed out. You can retry.', 'warning', 5000);
+            }
+        }
+    }, [data, toast]);
 
     const handleUpdateRelationsChart = async () => {
         try {
@@ -83,7 +81,7 @@ export default function AdminDashboard() {
 
             if (res.ok) {
                 toast?.show(data.message, 'success', 5000)
-                setData((prevData: any) => ({ ...prevData, chartStatus: 'completed' })) // Update local status
+                mutate(); // Refresh the counts and status
 
                 // Display conflict warnings if any circular relationships were detected
                 if (data.conflicts && data.conflicts.length > 0) {
@@ -103,7 +101,7 @@ export default function AdminDashboard() {
             } else if (res.status === 409) {
                 // Build already in progress
                 toast?.show(data.error || "Build already in progress", 'warning', 5000)
-                setData((prevData: any) => ({ ...prevData, chartStatus: 'building' }))
+                mutate(); // Refresh status to reflect building
             } else {
                 toast?.show(data.error || "Failed to update chart", 'error', 5000)
             }
@@ -186,7 +184,7 @@ export default function AdminDashboard() {
                     showPopup={showChoosePopup}
                     setShowPopup={setShowChoosePopup}
                     data={data?.switchAccounts || []}
-                    onSwitchSuccess={() => setFetchTrigger(prev => prev + 1)}
+                    onSwitchSuccess={() => mutate()}
                 />
             )}
         </>

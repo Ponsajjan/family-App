@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CloseIcon, Condolences, Female2, Info, Male2, Verified } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useSWRConfig } from 'swr';
 
 export default function NewMemberDetails({
     showDetailsFor,
@@ -23,6 +24,7 @@ export default function NewMemberDetails({
     const toast = useToast();
     const router = useRouter();
     const { logout } = useAuth();
+    const { mutate } = useSWRConfig();
     const [data, setData] = useState<any>(null);
     const [loadingDetails, setLoadingDetails] = useState(true);
     const [deleted, setDeleted] = useState(false);
@@ -99,6 +101,7 @@ export default function NewMemberDetails({
             }
 
             toast?.show(result.message, "success", 5000);
+            mutate('/api/moderator');
 
             const wasVerified = data?.generalInformation.verified;
             const isNowVerified = !wasVerified;
@@ -174,6 +177,7 @@ export default function NewMemberDetails({
                 // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
             }
             toast?.show(result.message, "success", 5000);
+            mutate('/api/moderator');
             const updatedData = members.filter(
                 (item: any) => item.id !== memberId
             );

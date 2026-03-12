@@ -3,9 +3,10 @@
 import { useSearchParams, useRouter } from "next/navigation"
 import { LinkButtonOutline } from "../../components/Button"
 import { SwitchIcon } from "@/utils/Icons"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useToast } from "@/components/Toast"
 import { ChoosePopup } from "@/components/ChoosePopup"
+import useSWR from 'swr';
 
 interface SwitchAccount {
     authId: string;
@@ -21,26 +22,21 @@ export default function AddEditPage() {
     const [showChoosePopup, setShowChoosePopup] = useState(false);
     const searchParams = useSearchParams();
     const router = useRouter();
-    const toast = useToast();
-    const [loading, setLoading] = useState<boolean>(true);
-    const [data, setData] = useState<SelectedMembersData | null>(null);
-    const [fetchTrigger, setFetchTrigger] = useState(0);
+    const fetcher = async (url: string) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch accounts");
+        return res.json();
+    };
 
-    useEffect(() => {
-        const fetchAccounts = async () => {
-            try {
-                const res = await fetch('/api/selectedMembers');
-                if (!res.ok) throw new Error("Failed to fetch accounts");
-                const json = await res.json();
-                setData(json);
-            } catch (error: any) {
-                toast?.show(error.message || "Failed to load accounts", "error", 5000);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchAccounts();
-    }, [toast, fetchTrigger]);
+    const { data, isLoading: loading, mutate } = useSWR<SelectedMembersData>(
+        '/api/selectedMembers',
+        fetcher,
+        {
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+        }
+    );
 
     // Get the 'mode' parameter from URL, default to 'add'
     const currentMode = searchParams.get('mode') || 'add'
@@ -123,7 +119,7 @@ export default function AddEditPage() {
                     showPopup={showChoosePopup}
                     setShowPopup={setShowChoosePopup}
                     data={data?.switchAccounts || undefined}
-                    onSwitchSuccess={() => setFetchTrigger(prev => prev + 1)}
+                    onSwitchSuccess={() => mutate()}
                 />
             )}
         </div>

@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Approved, CloseIcon, NavIconVerified, Rejected, Warning } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { useSWRConfig } from 'swr';
 
 const ChangeRequestView = ({
   showDetailsFor,
@@ -26,6 +27,7 @@ const ChangeRequestView = ({
   const router = useRouter();
   const toast = useToast();
   const { logout } = useAuth()
+  const { mutate } = useSWRConfig();
 
   // Process request removal and move to next
   const processRequestRemoval = () => {
@@ -159,6 +161,7 @@ const ChangeRequestView = ({
       setActionError(null);
       toast?.show(result.message || "Change verification approved", "success", 5000);
       setRequestStatus('approved');
+      mutate('/api/moderator');
       setTimeout(processRequestRemoval, 2000);
 
     } catch (error: any) {
@@ -202,6 +205,7 @@ const ChangeRequestView = ({
       // toast?.show(result.message || "Change verification rejected", "success", 5000);
       setActionError(null);
       setRequestStatus('rejected');
+      mutate('/api/moderator');
 
       // Show status for 2 second before removing
       setTimeout(processRequestRemoval, 2000);

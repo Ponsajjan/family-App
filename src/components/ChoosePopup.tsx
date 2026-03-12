@@ -3,6 +3,7 @@ import ReactDom from 'react-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import Radio from '@/components/RadioButton';
+import { useSWRConfig } from 'swr';
 
 export interface AccountDetail {
     authId: string;
@@ -27,6 +28,20 @@ export const ChoosePopup = ({
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const { storeLoginValues } = useAuth();
     const toast = useToast();
+    const { cache, mutate: globalMutate } = useSWRConfig();
+
+    const clearFamilyCache = () => {
+        const allKeys = Array.from(cache.keys());
+        allKeys.forEach(key => {
+            if (typeof key === 'string' && (
+                key.startsWith('/api/tree/') ||
+                key.startsWith('/api/selectedMembers') ||
+                key.startsWith('/api/moderator')
+            )) {
+                globalMutate(key, undefined, { revalidate: false });
+            }
+        });
+    };
 
     const handleSwitchAccount = async (account: AccountDetail) => {
         if (switchingAccount) {
@@ -47,6 +62,7 @@ export const ChoosePopup = ({
             const data = await res.json();
             if (data.newtoken) {
                 storeLoginValues(data.newtoken, data.userType, data.authId);
+                clearFamilyCache();
                 onSwitchSuccess?.();
                 setShowPopup(false);
             } else {
