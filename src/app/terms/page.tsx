@@ -14,10 +14,7 @@ import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as ne
 import { useAuth } from '@/contexts/AuthContext'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
-import {
-  fetchTermsData,
-  setIsModerator,
-} from '@/store/slices/termsSlice'
+import { fetchTermsData, setIsModerator } from '@/store/slices/termsSlice'
 
 export default function Terms() {
   const toast = useToast();

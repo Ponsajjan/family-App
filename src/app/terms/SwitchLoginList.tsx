@@ -6,7 +6,7 @@ import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList, AccountDetail } from '@/store/slices/termsSlice';
+import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList, AccountDetail, setIsModerator } from '@/store/slices/termsSlice';
 
 function SwitchLoginList() {
     const dispatch = useDispatch();
@@ -91,6 +91,7 @@ function SwitchLoginList() {
                         dispatch(setCurrentAuthId(data.authId));
                         dispatch(setMainMemberName(data.mainMemberName || 'Account'));
                         dispatch(setModeratorList(data.moderators));
+                        dispatch(setIsModerator(data.userType === 'Moderator'))
                         clearFamilyCache();
                     }
                 } catch (err) {

@@ -6,6 +6,9 @@ import Topnav from "@/components/Topnav";
 import { NextArrow } from "@/utils/Icons";
 import { useAuth } from "@/contexts/AuthContext";
 import Container from "@/components/Container";
+import { setIsModerator, setAccounts, setCurrentAuthId } from "@/store/slices/termsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 
 export default function Page() {
     const router = useRouter();
@@ -13,6 +16,8 @@ export default function Page() {
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const { storeLoginValues } = useAuth();
+    const dispatch = useDispatch<AppDispatch>();
+    const accounts = useSelector((state: RootState) => state.terms.accounts);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,6 +37,16 @@ export default function Page() {
             const data = await res.json();
             if (data.newtoken) {
                 await storeLoginValues(data.newtoken, data.userType, data.authId, data.oldAuthId);
+                dispatch(setIsModerator(true));
+                dispatch(setCurrentAuthId(data.authId));
+                // Swap oldAuthId → new moderator authId in the accounts list
+                dispatch(setAccounts(
+                    accounts.map(acc =>
+                        String(acc.authId) === String(data.oldAuthId)
+                            ? { ...acc, authId: data.authId }
+                            : acc
+                    )
+                ));
                 router.push("/moderator");
             } else {
                 setError(data.error || "Login failed");
