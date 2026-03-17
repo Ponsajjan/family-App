@@ -1,19 +1,38 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
 export interface AccountDetail {
   authId: string;
   mainMemberRef: string;
   current: boolean;
 }
 
+/** Format consumed by ChoosePopup: { authId, name } */
+export interface ChoosePopupAccount {
+  authId: string;
+  name: string | null;
+}
+
+/** Derives the ChoosePopup list from the full accounts array */
+const toChoosePopup = (accounts: AccountDetail[]): ChoosePopupAccount[] =>
+  accounts
+    .filter(acc => acc.current)
+    .map(acc => ({ authId: acc.authId, name: acc.mainMemberRef }));
+
+// ─── State ───────────────────────────────────────────────────────────────────
+
 export interface TermsState {
   loading: boolean;
   moderatorList: any[];
   mainMemberName: string;
   accounts: AccountDetail[];
+  choosePopupAccounts: ChoosePopupAccount[];  // current:true accounts in ChoosePopup format
   currentAuthId: string;
   isModerator: boolean;
 }
+
+// ─── Thunk ───────────────────────────────────────────────────────────────────
 
 export const fetchTermsData = createAsyncThunk(
   'terms/fetchTermsData',
@@ -21,26 +40,19 @@ export const fetchTermsData = createAsyncThunk(
     try {
       const response = await fetch(`/api/terms`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      if (response.status === 401) {
-        return rejectWithValue({ status: 401 });
-      }
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (response.status === 401) return rejectWithValue({ status: 401 });
+      if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
       return {
         mainMemberName: data.mainMemberName,
         moderatorList: data.moderators,
         currentAuthId: data.currentAuthId,
-        accounts: data.allAuthDetails,
-        isModerator: data.userType === 'Moderator'
+        accounts: data.allAuthDetails as AccountDetail[],
+        isModerator: data.userType === 'Moderator',
       };
     } catch (error: any) {
       if (error && error.status === 401) return rejectWithValue({ status: 401 });
@@ -49,11 +61,14 @@ export const fetchTermsData = createAsyncThunk(
   }
 );
 
+// ─── Slice ───────────────────────────────────────────────────────────────────
+
 const initialState: TermsState = {
   loading: true,
   moderatorList: [],
   mainMemberName: '',
   accounts: [],
+  choosePopupAccounts: [],
   currentAuthId: '',
   isModerator: false,
 };
@@ -73,6 +88,7 @@ const termsSlice = createSlice({
     },
     setAccounts(state, action: PayloadAction<AccountDetail[]>) {
       state.accounts = action.payload;
+      state.choosePopupAccounts = toChoosePopup(action.payload);
     },
     setCurrentAuthId(state, action: PayloadAction<string>) {
       state.currentAuthId = action.payload;
@@ -82,7 +98,10 @@ const termsSlice = createSlice({
     },
     setTermsData(state, action: PayloadAction<Partial<TermsState>>) {
       return { ...state, ...action.payload };
-    }
+    },
+    setChoosePopupAccounts(state, action: PayloadAction<ChoosePopupAccount[]>) {
+      state.choosePopupAccounts = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -95,12 +114,13 @@ const termsSlice = createSlice({
         state.moderatorList = action.payload.moderatorList;
         state.currentAuthId = action.payload.currentAuthId;
         state.accounts = action.payload.accounts;
+        state.choosePopupAccounts = toChoosePopup(action.payload.accounts);
         state.isModerator = action.payload.isModerator;
       })
-      .addCase(fetchTermsData.rejected, (state, action) => {
+      .addCase(fetchTermsData.rejected, (state) => {
         state.loading = false;
       });
-  }
+  },
 });
 
 export const {
@@ -110,7 +130,15 @@ export const {
   setAccounts,
   setCurrentAuthId,
   setIsModerator,
-  setTermsData
+  setTermsData,
+  setChoosePopupAccounts,
 } = termsSlice.actions;
 
 export default termsSlice.reducer;
+
+// ─── Selector ─────────────────────────────────────────────────────────────────
+
+/** Simple state accessor — ChoosePopup reads this instead of the data prop */
+export const selectChoosePopupAccounts = (state: { terms: TermsState }): ChoosePopupAccount[] =>
+  state.terms.choosePopupAccounts;
+

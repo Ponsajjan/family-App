@@ -6,7 +6,7 @@ import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList, AccountDetail, setIsModerator } from '@/store/slices/termsSlice';
+import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList, AccountDetail, setIsModerator, setChoosePopupAccounts } from '@/store/slices/termsSlice';
 
 function SwitchLoginList() {
     const dispatch = useDispatch();
@@ -74,6 +74,12 @@ function SwitchLoginList() {
 
             const selectedAuthIds = updated.filter(acc => acc.current).map(acc => acc.authId);
             setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 }); // 30 days
+            // Mirror exactly what went into the cookie
+            dispatch(setChoosePopupAccounts(
+                updated
+                    .filter(acc => acc.current)
+                    .map(acc => ({ authId: acc.authId, name: acc.mainMemberRef }))
+            ));
             clearFamilyCache();
             dispatch(setAccounts(updated));
 
@@ -154,6 +160,8 @@ function SwitchLoginList() {
 
                 storeLoginValues(data.token, data.userType, data.authId);
                 setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge: 60 * 60 * 24 * 30 });
+                // Mirror exactly what went into the cookie
+                dispatch(setChoosePopupAccounts([{ authId: data.authId, name: data.mainMemberName || 'New Account' }]));
                 setForm({ password: "" });
                 dispatch(setAccounts(updatedAccounts));
                 dispatch(setCurrentAuthId(data.authId));

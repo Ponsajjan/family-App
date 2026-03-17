@@ -126,7 +126,12 @@ export async function GET(request: NextRequest) {
     try {
       selectedAuthIds = JSON.parse(selectedAuthIdCookie);
     } catch (e) {
-      selectedAuthIds = [currentAuthId];
+      selectedAuthIds = [];
+    }
+
+    // Always ensure the current session account (from token) is marked as selected
+    if (!selectedAuthIds.includes(currentAuthId)) {
+      selectedAuthIds.push(currentAuthId);
     }
 
     // Map authIds to their details with current flag
@@ -167,7 +172,18 @@ export async function GET(request: NextRequest) {
       maxAge: 180 * 24 * 60 * 60 // 180 days in seconds
     });
 
-    response.headers.set('Set-Cookie', authIdCookie);
+    // Update selectedAuthId cookie — currentAuthId is always included
+    const validSelectedIds = selectedAuthIds.filter(id => validAuthIds.includes(id));
+    const selectedAuthIdCookieOut = serialize('selectedAuthId', JSON.stringify(validSelectedIds), {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 90 * 24 * 60 * 60 // 90 days in seconds
+    });
+
+    response.headers.append('Set-Cookie', authIdCookie);
+    response.headers.append('Set-Cookie', selectedAuthIdCookieOut);
 
     return response;
 

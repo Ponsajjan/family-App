@@ -55,12 +55,15 @@ export default function ClientLayout({
   }
 
   return (
-    <AuthProvider>
-      <div className="w-full transition-all duration-500 ease-in-out">
-        <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
-          {children}
+    <ReduxProvider>
+      <AppInitializer />
+      <AuthProvider>
+        <div className="w-full transition-all duration-500 ease-in-out">
+          <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
+            {children}
+          </div>
         </div>
-      </div>
-    </AuthProvider>
+      </AuthProvider>
+    </ReduxProvider>
   );
 }

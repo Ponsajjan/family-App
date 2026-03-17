@@ -183,7 +183,6 @@ export default function AdminDashboard() {
                 <ChoosePopup
                     showPopup={showChoosePopup}
                     setShowPopup={setShowChoosePopup}
-                    data={data?.switchAccounts || []}
                     onSwitchSuccess={() => mutate()}
                 />
             )}

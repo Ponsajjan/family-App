@@ -7,7 +7,7 @@ import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList } from '@/store/slices/termsSlice';
+import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList, setChoosePopupAccounts } from '@/store/slices/termsSlice';
 
 function LogoutList() {
     const dispatch = useDispatch();
@@ -99,6 +99,7 @@ function LogoutList() {
         if (updatedAccounts.length === 0) {
             deleteCookie('authId', { path: '/' });
             deleteCookie('selectedAuthId', { path: '/' });
+            dispatch(setChoosePopupAccounts([]));
         } else {
             // Update authId cookie
             const authIdsOnly = updatedAccounts.map(account => account.authId);
@@ -107,6 +108,12 @@ function LogoutList() {
             // Update selectedAuthId cookie (only those that are still 'current')
             const selectedAuthIds = updatedAccounts.filter(acc => acc.current).map(acc => acc.authId);
             setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: selectedMaxAge, path: '/' });
+            // Mirror exactly what went into the cookie
+            dispatch(setChoosePopupAccounts(
+                updatedAccounts
+                    .filter(acc => acc.current)
+                    .map(acc => ({ authId: acc.authId, name: acc.mainMemberRef }))
+            ));
             clearFamilyCache();
         }
     };

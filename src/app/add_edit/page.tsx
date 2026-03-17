@@ -118,7 +118,6 @@ export default function AddEditPage() {
                 <ChoosePopup
                     showPopup={showChoosePopup}
                     setShowPopup={setShowChoosePopup}
-                    data={data?.switchAccounts || undefined}
                     onSwitchSuccess={() => mutate()}
                 />
             )}

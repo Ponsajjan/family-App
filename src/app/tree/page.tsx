@@ -6,7 +6,7 @@ import DragScroll from "@/components/DragScroll";
 import { getCookie } from 'cookies-next';
 import { SwitchIcon } from "@/utils/Icons";
 import { useState, useMemo } from "react";
-import { ChoosePopup, type AccountDetail } from "@/components/ChoosePopup";
+import { ChoosePopup } from "@/components/ChoosePopup";
 import { useAuth } from "@/contexts/AuthContext";
 import useSWR from 'swr';
 
@@ -78,7 +78,6 @@ export default function FamilyTreePage() {
         <ChoosePopup
           showPopup={showChoosePopup}
           setShowPopup={setShowChoosePopup}
-          data={switchAccounts}
           onSwitchSuccess={() => mutate()} // Refresh tree data on account switch
         />
       )}

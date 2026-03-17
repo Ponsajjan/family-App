@@ -2,11 +2,15 @@
 
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { fetchTermsData } from "@/store/slices/termsSlice";
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const { storeLoginValues } = useAuth();
+    const dispatch = useDispatch<AppDispatch>();
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -35,8 +39,9 @@ export default function LoginForm() {
             }
 
             if (data.success && data.token) {
-                // Store login values and redirect
+                // Store login values and refresh terms data in Redux
                 await storeLoginValues(data.token, data.userType, data.authId);
+                dispatch(fetchTermsData());
             } else {
                 if (data.error === "Invalid credentials") {
                     setForm(prev => ({ ...prev, password: "" }));

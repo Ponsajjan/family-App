@@ -4,26 +4,22 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import Radio from '@/components/RadioButton';
 import { useSWRConfig } from 'swr';
-
-export interface AccountDetail {
-    authId: string;
-    name: string | null;
-}
+import { useSelector } from 'react-redux';
+import { selectChoosePopupAccounts, ChoosePopupAccount } from '@/store/slices/termsSlice';
 
 interface ChoosePopupProps {
     showPopup: boolean;
     setShowPopup: (show: boolean) => void;
-    data: AccountDetail[] | undefined;
     onSwitchSuccess?: () => void;
 }
 
 export const ChoosePopup = ({
     showPopup,
     setShowPopup,
-    data,
     onSwitchSuccess
 }: ChoosePopupProps) => {
-    const accounts: AccountDetail[] = data || [];
+    const reduxAccounts = useSelector(selectChoosePopupAccounts);
+    const accounts: ChoosePopupAccount[] = reduxAccounts;
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const { storeLoginValues } = useAuth();
@@ -43,7 +39,7 @@ export const ChoosePopup = ({
         });
     };
 
-    const handleSwitchAccount = async (account: AccountDetail) => {
+    const handleSwitchAccount = async (account: ChoosePopupAccount) => {
         if (switchingAccount) {
             return;
         }
