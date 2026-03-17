@@ -35,17 +35,27 @@ function LogoutList() {
     };
 
     const handleRemoveAccount = async (accountToRemove: string) => {
+        // Track whether we fell back to a current: false account (needed for cookie update below)
+        let fallbackAccount: typeof accounts[number] | undefined;
+
         // If removing the currently logged-in account
         if (accountToRemove === currentAuthId) {
-            // Find another account that is currently toggled ON
+            // 1. Try to find another account that is currently toggled ON (current: true)
             const nextAccount = accounts.find(acc => acc.current && String(acc.authId) !== String(accountToRemove));
 
-            if (nextAccount) {
+            // 2. If none, fall back to any account that is toggled OFF (current: false)
+            fallbackAccount = !nextAccount
+                ? accounts.find(acc => !acc.current && String(acc.authId) !== String(accountToRemove))
+                : undefined;
+
+            const switchTo = nextAccount ?? fallbackAccount;
+
+            if (switchTo) {
                 try {
                     const response = await fetch("/api/auth/switchLogin", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ account: nextAccount.authId }),
+                        body: JSON.stringify({ account: switchTo.authId }),
                     });
                     const data = await response.json();
                     if (data.success) {
@@ -54,26 +64,32 @@ function LogoutList() {
                         dispatch(setMainMemberName(data.mainMemberName || 'Account'));
                         dispatch(setModeratorList(data.moderators));
                         clearFamilyCache();
-                        // toast?.show(`Switched to ${data.mainMemberName || 'Account'}`, "success", 3000);
                     } else {
                         toast?.show(data.error || "Failed to switch account automatically", "error", 3000);
-                        return; // Don't remove if switch failed? Or just continue? 
-                        // User requirement says switch with another active account. If switch fails, maybe we shouldn't remove it yet to avoid breaking session.
+                        return;
                     }
                 } catch (err) {
                     console.error("Auto-switch error:", err);
-                    // toast?.show("Error switching account", "error", 3000);
                     return;
                 }
             } else {
-                // If no other active accounts, we might want to prevent removal or force a full logout
-                // For now, let's just log out if it's the only active one being removed
+                // No accounts left to switch to — full logout
                 logout();
                 return;
             }
         }
 
-        const updatedAccounts = accounts.filter(account => account.authId !== accountToRemove);
+        // Build the base list: if we switched to a fallback (current: false) account,
+        // reflect its new current: true state before removing the outgoing account.
+        const baseAccounts = fallbackAccount
+            ? accounts.map(acc =>
+                String(acc.authId) === String(fallbackAccount.authId)
+                    ? { ...acc, current: true }
+                    : acc
+            )
+            : accounts;
+
+        const updatedAccounts = baseAccounts.filter(account => account.authId !== accountToRemove);
         dispatch(setAccounts(updatedAccounts));
 
         // Update the cookies
