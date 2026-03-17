@@ -161,7 +161,7 @@ const ChangeRequestView = ({
       setActionError(null);
       toast?.show(result.message || "Change verification approved", "success", 5000);
       setRequestStatus('approved');
-      mutate('/api/moderator');
+      mutate('/api/moderator', undefined, { revalidate: false });
       setTimeout(processRequestRemoval, 2000);
 
     } catch (error: any) {
@@ -205,7 +205,7 @@ const ChangeRequestView = ({
       // toast?.show(result.message || "Change verification rejected", "success", 5000);
       setActionError(null);
       setRequestStatus('rejected');
-      mutate('/api/moderator');
+      mutate('/api/moderator', undefined, { revalidate: false });
 
       // Show status for 2 second before removing
       setTimeout(processRequestRemoval, 2000);

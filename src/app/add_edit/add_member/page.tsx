@@ -8,7 +8,6 @@ import { AddMemberDefaultFormValue, AddMemberDefaultErrorValue, AddMemberFormVal
 import { validateAddMemberForm } from "@/utils/add_edit/add_members/validateAddMemberForm";
 import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
-import { useMemberHeadContext } from "@/contexts/HeadContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { LinkButtonOutline } from "@/components/Button";
 
@@ -19,7 +18,6 @@ export default function AddMemberDetails() {
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
   const [submitError, setSubmitError] = useState<string>("");
   const { logout } = useAuth();
-  const { head } = useMemberHeadContext();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (loading) return;
@@ -128,7 +126,6 @@ export default function AddMemberDetails() {
           errors={errors}
           handleInputChange={handleInputChange}
           handleFormSubmit={handleFormSubmit}
-          head={head}
           submitError={submitError}
         />
         <LinkButtonOutline buttonText="Cancel" disabled={loading} linkto="/add_edit" className="hidden md:block" />

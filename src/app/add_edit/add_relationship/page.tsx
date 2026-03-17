@@ -13,6 +13,7 @@ import AddRelationShipForm from "@/components/forms/AddRelationForm";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
+import { useSWRConfig } from "swr";
 
 export default function AddRelationshipDetails() {
   const toast = useToast();
@@ -24,6 +25,7 @@ export default function AddRelationshipDetails() {
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
+  const { mutate } = useSWRConfig();
   const { logout } = useAuth();
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
@@ -165,6 +167,10 @@ export default function AddRelationshipDetails() {
         setSubmitError(result.error || "Something went wrong");
         toast?.show(result.error || "Something went wrong", "error", 5000);
       } else {
+        if (pendingVerification > 0 || result.message?.includes('verification')) {
+          // Clear SWR cache for /api/moderator
+          mutate('/api/moderator', undefined, { revalidate: false });
+        }
         toast?.show(result.message, "success", 5000);
         // Reset the form
         setSelectedMemberId(null);

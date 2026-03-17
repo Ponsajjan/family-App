@@ -2,7 +2,7 @@
 
 import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
-import { Community, InstallIcon, Logout, ShareLink, SwitchLogin } from '@/utils/Icons'
+import { Community, Logout, SwitchLogin } from '@/utils/Icons'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/Toast'
@@ -10,7 +10,7 @@ import Loading from '@/components/Loading'
 import SlidePanel from '@/components/SlidePanel'
 import SwitchLoginList from './SwitchLoginList'
 import LogoutList from './LogoutList'
-import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as needed
+// import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as needed
 import { useAuth } from '@/contexts/AuthContext'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
@@ -26,7 +26,7 @@ export default function Terms() {
   const { storeLoginValues, logout } = useAuth();
 
   // Use the PWA hook
-  const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
+  // const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
 
   useEffect(() => {
     // Skip if already fetched by AppInitializer
@@ -198,14 +198,14 @@ export default function Terms() {
               </div>
 
               {/* Fixed PWA Install Button - Show when NOT in PWA and when install is available */}
-              {!isPWA() && showInstallButton && (
+              {/* {!isPWA() && showInstallButton && (
                 <div
                   onClick={triggerPWAInstall}
                   className='md:hidden text-center border-y border-border_color mt-6 p-1 flex justify-center gap-2 items-center cursor-pointer hover:bg-field_hover transition-colors'
                 >
                   Add to Home Screen <InstallIcon />
                 </div>
-              )}
+              )} */}
             </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >

@@ -11,8 +11,8 @@ import { AllowedEditTypes, DefaultAllowedEdits, EditMemberDefaultFormErrorValue,
 import EditMemberForm from "@/components/forms/EditMemberForm";
 import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEditMemberForm";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMemberHeadContext } from "@/contexts/HeadContext";
 import SlidePanel from "@/components/SlidePanel";
+import { useSWRConfig } from "swr";
 
 export default function EditMemberDetails() {
   const toast = useToast();
@@ -24,8 +24,8 @@ export default function EditMemberDetails() {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const { mutate } = useSWRConfig();
   const { logout } = useAuth();
-  const { head } = useMemberHeadContext()
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -135,6 +135,10 @@ export default function EditMemberDetails() {
         throw new Error(errorData.error || "Failed to update member");
       }
       const result = await response.json();
+      if (formData.pendingVerification > 0 || result.message?.includes('verification')) {
+        // Clear SWR cache for /api/moderator
+        mutate('/api/moderator', undefined, { revalidate: false });
+      }
       toast?.show(result.message, "success", 5000);
       setEditedMember('')
       setFormData(EditMemberDefaultFormValue);
@@ -179,7 +183,6 @@ export default function EditMemberDetails() {
             errors={errors}
             allowedEdit={allowedEdit}
             submitting={submitting}
-            head={head}
             submitError={submitError}
           />
           <LinkButtonOutline buttonText="Cancel" linkto="/add_edit?mode=edit" className="hidden md:block" />

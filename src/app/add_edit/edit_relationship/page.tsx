@@ -12,6 +12,7 @@ import EditRelationShipForm from "@/components/forms/EditRelationForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import SlidePanel from "@/components/SlidePanel";
+import { useSWRConfig } from "swr";
 
 export default function EditRelationshipDetails() {
   const toast = useToast();
@@ -27,6 +28,7 @@ export default function EditRelationshipDetails() {
   const [resetValue, setResetValue] = useState<any>({});
   const [showPartnerSwitchPanel, setShowPartnerSwitchPanel] = useState<boolean>(false);
   const [removedPartnerData, setRemovedPartnerData] = useState<{ id: number, name: string } | null>(null);
+  const { mutate } = useSWRConfig();
   const { logout } = useAuth();
   const router = useRouter();
 
@@ -185,7 +187,10 @@ export default function EditRelationshipDetails() {
       }
 
       const result = await response.json();
-
+      if (formData.pendingVerification > 0 || result.message?.includes('verification')) {
+        // Clear SWR cache for /api/moderator
+        mutate('/api/moderator', undefined, { revalidate: false });
+      }
       if (result) {
         toast?.show(result.message, "success", 5000);
 

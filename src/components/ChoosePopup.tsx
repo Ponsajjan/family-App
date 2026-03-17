@@ -4,8 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import Radio from '@/components/RadioButton';
 import { useSWRConfig } from 'swr';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectChoosePopupAccounts, ChoosePopupAccount } from '@/store/slices/termsSlice';
+import { setCurrentAuthId, setMainMemberName, setModeratorList, setIsModerator } from '@/store/slices/termsSlice';
 
 interface ChoosePopupProps {
     showPopup: boolean;
@@ -25,13 +26,13 @@ export const ChoosePopup = ({
     const { storeLoginValues } = useAuth();
     const toast = useToast();
     const { cache, mutate: globalMutate } = useSWRConfig();
+    const dispatch = useDispatch();
 
     const clearFamilyCache = () => {
         const allKeys = Array.from(cache.keys());
         allKeys.forEach(key => {
             if (typeof key === 'string' && (
                 key.startsWith('/api/tree/') ||
-                key.startsWith('/api/selectedMembers') ||
                 key.startsWith('/api/moderator')
             )) {
                 globalMutate(key, undefined, { revalidate: false });
@@ -58,6 +59,10 @@ export const ChoosePopup = ({
             const data = await res.json();
             if (data.newtoken) {
                 storeLoginValues(data.newtoken, data.userType, data.authId);
+                dispatch(setCurrentAuthId(data.authId));
+                dispatch(setMainMemberName(data.mainMemberName || 'Account'));
+                dispatch(setModeratorList(data.moderators));
+                dispatch(setIsModerator(data.userType === 'Moderator'))
                 clearFamilyCache();
                 onSwitchSuccess?.();
                 setShowPopup(false);

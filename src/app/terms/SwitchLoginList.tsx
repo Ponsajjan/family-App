@@ -27,7 +27,6 @@ function SwitchLoginList() {
                     path.startsWith('/api/calendar/') ||
                     path.startsWith('/api/tree/') ||
                     path.startsWith('/api/relatives') ||
-                    path.startsWith('/api/selectedMembers') ||
                     path.startsWith('/api/moderator') ||
                     path.startsWith('/api/terms');
 
@@ -97,7 +96,7 @@ function SwitchLoginList() {
                         dispatch(setCurrentAuthId(data.authId));
                         dispatch(setMainMemberName(data.mainMemberName || 'Account'));
                         dispatch(setModeratorList(data.moderators));
-                        dispatch(setIsModerator(data.userType === 'Moderator'))
+                        dispatch(setIsModerator(data.userType === 'Moderator'));
                         clearFamilyCache();
                     }
                 } catch (err) {

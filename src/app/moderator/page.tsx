@@ -9,6 +9,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { SwitchIcon } from '@/utils/Icons'
 import { ChoosePopup } from '@/components/ChoosePopup'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store'
 
 export default function AdminDashboard() {
     const toast = useToast();
@@ -17,6 +19,7 @@ export default function AdminDashboard() {
     const [showChoosePopup, setShowChoosePopup] = useState(false);
     const { logout } = useAuth();
     const router = useRouter();
+    const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
     const fetcher = async (url: string) => {
         const res = await fetch(url, {
@@ -123,9 +126,9 @@ export default function AdminDashboard() {
             </Topnav>
             {!loading ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
                 <div className="flex items-center gap-2 mb-2 h-9">
-                    {data?.mainMemberName && <>
+                    {choosePopupAccounts.length > 1 && <>
                         <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
-                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{data.mainMemberName} Family</span>
+                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{mainMemberName} Family</span>
                         <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
                         <div
                             onClick={() => setShowChoosePopup(true)}

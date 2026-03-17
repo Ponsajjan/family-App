@@ -1,4 +1,6 @@
 import React from 'react'
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import { ButtonSolid } from "@/components/Button";
 import Input from "@/components/Input";
 import TextArea from "@/components/TextArea";
@@ -12,11 +14,11 @@ interface AddMemberFormProps {
     handleFormSubmit: (e: React.FormEvent) => void;
     errors: AddMemberFormErrorTypes;
     loading: boolean;
-    head: string | null;
     submitError: string;
 }
 
-function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, loading, head, submitError }: AddMemberFormProps) {
+function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, loading, submitError }: AddMemberFormProps) {
+    const head = useSelector((state: RootState) => state.terms.mainMemberName);
     const showDeathDetails = formData?.deceased ? "peer-checked:block" : "hidden";
     const getCurrentISTYear = () => {
         return new Date().toLocaleString("en-US", {

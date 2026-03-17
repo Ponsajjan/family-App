@@ -5,16 +5,19 @@ import FetchFamilyTree from "./FetchFamilyTree";
 import DragScroll from "@/components/DragScroll";
 import { getCookie } from 'cookies-next';
 import { SwitchIcon } from "@/utils/Icons";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { ChoosePopup } from "@/components/ChoosePopup";
 import { useAuth } from "@/contexts/AuthContext";
 import useSWR from 'swr';
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 
 export default function FamilyTreePage() {
   const [showChoosePopup, setShowChoosePopup] = useState(false);
   const { logout } = useAuth();
   const token = getCookie('token');
+  const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
   const fetcher = async (url: string) => {
     const res = await fetch(url);
@@ -43,7 +46,6 @@ export default function FamilyTreePage() {
   );
 
   const data = swrResult?.treeData || null;
-  const switchAccounts = swrResult?.switchAccounts || [];
 
   if (!token) {
     return (
@@ -56,7 +58,7 @@ export default function FamilyTreePage() {
   return (
     <div className="w-full">
       <Topnav>
-        {switchAccounts.length > 1 && <div
+        {choosePopupAccounts.length > 1 && <div
           onClick={() => setShowChoosePopup(true)}
           className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer"
         >

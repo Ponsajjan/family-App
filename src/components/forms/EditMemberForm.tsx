@@ -1,4 +1,6 @@
 'use client'
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import { ChangeMember, Error, Info } from '@/utils/Icons'
 import Input from '@/components/Input'
 import TextArea from '@/components/TextArea'
@@ -14,10 +16,10 @@ function EditMemberForm({
     errors,
     allowedEdit,
     submitting,
-    head,
     submitError
 }: any) {
 
+    const head = useSelector((state: RootState) => state.terms.mainMemberName);
     const toast = useToast();
     const showWarning = (input: string) => {
         toast?.show(`Can not change ${input} for this member`, "warning", 5000);

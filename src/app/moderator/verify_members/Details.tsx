@@ -101,7 +101,7 @@ export default function NewMemberDetails({
             }
 
             toast?.show(result.message, "success", 5000);
-            mutate('/api/moderator');
+            mutate('/api/moderator', undefined, { revalidate: false });
 
             const wasVerified = data?.generalInformation.verified;
             const isNowVerified = !wasVerified;
@@ -177,7 +177,7 @@ export default function NewMemberDetails({
                 // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
             }
             toast?.show(result.message, "success", 5000);
-            mutate('/api/moderator');
+            mutate('/api/moderator', undefined, { revalidate: false });
             const updatedData = members.filter(
                 (item: any) => item.id !== memberId
             );
