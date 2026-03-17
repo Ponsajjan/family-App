@@ -7,76 +7,43 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/Toast'
 import Loading from '@/components/Loading'
-import { useRouter } from 'next/navigation'
 import SlidePanel from '@/components/SlidePanel'
 import SwitchLoginList from './SwitchLoginList'
 import LogoutList from './LogoutList'
 import { usePWAInstall } from '@/utils/pwaUtils' // Adjust the import path as needed
 import { useAuth } from '@/contexts/AuthContext'
-
-interface AccountDetail {
-  authId: string;
-  mainMemberRef: string;
-  current: boolean;
-}
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '@/store'
+import {
+  fetchTermsData,
+  setIsModerator,
+} from '@/store/slices/termsSlice'
 
 export default function Terms() {
   const toast = useToast();
-  const [loading, setLoading] = useState(true);
-  const [moderatorList, setModeratorList] = useState([]);
-  // const [password, setPassword] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, moderatorList, mainMemberName, isModerator } = useSelector((state: RootState) => state.terms);
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
-  // const [showCopiedMsg, setShowCopiedMsg] = useState(false);
-  const [mainMemberName, setMainMemberName] = useState('');
-  const [accounts, setAccounts] = useState<AccountDetail[]>([]);
-  const [currentAuthId, setCurrentAuthId] = useState('');
-  const [isModerator, setIsModerator] = useState(false);
-  const router = useRouter();
   const { storeLoginValues, logout } = useAuth();
 
   // Use the PWA hook
   const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
 
   useEffect(() => {
-    async function fetchMembers() {
-      try {
-        setLoading(true)
-        const response = await fetch(`/api/terms`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          }
-        );
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
+    // Skip if already fetched by AppInitializer
+    if (mainMemberName) return;
+    dispatch(fetchTermsData())
+      .unwrap()
+      .catch((error: any) => {
+        if (error?.status === 401) {
           logout();
-          return;
+        } else if (error?.message) {
+          toast?.show(error.message, 'error', 5000);
         }
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setMainMemberName(data.mainMemberName)
-        setModeratorList(data.moderators)
-        // setPassword(data.password)
-        setCurrentAuthId(data.currentAuthId)
-        setAccounts(data.allAuthDetails)
-        setIsModerator(data.userType === 'Moderator')
-
-
-      } catch (error: any) {
-        toast?.show(error.message || 'Failed to fetch page data', 'error', 5000);
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchMembers();
-  }, [router, toast]);
+      });
+  }, [dispatch, logout, toast, mainMemberName]);
 
   const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
     if (loading) {
@@ -131,7 +98,7 @@ export default function Terms() {
       if (data.newtoken) {
         await storeLoginValues(data.newtoken, data.userType, data.authId, data.oldAuthId);
         toast?.show(data.message || 'Logout successfully', 'success', 5000);
-        setIsModerator(false)
+        dispatch(setIsModerator(false))
       } else {
         toast?.show(data.error || 'Logout failed', 'error', 5000);
       }
@@ -245,25 +212,8 @@ export default function Terms() {
             </div>}
         </Container>
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-          {showLogin &&
-            <SwitchLoginList
-              currentAuthId={currentAuthId}
-              setCurrentAuthId={setCurrentAuthId}
-              setMainMemberName={setMainMemberName}
-              // setPassword={setPassword}
-              setModeratorList={setModeratorList}
-              accounts={accounts}
-              setAccounts={setAccounts}
-            />}
-          {showLogout &&
-            <LogoutList
-              currentAuthId={currentAuthId}
-              setCurrentAuthId={setCurrentAuthId}
-              setMainMemberName={setMainMemberName}
-              setModeratorList={setModeratorList}
-              accounts={accounts}
-              setAccounts={setAccounts}
-            />}
+          {showLogin && <SwitchLoginList />}
+          {showLogout && <LogoutList />}
         </SlidePanel>
       </div>
     </div>

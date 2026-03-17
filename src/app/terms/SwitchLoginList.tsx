@@ -4,24 +4,13 @@ import { setCookie } from 'cookies-next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList, AccountDetail } from '@/store/slices/termsSlice';
 
-interface AccountDetail {
-    authId: string;
-    mainMemberRef: string;
-    current: boolean;
-}
-
-interface SwitchLoginListProps {
-    currentAuthId: string;
-    setMainMemberName: (value: string) => void;
-    // setPassword: (value: string) => void;
-    setModeratorList: (value: any) => void;
-    accounts: AccountDetail[];
-    setAccounts: any;
-    setCurrentAuthId: (value: string) => void;
-}
-
-function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, setModeratorList, accounts, setAccounts }: SwitchLoginListProps) {
+function SwitchLoginList() {
+    const dispatch = useDispatch();
+    const { accounts, currentAuthId } = useSelector((state: RootState) => state.terms);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const [isToggling, setIsToggling] = useState<boolean>(false);
     const [form, setForm] = useState({ password: "" });
@@ -65,29 +54,28 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
                 }
             }
 
-            setAccounts((prev: AccountDetail[]) => {
-                // Find current account in the latest state
-                const target = prev.find(acc => String(acc.authId) === String(account.authId));
-                if (!target) return prev;
+            // Find current account in the latest state
+            const target = accounts.find(acc => String(acc.authId) === String(account.authId));
+            if (!target) return;
 
-                // Prevent toggling off the last selected account
-                if (target.current) {
-                    const activeCount = prev.filter(acc => acc.current).length;
-                    if (activeCount === 1) {
-                        toast?.show("At least one account must remain selected.", "warning", 3000);
-                        return prev;
-                    }
+            // Prevent toggling off the last selected account
+            if (target.current) {
+                const activeCount = accounts.filter(acc => acc.current).length;
+                if (activeCount === 1) {
+                    toast?.show("At least one account must remain selected.", "warning", 3000);
+                    setIsToggling(false);
+                    return;
                 }
+            }
 
-                const updated = prev.map(acc =>
-                    String(acc.authId) === String(account.authId) ? { ...acc, current: !acc.current } : acc
-                );
+            const updated = accounts.map(acc =>
+                String(acc.authId) === String(account.authId) ? { ...acc, current: !acc.current } : acc
+            );
 
-                const selectedAuthIds = updated.filter(acc => acc.current).map(acc => acc.authId);
-                setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 }); // 30 days
-                clearFamilyCache();
-                return updated;
-            });
+            const selectedAuthIds = updated.filter(acc => acc.current).map(acc => acc.authId);
+            setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 }); // 30 days
+            clearFamilyCache();
+            dispatch(setAccounts(updated));
 
             // If we need to switch the active session account because current one was toggled off
             if (nextAuthId) {
@@ -100,9 +88,9 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
                     const data = await response.json();
                     if (data.success) {
                         storeLoginValues(data.newtoken, data.userType, data.authId);
-                        setCurrentAuthId(data.authId);
-                        setMainMemberName(data.mainMemberName || 'Account');
-                        setModeratorList(data.moderators);
+                        dispatch(setCurrentAuthId(data.authId));
+                        dispatch(setMainMemberName(data.mainMemberName || 'Account'));
+                        dispatch(setModeratorList(data.moderators));
                         clearFamilyCache();
                     }
                 } catch (err) {
@@ -166,12 +154,12 @@ function SwitchLoginList({ currentAuthId, setCurrentAuthId, setMainMemberName, s
                 storeLoginValues(data.token, data.userType, data.authId);
                 setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge: 60 * 60 * 24 * 30 });
                 setForm({ password: "" });
-                setAccounts(updatedAccounts);
-                setCurrentAuthId(data.authId);
+                dispatch(setAccounts(updatedAccounts));
+                dispatch(setCurrentAuthId(data.authId));
                 setError("");
-                setMainMemberName(data.mainMemberName || 'New Account');
+                dispatch(setMainMemberName(data.mainMemberName || 'New Account'));
                 // setPassword(data.password);
-                setModeratorList(data.moderators);
+                dispatch(setModeratorList(data.moderators));
                 clearFamilyCache();
             } else {
                 setError(data.error || "Failed to add account");

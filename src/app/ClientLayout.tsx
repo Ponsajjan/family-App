@@ -4,6 +4,8 @@ import Sidenav from "@/components/Sidenav";
 import ToastProvider from "@/components/Toast";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ReduxProvider } from "@/store/ReduxProvider";
+import { AppInitializer } from "@/store/AppInitializer";
 
 export default function ClientLayout({
   children,
@@ -32,19 +34,22 @@ export default function ClientLayout({
     return (
       <main id="MainDiv">
         <noscript>Amor fati!..</noscript>
-        <AuthProvider>
-          <div className="w-full transition-all duration-500 ease-in-out">
-            <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
-              <Sidenav />
-              <div className="w-full relative">
-                <ToastProvider>
-                  {children}
-                  <div id='portal'></div>
-                </ToastProvider>
+        <ReduxProvider>
+          <AppInitializer />
+          <AuthProvider>
+            <div className="w-full transition-all duration-500 ease-in-out">
+              <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
+                <Sidenav />
+                <div className="w-full relative">
+                  <ToastProvider>
+                    {children}
+                    <div id='portal'></div>
+                  </ToastProvider>
+                </div>
               </div>
             </div>
-          </div>
-        </AuthProvider>
+          </AuthProvider>
+        </ReduxProvider>
       </main>
     );
   }

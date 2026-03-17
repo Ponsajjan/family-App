@@ -5,23 +5,13 @@ import { setCookie, deleteCookie } from 'cookies-next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList } from '@/store/slices/termsSlice';
 
-interface AccountDetail {
-    authId: string;
-    mainMemberRef: string;
-    current: boolean;
-}
-
-interface LogoutListProps {
-    accounts: AccountDetail[];
-    setAccounts: any;
-    currentAuthId: string;
-    setCurrentAuthId: (value: string) => void;
-    setMainMemberName: (value: string) => void;
-    setModeratorList: (value: any) => void;
-}
-
-function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, setMainMemberName, setModeratorList }: LogoutListProps) {
+function LogoutList() {
+    const dispatch = useDispatch();
+    const { accounts, currentAuthId } = useSelector((state: RootState) => state.terms);
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
     const router = useRouter();
     const { storeLoginValues } = useAuth();
@@ -32,8 +22,8 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
         const allKeys = Array.from(cache.keys());
         allKeys.forEach(key => {
             if (typeof key === 'string' && (
-                key.startsWith('/api/calendar/') || 
-                key.startsWith('/api/tree/') || 
+                key.startsWith('/api/calendar/') ||
+                key.startsWith('/api/tree/') ||
                 key.startsWith('/api/relatives') ||
                 key.startsWith('/api/selectedMembers') ||
                 key.startsWith('/api/moderator') ||
@@ -60,9 +50,9 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
                     const data = await response.json();
                     if (data.success) {
                         storeLoginValues(data.newtoken, data.userType, data.authId);
-                        setCurrentAuthId(data.authId);
-                        setMainMemberName(data.mainMemberName || 'Account');
-                        setModeratorList(data.moderators);
+                        dispatch(setCurrentAuthId(data.authId));
+                        dispatch(setMainMemberName(data.mainMemberName || 'Account'));
+                        dispatch(setModeratorList(data.moderators));
                         clearFamilyCache();
                         // toast?.show(`Switched to ${data.mainMemberName || 'Account'}`, "success", 3000);
                     } else {
@@ -84,7 +74,7 @@ function LogoutList({ accounts, setAccounts, currentAuthId, setCurrentAuthId, se
         }
 
         const updatedAccounts = accounts.filter(account => account.authId !== accountToRemove);
-        setAccounts(updatedAccounts);
+        dispatch(setAccounts(updatedAccounts));
 
         // Update the cookies
         const maxAge = 180 * 24 * 60 * 90;
