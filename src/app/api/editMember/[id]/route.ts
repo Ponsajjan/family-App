@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { revalidatePath } from 'next/cache'
+import { bumpFamilyUpdateVersion } from "@/utils/syncUtils";
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
@@ -411,6 +412,8 @@ export async function PUT(request: NextRequest) {
           },
         });
 
+        await bumpFamilyUpdateVersion(authId);
+
         return NextResponse.json({
           success: true,
           message: `Update request has been added for <b>verification</b>.`,
@@ -457,6 +460,8 @@ export async function PUT(request: NextRequest) {
           });
         }
       }
+
+      await bumpFamilyUpdateVersion(authId);
 
       revalidatePath('/api/relatives');
       revalidatePath('/api/calendar/[month]/[year]');

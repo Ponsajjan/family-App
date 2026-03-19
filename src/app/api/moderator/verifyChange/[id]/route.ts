@@ -8,6 +8,7 @@ import { handleEditRelationshipCase } from "./handleEditRelationshipCase";
 import { handleAddRelationshipCase } from "./handleAddRelationshipCase";
 import { handleEditMemberCase } from "./handleEditMemberCase";
 import { revalidatePath } from "next/cache";
+import { bumpFamilyUpdateVersion } from "@/utils/syncUtils";
 
 interface RequestData {
   formData: any;
@@ -199,6 +200,8 @@ export async function PUT(request: NextRequest) {
       return result;
     });
 
+    await bumpFamilyUpdateVersion(authId);
+
     revalidatePath('/api/relatives');
     revalidatePath('/api/calendar/[month]/[year]');
     revalidatePath('/api/relatives/[id]');
@@ -285,6 +288,8 @@ export async function DELETE(request: NextRequest) {
     await prisma.requestDetails.delete({
       where: { id: editDataId },
     });
+
+    await bumpFamilyUpdateVersion(authId);
 
     revalidatePath('/api/relatives');
     revalidatePath('/api/calendar/[month]/[year]');

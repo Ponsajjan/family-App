@@ -6,8 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Approved, CloseIcon, NavIconVerified, Rejected, Warning } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { useSWRConfig } from 'swr';
-
+import useSWR, { useSWRConfig } from 'swr';
+ 
 const ChangeRequestView = ({
   showDetailsFor,
   setShowDetails,
@@ -20,9 +20,7 @@ const ChangeRequestView = ({
   setDisableButton
 }: any) => {
   const [data, setData] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
   const [requestStatus, setRequestStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
-  const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const router = useRouter();
   const toast = useToast();
@@ -48,65 +46,20 @@ const ChangeRequestView = ({
     }
   };
 
+  const currentRequestId = showDetailsFor?.[currentDetailIndex]?.id;
+  const { data: swrResult, error: swrError, isLoading: loading } = useSWR(
+    currentRequestId ? `/api/moderator/verifyChange/${currentRequestId}` : null
+  );
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (!showDetailsFor || !Array.isArray(showDetailsFor)) {
-        setData(null);
-        setLoading(false);
-        return;
-      }
-
-      // If no more requests, reset
-      if (showDetailsFor.length === 0) {
-        setChangeList((prev: any) => prev.filter((item: any) => item.id !== memberId));
-        return;
-      }
-
-      // Ensure current index is valid
-      const validIndex = Math.min(currentDetailIndex, showDetailsFor.length - 1);
-      if (validIndex !== currentDetailIndex) {
-        setCurrentDetailIndex(validIndex);
-        return;
-      }
-
-      try {
-        setError(null);
-        setDisableButton(false);
-        setLoading(true);
-        setRequestStatus('pending');
-
-        const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[validIndex].id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        });
-
-        if (response.status === 401) {
-          logout()
-          return
-        }
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch request");
-        }
-
-        const result = await response.json();
-        setData(result.data);
-      } catch (error: any) {
-        console.error('Error fetching data:', error);
-        setError(error.message || 'Unknown error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (showDetailsFor) {
-      fetchData();
+    if (swrResult?.data) {
+      setData(swrResult.data);
+      setDisableButton(false);
+      setRequestStatus('pending');
     }
+  }, [swrResult, setDisableButton]);
 
-  }, [showDetailsFor, currentDetailIndex, memberId, setChangeList, setCurrentDetailIndex, setDisableButton]);
+  const error = swrError?.message;
 
   const handleNext = () => {
     if (showDetailsFor && currentDetailIndex < showDetailsFor.length - 1) {

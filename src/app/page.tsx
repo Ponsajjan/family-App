@@ -167,24 +167,8 @@ export default function Calendar() {
     setCalendarDate(currentIndiaDate);
   }
 
-  const fetcher = async (url: string) => {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (response.status === 401) { logout(); throw new Error("Unauthorized"); }
-    if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-    return response.json();
-  };
-
   const { data: calendarData, error, isLoading } = useSWR(
-    `/api/calendar/${month + 1}/${year}`,
-    fetcher,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
+    `/api/calendar/${month + 1}/${year}`
   );
 
   const eventDatesValue = useMemo(() => calendarData?.eventDates || {}, [calendarData]);

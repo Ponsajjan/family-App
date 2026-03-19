@@ -61,6 +61,10 @@ export async function GET(request: NextRequest) {
       chartStatus: chartStatus,
       lastBuildStartedAt: familyTree?.lastBuildStartedAt || null,
       updatedAt: familyTree?.updatedAt || null,
+    }, {
+      headers: {
+        'X-Family-Last-Update': familyTree?.updatedAt.getTime().toString() || '0'
+      }
     });
   } catch (error) {
     console.error("Error fetching moderator dashboard data:", error);

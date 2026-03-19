@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const authRecord = await prisma.auth.findUnique({
       where: { id },
       select: {
-        // password: true,
+        updatedAt: true,
         memberAuthId: true,
         moderatorAuthId: true,
         mainMemberId: true,
@@ -161,6 +161,10 @@ export async function GET(request: NextRequest) {
       currentAuthId: currentAuthId,
       userType: userType,
       allAuthDetails: sortedAuthDetails, // Array of objects with authId, mainMemberRef, and current flag
+    }, {
+      headers: {
+        'X-Family-Last-Update': authRecord.updatedAt.getTime().toString()
+      }
     });
 
     // Update the authId cookie with the latest list

@@ -149,9 +149,18 @@ export async function GET(request: NextRequest) {
         categorise.upcomingEvents.sort(sortAsc);
         categorise.selectedMonthEvents.sort(sortAsc);
 
+        const authRecord = await prisma.auth.findUnique({
+            where: { id: authId },
+            select: { updatedAt: true }
+        });
+
         return NextResponse.json({
             eventDates: { ...categorise },
             datesList: Array.from(categorise.datesList)
+        }, {
+            headers: {
+                'X-Family-Last-Update': authRecord?.updatedAt.getTime().toString() || '0'
+            }
         });
 
     } catch (error) {

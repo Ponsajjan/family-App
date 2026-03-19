@@ -19,30 +19,8 @@ export default function FamilyTreePage() {
   const token = getCookie('token');
   const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
-  const fetcher = async (url: string) => {
-    const res = await fetch(url);
-
-    if (res.status === 401) {
-      logout();
-      throw new Error("Unauthorized");
-    }
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || "Failed to fetch family tree");
-    }
-
-    return res.json();
-  };
-
   const { data: swrResult, error, isLoading, mutate } = useSWR(
-    token ? '/api/tree/get_chart' : null,
-    fetcher,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
+    token ? '/api/tree/get_chart' : null
   );
 
   const data = swrResult?.treeData || null;

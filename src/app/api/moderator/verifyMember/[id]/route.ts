@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { revalidatePath } from "next/cache";
+import { bumpFamilyUpdateVersion } from "@/utils/syncUtils";
 
 interface MemberResponse {
   generalInformation: {
@@ -277,6 +278,8 @@ export async function PATCH(request: NextRequest) {
       },
     });
 
+    await bumpFamilyUpdateVersion(authId);
+
     revalidatePath('/api/relatives');
     revalidatePath('/api/calendar/[month]/[year]');
     revalidatePath('/api/relatives/[id]');
@@ -364,6 +367,8 @@ export async function DELETE(request: NextRequest) {
         where: { id: memberId },
       });
     });
+
+    await bumpFamilyUpdateVersion(authId);
 
     revalidatePath('/api/relatives');
     revalidatePath('/api/calendar/[month]/[year]');

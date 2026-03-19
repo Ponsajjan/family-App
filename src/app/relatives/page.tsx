@@ -65,24 +65,6 @@ export default function Relatives() {
     }));
   };
 
-  const fetcher = async (url: string) => {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (response.status === 401) {
-      logout();
-      throw new Error("Unauthorized");
-    }
-
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-
-    return response.json();
-  };
-
   const getKey = (pageIndex: number, previousPageData: any) => {
     if (previousPageData && !previousPageData.data.length) return null;
     return `/api/relatives?search=${encodeURIComponent(params.search)}&page=${pageIndex + 1}&limit=${params.limit}`;
@@ -94,11 +76,7 @@ export default function Relatives() {
     setSize,
     isLoading,
     isValidating,
-  } = useSWRInfinite(getKey, fetcher, {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  } = useSWRInfinite(getKey);
 
   const members = useMemo(() => {
     if (!swrData) return [];

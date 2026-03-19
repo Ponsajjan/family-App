@@ -21,33 +21,7 @@ export default function AdminDashboard() {
     const router = useRouter();
     const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
-    const fetcher = async (url: string) => {
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-        });
-
-        if (res.status === 401) {
-            logout();
-            throw new Error("Unauthorized");
-        }
-
-        if (!res.ok) {
-            throw new Error("Failed to fetch moderator data");
-        }
-
-        return res.json();
-    };
-
-    const { data, isLoading: loading, mutate } = useSWR(
-        '/api/moderator',
-        fetcher,
-        {
-            revalidateIfStale: false,
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        }
-    );
+    const { data, isLoading: loading, mutate } = useSWR('/api/moderator');
 
     // Effect for Toasts based on chartStatus
     useEffect(() => {

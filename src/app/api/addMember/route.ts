@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { revalidatePath } from "next/cache";
+import { bumpFamilyUpdateVersion } from "@/utils/syncUtils";
 
 export async function POST(request: NextRequest) {
   const formData = await request.json();
@@ -82,6 +83,8 @@ export async function POST(request: NextRequest) {
 
       return { member: newMember, nonDescendantRelatives };
     });
+
+    await bumpFamilyUpdateVersion(authId);
 
     revalidatePath('/api/relatives');
 

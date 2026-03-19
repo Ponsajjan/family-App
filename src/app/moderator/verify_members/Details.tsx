@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CloseIcon, Condolences, Female2, Info, Male2, Verified } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useSWRConfig } from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 
 export default function NewMemberDetails({
     showDetailsFor,
@@ -25,51 +25,21 @@ export default function NewMemberDetails({
     const router = useRouter();
     const { logout } = useAuth();
     const { mutate } = useSWRConfig();
+    const { data: swrResult, error: swrError, isLoading: loadingDetails } = useSWR(
+        showDetailsFor.id ? `/api/moderator/verifyMember/${showDetailsFor.id}` : null
+    );
+
     const [data, setData] = useState<any>(null);
-    const [loadingDetails, setLoadingDetails] = useState(true);
     const [deleted, setDeleted] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        async function fetchMembers() {
-            try {
-                setError(null)
-                setDeleted(false)
-                setLoadingDetails(true)
-                const response = await fetch(`/api/moderator/verifyMember/${showDetailsFor.id}`,
-                    {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                    }
-                );
-                // Handle 401 Unauthorized
-                if (response.status === 401) {
-                    logout();
-                    return;
-                }
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Failed to fetch member details");
-                }
-
-                const member = await response.json();
-
-                setData(member.data);
-            } catch (error: any) {
-                console.error('Error fetching data:', error);
-                setError(error.message || 'Unknown error occurred');
-            } finally {
-                setLoadingDetails(false)
-            }
+        if (swrResult?.data) {
+            setData(swrResult.data);
+            setDeleted(false);
         }
+    }, [swrResult]);
 
-        if (showDetailsFor.id) {
-            fetchMembers();
-        }
-
-    }, [toast, showDetailsFor.id, router, logout]);
+    const error = swrError?.message;
 
 
     const handleVerification = async (memberId: number) => {

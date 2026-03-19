@@ -17,16 +17,26 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
-        const familyTree = await prisma.familyTree.findUnique({
-            where: { authId: authId },
-            select: { data: true }
-        });
+        const [familyTree, authRecord] = await Promise.all([
+            prisma.familyTree.findUnique({
+                where: { authId: authId },
+                select: { data: true }
+            }),
+            prisma.auth.findUnique({
+                where: { id: authId },
+                select: { updatedAt: true }
+            })
+        ]);
 
         if (!familyTree) {
             return NextResponse.json({ error: "No chart found. Please update the chart first." }, { status: 404 });
         }
 
-        return NextResponse.json({ treeData: familyTree.data });
+        return NextResponse.json({ treeData: familyTree.data }, {
+            headers: {
+                'X-Family-Last-Update': authRecord?.updatedAt.getTime().toString() || '0'
+            }
+        });
     } catch (error) {
         console.error("Error fetching relations chart:", error);
         return NextResponse.json(

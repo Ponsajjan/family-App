@@ -30,6 +30,7 @@ export interface TermsState {
   choosePopupAccounts: ChoosePopupAccount[];  // current:true accounts in ChoosePopup format
   currentAuthId: string;
   isModerator: boolean;
+  familyLastUpdates: Record<string, number>;
 }
 
 // ─── Thunk ───────────────────────────────────────────────────────────────────
@@ -71,6 +72,7 @@ const initialState: TermsState = {
   choosePopupAccounts: [],
   currentAuthId: '',
   isModerator: false,
+  familyLastUpdates: {},
 };
 
 const termsSlice = createSlice({
@@ -102,6 +104,9 @@ const termsSlice = createSlice({
     setChoosePopupAccounts(state, action: PayloadAction<ChoosePopupAccount[]>) {
       state.choosePopupAccounts = action.payload;
     },
+    setFamilyLastUpdate(state, action: PayloadAction<{ authId: string; timestamp: number }>) {
+      state.familyLastUpdates[action.payload.authId] = action.payload.timestamp;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -132,6 +137,7 @@ export const {
   setIsModerator,
   setTermsData,
   setChoosePopupAccounts,
+  setFamilyLastUpdate,
 } = termsSlice.actions;
 
 export default termsSlice.reducer;

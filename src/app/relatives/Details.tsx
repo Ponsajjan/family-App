@@ -5,30 +5,13 @@ import Loading from '@/components/Loading';
 import MemberDetails from '@/components/MemberDetails';
 import useSWR from 'swr';
 
-const fetcher = async (url: string) => {
-  const response = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || "Failed to fetch member details");
-  }
-  return response.json();
-};
-
 export default function Details({ showMember, openDetails }: any) {
   const { 
     data: swrResult, 
     error, 
     isLoading: loadingDetails 
   } = useSWR(
-    showMember ? `/api/relatives/${showMember}` : null,
-    fetcher,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
+    showMember ? `/api/relatives/${showMember}` : null
   );
 
   const data = swrResult?.data;

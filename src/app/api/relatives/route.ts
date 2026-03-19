@@ -80,17 +80,22 @@ export async function GET(request: NextRequest) {
       take,
     });
 
-    // Total count for pagination
-    const totalCount = await prisma.member.count({
-      where: {
-        authId: { in: allAuthIds },
-        ...(searchQuery && {
-          name: {
-            contains: searchQuery,
-          },
-        }),
-      },
-    });
+    const [totalCount, authRecord] = await Promise.all([
+      prisma.member.count({
+        where: {
+          authId: { in: allAuthIds },
+          ...(searchQuery && {
+            name: {
+              contains: searchQuery,
+            },
+          }),
+        },
+      }),
+      prisma.auth.findUnique({
+        where: { id: authId },
+        select: { updatedAt: true }
+      })
+    ]);
 
     // Process the data to add letter headers
     const groupedData: Array<Member | LetterHeader> = [];
@@ -127,6 +132,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       data: groupedData,
       totalCount: totalCount + 1,
+    }, {
+      headers: {
+        'X-Family-Last-Update': authRecord?.updatedAt.getTime().toString() || '0'
+      }
     });
   } catch (error) {
     console.error("Error fetching members:", error);
