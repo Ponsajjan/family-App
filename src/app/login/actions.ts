@@ -18,6 +18,7 @@ interface LoginResponse {
     moderatorPassword: string;
     memberAuthId?: string | null;
     moderatorAuthId?: string | null;
+    mainMemberName?: string | null;
 }
 
 export async function login(formData: FormData) {
@@ -59,7 +60,8 @@ export async function login(formData: FormData) {
                 moderatorContact: "N/A",
                 moderatorPassword: "N/A",
                 memberAuthId: "ADMIN007",
-                moderatorAuthId: "ADMIN007_MOD"
+                moderatorAuthId: "ADMIN007_MOD",
+                mainMemberName: "Admin"
             };
         }
 
@@ -75,6 +77,14 @@ export async function login(formData: FormData) {
                 success: false,
                 error: 'Invalid credential'
             };
+        }
+
+        if (login.id !== -108 && login.mainMemberId) {
+            const member = await prisma.member.findUnique({
+                where: { id: login.mainMemberId },
+                select: { name: true }
+            });
+            login.mainMemberName = member?.name || null;
         }
 
         const token = await generateToken({
@@ -110,7 +120,8 @@ export async function login(formData: FormData) {
             message: "Login successful",
             token,
             userType,
-            authId: authIdToReturn
+            authId: authIdToReturn,
+            mainMemberName: login.mainMemberName || 'Unknown'
         };
     } catch (error) {
         console.error("Error logging in:", error);

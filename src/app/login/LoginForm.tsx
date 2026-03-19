@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
-import { fetchTermsData } from "@/store/slices/termsSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { useSWRConfig } from "swr";
+import { setCookie } from "cookies-next";
+import { fetchTermsData, setAccounts, setCurrentAuthId, setMainMemberName } from "@/store/slices/termsSlice";
 import { login } from "./actions";
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
     const [message, setMessage] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const { storeLoginValues } = useAuth();
+    const { cache, mutate } = useSWRConfig();
     const dispatch = useDispatch<AppDispatch>();
+    const accounts = useSelector((state: RootState) => state.terms.accounts);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -30,9 +34,44 @@ export default function LoginForm() {
             const data = await login(formData);
 
             if (data.success && data.token) {
+                // Clear SWR cache for the previous family session
+                const allKeys = Array.from(cache.keys());
+                allKeys.forEach(key => {
+                    if (typeof key === 'string' && (
+                        key.startsWith('/api/tree/') ||
+                        key.startsWith('/api/moderator') ||
+                        key.startsWith('/api/terms')
+                    )) {
+                        mutate(key, undefined, { revalidate: false });
+                    }
+                });
+
                 // Store login values and refresh terms data in Redux
                 await storeLoginValues(data.token, data.userType, data.authId as string);
-                dispatch(fetchTermsData());
+
+                // Process accounts: Set all to false, then the current login to true
+                let updatedAccounts = accounts.map(acc => ({
+                    ...acc,
+                    current: String(acc.authId) === String(data.authId)
+                }));
+
+                const accountExists = accounts.some(acc => String(acc.authId) === String(data.authId));
+                if (!accountExists) {
+                    updatedAccounts.push({
+                        authId: data.authId as string,
+                        mainMemberRef: data.mainMemberName as string,
+                        current: true
+                    });
+                }
+                dispatch(setCurrentAuthId(data.authId as string));
+                dispatch(setMainMemberName(data.mainMemberName as string));
+                dispatch(setAccounts(updatedAccounts));
+
+                const maxAge = 180 * 24 * 60 * 60; // 180 days
+                setCookie('authId', JSON.stringify(updatedAccounts.map(a => a.authId)), { maxAge, path: '/' });
+                setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge, path: '/' });
+
+                // dispatch(fetchTermsData());
             } else {
                 setMessage(data.error || "Login failed");
                 if (data.error === "Invalid credential") {

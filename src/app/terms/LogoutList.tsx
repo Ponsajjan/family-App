@@ -145,11 +145,11 @@ function LogoutList() {
 
             {/* Current Account Section */}
             <div className='pl-4 pt-4 border-b border-dashed pb-2 pr-[1.375rem] w-full'>
-                <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[2.8125rem] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
+                <div onClick={logout} className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[2.8125rem] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
                     <div className="flex flex-col">
                         <div className="font-semibold">Logout</div>
                     </div>
-                    <span onClick={logout} className='border-l border-border_color pl-3 hover:text-accent_color' title="Logout">
+                    <span className='hover:text-accent_color' title="Logout">
                         <Logout />
                     </span>
                 </div>

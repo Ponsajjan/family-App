@@ -158,7 +158,9 @@ function SwitchLoginList() {
                 ];
 
                 storeLoginValues(data.token, data.userType, data.authId);
-                setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge: 60 * 60 * 24 * 30 });
+                const maxAge = 180 * 24 * 60 * 60; // 180 days
+                setCookie('authId', JSON.stringify(updatedAccounts.map(a => a.authId)), { maxAge, path: '/' });
+                setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge, path: '/' });
                 // Mirror exactly what went into the cookie
                 dispatch(setChoosePopupAccounts([{ authId: data.authId, name: data.mainMemberName || 'New Account' }]));
                 setForm({ password: "" });
