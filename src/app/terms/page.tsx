@@ -14,12 +14,12 @@ import LogoutList from './LogoutList'
 import { useAuth } from '@/contexts/AuthContext'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
-import { fetchTermsData, setIsModerator } from '@/store/slices/termsSlice'
+import { fetchTermsData, setIsModerator, setAccounts, setCurrentAuthId } from '@/store/slices/termsSlice'
 
 export default function Terms() {
   const toast = useToast();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, moderatorList, mainMemberName, isModerator } = useSelector((state: RootState) => state.terms);
+  const { loading, moderatorList, mainMemberName, isModerator, accounts } = useSelector((state: RootState) => state.terms);
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
@@ -94,8 +94,17 @@ export default function Terms() {
       const data = await response.json();
       if (data.newtoken) {
         await storeLoginValues(data.newtoken, data.userType, data.authId, data.oldAuthId);
+        dispatch(setIsModerator(false));
+        dispatch(setCurrentAuthId(data.authId));
+        // Swap old moderator authId → new member authId in the accounts list
+        dispatch(setAccounts(
+          accounts.map(acc =>
+            String(acc.authId) === String(data.oldAuthId)
+              ? { ...acc, authId: data.authId }
+              : acc
+          )
+        ));
         toast?.show(data.message || 'Logout successfully', 'success', 5000);
-        dispatch(setIsModerator(false))
       } else {
         toast?.show(data.error || 'Logout failed', 'error', 5000);
       }

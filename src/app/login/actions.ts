@@ -17,6 +17,7 @@ interface LoginResponse {
     moderatorContact?: string;
     moderatorPassword: string;
     memberAuthId?: string | null;
+    moderatorAuthId?: string | null;
 }
 
 export async function login(formData: FormData) {
@@ -57,7 +58,8 @@ export async function login(formData: FormData) {
                 moderatorName: "Admin",
                 moderatorContact: "N/A",
                 moderatorPassword: "N/A",
-                memberAuthId: "ADMIN007"
+                memberAuthId: "ADMIN007",
+                moderatorAuthId: "ADMIN007_MOD"
             };
         }
 
@@ -83,12 +85,32 @@ export async function login(formData: FormData) {
 
         const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
+        let authIdToReturn = login.memberAuthId || 'Unknown';
+
+        const existingAuthIdsCookie = cookieStore.get('authId')?.value;
+        if (existingAuthIdsCookie) {
+            try {
+                const accounts: string[] = JSON.parse(existingAuthIdsCookie);
+                if (Array.isArray(accounts)) {
+                    // Check if memberAuthId or moderatorAuthId already exists in the logged accounts list
+                    const foundId = accounts.find(id =>
+                        id === login.memberAuthId || id === login.moderatorAuthId
+                    );
+                    if (foundId) {
+                        authIdToReturn = foundId;
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing authId cookie:", e);
+            }
+        }
+
         return {
             success: true,
             message: "Login successful",
             token,
             userType,
-            authId: login.memberAuthId || 'Unknown'
+            authId: authIdToReturn
         };
     } catch (error) {
         console.error("Error logging in:", error);

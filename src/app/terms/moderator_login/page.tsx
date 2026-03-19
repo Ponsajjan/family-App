@@ -1,23 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
-import { NextArrow } from "@/utils/Icons";
+import { NextArrow, SwitchIcon } from "@/utils/Icons";
 import { useAuth } from "@/contexts/AuthContext";
 import Container from "@/components/Container";
-import { setIsModerator, setAccounts, setCurrentAuthId } from "@/store/slices/termsSlice";
+import { setIsModerator, setAccounts, setCurrentAuthId, fetchTermsData } from "@/store/slices/termsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
+import { ChoosePopup } from "@/components/ChoosePopup";
+import { useToast } from "@/components/Toast";
 
 export default function Page() {
     const router = useRouter();
+    const [showChoosePopup, setShowChoosePopup] = useState(false);
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
-    const { storeLoginValues } = useAuth();
+    const { storeLoginValues, logout } = useAuth();
+    const toast = useToast();
     const dispatch = useDispatch<AppDispatch>();
-    const accounts = useSelector((state: RootState) => state.terms.accounts);
+    const { accounts, mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+
+    useEffect(() => {
+        if (mainMemberName) return;
+        dispatch(fetchTermsData())
+            .unwrap()
+            .catch((error: any) => {
+                if (error?.status === 401) {
+                    logout();
+                } else if (error?.message) {
+                    toast?.show(error.message, 'error', 5000);
+                }
+            });
+    }, [dispatch, logout, toast, mainMemberName]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,6 +95,20 @@ export default function Page() {
             </Topnav>
             <Container>
                 <form className="max-w-lg px-4 pt-10 mx-auto">
+                    <div className="flex items-center gap-2 h-10 mb-2">
+                        {choosePopupAccounts.length > 1 &&
+                            <>
+                                <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
+                                <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{mainMemberName} Family</span>
+                                <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
+                                <div
+                                    onClick={() => setShowChoosePopup(true)}
+                                    className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
+                                    <SwitchIcon />
+                                </div>
+                            </>}
+                    </div>
+
                     <div className={`flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2 relative ${error ? 'passwordError' : ''} ${submitting ? 'opacity-60' : ''}`}>
                         <label className='flex items-center w-full relative'>
                             <span className={`absolute left-1 text-text_color/55 transition-all duration-200 pointer-events-none pt-0.5 ${form.password ? 'text-sm -top-px' : 'top-1/2 -translate-y-1/2'
@@ -101,6 +132,12 @@ export default function Page() {
                     </div>
                     {error && <p className='text-text_color text-sm pl-1 pt-1'>{error}</p>}
                 </form>
+                {showChoosePopup && (
+                    <ChoosePopup
+                        showPopup={showChoosePopup}
+                        setShowPopup={setShowChoosePopup}
+                    />
+                )}
             </Container>
         </div>
     )

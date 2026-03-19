@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
 import { fetchTermsData } from "@/store/slices/termsSlice";
+import { login } from "./actions";
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
     const [message, setMessage] = useState("");
@@ -23,31 +24,19 @@ export default function LoginForm() {
 
         try {
             setSubmitting(true);
-            const result = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(form),
-            });
+            const formData = new FormData();
+            formData.append("password", form.password);
 
-            const data = await result.json();
-
-            // Validate response structure
-            if (!data || typeof data !== 'object') {
-                throw new Error("Invalid server response");
-            }
+            const data = await login(formData);
 
             if (data.success && data.token) {
                 // Store login values and refresh terms data in Redux
-                await storeLoginValues(data.token, data.userType, data.authId);
+                await storeLoginValues(data.token, data.userType, data.authId as string);
                 dispatch(fetchTermsData());
             } else {
-                if (data.error === "Invalid credentials") {
+                setMessage(data.error || "Login failed");
+                if (data.error === "Invalid credential") {
                     setForm(prev => ({ ...prev, password: "" }));
-                    setMessage("Invalid credentials");
-                } else {
-                    setMessage("Login failed");
                 }
             }
         } catch (error: any) {

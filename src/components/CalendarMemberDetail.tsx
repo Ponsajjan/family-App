@@ -2,31 +2,12 @@
 import useSWR from 'swr';
 import MemberDetails from './MemberDetails';
 
-const fetcher = async (url: string) => {
-  const response = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || "Failed to fetch member details");
-  }
-  return response.json();
-};
-
 export default function CalendarMemberDetail({ memberId }: any) {
-  const { 
-    data: swrResult, 
-    error, 
-    isLoading: loadingDetails 
-  } = useSWR(
-    memberId ? `/api/relatives/${memberId}` : null,
-    fetcher,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
+  const {
+    data: swrResult,
+    error,
+    isLoading: loadingDetails
+  } = useSWR(memberId ? `/api/relatives/${memberId}` : null);
 
   const data = swrResult?.data;
 
