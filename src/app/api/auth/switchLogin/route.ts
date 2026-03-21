@@ -70,6 +70,7 @@ export async function POST(request: Request) {
 
     const token = await generateToken({
       authId: login.id,
+      selectAuthId: userType === "Moderator" ? login.moderatorAuthId : login.memberAuthId,
       memberId: login.mainMemberId,
       userType,
     });

@@ -87,13 +87,14 @@ export async function login(formData: FormData) {
             login.mainMemberName = member?.name || null;
         }
 
+        const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
+
         const token = await generateToken({
             authId: login.id,
+            selectedAuthId: login.memberAuthId,
             memberId: login.mainMemberId,
-            userType: login.moderatorName === "Admin" ? "Admin" : "Member"
+            userType: userType
         });
-
-        const userType = login.moderatorName === "Admin" ? "Admin" : "Member";
 
         let authIdToReturn = login.memberAuthId || 'Unknown';
 

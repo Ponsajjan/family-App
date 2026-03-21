@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateToken, verifyToken } from "@/utils/auth";
 import prisma from "@/db/db";
 
-// this api takes in token finds authuntication using unique password then checks value with moderator password
-
 export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json();
@@ -42,6 +40,7 @@ export async function POST(request: NextRequest) {
     // Generate token
     const newtoken = await generateToken({
       authId: login.id,
+      selectAuthId: login.moderatorAuthId,
       memberId: login.mainMemberId,
       userType: "Moderator",
     });

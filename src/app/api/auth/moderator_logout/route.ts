@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateToken, verifyToken } from "@/utils/auth";
 import prisma from "@/db/db";
 
-// this api takes in token, verifies the user is a moderator, and logs them out as a member
-
 export async function POST(request: NextRequest) {
     try {
         const token = request.cookies.get("token")?.value;
@@ -44,6 +42,7 @@ export async function POST(request: NextRequest) {
         // Generate token for member
         const newtoken = await generateToken({
             authId: login.id,
+            selectAuthId: login.memberAuthId,
             memberId: login.mainMemberId,
             userType: "Member",
         });

@@ -27,7 +27,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
         navigator.clipboard.writeText(copyText).then(() => {
             toast?.show(`${type} copied to clipboard!`, "success", 2000);
         }).catch(err => {
-            toast?.show("Failed to copy to clipboard", "error", 3000);
+            toast?.show(`Failed to copy to clipboard ${err}`, "error", 3000);
         });
     };
 

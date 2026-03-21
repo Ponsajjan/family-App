@@ -40,7 +40,7 @@ function SwitchLoginList() {
     const handleToggleChange = async (account: AccountDetail) => {
         if (isToggling) return;
         setIsToggling(true);
-        console.log(account.authId, currentAuthId);
+        // console.log(account.authId, currentAuthId);
         try {
             let nextAuthId: string | null = null;
 
