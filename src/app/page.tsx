@@ -317,7 +317,7 @@ export default function Calendar() {
           {loading ? <Loading /> :
             datesList?.length > 0
               ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} />
-              : <p className="text-center pt-4 text-text_color">No events in this month...</p>}
+              : <p className="text-center pt-4 text-text_color">{!error ? 'No events in this month...' : 'Failed to load events for this month.'}</p>}
         </div>
       </div>
     </div>

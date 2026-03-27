@@ -76,6 +76,7 @@ export default function Relatives() {
     setSize,
     isLoading,
     isValidating,
+    error,
   } = useSWRInfinite(getKey);
 
   const members = useMemo(() => {
@@ -193,9 +194,9 @@ export default function Relatives() {
               <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loadingList && members.length === 0) && (
-                  params.search ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for &lsquo;{params.search}&lsquo;</p> : ''
+                  params.search ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for &lsquo;{params.search}&lsquo;</p> : error ? 'Failed to load relatives.' : ''
                 )}
-                {!hasMore && <p className="text-text_color">, , ,</p>}
+                {!hasMore && !error && <p className="text-text_color">, , ,</p>}
               </div>
             </div>
           </div>

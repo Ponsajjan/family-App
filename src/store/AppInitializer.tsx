@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./index";
 import { fetchTermsData, setFamilyLastUpdates } from "./slices/termsSlice";
@@ -11,6 +11,7 @@ export function AppInitializer() {
   const dispatch = useDispatch<AppDispatch>();
   const pathname = usePathname();
   const { mainMemberName, currentAuthId, familyLastUpdates, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+  const lastCheckTime = useRef(0);
 
   useEffect(() => {
     if (!mainMemberName) {
@@ -27,6 +28,10 @@ export function AppInitializer() {
           : (currentAuthId ? [currentAuthId] : []);
 
         if (idsToCheck.length === 0) return;
+
+        const now = Date.now();
+        if (now - lastCheckTime.current < 20000) return;
+        lastCheckTime.current = now;
 
         const res = await fetch(`/api/auth/version?ids=${idsToCheck.join(',')}`);
         if (!res.ok) return;
