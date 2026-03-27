@@ -1,5 +1,5 @@
 import { store } from '@/store';
-import { setFamilyLastUpdate } from '@/store/slices/termsSlice';
+import { setFamilyLastUpdates } from '@/store/slices/termsSlice';
 import { mutate } from 'swr';
 
 /**
@@ -28,29 +28,33 @@ export const globalFetcher = async (url: string) => {
 
   // 2. Read the server's last update header
   const serverUpdateHeader = res.headers.get('X-Family-Last-Update');
-  console.log('----------------', serverUpdateHeader, currentAuthId, '---------------');
-  if (serverUpdateHeader && currentAuthId) {
-    const serverTimestamp = parseInt(serverUpdateHeader, 10);
-    const clientTimestamp = state.terms.familyLastUpdates[currentAuthId] || 0;
 
-    // 3. Comparison Logic
-    if (clientTimestamp === 0) {
-      // First fetch of the session for this account: just sync the timestamp
-      store.dispatch(setFamilyLastUpdate({
-        authId: currentAuthId,
-        timestamp: serverTimestamp
-      }));
-    } else if (serverTimestamp > clientTimestamp) {
-      // Data change detected: wipe cache and update
-      console.log(`[CacheBuster] Server version (${serverTimestamp}) is newer than client version (${clientTimestamp}). Clearing SWR cache.`);
-      
-      mutate(() => true, undefined, { revalidate: true });
-
-      store.dispatch(setFamilyLastUpdate({
-        authId: currentAuthId,
-        timestamp: serverTimestamp
-      }));
+  if (serverUpdateHeader) {
+    let serverVersions: Record<string, number> = {};
+    try {
+      serverVersions = JSON.parse(serverUpdateHeader);
+    } catch {
+      // Fallback for legacy single-value header
+      if (currentAuthId) serverVersions[currentAuthId] = parseInt(serverUpdateHeader, 10);
     }
+
+    let needsWipe = false;
+
+    // Check all server versions against client versions
+    Object.entries(serverVersions).forEach(([authId, serverTs]) => {
+      const clientTs = state.terms.familyLastUpdates[authId] || 0;
+      if (clientTs > 0 && serverTs > clientTs) {
+        needsWipe = true;
+      }
+    });
+
+    if (needsWipe) {
+      console.log(`[CacheBuster] Global update detected. Clearing SWR cache.`);
+      mutate(() => true, undefined, { revalidate: true });
+    }
+
+    // sync ALL new versions into Redux
+    store.dispatch(setFamilyLastUpdates(serverVersions));
   }
 
   return res.json();

@@ -32,7 +32,7 @@ export const ChoosePopup = ({
         const allKeys = Array.from(cache.keys());
         allKeys.forEach(key => {
             if (typeof key === 'string' && (
-                key.startsWith('/api/tree/') ||
+                key.startsWith('/api/tree') ||
                 key.startsWith('/api/moderator')
             )) {
                 globalMutate(key, undefined, { revalidate: false });

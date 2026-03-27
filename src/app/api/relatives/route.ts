@@ -41,13 +41,14 @@ export async function GET(request: NextRequest) {
   try {
     const decoded = await verifyToken(token);
     const authId = decoded.authId;
+    const userType = decoded.userType;
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
-    const allAuthIds = await getAllAuthIds(authId, selectedAuthId);
+    const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
 
     // Calculate skip with one extra item for letter detection
     const baseSkip = (page - 1) * limit;
@@ -80,22 +81,16 @@ export async function GET(request: NextRequest) {
       take,
     });
 
-    const [totalCount, authRecord] = await Promise.all([
-      prisma.member.count({
-        where: {
-          authId: { in: allAuthIds },
-          ...(searchQuery && {
-            name: {
-              contains: searchQuery,
-            },
-          }),
-        },
-      }),
-      prisma.auth.findUnique({
-        where: { id: authId },
-        select: { updatedAt: true }
-      })
-    ]);
+    const totalCount = await prisma.member.count({
+      where: {
+        authId: { in: allAuthIds },
+        ...(searchQuery && {
+          name: {
+            contains: searchQuery,
+          },
+        }),
+      },
+    });
 
     // Process the data to add letter headers
     const groupedData: Array<Member | LetterHeader> = [];
@@ -134,7 +129,7 @@ export async function GET(request: NextRequest) {
       totalCount: totalCount + 1,
     }, {
       headers: {
-        'X-Family-Last-Update': authRecord?.updatedAt.getTime().toString() || '0'
+        'X-Family-Last-Update': JSON.stringify(updatedAt)
       }
     });
   } catch (error) {

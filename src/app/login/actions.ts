@@ -91,7 +91,6 @@ export async function login(formData: FormData) {
 
         const token = await generateToken({
             authId: login.id,
-            selectedAuthId: login.memberAuthId,
             memberId: login.mainMemberId,
             userType: userType
         });

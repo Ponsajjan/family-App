@@ -15,26 +15,85 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const id = decoded.authId;
+    const authId = decoded.authId;
+    const userType = decoded.userType;
 
-    if (!id) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const authRecord = await prisma.auth.findUnique({
-      where: { id },
-      select: { updatedAt: true }
-    });
+    // --- Get IDs to check ---
+    const { searchParams } = new URL(request.url);
+    const idsParam = searchParams.get("ids");
 
-    if (!authRecord) {
-      return NextResponse.json({ error: "Auth record not found" }, { status: 404 });
+    let allMemberAuthIds: string[] = [];
+    if (idsParam) {
+      allMemberAuthIds = idsParam.split(",").filter(id => id.trim() !== "");
     }
 
-    return NextResponse.json({ 
-      updatedAt: authRecord.updatedAt.getTime() 
+    if (allMemberAuthIds.length === 0) {
+      const authRecord = await prisma.auth.findUnique({
+        where: { id: authId },
+        select: {
+          memberAuthId: true,
+          moderatorAuthId: true
+        }
+      });
+      if (authRecord) {
+        if (userType === 'Member' && authRecord.memberAuthId) {
+          allMemberAuthIds.push(authRecord.memberAuthId);
+        }
+        if (userType === 'Moderator' && authRecord.moderatorAuthId) {
+          allMemberAuthIds.push(authRecord.moderatorAuthId);
+        }
+      }
+    }
+
+    // Fetch updatedAt for all these
+    const authRecords = await prisma.auth.findMany({
+      where: {
+        OR: [
+          { memberAuthId: { in: allMemberAuthIds } },
+          { moderatorAuthId: { in: allMemberAuthIds } }
+        ]
+      },
+      select: {
+        id: true,
+        memberAuthId: true,
+        moderatorAuthId: true,
+        updatedAt: true
+      }
     });
 
+    if (authRecords.length === 0) {
+      return NextResponse.json({ error: "Auth records not found" }, { status: 404 });
+    }
+
+    // Map the results back to the requested IDs or their own internal IDs
+    const updates: Record<string, number> = {};
+    authRecords.forEach(rec => {
+      const timestamp = rec.updatedAt.getTime();
+      updates[rec.id.toString()] = timestamp;
+      if (rec.memberAuthId && allMemberAuthIds.includes(rec.memberAuthId)) {
+        updates[rec.memberAuthId] = timestamp;
+      }
+      if (rec.moderatorAuthId && allMemberAuthIds.includes(rec.moderatorAuthId)) {
+        updates[rec.moderatorAuthId] = timestamp;
+      }
+    });
+
+    const response = NextResponse.json({
+      updatedAt: updates,
+    }, {
+      headers: {
+        'X-Family-Last-Update': JSON.stringify(updates)
+      }
+    });
+
+    return response;
+
   } catch (error) {
+    console.error("Internal Server Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

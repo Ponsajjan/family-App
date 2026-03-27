@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import Topnav from "@/components/Topnav"
 import { ButtonOutline, LinkButtonOutline } from "../../components/Button"
 import { useToast } from '@/components/Toast'
@@ -12,7 +12,7 @@ import { ChoosePopup } from '@/components/ChoosePopup'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 
-export default function AdminDashboard() {
+export default function ModeratorDashboard() {
     const toast = useToast();
     const [updatingChart, setUpdatingChart] = useState(false);
     const [disabledButtons, setDisabledButtons] = useState(false);
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
     const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
     const { data, isLoading: loading, mutate } = useSWR('/api/moderator');
-
+    const { mutate: globalMutate } = useSWRConfig();
     // Effect for Toasts based on chartStatus
     useEffect(() => {
         if (data) {
@@ -58,6 +58,7 @@ export default function AdminDashboard() {
 
             if (res.ok) {
                 toast?.show(data.message, 'success', 5000)
+                globalMutate('/api/tree', undefined, { revalidate: false });
                 mutate(); // Refresh the counts and status
 
                 // Display conflict warnings if any circular relationships were detected

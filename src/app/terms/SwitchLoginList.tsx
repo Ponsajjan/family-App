@@ -17,7 +17,7 @@ function SwitchLoginList() {
     const [error, setError] = useState("");
     const { storeLoginValues } = useAuth();
     const toast = useToast();
-    const { cache, mutate: globalMutate } = useSWRConfig();
+    const { cache, mutate } = useSWRConfig();
 
     const clearFamilyCache = () => {
         const allKeys = Array.from(cache.keys());
@@ -25,13 +25,13 @@ function SwitchLoginList() {
             if (typeof key === 'string') {
                 const isApiMatch = (path: string) =>
                     path.startsWith('/api/calendar/') ||
-                    path.startsWith('/api/tree/') ||
+                    path.startsWith('/api/tree') ||
                     path.startsWith('/api/relatives') ||
                     path.startsWith('/api/moderator') ||
                     path.startsWith('/api/terms');
 
                 if (isApiMatch(key) || (key.startsWith('$inf$') && isApiMatch(key.substring(5)))) {
-                    globalMutate(key, undefined, { revalidate: false });
+                    mutate(key, undefined, { revalidate: false });
                 }
             }
         });

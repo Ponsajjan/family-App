@@ -53,7 +53,6 @@ export async function POST(request: Request) {
     // Generate token
     const token = await generateToken({
       authId: login.id,
-      selectAuthId: login.memberAuthId,
       memberId: login.mainMemberId,
       userType: "Member",
     });

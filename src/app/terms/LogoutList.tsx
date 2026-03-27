@@ -23,7 +23,7 @@ function LogoutList() {
         allKeys.forEach(key => {
             if (typeof key === 'string' && (
                 key.startsWith('/api/calendar/') ||
-                key.startsWith('/api/tree/') ||
+                key.startsWith('/api/tree') ||
                 key.startsWith('/api/relatives') ||
                 key.startsWith('/api/moderator') ||
                 key.startsWith('/api/terms')

@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
         // Generate token for member
         const newtoken = await generateToken({
             authId: login.id,
-            selectAuthId: login.memberAuthId,
             memberId: login.mainMemberId,
             userType: "Member",
         });

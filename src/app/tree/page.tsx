@@ -15,12 +15,11 @@ import { RootState } from "@/store";
 
 export default function FamilyTreePage() {
   const [showChoosePopup, setShowChoosePopup] = useState(false);
-  const { logout } = useAuth();
   const token = getCookie('token');
   const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
   const { data: swrResult, error, isLoading, mutate } = useSWR(
-    token ? '/api/tree/get_chart' : null
+    token ? '/api/tree' : null
   );
 
   const data = swrResult?.treeData || null;

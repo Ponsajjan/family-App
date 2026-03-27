@@ -23,13 +23,14 @@ export async function GET(request: NextRequest) {
     try {
         const decoded = await verifyToken(token);
         const authId = decoded.authId;
+        const userType = decoded.userType;
 
         if (!authId) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
         const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
-        const allAuthIds = await getAllAuthIds(authId, selectedAuthId);
+        const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
 
         // Extract month and year from URL
         const url = new URL(request.url);
@@ -149,17 +150,12 @@ export async function GET(request: NextRequest) {
         categorise.upcomingEvents.sort(sortAsc);
         categorise.selectedMonthEvents.sort(sortAsc);
 
-        const authRecord = await prisma.auth.findUnique({
-            where: { id: authId },
-            select: { updatedAt: true }
-        });
-
         return NextResponse.json({
             eventDates: { ...categorise },
             datesList: Array.from(categorise.datesList)
         }, {
             headers: {
-                'X-Family-Last-Update': authRecord?.updatedAt.getTime().toString() || '0'
+                'X-Family-Last-Update': JSON.stringify(updatedAt)
             }
         });
 

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useSWRConfig } from "swr";
 import { setCookie } from "cookies-next";
-import { fetchTermsData, setAccounts, setCurrentAuthId, setMainMemberName } from "@/store/slices/termsSlice";
+import { setAccounts, setCurrentAuthId, setMainMemberName } from "@/store/slices/termsSlice";
 import { login } from "./actions";
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
@@ -37,12 +37,17 @@ export default function LoginForm() {
                 // Clear SWR cache for the previous family session
                 const allKeys = Array.from(cache.keys());
                 allKeys.forEach(key => {
-                    if (typeof key === 'string' && (
-                        key.startsWith('/api/tree/') ||
-                        key.startsWith('/api/moderator') ||
-                        key.startsWith('/api/terms')
-                    )) {
-                        mutate(key, undefined, { revalidate: false });
+                    if (typeof key === 'string') {
+                        const isApiMatch = (path: string) =>
+                            path.startsWith('/api/calendar/') ||
+                            path.startsWith('/api/tree') ||
+                            path.startsWith('/api/relatives') ||
+                            path.startsWith('/api/moderator') ||
+                            path.startsWith('/api/terms');
+
+                        if (isApiMatch(key) || (key.startsWith('$inf$') && isApiMatch(key.substring(5)))) {
+                            mutate(key, undefined, { revalidate: false });
+                        }
                     }
                 });
 

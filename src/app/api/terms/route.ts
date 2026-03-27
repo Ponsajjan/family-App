@@ -91,6 +91,8 @@ export async function GET(request: NextRequest) {
         memberAuthId: true,
         moderatorAuthId: true,
         mainMemberId: true,
+        updatedAt: true,
+        id: true,
       }
     });
 
@@ -143,7 +145,8 @@ export async function GET(request: NextRequest) {
       return {
         authId,
         mainMemberRef: record?.mainMemberId ? memberMap.get(record.mainMemberId) || null : null,
-        current: selectedAuthIds.length > 0 ? selectedAuthIds.includes(authId) : (authId === currentAuthId)
+        current: selectedAuthIds.length > 0 ? selectedAuthIds.includes(authId) : (authId === currentAuthId),
+        updatedAt: record?.updatedAt.getTime() || 0
       };
     });
 
@@ -151,6 +154,15 @@ export async function GET(request: NextRequest) {
       if (a.current && !b.current) return -1;
       if (!a.current && b.current) return 1;
       return 0;
+    });
+
+    // Map all update timestamps
+    const updatedAtMap: Record<string, number> = {};
+    authRecords.forEach(rec => {
+      const ts = rec.updatedAt.getTime();
+      updatedAtMap[rec.id.toString()] = ts;
+      if (rec.memberAuthId) updatedAtMap[rec.memberAuthId] = ts;
+      if (rec.moderatorAuthId) updatedAtMap[rec.moderatorAuthId] = ts;
     });
 
     // Prepare response
@@ -163,7 +175,7 @@ export async function GET(request: NextRequest) {
       allAuthDetails: sortedAuthDetails, // Array of objects with authId, mainMemberRef, and current flag
     }, {
       headers: {
-        'X-Family-Last-Update': authRecord.updatedAt.getTime().toString()
+        'X-Family-Last-Update': JSON.stringify(updatedAtMap)
       }
     });
 

@@ -2,13 +2,16 @@ import prisma from "@/db/db";
 
 /**
  * Resolves all numeric Auth IDs that a user has access to,
- * taking into account any switched accounts stored in the selectedAuthId cookie.
+ * along with their respective update timestamps.
  *
  * @param authId          - The numeric auth ID of the currently logged-in user (from JWT).
  * @param selectedAuthId  - Raw cookie value of "selectedAuthId" (a JSON-stringified string[]).
- * @returns               - A deduplicated array of numeric Auth `id`s to use in DB queries.
+ * @returns               - Object containing IDs, the latest timestamp, and a map of all timestamps.
  */
-export async function getAllAuthIds(authId: number, selectedAuthId: string): Promise<number[]> {
+export async function getAllAuthIds(authId: number, userType: string, selectedAuthId: string): Promise<{
+    allAuthIds: number[];
+    updatedAt: Record<number, number>
+}> {
     let loginAuthIds: string[] = [];
     try {
         const parsed = JSON.parse(selectedAuthId);
@@ -19,6 +22,8 @@ export async function getAllAuthIds(authId: number, selectedAuthId: string): Pro
         console.error("Error parsing selectedAuthId cookie", e);
     }
 
+    const updatedAt: Record<any, number> = {};
+
     if (loginAuthIds.length > 0) {
         try {
             const authRecords = await prisma.auth.findMany({
@@ -28,16 +33,56 @@ export async function getAllAuthIds(authId: number, selectedAuthId: string): Pro
                         { moderatorAuthId: { in: loginAuthIds } }
                     ]
                 },
-                select: { id: true }
+                select: {
+                    id: true,
+                    memberAuthId: true,
+                    moderatorAuthId: true,
+                    updatedAt: true
+                }
             });
-            const switchedIds = authRecords.map(record => record.id);
-            return [...new Set(switchedIds)];
+
+            const switchedIds = authRecords.map(record => {
+                const ts = record.updatedAt.getTime();
+                if (record.memberAuthId && selectedAuthId.includes(record.memberAuthId)) {
+                    updatedAt[record.memberAuthId] = ts;
+                }
+                if (record.moderatorAuthId && selectedAuthId.includes(record.moderatorAuthId)) {
+                    updatedAt[record.moderatorAuthId] = ts;
+                }
+                return record.id;
+            });
+
+            return {
+                allAuthIds: [...new Set(switchedIds)],
+                updatedAt
+            };
         } catch (e) {
-            return [authId];
+            console.error("Error fetching auth records in getAllAuthIds:", e);
         }
     }
 
-    return [authId];
+    // Fallback: Fetch the single record for the primary authId to get its updatedAt
+    const primaryRecord = await prisma.auth.findUnique({
+        where: { id: authId },
+        select: {
+            updatedAt: true,
+            memberAuthId: true,
+            moderatorAuthId: true
+        }
+    });
+
+    const primaryTs = primaryRecord?.updatedAt.getTime() || 0;
+    if (userType === 'Member' && primaryRecord?.memberAuthId) {
+        updatedAt[primaryRecord.memberAuthId] = primaryTs;
+    }
+    if (userType === 'Moderator' && primaryRecord?.moderatorAuthId) {
+        updatedAt[primaryRecord.moderatorAuthId] = primaryTs;
+    }
+
+    return {
+        allAuthIds: [authId],
+        updatedAt
+    };
 }
 
 

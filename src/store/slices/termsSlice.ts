@@ -6,6 +6,7 @@ export interface AccountDetail {
   authId: string;
   mainMemberRef: string;
   current: boolean;
+  updatedAt?: number;
 }
 
 /** Format consumed by ChoosePopup: { authId, name } */
@@ -48,12 +49,22 @@ export const fetchTermsData = createAsyncThunk(
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
+
+      const accounts = data.allAuthDetails as AccountDetail[];
+      const familyLastUpdates: Record<string, number> = {};
+      accounts.forEach(acc => {
+        if (acc.authId && acc.updatedAt) {
+          familyLastUpdates[acc.authId] = acc.updatedAt;
+        }
+      });
+
       return {
         mainMemberName: data.mainMemberName,
         moderatorList: data.moderators,
         currentAuthId: data.currentAuthId,
-        accounts: data.allAuthDetails as AccountDetail[],
+        accounts: accounts,
         isModerator: data.userType === 'Moderator',
+        familyLastUpdates,
       };
     } catch (error: any) {
       if (error && error.status === 401) return rejectWithValue({ status: 401 });
@@ -104,8 +115,8 @@ const termsSlice = createSlice({
     setChoosePopupAccounts(state, action: PayloadAction<ChoosePopupAccount[]>) {
       state.choosePopupAccounts = action.payload;
     },
-    setFamilyLastUpdate(state, action: PayloadAction<{ authId: string; timestamp: number }>) {
-      state.familyLastUpdates[action.payload.authId] = action.payload.timestamp;
+    setFamilyLastUpdates(state, action: PayloadAction<Record<string, number>>) {
+      state.familyLastUpdates = { ...state.familyLastUpdates, ...action.payload };
     },
   },
   extraReducers: (builder) => {
@@ -121,6 +132,7 @@ const termsSlice = createSlice({
         state.accounts = action.payload.accounts;
         state.choosePopupAccounts = toChoosePopup(action.payload.accounts);
         state.isModerator = action.payload.isModerator;
+        state.familyLastUpdates = { ...state.familyLastUpdates, ...action.payload.familyLastUpdates };
       })
       .addCase(fetchTermsData.rejected, (state) => {
         state.loading = false;
@@ -137,7 +149,7 @@ export const {
   setIsModerator,
   setTermsData,
   setChoosePopupAccounts,
-  setFamilyLastUpdate,
+  setFamilyLastUpdates,
 } = termsSlice.actions;
 
 export default termsSlice.reducer;

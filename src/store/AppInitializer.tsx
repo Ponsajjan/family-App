@@ -3,14 +3,14 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "./index";
-import { fetchTermsData, setFamilyLastUpdate } from "./slices/termsSlice";
+import { fetchTermsData, setFamilyLastUpdates } from "./slices/termsSlice";
 import { mutate } from "swr";
 import { usePathname } from "next/navigation";
 
 export function AppInitializer() {
   const dispatch = useDispatch<AppDispatch>();
   const pathname = usePathname();
-  const { mainMemberName, currentAuthId, familyLastUpdates } = useSelector((state: RootState) => state.terms);
+  const { mainMemberName, currentAuthId, familyLastUpdates, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
   useEffect(() => {
     if (!mainMemberName) {
@@ -20,27 +20,43 @@ export function AppInitializer() {
 
   // --- Lightweight Version Check on Navigation & Focus ---
   useEffect(() => {
-    if (!currentAuthId) return;
-
     const checkVersion = async () => {
       try {
-        const res = await fetch('/api/auth/version');
-        if (!res.ok) return;
-        
-        const { updatedAt: serverVersion } = await res.json();
-        const clientVersion = familyLastUpdates[currentAuthId] || 0;
+        const idsToCheck = choosePopupAccounts.length > 0
+          ? choosePopupAccounts.map(a => a.authId)
+          : (currentAuthId ? [currentAuthId] : []);
 
-        if (clientVersion === 0) {
-          // Initialize first version of the session
-          dispatch(setFamilyLastUpdate({ authId: currentAuthId, timestamp: serverVersion }));
-        } else if (serverVersion > clientVersion) {
-          console.log(`[AppInitializer] Global change detected on ${pathname} (${serverVersion} > ${clientVersion}). Wiping cache.`);
-          
-          // Clear SWR cache
-          mutate(() => true, undefined, { revalidate: true });
-          
-          // Sync new version
-          dispatch(setFamilyLastUpdate({ authId: currentAuthId, timestamp: serverVersion }));
+        if (idsToCheck.length === 0) return;
+
+        const res = await fetch(`/api/auth/version?ids=${idsToCheck.join(',')}`);
+        if (!res.ok) return;
+
+        const { updatedAt: serverVersions } = await res.json();
+
+        let needsWipe = false;
+        let isFirstSync = false;
+
+        // Find if any account version has changed
+        idsToCheck.forEach(id => {
+          const serverVersion = serverVersions[id] || 0;
+          const clientVersion = familyLastUpdates[id] || 0;
+
+          if (clientVersion === 0 && serverVersion > 0) {
+            isFirstSync = true;
+          } else if (serverVersion > clientVersion) {
+            needsWipe = true;
+          }
+        });
+
+        if (needsWipe || (isFirstSync && Object.keys(serverVersions).length > 0)) {
+          if (needsWipe) {
+            console.log(`[AppInitializer] Global change detected on ${pathname}. Monitored accounts: ${idsToCheck.join(', ')}. Wiping cache.`);
+            // Clear SWR cache
+            mutate(() => true, undefined, { revalidate: true });
+          }
+
+          // Sync all new versions into store
+          dispatch(setFamilyLastUpdates(serverVersions));
         }
       } catch (err) {
         console.error("[AppInitializer] Version check failed:", err);
@@ -56,7 +72,7 @@ export function AppInitializer() {
     return () => {
       window.removeEventListener('focus', checkVersion);
     };
-  }, [dispatch, currentAuthId, familyLastUpdates, pathname]);
+  }, [dispatch, currentAuthId, familyLastUpdates, choosePopupAccounts, pathname]);
 
   return null;
 }

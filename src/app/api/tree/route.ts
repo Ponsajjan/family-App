@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
+import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("Authorization");
-  const token = authHeader?.split(" ")[1];
+  const token = request.cookies.get("token")?.value;
 
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -11,30 +12,31 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const memberId = decoded.memberId
-    if (!memberId) {
+    const authId = decoded.authId;
+    const userType = decoded.userType;
+    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    const { updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
+
+    const familyTree = await prisma.familyTree.findUnique({
+      where: { authId: authId },
+      select: { data: true }
+    });
+
+    if (!familyTree) {
+      return NextResponse.json({ error: "No chart found. Please update the chart first." }, { status: 404 });
+    }
+
     return NextResponse.json(
-      memberId
-    );
+      { treeData: familyTree.data }, { headers: { 'X-Family-Last-Update': JSON.stringify(updatedAt) } });
   } catch (error) {
-    console.error("Error fetching tree data:", error);
-    // Handle token verification errors
-    if (error instanceof Error && error.name === 'JsonWebTokenError') {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: `Failed to fetch data: ${error.message}` },
-        { status: 500 }
-      );
-    }
-
+    console.error("Error fetching relations chart:", error);
     return NextResponse.json(
-      { error: "Failed to fetch data" },
+      { error: "Failed to fetch relations chart" },
       { status: 500 }
     );
   }

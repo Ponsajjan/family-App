@@ -40,7 +40,6 @@ export async function POST(request: NextRequest) {
     // Generate token
     const newtoken = await generateToken({
       authId: login.id,
-      selectAuthId: login.moderatorAuthId,
       memberId: login.mainMemberId,
       userType: "Moderator",
     });
