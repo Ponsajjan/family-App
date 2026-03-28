@@ -19,7 +19,7 @@ import { fetchTermsData, setIsModerator, setAccounts, setCurrentAuthId } from '@
 export default function Terms() {
   const toast = useToast();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, moderatorList, mainMemberName, isModerator, accounts } = useSelector((state: RootState) => state.terms);
+  const { loading, moderatorGroups, mainMemberName, isModerator, accounts } = useSelector((state: RootState) => state.terms);
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
@@ -126,17 +126,17 @@ export default function Terms() {
           {loading ? <Loading /> :
             <div className="max-w-4xl mx-auto p-4 md:py-10">
               <h1 className="text-2xl md:text-3xl font-bold text-center mb-1 sm:mb-4">
-                The {mainMemberName} Family, Birthdays & Remembrances
+                Family, Birthdays & Remembrances
               </h1>
               {/* <p className="text-base sm:text-lg text-center mb-4">
                 இந்த Web App, பிறந்தநாள் மற்றும் நினைவு நாட்கள் போன்ற முக்கிய நிகழ்வுகளைக் குடும்ப உறுப்பினர்கள் நினைவுகூரவும், சிறப்பிக்கவும் பிரத்யேகமாக உருவாக்கப்பட்டது.
               </p> */}
 
-              <p className="text-base sm:text-lg text-center mb-3 md:px-10">
+              {/* <p className="text-base sm:text-lg text-center mb-3 md:px-10">
                 This web app is exclusively for the {mainMemberName} family to honor and remember significant dates, such as birthdays and remembrances
-              </p>
+              </p> */}
 
-              <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
+              {/* <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
                 <h2 className="text-xl flex items-center font-medium md:font-semibold mb-4">
                   <span className="inline-block mr-2"><Community /></span>
                   <span className="inline-block">Access is limited to:</span>
@@ -148,7 +148,7 @@ export default function Terms() {
                 <p className="mt-4 italic opacity-65">
                   Note: Extended family members (in-laws) are excluded to maintain simplicity and ensure that each listed member is directly relevant
                 </p>
-              </div>
+              </div> */}
 
               <div className="bg-field_color shadow-md border border-border_color rounded-lg mb-6">
                 <div className='p-4'>
@@ -168,18 +168,27 @@ export default function Terms() {
               </div>
 
               <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-6">
-                <div className="text-xl font-medium md:font-semibold mb-4">
-                  {(moderatorList.length > 1) ? 'Moderators:' : 'Moderator:'}
+                <div className="text-xl font-medium md:font-semibold mb-2">
+                  {moderatorGroups.some(g => g.moderators.length > 1) || moderatorGroups.length > 1 ? 'Moderators:' : 'Moderator:'}
                 </div>
-                <ul>
-                  {moderatorList.map((member: any, index: number) => (
-                    <li key={index} className='flex items-end justify-between mb-1'>
-                      <span>{member.moderatorName}</span>
-                      <span className='border-b border-dashed border-border_color block w-full mx-2 mb-2' />
-                      <span>{member.moderatorContact}</span>
-                    </li>
-                  ))}
-                </ul>
+                {moderatorGroups.map((group: any, idx: number) => (
+                  <div key={group.id || idx} className={idx > 0 ? 'mt-4 pt-4 border-t border-border_color' : ''}>
+                    {moderatorGroups.length > 1 && (
+                      <div className='font-medium mb-2 opacity-80 text-sm italic'>
+                        {group.mainMemberName} Family
+                      </div>
+                    )}
+                    <ul>
+                      {group.moderators.map((member: any, index: number) => (
+                        <li key={index} className='flex items-end justify-between mb-1'>
+                          <span>{member.moderatorName}</span>
+                          <span className='border-b border-dashed border-border_color block w-full mx-2 mb-2' />
+                          <span>{member.moderatorContact}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
               {/* <div className="relative">
                 <div

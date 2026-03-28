@@ -15,6 +15,17 @@ export interface ChoosePopupAccount {
   name: string | null;
 }
 
+export interface Moderator {
+  moderatorName: string;
+  moderatorContact: string;
+}
+
+export interface ModeratorGroup {
+  id: number;
+  mainMemberName: string;
+  moderators: Moderator[];
+}
+
 /** Derives the ChoosePopup list from the full accounts array */
 const toChoosePopup = (accounts: AccountDetail[]): ChoosePopupAccount[] =>
   accounts
@@ -25,7 +36,7 @@ const toChoosePopup = (accounts: AccountDetail[]): ChoosePopupAccount[] =>
 
 export interface TermsState {
   loading: boolean;
-  moderatorList: any[];
+  moderatorGroups: ModeratorGroup[];
   mainMemberName: string;
   accounts: AccountDetail[];
   choosePopupAccounts: ChoosePopupAccount[];  // current:true accounts in ChoosePopup format
@@ -60,7 +71,7 @@ export const fetchTermsData = createAsyncThunk(
 
       return {
         mainMemberName: data.mainMemberName,
-        moderatorList: data.moderators,
+        moderatorGroups: data.moderatorGroups,
         currentAuthId: data.currentAuthId,
         accounts: accounts,
         isModerator: data.userType === 'Moderator',
@@ -77,7 +88,7 @@ export const fetchTermsData = createAsyncThunk(
 
 const initialState: TermsState = {
   loading: true,
-  moderatorList: [],
+  moderatorGroups: [],
   mainMemberName: '',
   accounts: [],
   choosePopupAccounts: [],
@@ -93,8 +104,8 @@ const termsSlice = createSlice({
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
-    setModeratorList(state, action: PayloadAction<any[]>) {
-      state.moderatorList = action.payload;
+    setModeratorGroups(state, action: PayloadAction<ModeratorGroup[]>) {
+      state.moderatorGroups = action.payload;
     },
     setMainMemberName(state, action: PayloadAction<string>) {
       state.mainMemberName = action.payload;
@@ -127,7 +138,7 @@ const termsSlice = createSlice({
       .addCase(fetchTermsData.fulfilled, (state, action) => {
         state.loading = false;
         state.mainMemberName = action.payload.mainMemberName;
-        state.moderatorList = action.payload.moderatorList;
+        state.moderatorGroups = action.payload.moderatorGroups;
         state.currentAuthId = action.payload.currentAuthId;
         state.accounts = action.payload.accounts;
         state.choosePopupAccounts = toChoosePopup(action.payload.accounts);
@@ -142,7 +153,7 @@ const termsSlice = createSlice({
 
 export const {
   setLoading,
-  setModeratorList,
+  setModeratorGroups,
   setMainMemberName,
   setAccounts,
   setCurrentAuthId,

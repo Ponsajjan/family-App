@@ -5,8 +5,9 @@ import { useToast } from '@/components/Toast';
 import Radio from '@/components/RadioButton';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from '@/store';
 import { selectChoosePopupAccounts, ChoosePopupAccount } from '@/store/slices/termsSlice';
-import { setCurrentAuthId, setMainMemberName, setModeratorList, setIsModerator } from '@/store/slices/termsSlice';
+import { setCurrentAuthId, setMainMemberName, setModeratorGroups, setIsModerator, fetchTermsData } from '@/store/slices/termsSlice';
 
 interface ChoosePopupProps {
     showPopup: boolean;
@@ -26,7 +27,7 @@ export const ChoosePopup = ({
     const { storeLoginValues } = useAuth();
     const toast = useToast();
     const { cache, mutate: globalMutate } = useSWRConfig();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     const clearFamilyCache = () => {
         const allKeys = Array.from(cache.keys());
@@ -61,7 +62,8 @@ export const ChoosePopup = ({
                 storeLoginValues(data.newtoken, data.userType, data.authId);
                 dispatch(setCurrentAuthId(data.authId));
                 dispatch(setMainMemberName(data.mainMemberName || 'Account'));
-                dispatch(setModeratorList(data.moderators));
+                // Refresh all moderator groups for selected accounts
+                dispatch(fetchTermsData());
                 dispatch(setIsModerator(data.userType === 'Moderator'))
                 clearFamilyCache();
                 onSwitchSuccess?.();

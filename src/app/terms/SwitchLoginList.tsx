@@ -5,11 +5,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorList, AccountDetail, setIsModerator, setChoosePopupAccounts } from '@/store/slices/termsSlice';
+import { RootState, AppDispatch } from '@/store';
+import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, AccountDetail, setIsModerator, setChoosePopupAccounts, fetchTermsData } from '@/store/slices/termsSlice';
 
 function SwitchLoginList() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const { accounts, currentAuthId } = useSelector((state: RootState) => state.terms);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const [isToggling, setIsToggling] = useState<boolean>(false);
@@ -95,7 +95,8 @@ function SwitchLoginList() {
                         storeLoginValues(data.newtoken, data.userType, data.authId);
                         dispatch(setCurrentAuthId(data.authId));
                         dispatch(setMainMemberName(data.mainMemberName || 'Account'));
-                        dispatch(setModeratorList(data.moderators));
+                        // Refresh all moderator groups for selected accounts
+                        dispatch(fetchTermsData());
                         dispatch(setIsModerator(data.userType === 'Moderator'));
                         clearFamilyCache();
                     }
@@ -168,8 +169,8 @@ function SwitchLoginList() {
                 dispatch(setCurrentAuthId(data.authId));
                 setError("");
                 dispatch(setMainMemberName(data.mainMemberName || 'New Account'));
-                // setPassword(data.password);
-                dispatch(setModeratorList(data.moderators));
+                // Refresh all moderator groups for selected accounts
+                dispatch(fetchTermsData());
                 clearFamilyCache();
             } else {
                 setError(data.error || "Failed to add account");

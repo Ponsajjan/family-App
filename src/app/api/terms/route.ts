@@ -12,15 +12,15 @@ export async function GET(request: NextRequest) {
 
   try {
     const decoded = await verifyToken(token);
-    const id = decoded.authId;
+    const authId = decoded.authId;
     const userType = decoded.userType;
 
-    if (!id) {
+    if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     const authRecord = await prisma.auth.findUnique({
-      where: { id },
+      where: { id: authId },
       select: {
         updatedAt: true,
         memberAuthId: true,
@@ -93,6 +93,12 @@ export async function GET(request: NextRequest) {
         mainMemberId: true,
         updatedAt: true,
         id: true,
+        moderatorList: {
+          select: {
+            moderatorName: true,
+            moderatorContact: true,
+          },
+        },
       }
     });
 
@@ -165,10 +171,25 @@ export async function GET(request: NextRequest) {
       if (rec.moderatorAuthId) updatedAtMap[rec.moderatorAuthId] = ts;
     });
 
+    // Prepare moderators list for all accounts in the list
+    const validSelectedIds = selectedAuthIds.filter(id => validAuthIds.includes(id));
+    const allModeratorGroups = validAuthIds.map(id => {
+      const record = authRecords.find(r => r.memberAuthId === id || r.moderatorAuthId === id);
+      if (!record) return null;
+      return {
+        id: record.id,
+        mainMemberName: record.mainMemberId ? memberMap.get(record.mainMemberId) || "Family" : "Family",
+        moderators: record.moderatorList
+      };
+    }).filter((g): g is { id: number; mainMemberName: string; moderators: any[] } => g !== null);
+
+    // Deduplicate groups by auth record id
+    const uniqueGroups = Array.from(new Map(allModeratorGroups.map(g => [g.id, g])).values());
+
     // Prepare response
     const response = NextResponse.json({
       mainMemberName: mainMemberName,
-      moderators: authRecord.moderatorList,
+      moderatorGroups: uniqueGroups,
       // password: authRecord.password,
       currentAuthId: currentAuthId,
       userType: userType,
@@ -189,7 +210,6 @@ export async function GET(request: NextRequest) {
     });
 
     // Update selectedAuthId cookie — currentAuthId is always included
-    const validSelectedIds = selectedAuthIds.filter(id => validAuthIds.includes(id));
     const selectedAuthIdCookieOut = serialize('selectedAuthId', JSON.stringify(validSelectedIds), {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
