@@ -33,7 +33,7 @@ export default function LoginForm() {
 
             const data = await login(formData);
 
-            if (data.success && data.token) {
+            if (data.success) {
                 // Clear SWR cache for the previous family session
                 const allKeys = Array.from(cache.keys());
                 allKeys.forEach(key => {
@@ -65,7 +65,8 @@ export default function LoginForm() {
                     updatedAccounts.push({
                         authId: data.authId as string,
                         mainMemberRef: data.mainMemberName as string,
-                        current: true
+                        current: true,
+                        familyId: data.familyId as number
                     });
                 }
                 dispatch(setCurrentAuthId(data.authId as string));

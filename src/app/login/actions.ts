@@ -21,7 +21,11 @@ interface LoginResponse {
     mainMemberName?: string | null;
 }
 
-export async function login(formData: FormData) {
+export type LoginResult = 
+  | { success: true; message: string; token: string; userType: string; authId: string; familyId: number; mainMemberName: string }
+  | { success: false; error: string };
+
+export async function login(formData: FormData): Promise<LoginResult> {
     try {
         const now = Date.now();
         const cookieStore = await cookies();
@@ -121,6 +125,7 @@ export async function login(formData: FormData) {
             token,
             userType,
             authId: authIdToReturn,
+            familyId: login.id,
             mainMemberName: login.mainMemberName || 'Unknown'
         };
     } catch (error) {
