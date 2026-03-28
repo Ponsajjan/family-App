@@ -150,7 +150,8 @@ function SwitchLoginList() {
                 const newAccount: AccountDetail = {
                     authId: data.authId,
                     mainMemberRef: data.mainMemberName || 'New Account', // Use name from response
-                    current: true // Set as current since we're switching to it
+                    current: true, // Set as current since we're switching to it
+                    familyId: data.familyId
                 };
 
                 const updatedAccounts = [

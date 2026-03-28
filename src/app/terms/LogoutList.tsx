@@ -11,7 +11,7 @@ import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, s
 
 function LogoutList() {
     const dispatch = useDispatch<AppDispatch>();
-    const { accounts, currentAuthId } = useSelector((state: RootState) => state.terms);
+    const { accounts, currentAuthId, moderatorGroups } = useSelector((state: RootState) => state.terms);
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
     const router = useRouter();
     const { storeLoginValues } = useAuth();
@@ -61,8 +61,6 @@ function LogoutList() {
                         storeLoginValues(data.newtoken, data.userType, data.authId);
                         dispatch(setCurrentAuthId(data.authId));
                         dispatch(setMainMemberName(data.mainMemberName || 'Account'));
-                        // Refresh all moderator groups for selected accounts
-                        dispatch(fetchTermsData());
                         clearFamilyCache();
                     } else {
                         toast?.show(data.error || "Failed to switch account automatically", "error", 3000);
@@ -114,6 +112,16 @@ function LogoutList() {
                     .filter(acc => acc.current)
                     .map(acc => ({ authId: acc.authId, name: acc.mainMemberRef }))
             ));
+            // Update local state directly instead of another fetch
+            const accountToRemoveObj = accounts.find(acc => acc.authId === accountToRemove);
+            const familyIdToRemove = accountToRemoveObj?.familyId;
+            const isFamilyStillPresent = updatedAccounts.some(acc => acc.familyId === familyIdToRemove);
+
+            if (!isFamilyStillPresent && familyIdToRemove) {
+                const updatedGroups = moderatorGroups.filter(g => g.id !== familyIdToRemove);
+                dispatch(setModeratorGroups(updatedGroups));
+            }
+
             clearFamilyCache();
         }
     };

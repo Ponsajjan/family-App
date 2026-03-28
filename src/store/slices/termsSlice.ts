@@ -7,6 +7,7 @@ export interface AccountDetail {
   mainMemberRef: string;
   current: boolean;
   updatedAt?: number;
+  familyId: number;
 }
 
 /** Format consumed by ChoosePopup: { authId, name } */

@@ -80,6 +80,7 @@ export async function POST(request: Request) {
       newtoken: token,
       userType,
       authId: account,
+      familyId: login.id,
       mainMemberName,
       password: login.password,
       moderators: login.moderatorList

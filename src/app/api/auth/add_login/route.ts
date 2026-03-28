@@ -65,6 +65,7 @@ export async function POST(request: Request) {
       token,
       userType,
       authId: login.memberAuthId,
+      familyId: login.id,
       mainMemberName,
       password: login.password,
       moderators: login.moderatorList,

@@ -152,7 +152,8 @@ export async function GET(request: NextRequest) {
         authId,
         mainMemberRef: record?.mainMemberId ? memberMap.get(record.mainMemberId) || null : null,
         current: selectedAuthIds.length > 0 ? selectedAuthIds.includes(authId) : (authId === currentAuthId),
-        updatedAt: record?.updatedAt.getTime() || 0
+        updatedAt: record?.updatedAt.getTime() || 0,
+        familyId: record?.id
       };
     });
 
