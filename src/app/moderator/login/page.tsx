@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
-import { NextArrow, SwitchIcon } from "@/utils/Icons";
+import { SwitchIcon } from "@/utils/Icons";
 import { useAuth } from "@/contexts/AuthContext";
 import Container from "@/components/Container";
 import { setIsModerator, setAccounts, setCurrentAuthId, fetchTermsData } from "@/store/slices/termsSlice";
@@ -81,17 +81,6 @@ export default function Page() {
     return (
         <div className="w-full">
             <Topnav>
-                <div className="ml-auto mr-0 w-fit md:min-w-[10.625rem] block">
-                    <button
-                        className="group flex items-center text-xs md:text-sm text-text_color"
-                        onClick={() => router.push("/moderator")}
-                    >
-                        Preview as Moderator
-                        <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
-                            <NextArrow />
-                        </span>
-                    </button>
-                </div>
             </Topnav>
             <Container>
                 <form className="max-w-lg px-4 pt-10 mx-auto">

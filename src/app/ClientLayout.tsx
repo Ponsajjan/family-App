@@ -25,9 +25,9 @@ export default function ClientLayout({
     '/add_edit/edit_member',
     '/add_edit/edit_relationship',
     '/moderator',
+    '/moderator/login',
     '/moderator/verify_members',
     '/moderator/verify_changes',
-    '/terms/moderator_login',
     '/terms/add_login',
   ];
 
@@ -37,21 +37,21 @@ export default function ClientLayout({
         <noscript>Amor fati!..</noscript>
         <ReduxProvider>
           <AppInitializer />
-            <AuthProvider>
-              <AppSWRConfig>
-                <div className="w-full transition-all duration-500 ease-in-out">
-                  <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
-                    <Sidenav />
-                    <div className="w-full relative">
-                      <ToastProvider>
-                        {children}
-                        <div id='portal'></div>
-                      </ToastProvider>
-                    </div>
+          <AuthProvider>
+            <AppSWRConfig>
+              <div className="w-full transition-all duration-500 ease-in-out">
+                <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
+                  <Sidenav />
+                  <div className="w-full relative">
+                    <ToastProvider>
+                      {children}
+                      <div id='portal'></div>
+                    </ToastProvider>
                   </div>
                 </div>
-              </AppSWRConfig>
-            </AuthProvider>
+              </div>
+            </AppSWRConfig>
+          </AuthProvider>
         </ReduxProvider>
       </main>
     );

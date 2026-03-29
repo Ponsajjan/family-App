@@ -7,19 +7,22 @@ import { ButtonOutline, LinkButtonOutline } from "../../components/Button"
 import { useToast } from '@/components/Toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { SwitchIcon } from '@/utils/Icons'
+import { NextArrow, SwitchIcon } from '@/utils/Icons'
 import { ChoosePopup } from '@/components/ChoosePopup'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '@/store'
+import { setIsModerator, setCurrentAuthId, setAccounts } from '@/store/slices/termsSlice';
+import Link from 'next/link';
 
 export default function ModeratorDashboard() {
     const toast = useToast();
     const [updatingChart, setUpdatingChart] = useState(false);
     const [disabledButtons, setDisabledButtons] = useState(false);
     const [showChoosePopup, setShowChoosePopup] = useState(false);
-    const { logout } = useAuth();
+    const { logout, storeLoginValues } = useAuth();
     const router = useRouter();
-    const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+    const dispatch = useDispatch<AppDispatch>();
+    const { mainMemberName, choosePopupAccounts, isModerator, accounts } = useSelector((state: RootState) => state.terms);
 
     const { data, isLoading: loading, mutate } = useSWR('/api/moderator');
     const { mutate: globalMutate } = useSWRConfig();
@@ -94,10 +97,63 @@ export default function ModeratorDashboard() {
         }
     }
 
+    const handleModeratorLogout = async () => {
+        if (loading) return;
+
+        try {
+            const response = await fetch('/api/auth/moderator_logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to logout from moderator');
+            }
+
+            const data = await response.json();
+            if (data.newtoken) {
+                await storeLoginValues(data.newtoken, data.userType, data.authId, data.oldAuthId);
+                dispatch(setIsModerator(false));
+                dispatch(setCurrentAuthId(data.authId));
+                // Swap old moderator authId → new member authId in the accounts list
+                dispatch(setAccounts(
+                    accounts.map(acc =>
+                        String(acc.authId) === String(data.oldAuthId)
+                            ? { ...acc, authId: data.authId }
+                            : acc
+                    )
+                ));
+                toast?.show(data.message || 'Logout successfully', 'success', 5000);
+            } else {
+                toast?.show(data.error || 'Logout failed', 'error', 5000);
+            }
+        } catch (error: any) {
+            toast?.show(error.message || 'Failed to logout from moderator', 'error', 5000);
+        }
+    };
+
     return (
         <>
             <Topnav>
-
+                <div className="ml-auto mr-0 w-fit block">
+                    {isModerator ? (
+                        <button onClick={handleModeratorLogout} className={`${loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'} group flex items-center text-xs md:text-sm text-text_color`}>
+                            Logout from Moderator
+                            <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
+                                <NextArrow />
+                            </span>
+                        </button>
+                    ) : (
+                        <Link href="/moderator/login" className='group flex items-center text-xs md:text-sm text-text_color'>
+                            Login as Moderator
+                            <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
+                                <NextArrow />
+                            </span>
+                        </Link>
+                    )}
+                </div>
             </Topnav>
             {!loading ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
                 <div className="flex items-center gap-2 mb-2 h-9">

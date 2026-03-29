@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (pathname === '/login') {
       router.push('/terms');
     }
-    if (pathname === '/terms/moderator_login') {
+    if (pathname === '/moderator/login' && newAccess === 'Moderator') {
       router.push('/moderator');
     }
   };

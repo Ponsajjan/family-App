@@ -3,7 +3,6 @@
 import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
 import { Community, Logout, SwitchLogin } from '@/utils/Icons'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/Toast'
 import Loading from '@/components/Loading'
@@ -19,7 +18,7 @@ import { fetchTermsData, setIsModerator, setAccounts, setCurrentAuthId } from '@
 export default function Terms() {
   const toast = useToast();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, moderatorGroups, mainMemberName, isModerator, accounts } = useSelector((state: RootState) => state.terms);
+  const { loading, moderatorGroups, mainMemberName } = useSelector((state: RootState) => state.terms);
   const [showLogin, setShowLogin] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [showSidePanel, setShowSidePanel] = useState(false);
@@ -75,43 +74,6 @@ export default function Terms() {
   //   setShowCopiedMsg(true);
   //   setTimeout(() => setShowCopiedMsg(false), 2000);
   // };
-
-  const handleModeratorLogout = async () => {
-    if (loading) return;
-
-    try {
-      const response = await fetch('/api/auth/moderator_logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to logout from moderator');
-      }
-
-      const data = await response.json();
-      if (data.newtoken) {
-        await storeLoginValues(data.newtoken, data.userType, data.authId, data.oldAuthId);
-        dispatch(setIsModerator(false));
-        dispatch(setCurrentAuthId(data.authId));
-        // Swap old moderator authId → new member authId in the accounts list
-        dispatch(setAccounts(
-          accounts.map(acc =>
-            String(acc.authId) === String(data.oldAuthId)
-              ? { ...acc, authId: data.authId }
-              : acc
-          )
-        ));
-        toast?.show(data.message || 'Logout successfully', 'success', 5000);
-      } else {
-        toast?.show(data.error || 'Logout failed', 'error', 5000);
-      }
-    } catch (error: any) {
-      toast?.show(error.message || 'Failed to logout from moderator', 'error', 5000);
-    }
-  };
 
 
   return (
@@ -204,14 +166,7 @@ export default function Terms() {
                   }
                 </div>
               </div> */}
-              <div className='flex justify-between'>
-                {isModerator ? (
-                  <button onClick={handleModeratorLogout} className={loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'}>
-                    Logout from Moderator
-                  </button>
-                ) : (
-                  <Link href="/terms/moderator_login">Login as Moderator</Link>
-                )}
+              <div className='flex justify-end'>
                 <button onClick={() => handleSidePanelToggle('switchLogout')} className="px-2 flex items-center gap-2"><Logout />Logout</button>
               </div>
 
