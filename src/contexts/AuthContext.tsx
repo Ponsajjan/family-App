@@ -42,6 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Get existing logged accounts from cookies-next
     const existingAccountsCookie = getCookie('authId');
+    const existingSelectedAuthIdCookie = getCookie('selectedAuthId');
+    let selectedAuthId: string[] = [];
     let accounts: string[] = [];
 
     if (existingAccountsCookie) {
@@ -60,12 +62,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
+    if (existingSelectedAuthIdCookie) {
+      try {
+        const decodedValue = typeof existingSelectedAuthIdCookie === 'string'
+          ? existingSelectedAuthIdCookie
+          : JSON.stringify(existingSelectedAuthIdCookie);
+
+        selectedAuthId = JSON.parse(decodedValue);
+        if (!Array.isArray(selectedAuthId)) {
+          selectedAuthId = [String(selectedAuthId)];
+        }
+      } catch (e) {
+        console.error("Error parsing selected authId cookie", e);
+        selectedAuthId = [];
+      }
+    }
+
     if (oldAuthId) {
       const oldIndex = accounts.indexOf(oldAuthId);
       if (oldIndex !== -1) {
         accounts[oldIndex] = authId; // Replace specific ID
+        selectedAuthId[oldIndex] = authId;
       } else if (!accounts.includes(authId)) {
         accounts.push(authId); // Add if not found and new one not there
+        selectedAuthId.push(authId);
       }
     } else {
       // Add new account if it doesn't exist
@@ -78,10 +98,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const MAX_ACCOUNTS = 10;
     if (accounts.length > MAX_ACCOUNTS) {
       accounts = accounts.slice(-MAX_ACCOUNTS);
-    }
+    };
 
     // Update the cookie using setCookie
     setCookie('authId', JSON.stringify(accounts), { maxAge, path: '/' });
+    setCookie('selectedAuthId', JSON.stringify(selectedAuthId), { maxAge, path: '/' });
 
     if (pathname === '/login') {
       router.push('/terms');
