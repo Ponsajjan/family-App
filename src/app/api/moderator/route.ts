@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import prisma from "@/db/db";
 import { verifyToken } from '@/utils/auth';
+import { getAllAuthIds } from '@/utils/switchAccountHelpers';
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
@@ -12,11 +13,14 @@ export async function GET(request: NextRequest) {
   try {
     const decoded = await verifyToken(token);
     const authId = decoded.authId;
+    const userType = decoded.userType;
+    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    const { updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
     // Fetch member and request counts in parallel for efficiency
     const [unverifiedCount, pendingRequestCount, familyTree] = await Promise.all([
       prisma.member.count({
@@ -63,7 +67,7 @@ export async function GET(request: NextRequest) {
       updatedAt: familyTree?.updatedAt || null,
     }, {
       headers: {
-        'X-Family-Last-Update': familyTree?.updatedAt.getTime().toString() || '0'
+        'X-Family-Last-Update': JSON.stringify(updatedAt)
       }
     });
   } catch (error) {

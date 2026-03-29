@@ -257,7 +257,7 @@ export default function EditRelationshipDetails() {
           <div className="p-4">
             <h3 className="tex-lg font-semibold mb-4 text-text_color">Partner Removed</h3>
             <p className="text-sm text-text_color mb-6">
-              Switch to {removedPartnerData.name} profile to edit their details?
+              Switch to <b>{removedPartnerData.name}</b> profile to edit their details?
             </p>
             <div className="flex gap-4">
               <ButtonOutline
