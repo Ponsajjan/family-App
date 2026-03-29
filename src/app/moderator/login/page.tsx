@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
-import { SwitchIcon } from "@/utils/Icons";
+import { PrevArrow, SwitchIcon } from "@/utils/Icons";
 import { useAuth } from "@/contexts/AuthContext";
 import Container from "@/components/Container";
 import { setIsModerator, setAccounts, setCurrentAuthId, fetchTermsData } from "@/store/slices/termsSlice";
@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { ChoosePopup } from "@/components/ChoosePopup";
 import { useToast } from "@/components/Toast";
+import Link from "next/link";
 
 export default function Page() {
     const router = useRouter();
@@ -81,6 +82,14 @@ export default function Page() {
     return (
         <div className="w-full">
             <Topnav>
+                <div className="ml-auto mr-0 w-fit block pr-2">
+                    <Link href="/moderator" className='group flex items-center text-xs md:text-sm text-text_color'>
+                        <span className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1 group-active:-translate-x-1.5">
+                            <PrevArrow />
+                        </span>
+                        Back
+                    </Link>
+                </div>
             </Topnav>
             <Container>
                 <form className="max-w-lg px-4 pt-10 mx-auto">
