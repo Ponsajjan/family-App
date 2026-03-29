@@ -142,6 +142,8 @@ export async function GET(request: NextRequest) {
       selectedAuthIds.push(currentAuthId);
     }
 
+    const validSelectedAuthIds = selectedAuthIds.filter(id => validAuthIds.includes(id));
+
     // Map authIds to their details with current flag
     const authDetails = validAuthIds.map(authId => {
       const record = authRecords.find(record =>
@@ -157,23 +159,19 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    const sortedAuthDetails = [...authDetails].sort((a, b) => {
-      if (a.current && !b.current) return -1;
-      if (!a.current && b.current) return 1;
-      return 0;
-    });
-
-    // Map all update timestamps
-    const updatedAtMap: Record<string, number> = {};
+    // Map only selected authIds to their update timestamps
+    const updatedAt: Record<string, number> = {};
     authRecords.forEach(rec => {
       const ts = rec.updatedAt.getTime();
-      updatedAtMap[rec.id.toString()] = ts;
-      if (rec.memberAuthId) updatedAtMap[rec.memberAuthId] = ts;
-      if (rec.moderatorAuthId) updatedAtMap[rec.moderatorAuthId] = ts;
+      if (rec.memberAuthId && validSelectedAuthIds.includes(rec.memberAuthId)) {
+        updatedAt[rec.memberAuthId] = ts;
+      }
+      if (rec.moderatorAuthId && validSelectedAuthIds.includes(rec.moderatorAuthId)) {
+        updatedAt[rec.moderatorAuthId] = ts;
+      }
     });
 
     // Prepare moderators list for all accounts in the list
-    const validSelectedIds = selectedAuthIds.filter(id => validAuthIds.includes(id));
     const allModeratorGroups = validAuthIds.map(id => {
       const record = authRecords.find(r => r.memberAuthId === id || r.moderatorAuthId === id);
       if (!record) return null;
@@ -194,10 +192,10 @@ export async function GET(request: NextRequest) {
       // password: authRecord.password,
       currentAuthId: currentAuthId,
       userType: userType,
-      allAuthDetails: sortedAuthDetails, // Array of objects with authId, mainMemberRef, and current flag
+      allAuthDetails: authDetails, // Array of objects with authId, mainMemberRef, and current flag
     }, {
       headers: {
-        'X-Family-Last-Update': JSON.stringify(updatedAtMap)
+        'X-Family-Last-Update': JSON.stringify(updatedAt)
       }
     });
 
@@ -211,7 +209,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Update selectedAuthId cookie — currentAuthId is always included
-    const selectedAuthIdCookieOut = serialize('selectedAuthId', JSON.stringify(validSelectedIds), {
+    const selectedAuthIdCookieOut = serialize('selectedAuthId', JSON.stringify(validSelectedAuthIds), {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -222,7 +220,7 @@ export async function GET(request: NextRequest) {
     response.headers.append('Set-Cookie', authIdCookie);
     response.headers.append('Set-Cookie', selectedAuthIdCookieOut);
 
-    return response;
+    return response
 
   } catch (error) {
     console.error("Error fetching member data:", error);

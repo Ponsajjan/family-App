@@ -6,7 +6,7 @@ import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, AccountDetail, setIsModerator, setChoosePopupAccounts, fetchTermsData } from '@/store/slices/termsSlice';
+import { setAccounts, setCurrentAuthId, setMainMemberName, AccountDetail, setIsModerator, setChoosePopupAccounts, fetchTermsData } from '@/store/slices/termsSlice';
 
 function SwitchLoginList() {
     const dispatch = useDispatch<AppDispatch>();
@@ -27,8 +27,7 @@ function SwitchLoginList() {
                     path.startsWith('/api/calendar/') ||
                     path.startsWith('/api/tree') ||
                     path.startsWith('/api/relatives') ||
-                    path.startsWith('/api/moderator') ||
-                    path.startsWith('/api/terms');
+                    path.startsWith('/api/moderator');
 
                 if (isApiMatch(key) || (key.startsWith('$inf$') && isApiMatch(key.substring(5)))) {
                     mutate(key, undefined, { revalidate: false });
@@ -96,7 +95,7 @@ function SwitchLoginList() {
                         dispatch(setCurrentAuthId(data.authId));
                         dispatch(setMainMemberName(data.mainMemberName || 'Account'));
                         // Refresh all moderator groups for selected accounts
-                        dispatch(fetchTermsData());
+                        // dispatch(fetchTermsData());
                         dispatch(setIsModerator(data.userType === 'Moderator'));
                         clearFamilyCache();
                     }

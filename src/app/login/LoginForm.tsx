@@ -42,8 +42,7 @@ export default function LoginForm() {
                             path.startsWith('/api/calendar/') ||
                             path.startsWith('/api/tree') ||
                             path.startsWith('/api/relatives') ||
-                            path.startsWith('/api/moderator') ||
-                            path.startsWith('/api/terms');
+                            path.startsWith('/api/moderator');
 
                         if (isApiMatch(key) || (key.startsWith('$inf$') && isApiMatch(key.substring(5)))) {
                             mutate(key, undefined, { revalidate: false });
