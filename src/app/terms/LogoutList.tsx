@@ -7,7 +7,7 @@ import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, setChoosePopupAccounts, fetchTermsData } from '@/store/slices/termsSlice';
+import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, setChoosePopupAccounts } from '@/store/slices/termsSlice';
 
 function LogoutList() {
     const dispatch = useDispatch<AppDispatch>();

@@ -2,41 +2,24 @@
 
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState, useMemo, useEffect } from 'react'
 import useSWRInfinite from 'swr/infinite';
 import Details from './Details';
 import Link from 'next/link';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
-import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 import Container from "@/components/Container";
 import { useInfiniteScroll } from '@/utils/useInfiniteScroll';
+import { useVersionCheck } from "@/hooks/useVersionCheck";
 
-interface EachMember {
-  id: number;
-  name: string;
-}
-interface Member {
-  id: number;
-  name: string;
-  gender: 'Male' | 'Female' | 'Letter';
-  verified: boolean;
-  father: EachMember | null;
-  mother: EachMember | null;
-  children: EachMember[];
-  partner?: { name: string } | null;
-  birthYear?: number;
-  parentNames?: string;
-  phoneNumber?: string;
-}
 
 export default function Relatives() {
   const [searchInput, setSearchInput] = useState("");
+  const { checkVersion } = useVersionCheck();
   const [showDetails, setShowDetails] = useState(false);
   const [showMember, setShowMember] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
     limit: 40,
@@ -78,6 +61,12 @@ export default function Relatives() {
     isValidating,
     error,
   } = useSWRInfinite(getKey);
+
+  useEffect(() => {
+    if (!isLoading) {
+      checkVersion();
+    }
+  }, []);
 
   const members = useMemo(() => {
     if (!swrData) return [];

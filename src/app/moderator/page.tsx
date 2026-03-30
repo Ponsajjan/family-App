@@ -13,9 +13,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
 import { setIsModerator, setCurrentAuthId, setAccounts } from '@/store/slices/termsSlice';
 import Link from 'next/link';
+import { useVersionCheck } from "@/hooks/useVersionCheck";
 
 export default function ModeratorDashboard() {
     const toast = useToast();
+    const { checkVersion } = useVersionCheck();
     const [updatingChart, setUpdatingChart] = useState(false);
     const [disabledButtons, setDisabledButtons] = useState(false);
     const [showChoosePopup, setShowChoosePopup] = useState(false);
@@ -24,7 +26,13 @@ export default function ModeratorDashboard() {
     const dispatch = useDispatch<AppDispatch>();
     const { mainMemberName, choosePopupAccounts, isModerator, accounts } = useSelector((state: RootState) => state.terms);
 
-    const { data, isLoading: loading, mutate } = useSWR('/api/moderator');
+    const { data, isLoading, mutate } = useSWR('/api/moderator');
+
+    useEffect(() => {
+        if (!isLoading) {
+            checkVersion();
+        }
+    }, []);
     const { mutate: globalMutate } = useSWRConfig();
     // Effect for Toasts based on chartStatus
     useEffect(() => {
@@ -98,7 +106,7 @@ export default function ModeratorDashboard() {
     }
 
     const handleModeratorLogout = async () => {
-        if (loading) return;
+        if (isLoading) return;
 
         try {
             const response = await fetch('/api/auth/moderator_logout', {
@@ -139,7 +147,7 @@ export default function ModeratorDashboard() {
             <Topnav>
                 <div className="ml-auto mr-0 w-fit block">
                     {isModerator ? (
-                        <button onClick={handleModeratorLogout} className={`${loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'} group flex items-center text-xs md:text-sm text-text_color`}>
+                        <button onClick={handleModeratorLogout} className={`${isLoading ? 'opacity-55 cursor-wait' : 'cursor-pointer'} group flex items-center text-xs md:text-sm text-text_color`}>
                             Logout from Moderator
                             <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
                                 <NextArrow />
@@ -155,7 +163,7 @@ export default function ModeratorDashboard() {
                     )}
                 </div>
             </Topnav>
-            {!loading ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
+            {!isLoading ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
                 <div className="flex items-center gap-2 mb-2 h-9">
                     {choosePopupAccounts.length > 1 && <>
                         <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />

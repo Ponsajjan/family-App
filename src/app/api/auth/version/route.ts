@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     const updates: Record<string, number> = {};
     authRecords.forEach(rec => {
       const timestamp = rec.updatedAt.getTime();
-      updates[rec.id.toString()] = timestamp;
+      // updates[rec.id.toString()] = timestamp;
       if (rec.memberAuthId && allMemberAuthIds.includes(rec.memberAuthId)) {
         updates[rec.memberAuthId] = timestamp;
       }

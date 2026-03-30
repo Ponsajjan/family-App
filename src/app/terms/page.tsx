@@ -1,32 +1,11 @@
 "use client"
 
-import { useEffect, useState } from 'react'
-import { useToast } from '@/components/Toast'
-import { useAuth } from '@/contexts/AuthContext'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/store'
-import { fetchTermsData } from '@/store/slices/termsSlice'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store'
 import Loading from '@/components/Loading'
 
 export default function Terms() {
-  const toast = useToast();
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading, moderatorGroups, mainMemberName } = useSelector((state: RootState) => state.terms);
-  const { logout } = useAuth();
-
-  useEffect(() => {
-    // Skip if already fetched by AppInitializer
-    if (mainMemberName) return;
-    dispatch(fetchTermsData())
-      .unwrap()
-      .catch((error: any) => {
-        if (error?.status === 401) {
-          logout();
-        } else if (error?.message) {
-          toast?.show(error.message, 'error', 5000);
-        }
-      });
-  }, [dispatch, logout, toast, mainMemberName]);
+  const { loading, moderatorGroups } = useSelector((state: RootState) => state.terms);
 
   return (
     <div className="bg-field_color shadow-md border border-border_color rounded-lg p-4 mb-4">

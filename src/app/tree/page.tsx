@@ -5,22 +5,29 @@ import FetchFamilyTree from "./FetchFamilyTree";
 import DragScroll from "@/components/DragScroll";
 import { getCookie } from 'cookies-next';
 import { SwitchIcon } from "@/utils/Icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChoosePopup } from "@/components/ChoosePopup";
-import { useAuth } from "@/contexts/AuthContext";
 import useSWR from 'swr';
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import { useVersionCheck } from "@/hooks/useVersionCheck";
 
 
 export default function FamilyTreePage() {
   const [showChoosePopup, setShowChoosePopup] = useState(false);
+  const { checkVersion } = useVersionCheck();
   const token = getCookie('token');
   const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
   const { data: swrResult, error, isLoading, mutate } = useSWR(
     token ? '/api/tree' : null
   );
+
+  useEffect(() => {
+    if (!isLoading) {
+      checkVersion();
+    }
+  }, []);
 
   const data = swrResult?.treeData || null;
 

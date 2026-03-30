@@ -10,9 +10,7 @@ import Container from "@/components/Container";
 import Loading from "@/components/Loading";
 import OnDate from "../components/OnDate";
 import { format } from 'date-fns';
-import { useToast } from '@/components/Toast';
-import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useVersionCheck } from "@/hooks/useVersionCheck";
 import CalendarMemberDetail from "../components/CalendarMemberDetail";
 // import { useDailyNotifications } from "@/utils/notificationUtils";
 
@@ -40,19 +38,7 @@ interface CalendarMonthlyEvent {
   age: number | string;
 }
 
-interface EventDatesValue {
-  pastEvents: CalendarMonthlyEvent[];
-  todayEvents: CalendarMonthlyEvent[];
-  tomorrowEvents: CalendarMonthlyEvent[];
-  thisWeekEvents: CalendarMonthlyEvent[];
-  upcomingEvents: CalendarMonthlyEvent[];
-  selectedMonthEvents: CalendarMonthlyEvent[];
-  datesList: number[];
-}
-
 export default function Calendar() {
-  const toast = useToast();
-  const router = useRouter();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentIndiaDate = getCurrentIndiaDate();
   const [calendarDate, setCalendarDate] = useState(currentIndiaDate);
@@ -73,7 +59,6 @@ export default function Calendar() {
   const [eventForDate, setEventForDate] = useState<CalendarMonthlyEvent[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [showPopupFor, setShowPopupFor] = useState<'member' | 'date' | null>(null);
-  const { logout } = useAuth();
 
   // Use the notification hook
   // const { checkAndSendNotifications } = useDailyNotifications();
@@ -167,13 +152,20 @@ export default function Calendar() {
     setCalendarDate(currentIndiaDate);
   }
 
+  const { checkVersion } = useVersionCheck();
+
   const { data: calendarData, error, isLoading } = useSWR(
     `/api/calendar/${month + 1}/${year}`
   );
 
+  useEffect(() => {
+    if (!isLoading) {
+      checkVersion();
+    }
+  }, []);
+
   const eventDatesValue = useMemo(() => calendarData?.eventDates || {}, [calendarData]);
   const datesList = useMemo(() => calendarData?.datesList || [], [calendarData]);
-  const loading = isLoading;
 
   useEffect(() => {
     if (calendarData && loadingInitialToday) {
@@ -266,7 +258,7 @@ export default function Calendar() {
                     className={`date-cell ${cellIsToday ? "bg-accent_color text-accent_contrast" : ""
                       } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
                   >
-                    {datesList?.includes(date) && !loading && <p className={`${cellIsToday ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
+                    {datesList?.includes(date) && !isLoading && <p className={`${cellIsToday ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
                     <p className={`absolute p-0.5`}>{date}</p>
                   </div>
                 );
@@ -314,7 +306,7 @@ export default function Calendar() {
           </div>
         </Container>
         <div className="w-full lg:max-w-[36.25rem] mx-auto">
-          {loading ? <Loading /> :
+          {isLoading ? <Loading /> :
             datesList?.length > 0
               ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} />
               : <p className="text-center pt-4 text-text_color">{!error ? 'No events in this month...' : 'Failed to load events for this month.'}</p>}
