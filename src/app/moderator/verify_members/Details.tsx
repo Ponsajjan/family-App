@@ -60,7 +60,7 @@ export default function NewMemberDetails({
             }
 
             if (response.status === 403) {
-                router.push('/terms/moderator_login');
+                router.push('/moderator/login');
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }
@@ -137,7 +137,7 @@ export default function NewMemberDetails({
             }
 
             if (response.status === 403) {
-                router.push('/terms/moderator_login');
+                router.push('/moderator/login');
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }

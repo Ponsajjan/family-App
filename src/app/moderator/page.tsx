@@ -60,7 +60,7 @@ export default function ModeratorDashboard() {
 
             if (res.status === 403) {
                 setDisabledButtons(true);
-                router.push('/terms/moderator_login');
+                router.push('/moderator/login');
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }

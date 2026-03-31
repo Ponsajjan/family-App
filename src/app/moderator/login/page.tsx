@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
 import { PrevArrow, SwitchIcon } from "@/utils/Icons";
 import { useAuth } from "@/contexts/AuthContext";
 import Container from "@/components/Container";
-import { setIsModerator, setAccounts, setCurrentAuthId, fetchTermsData } from "@/store/slices/termsSlice";
+import { setIsModerator, setAccounts, setCurrentAuthId } from "@/store/slices/termsSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { ChoosePopup } from "@/components/ChoosePopup";
-import { useToast } from "@/components/Toast";
 import Link from "next/link";
 
 export default function Page() {
@@ -18,30 +17,21 @@ export default function Page() {
     const [showChoosePopup, setShowChoosePopup] = useState(false);
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
+    const [errorTrigger, setErrorTrigger] = useState(0);
     const [submitting, setSubmitting] = useState(false);
-    const { storeLoginValues, logout } = useAuth();
-    const toast = useToast();
+    const { storeLoginValues } = useAuth();
     const dispatch = useDispatch<AppDispatch>();
     const { accounts, mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
-
-    useEffect(() => {
-        if (mainMemberName) return;
-        dispatch(fetchTermsData())
-            .unwrap()
-            .catch((error: any) => {
-                if (error?.status === 401) {
-                    logout();
-                } else if (error?.message) {
-                    toast?.show(error.message, 'error', 5000);
-                }
-            });
-    }, [dispatch, logout, toast, mainMemberName]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             if (!form.password) {
                 return;
+            }
+            if (error) {
+                setErrorTrigger(prev => prev + 1);
+                setError("");
             }
             setSubmitting(true);
             const res = await fetch("/api/auth/moderator_login", {
@@ -68,12 +58,14 @@ export default function Page() {
                 router.push("/moderator");
             } else {
                 setError(data.error || "Login failed");
+                setErrorTrigger(prev => prev + 1);
                 if (data.error === "Invalid credential") {
                     setForm({ ...form, password: "" });
                 }
             }
         } catch (error: any) {
             setError(error.message);
+            setErrorTrigger(prev => prev + 1);
         } finally {
             setSubmitting(false);
         }
@@ -107,7 +99,11 @@ export default function Page() {
                             </>}
                     </div>
 
-                    <div className={`flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2 relative ${error ? 'passwordError' : ''} ${submitting ? 'opacity-60' : ''}`}>
+
+                    <div
+                        key={errorTrigger}
+                        className={`flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2 relative ${error ? 'passwordError' : ''} ${submitting ? 'opacity-60' : ''}`}
+                    >
                         <label className='flex items-center w-full relative'>
                             <span className={`absolute left-1 text-text_color/55 transition-all duration-200 pointer-events-none pt-0.5 ${form.password ? 'text-sm -top-px' : 'top-1/2 -translate-y-1/2'
                                 }`}>

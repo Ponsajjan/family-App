@@ -7,7 +7,7 @@ import { Approved, CloseIcon, NavIconVerified, Rejected, Warning } from '@/utils
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
- 
+
 const ChangeRequestView = ({
   showDetailsFor,
   setShowDetails,
@@ -95,7 +95,7 @@ const ChangeRequestView = ({
       }
 
       if (response.status === 403) {
-        router.push('/terms/moderator_login');
+        router.push('/moderator/login');
         toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
       }
@@ -142,7 +142,7 @@ const ChangeRequestView = ({
       }
 
       if (response.status === 403) {
-        router.push('/terms/moderator_login');
+        router.push('/moderator/login');
         toast?.show("Unauthorized access. Please login.", "error", 5000);
         return;
       }

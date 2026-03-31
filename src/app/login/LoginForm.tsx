@@ -11,6 +11,8 @@ import { login } from "./actions";
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
     const [message, setMessage] = useState("");
+    const [lastFailedPassword, setLastFailedPassword] = useState("");
+    const [errorTrigger, setErrorTrigger] = useState(0);
     const [submitting, setSubmitting] = useState(false);
     const { storeLoginValues } = useAuth();
     const { cache, mutate } = useSWRConfig();
@@ -25,6 +27,16 @@ export default function LoginForm() {
         }
 
         if (submitting) return;
+
+        if (message === "Invalid credential" && form.password === lastFailedPassword) {
+            setErrorTrigger(prev => prev + 1);
+            return;
+        }
+
+        if (message) {
+            setErrorTrigger(prev => prev + 1);
+            setMessage("");
+        }
 
         try {
             setSubmitting(true);
@@ -80,12 +92,14 @@ export default function LoginForm() {
             } else {
                 setMessage(data.error || "Login failed");
                 if (data.error === "Invalid credential") {
-                    setForm(prev => ({ ...prev, password: "" }));
+                    setLastFailedPassword(form.password);
                 }
+                setErrorTrigger(prev => prev + 1);
             }
         } catch (error: any) {
             console.error("Login error:", error);
             setMessage(error.message || "An unexpected error occurred");
+            setErrorTrigger(prev => prev + 1);
         } finally {
             setSubmitting(false);
         }
@@ -175,7 +189,10 @@ export default function LoginForm() {
             </div>
             <div className="w-full max-w-80">
                 <form onSubmit={handleFormSubmit}>
-                    <div className={`flex h-12 border border-border_color ${message ? 'passwordError' : ''} bg-field_color rounded-md overflow-hidden px-2`}>
+                    <div
+                        key={errorTrigger}
+                        className={`flex h-12 border border-border_color ${message ? 'passwordError' : ''} bg-field_color rounded-md overflow-hidden px-2`}
+                    >
                         <label className="flex items-center w-full">
                             <input
                                 name="password"

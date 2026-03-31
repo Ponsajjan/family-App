@@ -15,6 +15,7 @@ function SwitchLoginList() {
     const [isToggling, setIsToggling] = useState<boolean>(false);
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
+    const [errorTrigger, setErrorTrigger] = useState(0);
     const { storeLoginValues } = useAuth();
     const toast = useToast();
     const { cache, mutate } = useSWRConfig();
@@ -118,7 +119,13 @@ function SwitchLoginList() {
         // Check max accounts limit
         if (accounts.length >= 10) {
             setError("You have reached the maximum number of accounts (10).");
+            setErrorTrigger(prev => prev + 1);
             return;
+        }
+
+        if (error) {
+            setErrorTrigger(prev => prev + 1);
+            setError("");
         }
 
         try {
@@ -141,6 +148,7 @@ function SwitchLoginList() {
                 const accountExists = accounts.some(acc => acc.authId === data.authId);
                 if (accountExists) {
                     setError("Account already exists in your list.");
+                    setErrorTrigger(prev => prev + 1);
                     setSwitchingAccount(false);
                     return;
                 }
@@ -174,9 +182,11 @@ function SwitchLoginList() {
                 clearFamilyCache();
             } else {
                 setError(data.error || "Failed to add account");
+                setErrorTrigger(prev => prev + 1);
             }
         } catch (error: any) {
             setError(error.message || "An unexpected error occurred");
+            setErrorTrigger(prev => prev + 1);
         } finally {
             setSwitchingAccount(false);
         }
@@ -214,7 +224,10 @@ function SwitchLoginList() {
 
             <div className='px-4 pb-4 border-t border-dashed pt-2 mr-[0.375rem]'>
                 <form onSubmit={handleSubmit}>
-                    <div className='flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2 relative'>
+                    <div 
+                        key={errorTrigger}
+                        className={`flex h-12 border border-border_color bg-field_color opacity-85 rounded-md overflow-hidden px-2 relative ${error ? 'passwordError' : ''}`}
+                    >
                         <label className='flex items-center w-full relative'>
                             <span className={`absolute left-1 text-text_color/55 transition-all duration-200 pointer-events-none pt-0.5 ${form.password ? 'text-sm -top-px' : 'top-1/2 -translate-y-1/2'}`}>
                                 Add login +
