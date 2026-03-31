@@ -191,7 +191,7 @@ export default function LoginForm() {
                 <form onSubmit={handleFormSubmit}>
                     <div
                         key={errorTrigger}
-                        className={`flex h-12 border border-border_color ${message ? 'passwordError' : ''} bg-field_color rounded-md overflow-hidden px-2`}
+                        className={`flex h-12 border border-border_color ${message ? 'passwordError' : ''} ${submitting ? 'pulsing-shadow' : ''} bg-field_color rounded-md overflow-hidden px-2`}
                     >
                         <label className="flex items-center w-full">
                             <input

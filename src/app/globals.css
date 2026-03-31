@@ -350,3 +350,19 @@ td {
     transform: rotate(360deg);
   }
 }
+
+.pulsing-shadow {
+  animation: pulse-shadow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-shadow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--border_color), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--border_color), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--border_color), 0);
+  }
+}
