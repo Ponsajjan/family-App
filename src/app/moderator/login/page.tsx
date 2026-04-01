@@ -76,7 +76,7 @@ export default function Page() {
         <div className="w-full">
             <Topnav>
                 <div className="ml-auto mr-0 w-fit block pr-2">
-                    <Link href="/moderator" className='group flex items-center text-xs md:text-sm text-text_color'>
+                    <Link href="/moderator" className='group flex items-center text-sm text-text_color'>
                         <span className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1 group-active:-translate-x-1.5">
                             <PrevArrow />
                         </span>

@@ -148,14 +148,14 @@ export default function ModeratorDashboard() {
             <Topnav>
                 <div className="ml-auto mr-0 w-fit block">
                     {isModerator ? (
-                        <button onClick={handleModeratorLogout} className={`${isLoading ? 'opacity-55 cursor-wait' : 'cursor-pointer'} group flex items-center text-xs md:text-sm text-text_color`}>
+                        <button onClick={handleModeratorLogout} className={`${isLoading ? 'opacity-55 cursor-wait' : 'cursor-pointer'} group flex items-center text-sm text-text_color`}>
                             Logout from Moderator
                             <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
                                 <NextArrow />
                             </span>
                         </button>
                     ) : (
-                        <Link href="/moderator/login" className='group flex items-center text-xs md:text-sm text-text_color'>
+                        <Link href="/moderator/login" className='group flex items-center text-sm text-text_color'>
                             Login as Moderator
                             <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
                                 <NextArrow />
