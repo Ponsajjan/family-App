@@ -3,8 +3,6 @@
 import { cookies } from 'next/headers';
 import prisma from "@/db/db";
 import { generateToken } from '@/utils/auth';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const DEBOUNCE_MS = 30 * 1000;
 const ATTEMPT_LIMIT = 8; // Maximum attempts before lockout

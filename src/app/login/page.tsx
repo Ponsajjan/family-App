@@ -1,8 +1,6 @@
 
 import LoginForm from './LoginForm';
 import { setCookie, getCookie } from 'cookies-next';
-import dotenv from 'dotenv';
-dotenv.config();
 
 export default function LoginPage() {
   const existing = getCookie('_att_tk');

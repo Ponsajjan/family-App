@@ -9,7 +9,7 @@ export async function proxy(request: NextRequest) {
   // Allow access to login page for non-authenticated users
   if (pathname === "/login") {
     // If user has token and is on login page, redirect based on access level
-    if (token) {
+    if (token && access) {
       if (access === "Admin") {
         return NextResponse.redirect(new URL("/admin", request.url));
       } else {
@@ -47,7 +47,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next|.*\\..*).*)",
   ],
 };
 // Define which paths this middleware should run on

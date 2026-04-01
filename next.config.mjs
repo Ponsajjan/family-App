@@ -3,12 +3,12 @@ import withPWAInit from "@ducanh2912/next-pwa";
 const withPWA = withPWAInit({
   dest: "public",
   cacheOnFrontendNav: true,
-  aggressiveFrontEndNavCaching: false,
+  aggressiveFrontEndNavCaching: true,
   cacheStartUrl: true,
   dynamicStartUrl: true,
   reloadOnOnline: true,
   swcMinify: true,
-  disable: process.env.NODE_ENV === "development",
+  disable: false, // Enabled even in development so testing offline works
   workboxOptions: {
     disableDevLogs: true,
   },

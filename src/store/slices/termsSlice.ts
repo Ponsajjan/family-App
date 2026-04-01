@@ -102,6 +102,16 @@ const termsSlice = createSlice({
   name: 'terms',
   initialState,
   reducers: {
+    hydrateTermsFromCache(state, action: PayloadAction<any>) {
+      state.loading = false;
+      state.mainMemberName = action.payload.mainMemberName || '';
+      state.moderatorGroups = action.payload.moderatorGroups || [];
+      state.currentAuthId = action.payload.currentAuthId || '';
+      state.accounts = action.payload.accounts || [];
+      state.choosePopupAccounts = action.payload.accounts ? toChoosePopup(action.payload.accounts) : [];
+      state.isModerator = action.payload.isModerator || false;
+      state.familyLastUpdates = action.payload.familyLastUpdates || {};
+    },
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
@@ -137,6 +147,15 @@ const termsSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchTermsData.fulfilled, (state, action) => {
+        // Save to local storage for offline use
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('redux-terms-cache', JSON.stringify(action.payload));
+          } catch (e) {
+            // Ignore (maybe full or blocked)
+          }
+        }
+        
         state.loading = false;
         state.mainMemberName = action.payload.mainMemberName;
         state.moderatorGroups = action.payload.moderatorGroups;
@@ -153,6 +172,7 @@ const termsSlice = createSlice({
 });
 
 export const {
+  hydrateTermsFromCache,
   setLoading,
   setModeratorGroups,
   setMainMemberName,
