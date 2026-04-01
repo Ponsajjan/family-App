@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { useSWRConfig } from "swr";
 import { setCookie } from "cookies-next";
-import { setAccounts, setCurrentAuthId, setMainMemberName } from "@/store/slices/termsSlice";
+import { setAccounts, setCurrentAuthId, setMainMemberName, fetchTermsData } from "@/store/slices/termsSlice";
 import { login } from "./actions";
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
@@ -88,7 +88,7 @@ export default function LoginForm() {
                 setCookie('authId', JSON.stringify(updatedAccounts.map(a => a.authId)), { maxAge, path: '/' });
                 setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge, path: '/' });
 
-                // dispatch(fetchTermsData());
+                dispatch(fetchTermsData());
             } else {
                 setMessage(data.error || "Login failed");
                 if (data.error === "Invalid credential") {

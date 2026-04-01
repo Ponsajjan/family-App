@@ -28,7 +28,8 @@ function localStorageProvider() {
       if (entry.length === 2 && entry[1] && typeof entry[1] === "object" && entry[1].__cache_timestamp) {
         // New timestamped format: Keep only if it is younger than 1 week!
         const ts = entry[1].__cache_timestamp;
-        if (now - ts < ONE_WEEK_MS) {
+        // Keep if younger than 1 week OR if user is offline (preserve data during disconnection)
+        if (now - ts < ONE_WEEK_MS || !navigator.onLine) {
           timestamps.set(entry[0], ts);
           initialEntries.push([entry[0], entry[1].value]);
         }
@@ -55,7 +56,7 @@ function localStorageProvider() {
           key, 
           { value, __cache_timestamp: timestamps.get(key) || currentNow }
         ])
-        .filter((entry: any) => currentNow - entry[1].__cache_timestamp < ONE_WEEK_MS);
+        .filter((entry: any) => currentNow - entry[1].__cache_timestamp < ONE_WEEK_MS || !navigator.onLine);
 
       // Prevent localStorage from getting full by keeping only the 50 most recent valid entries
       if (entriesToSave.length > 50) {
