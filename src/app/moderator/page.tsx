@@ -14,6 +14,7 @@ import { AppDispatch, RootState } from '@/store'
 import { setIsModerator, setCurrentAuthId, setAccounts } from '@/store/slices/termsSlice';
 import Link from 'next/link';
 import { useVersionCheck } from "@/hooks/useVersionCheck";
+import { appFetch } from "@/utils/appFetch";
 
 export default function ModeratorDashboard() {
     const toast = useToast();
@@ -49,7 +50,7 @@ export default function ModeratorDashboard() {
 
     const handleUpdateRelationsChart = async () => {
         try {
-            const res = await fetch('/api/moderator/update_chart', {
+            const res = await appFetch('/api/moderator/update_chart', {
                 method: 'POST',
             })
 
@@ -109,7 +110,7 @@ export default function ModeratorDashboard() {
         if (isLoading) return;
 
         try {
-            const response = await fetch('/api/auth/moderator_logout', {
+            const response = await appFetch('/api/auth/moderator_logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

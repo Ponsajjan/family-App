@@ -10,6 +10,7 @@ import { NewLoginDefaultErrorValue, NewLoginDefaultFormValue, NewLoginFormErrorT
 import { useToast } from '@/components/Toast';
 import { useAuth } from '@/contexts/AuthContext';
 import Topnav from '@/components/Topnav';
+import { appFetch } from "@/utils/appFetch";
 
 export default function Page() {
   const toast = useToast();
@@ -66,7 +67,7 @@ export default function Page() {
         memberPassword: formData.member_password,
         moderatorPassword: formData.moderator_password,
       }
-      const response = await fetch('/api/admin/create_login', {
+      const response = await appFetch('/api/admin/create_login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

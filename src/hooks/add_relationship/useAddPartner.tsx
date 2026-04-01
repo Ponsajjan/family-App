@@ -2,6 +2,7 @@ import { useToast } from '@/components/Toast';
 import { AddRelationDefaultFormValue } from '@/types/add__edit/add_relationship/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
+import { appFetch } from "@/utils/appFetch";
 
 interface AddPartnerPropType {
     selectedPartnerId: number | null | undefined;
@@ -20,7 +21,7 @@ function useAddPartner({ selectedPartnerId, selectedMemberData }: AddPartnerProp
             const fetchPartner = async () => {
                 try {
                     setPartnerLoading(true)
-                    const response = await fetch(`/api/addRelationship/${selectedPartnerId}`,
+                    const response = await appFetch(`/api/addRelationship/${selectedPartnerId}`,
                         {
                             method: 'GET',
                             headers: {

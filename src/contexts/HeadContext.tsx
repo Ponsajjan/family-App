@@ -2,6 +2,7 @@
 
 import { useToast } from "@/components/Toast";
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { appFetch } from "@/utils/appFetch";
 
 interface mainValueType {
   head: string | null;
@@ -18,7 +19,7 @@ export default function MemberHeadProvider({children}: Readonly<{children: React
   useEffect(() => {
     async function fetchHeadMembers() {
       try {
-        const response = await fetch(`/api/main`,
+        const response = await appFetch(`/api/main`,
           {
             method: 'GET',
             headers: { 

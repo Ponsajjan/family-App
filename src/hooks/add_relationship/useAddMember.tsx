@@ -2,6 +2,7 @@ import { useToast } from '@/components/Toast';
 import { AddRelationDefaultFormValue } from '@/types/add__edit/add_relationship/types';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
+import { appFetch } from "@/utils/appFetch";
 
 interface AddMemberPropType {
     selectedMemberId: number | null | undefined;
@@ -20,7 +21,7 @@ function useAddMember({ selectedMemberId }: AddMemberPropType) {
             const fetchMember = async () => {
                 try {
                     setMemberloading(true)
-                    const response = await fetch(`/api/addRelationship/${selectedMemberId}`,
+                    const response = await appFetch(`/api/addRelationship/${selectedMemberId}`,
                         {
                             method: 'GET',
                             headers: {

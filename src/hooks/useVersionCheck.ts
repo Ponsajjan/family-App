@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { mutate } from "swr";
 import { RootState } from "../store";
 import { setFamilyLastUpdates } from "../store/slices/termsSlice";
+import { appFetch } from "@/utils/appFetch";
 
 let globalLastCheckTime = 0;
 
@@ -25,7 +26,7 @@ export function useVersionCheck() {
             if (!force && now - globalLastCheckTime < 10000) return;
             globalLastCheckTime = now;
 
-            const res = await fetch(`/api/auth/version?ids=${idsToCheck.join(',')}`);
+            const res = await appFetch(`/api/auth/version?ids=${idsToCheck.join(',')}`);
             if (!res.ok) return;
 
             const { updatedAt: serverVersions } = await res.json();

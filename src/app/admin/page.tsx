@@ -11,6 +11,7 @@ import SlidePanel from "@/components/SlidePanel";
 import Details from "./Details";
 import { ApiResponse, AuthEntry } from "@/types/admin/types";
 import Container from "@/components/Container";
+import { appFetch } from "@/utils/appFetch";
 
 export default function Relatives() {
   const toast = useToast();
@@ -68,7 +69,7 @@ export default function Relatives() {
           ...(params.search && { search: params.search })
         });
 
-        const response = await fetch(`/api/admin?${queryParams}`, {
+        const response = await appFetch(`/api/admin?${queryParams}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

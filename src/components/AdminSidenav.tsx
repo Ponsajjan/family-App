@@ -3,6 +3,7 @@ import { BurgerMenuIcon, CloseIcon, Login, LoginList, Logout } from "@/utils/Ico
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { appFetch } from "@/utils/appFetch";
 
 export default function AdminSidenav() {
     const [showNav, setShowNav] = useState(false);
@@ -15,7 +16,7 @@ export default function AdminSidenav() {
 
     const logout = async () => {
         try {
-            const response = await fetch('/api/logout', { method: 'GET' });
+            const response = await appFetch('/api/logout', { method: 'GET' });
 
             if (response.ok) {
                 router.push('/login');

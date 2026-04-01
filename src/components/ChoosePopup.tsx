@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { selectChoosePopupAccounts, ChoosePopupAccount } from '@/store/slices/termsSlice';
 import { setCurrentAuthId, setMainMemberName, setModeratorGroups, setIsModerator, fetchTermsData } from '@/store/slices/termsSlice';
+import { appFetch } from "@/utils/appFetch";
 
 interface ChoosePopupProps {
     showPopup: boolean;
@@ -49,7 +50,7 @@ export const ChoosePopup = ({
         try {
             setSelectedId(account.authId);
             setSwitchingAccount(true);
-            const res = await fetch("/api/auth/switchLogin", {
+            const res = await appFetch("/api/auth/switchLogin", {
                 method: "POST",
                 headers: {
                     "Content-Type": 'application/json'

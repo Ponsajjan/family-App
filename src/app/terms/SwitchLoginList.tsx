@@ -7,6 +7,7 @@ import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { setAccounts, setCurrentAuthId, setMainMemberName, AccountDetail, setIsModerator, setChoosePopupAccounts, fetchTermsData } from '@/store/slices/termsSlice';
+import { appFetch } from "@/utils/appFetch";
 
 function SwitchLoginList() {
     const dispatch = useDispatch<AppDispatch>();
@@ -85,7 +86,7 @@ function SwitchLoginList() {
             // If we need to switch the active session account because current one was toggled off
             if (nextAuthId) {
                 try {
-                    const response = await fetch("/api/auth/switchLogin", {
+                    const response = await appFetch("/api/auth/switchLogin", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ account: nextAuthId }),
@@ -134,7 +135,7 @@ function SwitchLoginList() {
             }
 
             setSwitchingAccount(true);
-            const res = await fetch("/api/auth/add_login", {
+            const res = await appFetch("/api/auth/add_login", {
                 method: "POST",
                 headers: {
                     "Content-Type": 'application/json'

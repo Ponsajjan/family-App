@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { appFetch } from "@/utils/appFetch";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ export const fetchTermsData = createAsyncThunk(
   'terms/fetchTermsData',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/terms`, {
+      const response = await appFetch(`/api/terms`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });

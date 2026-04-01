@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import SlidePanel from "@/components/SlidePanel";
 import { useSWRConfig } from "swr";
+import { appFetch } from "@/utils/appFetch";
 
 export default function EditRelationshipDetails() {
   const toast = useToast();
@@ -41,7 +42,7 @@ export default function EditRelationshipDetails() {
       const fetchMembers = async () => {
         try {
           setLoading(true);
-          const response = await fetch(`/api/editRelationship/${formData.id}`,
+          const response = await appFetch(`/api/editRelationship/${formData.id}`,
             {
               method: 'GET',
               headers: {
@@ -166,7 +167,7 @@ export default function EditRelationshipDetails() {
     try {
       setSubmitting(true);
       setSubmitError("");
-      const response = await fetch(`/api/editRelationship/${formData.id}`, {
+      const response = await appFetch(`/api/editRelationship/${formData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": 'application/json'

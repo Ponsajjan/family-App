@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
 import { ChoosePopup } from "@/components/ChoosePopup";
 import Link from "next/link";
+import { appFetch } from "@/utils/appFetch";
 
 export default function Page() {
     const router = useRouter();
@@ -34,7 +35,7 @@ export default function Page() {
                 setError("");
             }
             setSubmitting(true);
-            const res = await fetch("/api/auth/moderator_login", {
+            const res = await appFetch("/api/auth/moderator_login", {
                 method: "POST",
                 headers: {
                     "Content-Type": 'application/json'

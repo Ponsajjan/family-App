@@ -10,6 +10,7 @@ import { useInfiniteScroll } from '@/utils/useInfiniteScroll';
 import SlidePanel from '@/components/SlidePanel';
 import Container from '@/components/Container';
 import Link from 'next/link';
+import { appFetch } from "@/utils/appFetch";
 
 export default function NewMembers() {
   const toast = useToast();
@@ -37,7 +38,7 @@ export default function NewMembers() {
         setIsFetching(true);
         setLoadingList(true);
 
-        const response = await fetch(`/api/moderator/verifyChange?page=${params.page}&limit=${params.limit}`,
+        const response = await appFetch(`/api/moderator/verifyChange?page=${params.page}&limit=${params.limit}`,
           {
             method: 'GET',
             headers: {

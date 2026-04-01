@@ -10,6 +10,7 @@ import { useToast } from "@/components/Toast";
 import AddMemberForm from "@/components/forms/AddMemberForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { LinkButtonOutline } from "@/components/Button";
+import { appFetch } from "@/utils/appFetch";
 
 export default function AddMemberDetails() {
   const toast = useToast();
@@ -74,7 +75,7 @@ export default function AddMemberDetails() {
         siblings: descendant ? null : capitalizeWords(formData.siblings).trimEnd()
       };
 
-      const response = await fetch("/api/addMember", {
+      const response = await appFetch("/api/addMember", {
         method: "POST",
         headers: {
           "Content-Type": 'application/json'

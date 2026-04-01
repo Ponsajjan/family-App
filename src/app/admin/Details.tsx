@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AuthEntry, Moderator } from "@/types/admin/types"
 import { Copy } from "@/utils/Icons";
 import { useEffect, useState } from "react";
+import { appFetch } from "@/utils/appFetch";
 
 function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEntry, onDelete: (id: number) => void }) {
     const toast = useToast();
@@ -35,7 +36,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
         if (deleting || loading || id === null) return;
         try {
             setDeleting(true);
-            const response = await fetch(`/api/admin/edit_login/${id}`, {
+            const response = await appFetch(`/api/admin/edit_login/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": 'application/json',
@@ -71,7 +72,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
 
         try {
             setLoading(true);
-            const response = await fetch(`/api/admin/moderator`, {
+            const response = await appFetch(`/api/admin/moderator`, {
                 method: "POST",
                 headers: {
                     "Content-Type": 'application/json',
@@ -131,7 +132,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
 
         try {
             setLoading(true);
-            const response = await fetch(`/api/admin/moderator/${editingModerator.id}`, {
+            const response = await appFetch(`/api/admin/moderator/${editingModerator.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": 'application/json',
@@ -181,7 +182,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
     const handleDeleteModerator = async (id: number, index: number) => {
         try {
             setLoading(true);
-            const response = await fetch(`/api/admin/moderator/${id}`, {
+            const response = await appFetch(`/api/admin/moderator/${id}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": 'application/json',

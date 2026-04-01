@@ -11,6 +11,7 @@ import { useToast } from '@/components/Toast';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Topnav from '@/components/Topnav';
+import { appFetch } from "@/utils/appFetch";
 
 export default function EditCredential() {
   const toast = useToast();
@@ -32,7 +33,7 @@ export default function EditCredential() {
           return;
         }
         setIsLoading(true);
-        const response = await fetch(`/api/admin/edit_login/${memberId}`, {
+        const response = await appFetch(`/api/admin/edit_login/${memberId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -134,7 +135,7 @@ export default function EditCredential() {
         moderatorPassword: formData.moderator_password,
       };
 
-      const response = await fetch(`/api/admin/edit_login/${memberId}`, {
+      const response = await appFetch(`/api/admin/edit_login/${memberId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

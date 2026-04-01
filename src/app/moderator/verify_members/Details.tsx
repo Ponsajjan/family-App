@@ -10,6 +10,7 @@ import { CloseIcon, Condolences, Female2, Info, Male2, Verified } from '@/utils/
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
+import { appFetch } from "@/utils/appFetch";
 
 export default function NewMemberDetails({
     showDetailsFor,
@@ -45,7 +46,7 @@ export default function NewMemberDetails({
     const handleVerification = async (memberId: number) => {
         try {
             setPreparingList(true)
-            const response = await fetch(`/api/moderator/verifyMember/${memberId}`, {
+            const response = await appFetch(`/api/moderator/verifyMember/${memberId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
@@ -122,7 +123,7 @@ export default function NewMemberDetails({
     const handleDelete = async (memberId: number) => {
         try {
             setPreparingList(true)
-            const response = await fetch(`/api/moderator/verifyMember/${memberId}`, {
+            const response = await appFetch(`/api/moderator/verifyMember/${memberId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

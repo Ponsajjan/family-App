@@ -9,6 +9,7 @@ import { useToast } from '@/components/Toast';
 import { useDebounce } from '@/utils/debounce';
 import Container from './Container';
 import { useAuth } from '@/contexts/AuthContext';
+import { appFetch } from "@/utils/appFetch";
 
 interface EachMember {
   id: number;
@@ -172,7 +173,7 @@ export default function MemberList({
         setError(null);
 
         const excludeIdSet = [...new Set(params.excludeId || [])];
-        const response = await fetch(
+        const response = await appFetch(
           `/api?search=${encodeURIComponent(params.search)}&page=${params.page}&limit=${params.limit}&for=${params.type}&gender=${params.gender}&excludeId=${excludeIdSet}&descendant=${params.descendant}&showCousin=${params.showCousin}`,
           {
             method: 'GET',

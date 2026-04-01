@@ -13,6 +13,7 @@ import { validateEditMemberForm } from "@/utils/add_edit/edit_members/validateEd
 import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 import { useSWRConfig } from "swr";
+import { appFetch } from "@/utils/appFetch";
 
 export default function EditMemberDetails() {
   const toast = useToast();
@@ -37,7 +38,7 @@ export default function EditMemberDetails() {
       const fetchMember = async () => {
         try {
           setLoading(true)
-          const response = await fetch(`/api/editMember/${formData.id}`,
+          const response = await appFetch(`/api/editMember/${formData.id}`,
             {
               method: 'GET',
               headers: {
@@ -123,7 +124,7 @@ export default function EditMemberDetails() {
         mother: descendant ? null : formData.mother?.trimEnd(),
         siblings: descendant ? null : formData.siblings?.trimEnd()
       };
-      const response = await fetch(`/api/editMember/${formData.id}`, {
+      const response = await appFetch(`/api/editMember/${formData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": 'application/json'

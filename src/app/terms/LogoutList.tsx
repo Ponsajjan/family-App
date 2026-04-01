@@ -8,6 +8,7 @@ import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, setChoosePopupAccounts } from '@/store/slices/termsSlice';
+import { appFetch } from "@/utils/appFetch";
 
 function LogoutList() {
     const dispatch = useDispatch<AppDispatch>();
@@ -51,7 +52,7 @@ function LogoutList() {
 
             if (switchTo) {
                 try {
-                    const response = await fetch("/api/auth/switchLogin", {
+                    const response = await appFetch("/api/auth/switchLogin", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ account: switchTo.authId }),
@@ -132,7 +133,7 @@ function LogoutList() {
                 return;
             }
             setLoggingOut(true);
-            const response = await fetch('/api/logout', { method: 'GET' });
+            const response = await appFetch('/api/logout', { method: 'GET' });
             if (response.ok) {
                 clearFamilyCache();
                 router.push('/login');

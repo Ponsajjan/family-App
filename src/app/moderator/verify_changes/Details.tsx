@@ -7,6 +7,7 @@ import { Approved, CloseIcon, NavIconVerified, Rejected, Warning } from '@/utils
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
+import { appFetch } from "@/utils/appFetch";
 
 const ChangeRequestView = ({
   showDetailsFor,
@@ -81,7 +82,7 @@ const ChangeRequestView = ({
         throw new Error("Invalid request data");
       }
 
-      const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
+      const response = await appFetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -129,7 +130,7 @@ const ChangeRequestView = ({
     try {
       setDisableButton(true);
 
-      const response = await fetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
+      const response = await appFetch(`/api/moderator/verifyChange/${showDetailsFor[currentDetailIndex].id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'

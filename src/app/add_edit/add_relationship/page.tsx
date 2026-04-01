@@ -14,6 +14,7 @@ import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 import { useSWRConfig } from "swr";
+import { appFetch } from "@/utils/appFetch";
 
 export default function AddRelationshipDetails() {
   const toast = useToast();
@@ -142,7 +143,7 @@ export default function AddRelationshipDetails() {
         ...(isFemale && { motherOf: getOrderedChildren() }),
       };
 
-      const response = await fetch(`/api/addRelationship/${selectedMemberData?.id}`, {
+      const response = await appFetch(`/api/addRelationship/${selectedMemberData?.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": 'application/json'
