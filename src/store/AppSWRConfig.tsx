@@ -45,32 +45,36 @@ function localStorageProvider() {
 
   const map = new Map<any, any>(initialEntries);
 
-  // Core saving logic. Fully analog: executes exactly when SWR data fundamentally changes.
+  // Debounced saving logic to prevent blocking the UI thread during bulk updates
+  let saveTimeout: any;
   function saveToStorage() {
-    try {
-      const currentNow = Date.now();
-      
-      // Filter out stale entries (TTL > 1 week) & wrap them with their timestamp
-      let entriesToSave = Array.from(map.entries())
-        .map(([key, value]) => [
-          key, 
-          { value, __cache_timestamp: timestamps.get(key) || currentNow }
-        ])
-        .filter((entry: any) => currentNow - entry[1].__cache_timestamp < ONE_WEEK_MS || !navigator.onLine);
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      try {
+        const currentNow = Date.now();
+        
+        // Filter out stale entries (TTL > 1 week) & wrap them with their timestamp
+        let entriesToSave = Array.from(map.entries())
+          .map(([key, value]) => [
+            key, 
+            { value, __cache_timestamp: timestamps.get(key) || currentNow }
+          ])
+          .filter((entry: any) => currentNow - entry[1].__cache_timestamp < ONE_WEEK_MS || !navigator.onLine);
 
-      // Prevent localStorage from getting full by keeping only the 50 most recent valid entries
-      if (entriesToSave.length > 50) {
-        entriesToSave = entriesToSave.slice(entriesToSave.length - 50);
+        // Prevent localStorage from getting full by keeping only the 50 most recent valid entries
+        if (entriesToSave.length > 50) {
+          entriesToSave = entriesToSave.slice(entriesToSave.length - 50);
+        }
+        
+        const appCache = JSON.stringify(entriesToSave);
+        localStorage.setItem("app-swr-cache", appCache);
+      } catch (e) {
+        console.warn("Failed to write to localStorage (might be full)", e);
+        if (e instanceof DOMException && e.name === "QuotaExceededError") {
+          localStorage.removeItem("app-swr-cache");
+        }
       }
-      
-      const appCache = JSON.stringify(entriesToSave);
-      localStorage.setItem("app-swr-cache", appCache);
-    } catch (e) {
-      console.warn("Failed to write to localStorage (might be full)", e);
-      if (e instanceof DOMException && e.name === "QuotaExceededError") {
-        localStorage.removeItem("app-swr-cache");
-      }
-    }
+    }, 1000); // 1-second debounce is sufficient and safe
   }
 
   // Track which endpoints have been natively fetched during THIS active session

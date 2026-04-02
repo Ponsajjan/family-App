@@ -12,6 +12,9 @@ const withPWA = withPWAInit({
   workboxOptions: {
     disableDevLogs: true,
   },
+  fallbacks: {
+    document: "/~offline",
+  },
 });
 
 const nextConfig = {

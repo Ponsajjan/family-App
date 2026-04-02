@@ -31,31 +31,7 @@ export default function ClientLayout({
     '/terms/add_login',
   ];
 
-  if (IncludeSideNavLayoutPaths.includes(pathname)) {
-    return (
-      <main id="MainDiv">
-        <noscript>Amor fati!..</noscript>
-        <ReduxProvider>
-          <AppInitializer />
-          <AuthProvider>
-            <AppSWRConfig>
-              <div className="w-full transition-all duration-500 ease-in-out">
-                <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
-                  <Sidenav />
-                  <div className="w-full relative">
-                    <ToastProvider>
-                      {children}
-                      <div id='portal'></div>
-                    </ToastProvider>
-                  </div>
-                </div>
-              </div>
-            </AppSWRConfig>
-          </AuthProvider>
-        </ReduxProvider>
-      </main>
-    );
-  }
+  const hasSideNav = IncludeSideNavLayoutPaths.includes(pathname);
 
   return (
     <ReduxProvider>
@@ -64,7 +40,16 @@ export default function ClientLayout({
         <AppSWRConfig>
           <div className="w-full transition-all duration-500 ease-in-out">
             <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
-              {children}
+              {hasSideNav && <Sidenav />}
+              <div className="w-full relative">
+                <main id="MainDiv">
+                  <noscript>Amor fati!..</noscript>
+                  <ToastProvider>
+                    {children}
+                    <div id='portal'></div>
+                  </ToastProvider>
+                </main>
+              </div>
             </div>
           </div>
         </AppSWRConfig>
