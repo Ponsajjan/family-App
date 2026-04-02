@@ -7,6 +7,25 @@ interface CalendarMonthlyEvent {
     age: number | string;
 }
 
+// Show a single notification, preferring the service worker so it works in
+// installed PWA mode (background on Android, required on iOS 16.4+).
+const showNotification = async (title: string, options: NotificationOptions) => {
+    if ('serviceWorker' in navigator) {
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            // ServiceWorkerRegistration.showNotification is the correct API for PWAs.
+            // new Notification() is silently dropped when the PWA is backgrounded
+            // on Android Chrome and is entirely unsupported on iOS Safari.
+            await reg.showNotification(title, options);
+            return;
+        } catch {
+            // Service worker not controlling the page yet — fall through.
+        }
+    }
+    // Fallback for browsers without service worker (rare desktop case).
+    new Notification(title, options);
+};
+
 // Function to send push notification
 export const sendNotification = (events: CalendarMonthlyEvent[]) => {
     if (typeof window === 'undefined') return;
@@ -16,7 +35,7 @@ export const sendNotification = (events: CalendarMonthlyEvent[]) => {
             if (permission === 'granted') {
                 events.forEach(event => {
                     const eventName = `${event.name} (${(event.type === 'birthday' ? '\u{1F382} Birthday' : 'Remembrance \u{1F490}')})`;
-                    new Notification('Family Calendar Reminder', {
+                    showNotification('Family Calendar Reminder', {
                         body: `Today: ${eventName}`,
                         icon: '/web-app-manifest-192x192.png',
                         badge: '/web-app-manifest-192x192.png'

@@ -34,11 +34,11 @@ export const globalFetcher = async (url: string) => {
     throw new Error("OfflineFallbackInterception");
   }
 
-  // 1. Get current authId from Redux
+  // 3. Get current authId from Redux
   const state = store.getState();
   const currentAuthId = state.terms.currentAuthId;
 
-  // 2. Read the server's last update header
+  // 4. Read the server's last update header
   const serverUpdateHeader = res.headers.get('X-Family-Last-Update');
 
   if (serverUpdateHeader) {

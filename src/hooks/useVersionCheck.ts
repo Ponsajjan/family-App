@@ -22,7 +22,7 @@ export function useVersionCheck() {
             if (idsToCheck.length === 0) return;
 
             const now = Date.now();
-            // Throttle to 20 seconds unless forced
+            // Throttle to 10 seconds unless forced
             if (!force && now - globalLastCheckTime < 10000) return;
             globalLastCheckTime = now;
 
