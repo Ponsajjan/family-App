@@ -1,4 +1,5 @@
 import { LinkButtonSolid } from "@/components/Button";
+import { getCookie } from "cookies-next";
 import Container from "@/components/Container"
 import { HoldButton } from "@/components/HoldButton"
 import { useToast } from "@/components/Toast";
@@ -40,7 +41,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
                 method: "DELETE",
                 headers: {
                     "Content-Type": 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${getCookie('token')}`
                 },
             });
 
@@ -76,7 +77,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
                 method: "POST",
                 headers: {
                     "Content-Type": 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${getCookie('token')}`
                 },
                 body: JSON.stringify({
                     moderatorName: newModerator.moderatorName.trim(),
@@ -136,7 +137,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
                 method: "PUT",
                 headers: {
                     "Content-Type": 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${getCookie('token')}`
                 },
                 body: JSON.stringify({
                     moderatorName: editModerator.moderatorName.trim(),
@@ -186,7 +187,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
                 method: "DELETE",
                 headers: {
                     "Content-Type": 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${getCookie('token')}`
                 },
             });
 

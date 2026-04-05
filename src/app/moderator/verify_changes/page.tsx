@@ -136,8 +136,8 @@ export default function NewMembers() {
                             {(member.father || member.mother) ? (
                               <>
                                 <span className="pr-1 font-medium md:font-semibold">Parents:</span>
-                                {member.father && <span>{member.father.name}</span>}
-                                {member.mother && <span>, {member.mother.name}</span>}
+                                {member.father && <span className='pr-1'>{member.father.name}, </span>}
+                                {member.mother && <span>{member.mother.name}</span>}
                               </>
                             ) : member.partner ? (
                               <div>

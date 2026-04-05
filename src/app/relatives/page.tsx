@@ -160,8 +160,8 @@ export default function Relatives() {
                             {(member.father || member.mother) ? (
                               <>
                                 <span className="pr-0.5 font-medium md:font-semibold">Parents:</span>
-                                {member.father && <span>{member.father.name}</span>}
-                                {member.mother && <span>, {member.mother.name}</span>}
+                                {member.father && <span className='pr-1'>{member.father.name}, </span>}
+                                {member.mother && <span>{member.mother.name}</span>}
                               </>
                             ) : member.partner ? (
                               <div>

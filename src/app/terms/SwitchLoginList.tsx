@@ -206,9 +206,7 @@ function SwitchLoginList() {
                         <div key={account.authId} className='py-0.5 md:py-1 w-full'>
                             <div
                                 onClick={() => handleToggleChange(account)}
-                                className={`flex items-center justify-between transform transition-all duration-200 min-h-[2.5rem] bg-field_color border border-l-4 ${isCurrentAccount
-                                    ? 'border-gray-500 text-gray-500'
-                                    : 'border-border_color text-text_color/45'
+                                className={`flex items-center justify-between transform transition-all duration-200 min-h-[2.5rem] bg-field_color border-border_color text-text_color border border-l-4 ${!isCurrentAccount && 'opacity-60'
                                     } ${isToggling ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:bg-field_color/80'} rounded-md`}
                             >
                                 <div className="font-medium px-3 pointer-events-none">{account.mainMemberRef}</div>
