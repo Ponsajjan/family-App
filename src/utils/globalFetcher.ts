@@ -8,11 +8,11 @@ import { mutate } from 'swr';
  * timestamp stored in Redux. If the server is newer, it wipes the SWR cache.
  */
 export const globalFetcher = async (url: string) => {
-  // 1. Prevent network request entirely if explicitly offline
-  // This avoids next-pwa's service worker returning the HTML offline fallback
-  if (typeof navigator !== 'undefined' && !navigator.onLine) {
-    throw new Error("Offline");
-  }
+  // // 1. Prevent network request entirely if explicitly offline
+  // // This avoids next-pwa's service worker returning the HTML offline fallback
+  // if (typeof navigator !== 'undefined' && !navigator.onLine) {
+  //   throw new Error("Offline");
+  // }
 
   const res = await fetch(url, {
     method: 'GET',
