@@ -27,9 +27,9 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
         const copyText = `Website: ${process.env.NEXT_PUBLIC_BASE_URL} \nCredential for: ${selectedCredential.mainMemberName} family calendar \n${type}: ${text}`;
 
         navigator.clipboard.writeText(copyText).then(() => {
-            toast?.show(`${type} copied to clipboard!`, "success", 2000);
+            toast?.show(`${type} copied to clipboard!`, "success", 5000);
         }).catch(err => {
-            toast?.show(`Failed to copy to clipboard ${err}`, "error", 3000);
+            toast?.show(`Failed to copy to clipboard ${err}`, "error", 5000);
         });
     };
 

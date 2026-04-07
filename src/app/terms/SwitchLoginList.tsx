@@ -62,7 +62,7 @@ function SwitchLoginList() {
             if (target.current) {
                 const activeCount = accounts.filter(acc => acc.current).length;
                 if (activeCount === 1) {
-                    toast?.show("At least one account must remain selected.", "warning", 3000);
+                    toast?.show("At least one account must remain selected.", "warning", 5000);
                     setIsToggling(false);
                     return;
                 }

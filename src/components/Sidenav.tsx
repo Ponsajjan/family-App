@@ -14,7 +14,7 @@ export default function Sidenav() {
 
     return (
         <>
-            <span className="block xl:hidden fixed top-3 z-[105] m-0 p-0">
+            <span className="block xl:hidden fixed top-3 z-[99] m-0 p-0">
                 <button onClick={() => setShowNav(prev => !prev)} className="absolute h-6 w-6 top-0 left-2">
                     {showNav ? <CloseIcon /> : <BurgerMenuIcon />}
                 </button>

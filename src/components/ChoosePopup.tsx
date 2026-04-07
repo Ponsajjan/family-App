@@ -9,6 +9,7 @@ import { AppDispatch } from '@/store';
 import { selectChoosePopupAccounts, ChoosePopupAccount } from '@/store/slices/termsSlice';
 import { setCurrentAuthId, setMainMemberName, setModeratorGroups, setIsModerator, fetchTermsData } from '@/store/slices/termsSlice';
 import { appFetch } from "@/utils/appFetch";
+import { CloseIcon } from '@/utils/Icons';
 
 interface ChoosePopupProps {
     showPopup: boolean;
@@ -86,7 +87,7 @@ export const ChoosePopup = ({
             <div
                 onClick={() => setShowPopup(false)}
                 className={`lg:pl-40 lg:mt-12 absolute max-w-[162.5rem] mx-auto inset-0 transition-all duration-500 ease-in-out backdrop-blur-sm 
-                    ${showPopup ? 'bg-gray-500/60 top-0' : 'bottom-full delay-[600ms]'}`}
+                    ${showPopup ? 'bg-gray-500/60 top-0' : 'bottom-full delay-[600ms] bg-gray-300/5'}`}
             />
             <div className="lg:pl-40 w-full h-full max-w-[162.5rem] mx-auto relative z-20 pointer-events-none">
                 <div className={`md:w-full md:h-full fixed top-full left-0 right-0 md:static md:flex md:flex-col md:justify-center md:items-center transition-all duration-500 ease-in-out
@@ -97,17 +98,13 @@ export const ChoosePopup = ({
                         rounded-t-md md:rounded-lg text-left md:shadow-xl p-6 pointer-events-auto
                         ${showPopup ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}
                     `}>
-                        <div className="flex justify-between items-center mb-4 border-b pb-2">
+                        <div className="flex justify-between items-center mb-4 border-b pb-1">
                             <h2 className="text-xl font-semibold">
                                 {switchingAccount ? "Switching..." : "Select Account"}
                             </h2>
-                            <button
-                                onClick={() => setShowPopup(false)}
-                                className="text-text_color/60 hover:text-text_color transition-colors"
-                                disabled={switchingAccount}
-                            >
-                                ✕
-                            </button>
+                            <div onClick={() => setShowPopup(false)} className='hidden md:block border border-border_color rounded-md m-2 cursor-pointer'>
+                                <CloseIcon />
+                            </div>
                         </div>
 
                         <div className="space-y-3 mb-4">
