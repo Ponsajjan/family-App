@@ -113,7 +113,7 @@ export default function Relatives() {
             onChange={(e) => handleMemberSearch(e.target.value)}
             type="text"
             placeholder="Search"
-            className="ml-auto peer mr-0 input-not-placeholder cursor-pointer block p-1 pl-4 pr-8 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
+            className="ml-auto peer mr-0 input-not-placeholder cursor-pointer block p-1 pl-[0.4rem] pr-[1.65rem] border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
           />
           <span className="absolute right-[0.3125rem] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
             <SearchIcon />
