@@ -86,28 +86,25 @@ export const ChoosePopup = ({
         <div className='fixed z-[100] inset-0 overflow-hidden'>
             <div
                 onClick={() => setShowPopup(false)}
-                className={`lg:pl-40 lg:mt-12 absolute max-w-[162.5rem] mx-auto inset-0 transition-all duration-500 ease-in-out backdrop-blur-sm 
-                    ${showPopup ? 'bg-gray-500/60 top-0' : 'bottom-full delay-[600ms] bg-gray-300/5'}`}
+                className={`xl:pl-40 xl:mt-12 bg-gray-500/60 absolute max-w-[162.5rem] mx-auto inset-0 backdrop-blur-sm`}
             />
-            <div className="lg:pl-40 w-full h-full max-w-[162.5rem] mx-auto relative z-20 pointer-events-none">
-                <div className={`md:w-full md:h-full fixed top-full left-0 right-0 md:static md:flex md:flex-col md:justify-center md:items-center transition-all duration-500 ease-in-out
-                    ${showPopup ? '-translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 overflow-hidden slidpanel-hide'}`}>
+            <div className="xl:pl-40 w-full h-full max-w-[162.5rem] px-2 mx-auto relative z-20 pointer-events-none">
+                <div className={`w-full h-full top-full left-0 right-0 static flex flex-col justify-center items-center transition-all duration-500 ease-in-out`}>
                     <div className={`
                         w-full max-h-[80vh] md:max-h-[90%] text-text_color overflow-y-auto cursor-default
-                        md:max-w-[95%] lg:max-w-[28.125rem] mx-auto bg-main_background overflow-x-hidden 
-                        rounded-t-md md:rounded-lg text-left md:shadow-xl p-6 pointer-events-auto
-                        ${showPopup ? 'visible md:delay-300 transition-all ease-in-out' : 'invisible'}
+                        md:max-w-[28.125rem] mx-auto bg-main_background overflow-x-hidden 
+                        rounded-lg text-left md:shadow-xl p-4 md:p-6 md:pt-4 pointer-events-auto
                     `}>
                         <div className="flex justify-between items-center mb-4 border-b pb-1">
                             <h2 className="text-xl font-semibold">
                                 {switchingAccount ? "Switching..." : "Select Account"}
                             </h2>
-                            <div onClick={() => setShowPopup(false)} className='hidden md:block border border-border_color rounded-md m-2 cursor-pointer'>
+                            <div onClick={() => setShowPopup(false)} className='border border-border_color rounded-md m-2 cursor-pointer'>
                                 <CloseIcon />
                             </div>
                         </div>
 
-                        <div className="space-y-3 mb-4">
+                        <div className="space-y-3">
                             {accounts.length > 0 ? (
                                 accounts.map((account) => (
                                     <div
