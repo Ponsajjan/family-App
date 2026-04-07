@@ -162,7 +162,7 @@ export default function VerifyMember() {
             onChange={(e) => handleMemberSearch(e.target.value)}
             type="text"
             placeholder="All Members"
-            className="peer p-1 block w-full pl-10 border border-border_color focus:outline-none font-normal rounded-md bg-main_background"
+            className="peer p-1 block w-full pl-10 pr-8 border border-border_color focus:outline-none font-normal rounded-md bg-main_background"
           />
           <button
             onClick={() => resetPrams()}
