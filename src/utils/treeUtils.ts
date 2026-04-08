@@ -60,9 +60,18 @@ export async function fetchFamilyTreeData(
             members = await prisma.member.findMany({
                 where: { id: { in: newMemberIds }, verified: true },
                 include: {
-                    fatherOf: { select: { id: true, name: true, gender: true, order: true } },
-                    motherOf: { select: { id: true, name: true, gender: true, order: true } },
-                    partner: { select: { id: true, name: true, gender: true } },
+                    fatherOf: {
+                        where: { verified: true },
+                        select: { id: true, name: true, gender: true, order: true }
+                    },
+                    motherOf: {
+                        where: { verified: true },
+                        select: { id: true, name: true, gender: true, order: true }
+                    },
+                    partner: {
+                        where: { verified: true },
+                        select: { id: true, name: true, gender: true }
+                    },
                 }
             });
         } catch (error) {
@@ -97,9 +106,6 @@ export async function fetchFamilyTreeData(
                         visitedMembers
                     );
                     const nextGen = result.tree;
-
-                    // Sort nextGen based on the order value of each child
-                    nextGen.sort((a, b) => a.order - b.order);
 
                     // Current generation data
                     const currentGen = [

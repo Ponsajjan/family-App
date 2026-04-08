@@ -61,7 +61,7 @@ svg {
 
 .toast_in {
   animation-name: slidein;
-  animation-duration: 5s;
+  animation-duration: var(--toast-duration, 5s);
 }
 
 @keyframes slidein {
@@ -97,7 +97,7 @@ svg {
 }
 
 .progress.active:before {
-  animation: progress 4.6s linear forwards;
+  animation: progress var(--progress-duration, 4.6s) linear forwards;
 }
 
 @keyframes progress {

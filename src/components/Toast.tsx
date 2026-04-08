@@ -7,6 +7,7 @@ interface Toast {
     id: number;
     component: string;
     type: 'info' | 'success' | 'error' | 'warning';
+    duration: number;
 }
 
 interface ToastContextType {
@@ -39,7 +40,7 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
     const show = useCallback(
         (component: string, type: Toast["type"] = 'info', timeout: number = 5000) => {
             const id = Date.now();
-            setToasts((prevToasts) => [...prevToasts, { id, component, type }]);
+            setToasts((prevToasts) => [...prevToasts, { id, component, type, duration: timeout }]);
 
             const timeoutId = setTimeout(() => {
                 close(id);
@@ -65,10 +66,11 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
             <div
                 className="fixed top-16 left-1/2 transform -translate-x-1/2 flex flex-col mx-auto items-center justify-center space-y-1 z-[104] w-full px-4 pointer-events-none overflow-hidden"
             >
-                {toasts.map(({ id, component, type }) => (
+                {toasts.map(({ id, component, type, duration }) => (
                     <div
                         key={id}
                         role="alert"
+                        style={{ "--toast-duration": `${duration}ms` } as React.CSSProperties}
                         className="toast_in delay-100 transition-all duration-300 ease-in-out w-full md:min-w-60 max-w-96 bg-field_color relative p-2 border border-border_active overflow-hidden rounded-md pointer-events-auto"
                     >
                         <div className="flex justify-between gap-2">
@@ -78,7 +80,10 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
                                 <PlusIcon />
                             </button>
                         </div>
-                        <div className="progress active absolute bottom-0 left-0 w-full h-1 bg-field_hover"></div>
+                        <div
+                            style={{ "--progress-duration": `${duration * 0.92}ms` } as React.CSSProperties}
+                            className="progress active absolute bottom-0 left-0 w-full h-1 bg-field_hover"
+                        ></div>
                     </div>
                 ))}
             </div>

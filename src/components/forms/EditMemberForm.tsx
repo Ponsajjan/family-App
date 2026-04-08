@@ -65,16 +65,14 @@ function EditMemberForm({
                     name="gender"
                     value="Male"
                     checked={formData.gender === "Male"}
-                    // onChange={allowedEdit.editGender ? () => { showWarning('gender') } : handleInputChange}
-                    onChange={handleInputChange}
+                    onChange={allowedEdit.editGender ? () => { showWarning('gender') } : handleInputChange}
                 />
                 <RadioButton
                     label="Female"
                     name="gender"
                     value="Female"
                     checked={formData.gender === "Female"}
-                    // onChange={allowedEdit.editGender ? () => { showWarning('gender') } : handleInputChange}
-                    onChange={handleInputChange}
+                    onChange={allowedEdit.editGender ? () => { showWarning('gender') } : handleInputChange}
                 />
             </div>
             <div>
