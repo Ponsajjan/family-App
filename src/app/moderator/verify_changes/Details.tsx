@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { appFetch } from "@/utils/appFetch";
+import { useDispatch } from 'react-redux';
+import { setFamilyLastUpdates, updateAccountIssues } from '@/store/slices/termsSlice';
 
 const ChangeRequestView = ({
   showDetailsFor,
@@ -16,6 +18,7 @@ const ChangeRequestView = ({
   setCurrentDetailIndex,
   setShowDetailsFor,
   setChangeList,
+  changeList,
   memberId,
   disableButton,
   setDisableButton
@@ -27,6 +30,7 @@ const ChangeRequestView = ({
   const toast = useToast();
   const { logout } = useAuth()
   const { mutate } = useSWRConfig();
+  const dispatch = useDispatch();
 
   // Process request removal and move to next
   const processRequestRemoval = () => {
@@ -38,12 +42,34 @@ const ChangeRequestView = ({
 
     // If no more requests, clean up
     if (updatedRequests.length === 0) {
-      setChangeList((prev: any) => prev.filter((item: any) => item.id !== memberId));
+      const updatedChangeList = changeList.filter((item: any) => item.id !== memberId);
+      setChangeList(updatedChangeList);
+      if (updatedChangeList.length === 0) {
+        mutate('/api/moderator');
+      }
       setShowDetails(false);
     }
     // Adjust index if we removed the last item
     else if (currentDetailIndex >= updatedRequests.length) {
       setCurrentDetailIndex(updatedRequests.length - 1);
+    }
+  };
+
+  const handleSyncModeratorStatus = (counts: any) => {
+    if (counts) {
+      // Update SWR cache for the dashboard immediately with the fresh counts
+      mutate('/api/moderator', counts, { revalidate: false });
+
+      // Update Redux state for the sidebar pulsing dot
+      dispatch(updateAccountIssues({
+        hasChanges: (counts.unverifiedMembers + counts.pendingRequests) > 0,
+        anyOtherAccountHasIssues: counts.anyOtherAccountHasIssues
+      }));
+
+      // Sync the updated version timestamps
+      if (counts.updatedAt) {
+        dispatch(setFamilyLastUpdates(counts.updatedAt));
+      }
     }
   };
 
@@ -116,6 +142,7 @@ const ChangeRequestView = ({
       toast?.show(result.message || "Change verification approved", "success", 5000);
       setRequestStatus('approved');
       mutate('/api/moderator', undefined, { revalidate: false });
+      handleSyncModeratorStatus(result.moderatorCounts);
       setTimeout(processRequestRemoval, 2000);
 
     } catch (error: any) {
@@ -155,11 +182,12 @@ const ChangeRequestView = ({
         throw new Error(errorMessage);
       }
 
-      // const result = await response.json();
-      // toast?.show(result.message || "Change verification rejected", "success", 5000);
+      const result = await response.json();
+      toast?.show(result.message || "Change verification rejected", "success", 5000);
       setActionError(null);
       setRequestStatus('rejected');
       mutate('/api/moderator', undefined, { revalidate: false });
+      handleSyncModeratorStatus(result.moderatorCounts);
 
       // Show status for 2 second before removing
       setTimeout(processRequestRemoval, 2000);

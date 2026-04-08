@@ -220,10 +220,13 @@ function buildAdditionalInfo(member: any) {
 }
 
 
+import { getModeratorCounts } from "@/utils/moderatorCounts";
+
 export async function PATCH(request: NextRequest) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
+  const selectedAuthIdsCookie = request.cookies.get("selectedAuthId")?.value || "[]";
 
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -285,10 +288,13 @@ export async function PATCH(request: NextRequest) {
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
 
+    const counts = await getModeratorCounts(authId, userType, selectedAuthIdsCookie);
+
     return NextResponse.json({
       success: true,
       message: `${updatedMember.verified ? 'Switched to verified member' : 'Switched to unverified member'}`,
       data: updatedMember,
+      moderatorCounts: counts
     });
   } catch (error) {
     console.error("Error updating member:", error);
@@ -309,6 +315,7 @@ export async function DELETE(request: NextRequest) {
   const url = new URL(request.url);
   const memberId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
+  const selectedAuthIdsCookie = request.cookies.get("selectedAuthId")?.value || "[]";
 
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -375,9 +382,12 @@ export async function DELETE(request: NextRequest) {
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
 
+    const counts = await getModeratorCounts(authId, userType, selectedAuthIdsCookie);
+
     return NextResponse.json({
       success: true,
       message: "Member deleted successfully",
+      moderatorCounts: counts
     });
   } catch (error: any) {
     console.error("Error deleting member:", error);

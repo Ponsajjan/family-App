@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useRef, useCallback, useMemo } from "react";
-import { Error, Info, PlusIcon, Success, Warning } from "@/utils/Icons";
+import { CloseIcon, Error, Info, Success, Warning } from "@/utils/Icons";
 
 interface Toast {
     id: number;
@@ -76,8 +76,8 @@ function ToastProvider({ children }: { children: React.ReactNode }) {
                         <div className="flex justify-between gap-2">
                             {toastIcons[type]}
                             <span className="md:text-xl text-text_color w-72" dangerouslySetInnerHTML={{ __html: component }} />
-                            <button onClick={() => close(id)} className="w-6 h-6 transform rotate-45">
-                                <PlusIcon />
+                            <button onClick={() => close(id)} className="w-6 h-6">
+                                <CloseIcon />
                             </button>
                         </div>
                         <div

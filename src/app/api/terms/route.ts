@@ -144,6 +144,17 @@ export async function GET(request: NextRequest) {
 
     const validSelectedAuthIds = selectedAuthIds.filter(id => validAuthIds.includes(id));
 
+    // Check for issues for each account in authRecords
+    const accountsWithIssues = await Promise.all(authRecords.map(async (record) => {
+      const [unverifiedCount, pendingRequestCount] = await Promise.all([
+        prisma.member.count({ where: { authId: record.id, verified: false } }),
+        prisma.requestDetails.count({ where: { authId: record.id } })
+      ]);
+      return { id: record.id, hasChanges: (unverifiedCount + pendingRequestCount) > 0 };
+    }));
+
+    const issuesMap = new Map(accountsWithIssues.map(i => [i.id, i.hasChanges]));
+
     // Map authIds to their details with current flag
     const authDetails = validAuthIds.map(authId => {
       const record = authRecords.find(record =>
@@ -155,7 +166,8 @@ export async function GET(request: NextRequest) {
         mainMemberRef: record?.mainMemberId ? memberMap.get(record.mainMemberId) || null : null,
         current: selectedAuthIds.length > 0 ? selectedAuthIds.includes(authId) : (authId === currentAuthId),
         updatedAt: record?.updatedAt.getTime() || 0,
-        familyId: record?.id
+        familyId: record?.id,
+        hasChanges: record ? issuesMap.get(record.id) : false
       };
     });
 

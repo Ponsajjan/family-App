@@ -11,7 +11,7 @@ import { NextArrow, SwitchIcon } from '@/utils/Icons'
 import { ChoosePopup } from '@/components/ChoosePopup'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
-import { setIsModerator, setCurrentAuthId, setAccounts } from '@/store/slices/termsSlice';
+import { setIsModerator, setCurrentAuthId, setAccounts, updateAccountIssues } from '@/store/slices/termsSlice';
 import Link from 'next/link';
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { appFetch } from "@/utils/appFetch";
@@ -25,7 +25,7 @@ export default function ModeratorDashboard() {
     const { logout, storeLoginValues } = useAuth();
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
-    const { mainMemberName, choosePopupAccounts, isModerator, accounts } = useSelector((state: RootState) => state.terms);
+    const { mainMemberName, choosePopupAccounts, isModerator, accounts, anyOtherAccountHasIssues, currentAuthId } = useSelector((state: RootState) => state.terms);
 
     const { data, isLoading, mutate } = useSWR('/api/moderator');
 
@@ -35,7 +35,7 @@ export default function ModeratorDashboard() {
         }
     }, []);
     const { mutate: globalMutate } = useSWRConfig();
-    // Effect for Toasts based on chartStatus
+    // Effect for Toasts based on chartStatus and sync notification status with Redux
     useEffect(() => {
         if (data) {
             if (data.chartStatus === 'building') {
@@ -45,8 +45,14 @@ export default function ModeratorDashboard() {
             } else if (data.chartStatus === 'timeout') {
                 toast?.show('Previous build timed out. You can retry.', 'warning', 5000);
             }
+
+            const hasChanges = (data.unverifiedMembers + data.pendingRequests) > 0;
+            dispatch(updateAccountIssues({
+                hasChanges,
+                anyOtherAccountHasIssues: data.anyOtherAccountHasIssues
+            }));
         }
-    }, [data, toast]);
+    }, [data, toast, dispatch]);
 
     const handleUpdateRelationsChart = async () => {
         try {
@@ -97,7 +103,7 @@ export default function ModeratorDashboard() {
             }
         } catch (error: any) {
             toast?.show(
-                "An error occurred while updating the chart",
+                error.message || "An error occurred while updating the chart",
                 'error',
                 5000
             )
@@ -172,9 +178,14 @@ export default function ModeratorDashboard() {
                         <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
                         <div
                             onClick={() => setShowChoosePopup(true)}
-                            className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors"
+                            className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors relative"
                         >
                             <SwitchIcon />
+                            {anyOtherAccountHasIssues && (
+                                <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                                    <span className="inline-flex h-full w-full rounded-full bg-black"></span>
+                                </span>
+                            )}
                         </div>
                     </>}
                 </div>
@@ -227,6 +238,7 @@ export default function ModeratorDashboard() {
                     showPopup={showChoosePopup}
                     setShowPopup={setShowChoosePopup}
                     onSwitchSuccess={() => mutate()}
+                    showWarning={true}
                 />
             )}
         </>

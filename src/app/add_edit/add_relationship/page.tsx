@@ -15,6 +15,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 import { useSWRConfig } from "swr";
 import { appFetch } from "@/utils/appFetch";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAccountIssues } from "@/store/slices/termsSlice";
+import { RootState } from "@/store";
 
 export default function AddRelationshipDetails() {
   const toast = useToast();
@@ -28,6 +31,8 @@ export default function AddRelationshipDetails() {
   const [showList, setShowList] = useState<boolean>(false);
   const { mutate } = useSWRConfig();
   const { logout } = useAuth();
+  const dispatch = useDispatch();
+  const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
     excludeId: [],
@@ -168,10 +173,14 @@ export default function AddRelationshipDetails() {
         setSubmitError(result.error || "Something went wrong");
         toast?.show(result.error || "Something went wrong", "error", 5000);
       } else {
-        if (pendingVerification > 0 || result.message?.includes('verification')) {
-          // Clear SWR cache for /api/moderator
-          mutate('/api/moderator', undefined, { revalidate: false });
-        }
+      if (result.isRequest) {
+        dispatch(updateAccountIssues({
+          hasChanges: true,
+          anyOtherAccountHasIssues: anyOtherAccountHasIssues
+        }));
+        // Clear SWR cache for /api/moderator
+        mutate('/api/moderator', undefined, { revalidate: false });
+      }
         toast?.show(result.message, "success", 5000);
         // Reset the form
         setSelectedMemberId(null);

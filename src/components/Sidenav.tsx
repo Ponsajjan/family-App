@@ -4,9 +4,12 @@ import { BurgerMenuIcon, CalendarIcon, CloseIcon, FamilyProfessionals, Moderator
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 export default function Sidenav() {
     const [showNav, setShowNav] = useState(false);
+    const { anyAccountHasIssues } = useSelector((state: RootState) => state.terms);
 
     const closeNav = () => {
         setShowNav(false);
@@ -28,7 +31,7 @@ export default function Sidenav() {
                         <NavLink linkName="Relatives" link="relatives" onClick={closeNav} />
                         <NavLink linkName="Relations" link="tree" onClick={closeNav} />
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={closeNav} />
-                        <NavLink linkName="Moderator" link="moderator" onClick={closeNav} />
+                        <NavLink linkName="Moderator" link="moderator" onClick={closeNav} showDot={anyAccountHasIssues} />
                         <span className="border-t border-border_color pt-2 mt-6 block mx-4"></span>
                         <NavLink linkName="Terms" link="terms" onClick={closeNav} />
                     </div>
@@ -38,24 +41,30 @@ export default function Sidenav() {
     );
 }
 
-export function NavLink({ link, linkName, onClick }: { link: string, linkName: string, onClick: () => void }) {
+export function NavLink({ link, linkName, onClick, showDot }: { link: string, linkName: string, onClick: () => void, showDot?: boolean }) {
     const pathName = usePathname();
     const href = `/${link}`.replace("//", "/");
+    const isActive = pathName.split('/')[1] === link;
 
     return (
         <Link
             href={href}
             onClick={onClick}
             prefetch={true}
-            className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover/75 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName.split('/')[1] === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
+            className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover/75 hover:text-accent_contrast focus-visible:bg-field_hover relative ${isActive ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >
-            <p className={`group-hover:invert ${pathName.split('/')[1] === link ? "invert" : " "}`}>
+            <p className={`group-hover:invert relative ${isActive ? "invert" : " "}`}>
                 {linkName === 'Calendar' && <CalendarIcon />}
                 {linkName === 'Relatives' && <RelativesIcon />}
                 {linkName === 'Relations' && <TreeIcon />}
                 {linkName === 'Add/Edit' && <FamilyProfessionals />}
                 {linkName === 'Moderator' && <Moderator />}
                 {linkName === 'Terms' && <Terms />}
+                {linkName === 'Moderator' && showDot && (
+                    <span className="absolute bottom-0.5 -right-0.5 flex h-2.5 w-2.5 border rounded-full">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-black"></span>
+                    </span>
+                )}
             </p>
             <p>{linkName}</p>
         </Link>

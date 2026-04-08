@@ -7,7 +7,7 @@ import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { selectChoosePopupAccounts, ChoosePopupAccount } from '@/store/slices/termsSlice';
-import { setCurrentAuthId, setMainMemberName, setModeratorGroups, setIsModerator, fetchTermsData } from '@/store/slices/termsSlice';
+import { setCurrentAuthId, setMainMemberName, setIsModerator, fetchTermsData } from '@/store/slices/termsSlice';
 import { appFetch } from "@/utils/appFetch";
 import { CloseIcon } from '@/utils/Icons';
 
@@ -15,12 +15,14 @@ interface ChoosePopupProps {
     showPopup: boolean;
     setShowPopup: (show: boolean) => void;
     onSwitchSuccess?: () => void;
+    showWarning?: boolean;
 }
 
 export const ChoosePopup = ({
     showPopup,
     setShowPopup,
-    onSwitchSuccess
+    onSwitchSuccess,
+    showWarning = false
 }: ChoosePopupProps) => {
     const reduxAccounts = useSelector(selectChoosePopupAccounts);
     const accounts: ChoosePopupAccount[] = reduxAccounts;
@@ -34,11 +36,14 @@ export const ChoosePopup = ({
     const clearFamilyCache = () => {
         const allKeys = Array.from(cache.keys());
         allKeys.forEach(key => {
-            if (typeof key === 'string' && (
-                key.startsWith('/api/tree') ||
-                key.startsWith('/api/moderator')
-            )) {
-                globalMutate(key, undefined, { revalidate: false });
+            if (typeof key === 'string') {
+                const isApiMatch = (path: string) =>
+                    path.startsWith('/api/tree') ||
+                    path.startsWith('/api/moderator');
+
+                if (isApiMatch(key) || (key.startsWith('$inf$') && isApiMatch(key.substring(5)))) {
+                    globalMutate(key, undefined, { revalidate: false });
+                }
             }
         });
     };
@@ -109,7 +114,7 @@ export const ChoosePopup = ({
                                 accounts.map((account) => (
                                     <div
                                         key={account.authId}
-                                        className={`flex items-center p-3 rounded-md border transition-all duration-200 ${account.authId === selectedId
+                                        className={`flex items-center p-3 rounded-md border transition-all duration-200 relative ${account.authId === selectedId
                                             ? 'bg-field_color border-border_active'
                                             : 'border-border_color hover:bg-field_hover cursor-pointer'
                                             }`}
@@ -122,6 +127,12 @@ export const ChoosePopup = ({
                                             label={account.name || 'Anonymous Account'}
                                             className="w-full !justify-start"
                                         />
+                                        {showWarning && account.hasChanges && (
+                                            <span className="relative flex justify-center items-center h-2.5 w-2.5">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+                                                <span className="absolute inline-flex rounded-full h-2.5 w-2.5 bg-black shadow-[0_0_8px_rgba(0,0,0,0.6)]"></span>
+                                            </span>
+                                        )}
                                     </div>
                                 ))
                             ) : (

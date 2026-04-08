@@ -14,6 +14,9 @@ import { useRouter } from "next/navigation";
 import SlidePanel from "@/components/SlidePanel";
 import { useSWRConfig } from "swr";
 import { appFetch } from "@/utils/appFetch";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAccountIssues } from "@/store/slices/termsSlice";
+import { RootState } from "@/store";
 
 export default function EditRelationshipDetails() {
   const toast = useToast();
@@ -32,6 +35,8 @@ export default function EditRelationshipDetails() {
   const { mutate } = useSWRConfig();
   const { logout } = useAuth();
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
 
   const handleShowList = () => {
     setShowList(true);
@@ -188,7 +193,11 @@ export default function EditRelationshipDetails() {
       }
 
       const result = await response.json();
-      if (formData.pendingVerification > 0 || result.message?.includes('verification')) {
+      if (result.isRequest) {
+        dispatch(updateAccountIssues({
+          hasChanges: true,
+          anyOtherAccountHasIssues: anyOtherAccountHasIssues
+        }));
         // Clear SWR cache for /api/moderator
         mutate('/api/moderator', undefined, { revalidate: false });
       }

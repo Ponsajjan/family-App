@@ -11,6 +11,10 @@ import AddMemberForm from "@/components/forms/AddMemberForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { LinkButtonOutline } from "@/components/Button";
 import { appFetch } from "@/utils/appFetch";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAccountIssues } from "@/store/slices/termsSlice";
+import { useSWRConfig } from "swr";
+import { RootState } from "@/store";
 
 export default function AddMemberDetails() {
   const toast = useToast();
@@ -19,6 +23,9 @@ export default function AddMemberDetails() {
   const [errors, setErrors] = useState<AddMemberFormErrorTypes>(AddMemberDefaultErrorValue);
   const [submitError, setSubmitError] = useState<string>("");
   const { logout } = useAuth();
+  const dispatch = useDispatch();
+  const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
+  const { mutate } = useSWRConfig();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (loading) return;
@@ -95,6 +102,13 @@ export default function AddMemberDetails() {
         setSubmitError(errorMsg);
       } else {
         toast?.show(result.message, "success", 5000);
+        if (result.isRequest) {
+          dispatch(updateAccountIssues({
+            hasChanges: true,
+            anyOtherAccountHasIssues: anyOtherAccountHasIssues
+          }));
+          mutate('/api/moderator', undefined, { revalidate: false });
+        }
         setFormData(AddMemberDefaultFormValue);
         setErrors(AddMemberDefaultErrorValue);
         setSubmitError("");

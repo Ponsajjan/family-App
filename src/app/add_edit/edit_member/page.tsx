@@ -14,6 +14,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import SlidePanel from "@/components/SlidePanel";
 import { useSWRConfig } from "swr";
 import { appFetch } from "@/utils/appFetch";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAccountIssues } from "@/store/slices/termsSlice";
+import { RootState } from "@/store";
 
 export default function EditMemberDetails() {
   const toast = useToast();
@@ -27,6 +30,8 @@ export default function EditMemberDetails() {
   const [submitError, setSubmitError] = useState("");
   const { mutate } = useSWRConfig();
   const { logout } = useAuth();
+  const dispatch = useDispatch();
+  const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
 
   const handleSelectedValue = (name: string, id: number) => {
     setFormData((prev) => ({ ...prev, name, id }));
@@ -136,7 +141,11 @@ export default function EditMemberDetails() {
         throw new Error(errorData.error || "Failed to update member");
       }
       const result = await response.json();
-      if (formData.pendingVerification > 0 || result.message?.includes('verification')) {
+      if (result.isRequest) {
+        dispatch(updateAccountIssues({
+          hasChanges: true,
+          anyOtherAccountHasIssues: anyOtherAccountHasIssues
+        }));
         // Clear SWR cache for /api/moderator
         mutate('/api/moderator', undefined, { revalidate: false });
       }

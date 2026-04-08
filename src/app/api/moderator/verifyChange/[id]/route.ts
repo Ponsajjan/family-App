@@ -119,10 +119,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
+import { getModeratorCounts } from "@/utils/moderatorCounts";
+
 export async function PUT(request: NextRequest) {
   const url = new URL(request.url);
   const requestId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
+  const selectedAuthIdsCookie = request.cookies.get("selectedAuthId")?.value || "[]";
 
   // Initial validation
   if (!token) {
@@ -207,7 +210,12 @@ export async function PUT(request: NextRequest) {
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
 
-    return NextResponse.json(result);
+    const counts = await getModeratorCounts(authId, userType, selectedAuthIdsCookie);
+
+    return NextResponse.json({
+      ...result,
+      moderatorCounts: counts
+    });
 
   } catch (error: any) {
     console.error("Error in PUT request:", error);
@@ -237,6 +245,7 @@ export async function DELETE(request: NextRequest) {
   const url = new URL(request.url);
   const editDataId = parseInt(url.pathname.split('/').pop() || '', 10);
   const token = request.cookies.get("token")?.value;
+  const selectedAuthIdsCookie = request.cookies.get("selectedAuthId")?.value || "[]";
 
   if (!token) {
     return NextResponse.json(
@@ -296,9 +305,12 @@ export async function DELETE(request: NextRequest) {
     revalidatePath('/api/relatives/[id]');
     revalidatePath('/tree');
 
+    const counts = await getModeratorCounts(authId, userType, selectedAuthIdsCookie);
+
     return NextResponse.json({
       success: true,
       message: `Rejected ${requestData.type}`,
+      moderatorCounts: counts
     });
   } catch (error: any) {
     console.error("Error deleting request:", error);

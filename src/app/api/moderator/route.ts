@@ -20,7 +20,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const { updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
+    const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
+
+    // Filter out the current authId to check issues for other selected accounts
+    const otherAuthIds = allAuthIds.filter(id => id !== authId);
+    let anyOtherAccountHasIssues = false;
+
+    if (otherAuthIds.length > 0) {
+      const [otherUnverifiedCount, otherPendingRequestCount] = await Promise.all([
+        prisma.member.count({
+          where: {
+            authId: { in: otherAuthIds },
+            verified: false,
+          },
+        }),
+        prisma.requestDetails.count({
+          where: {
+            authId: { in: otherAuthIds },
+          },
+        }),
+      ]);
+      anyOtherAccountHasIssues = (otherUnverifiedCount + otherPendingRequestCount) > 0;
+    }
+
     // Fetch member and request counts in parallel for efficiency
     const [unverifiedCount, pendingRequestCount, familyTree] = await Promise.all([
       prisma.member.count({
@@ -63,6 +85,7 @@ export async function GET(request: NextRequest) {
       unverifiedMembers: unverifiedCount,
       pendingRequests: pendingRequestCount,
       chartStatus: chartStatus,
+      anyOtherAccountHasIssues: anyOtherAccountHasIssues,
       lastBuildStartedAt: familyTree?.lastBuildStartedAt || null,
       updatedAt: familyTree?.updatedAt || null,
     }, {

@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Member added successfully",
+      isRequest: true,
       data: result,
     });
   } catch (error) {

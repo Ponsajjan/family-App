@@ -29,6 +29,7 @@ function SwitchLoginList() {
                     path.startsWith('/api/calendar/') ||
                     path.startsWith('/api/tree') ||
                     path.startsWith('/api/relatives') ||
+                    path.startsWith('/api/terms') ||
                     path.startsWith('/api/moderator');
 
                 if (isApiMatch(key) || (key.startsWith('$inf$') && isApiMatch(key.substring(5)))) {
@@ -72,18 +73,7 @@ function SwitchLoginList() {
                 String(acc.authId) === String(account.authId) ? { ...acc, current: !acc.current } : acc
             );
 
-            const selectedAuthIds = updated.filter(acc => acc.current).map(acc => acc.authId);
-            setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 }); // 30 days
-            // Mirror exactly what went into the cookie
-            dispatch(setChoosePopupAccounts(
-                updated
-                    .filter(acc => acc.current)
-                    .map(acc => ({ authId: acc.authId, name: acc.mainMemberRef }))
-            ));
-            clearFamilyCache();
-            dispatch(setAccounts(updated));
-
-            // If we need to switch the active session account because current one was toggled off
+            // Case 1: Switching active session account because current one was toggled off
             if (nextAuthId) {
                 try {
                     const response = await appFetch("/api/auth/switchLogin", {
@@ -93,18 +83,44 @@ function SwitchLoginList() {
                     });
                     const data = await response.json();
                     if (data.success) {
+                        // 1. Update session token first
                         storeLoginValues(data.newtoken, data.userType, data.authId);
+                        
+                        // 2. Then update selected accounts cookies/state
+                        const selectedAuthIds = updated.filter(acc => acc.current).map(acc => acc.authId);
+                        setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 });
+                        
+                        dispatch(setChoosePopupAccounts(
+                            updated
+                                .filter(acc => acc.current)
+                                .map(acc => ({ authId: acc.authId, name: acc.mainMemberRef }))
+                        ));
+                        
+                        dispatch(setAccounts(updated));
                         dispatch(setCurrentAuthId(data.authId));
                         dispatch(setMainMemberName(data.mainMemberName || 'Account'));
-                        // Refresh all moderator groups for selected accounts
-                        // dispatch(fetchTermsData());
                         dispatch(setIsModerator(data.userType === 'Moderator'));
+                        
+                        // 3. Finally clear all related caches
                         clearFamilyCache();
                     }
                 } catch (err) {
                     console.error("Auto-switch error:", err);
-                    // toast?.show("Error switching account", "error", 3000);
+                    toast?.show("Reliability error: Could not switch account session", "error", 5000);
                 }
+            } else {
+                // Case 2: Just toggling an account that isn't the current active session
+                const selectedAuthIds = updated.filter(acc => acc.current).map(acc => acc.authId);
+                setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge: 60 * 60 * 24 * 30 });
+                
+                dispatch(setChoosePopupAccounts(
+                    updated
+                        .filter(acc => acc.current)
+                        .map(acc => ({ authId: acc.authId, name: acc.mainMemberRef }))
+                ));
+                
+                dispatch(setAccounts(updated));
+                clearFamilyCache();
             }
 
             // Delay to prevent immediate repeated toggles and allow state/cookies to settle

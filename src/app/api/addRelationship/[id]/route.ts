@@ -389,6 +389,7 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
+          isRequest: true,
           message: "New relationships added for <b>verification</b>",
         });
       }

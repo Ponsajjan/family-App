@@ -170,6 +170,7 @@ export default function NewMembers() {
             setCurrentDetailIndex={setCurrentDetailIndex}
             setShowDetailsFor={setShowDetailsFor}
             setChangeList={setChangeList}
+            changeList={changeList}
             disableButton={disableButton}
             setDisableButton={setDisableButton}
             memberId={memberId}
