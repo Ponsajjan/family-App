@@ -205,7 +205,7 @@ export default function EditRelationshipDetails() {
         toast?.show(result.message, "success", 5000);
 
         // Handle Partner Removal Flow
-        if (result.partnerRemoved && !removedPartnerData) {
+        if (result.partnerRemoved && !removedPartnerData && formData.children && formData.children.length > 0) {
           setRemovedPartnerData(result.removedPartnerData);
           setShowPartnerSwitchPanel(true);
           setShowList(true);

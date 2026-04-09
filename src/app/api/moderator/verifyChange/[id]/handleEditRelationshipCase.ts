@@ -126,7 +126,9 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
       }
 
       // Only add children to changeDetails if there are any current children or removed ones
-      changeDetails.children = childrenData;
+      if (childrenData.all.length > 0) {
+        changeDetails.children = childrenData;
+      }
     }
 
   } catch (e) {
