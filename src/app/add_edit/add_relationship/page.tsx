@@ -173,14 +173,14 @@ export default function AddRelationshipDetails() {
         setSubmitError(result.error || "Something went wrong");
         toast?.show(result.error || "Something went wrong", "error", 5000);
       } else {
-      if (result.isRequest) {
-        dispatch(updateAccountIssues({
-          hasChanges: true,
-          anyOtherAccountHasIssues: anyOtherAccountHasIssues
-        }));
-        // Clear SWR cache for /api/moderator
-        mutate('/api/moderator', undefined, { revalidate: false });
-      }
+        if (result.isRequest) {
+          dispatch(updateAccountIssues({
+            hasChanges: true,
+            anyOtherAccountHasIssues: anyOtherAccountHasIssues
+          }));
+          // Clear SWR cache for /api/moderator
+          mutate('/api/moderator', undefined, { revalidate: false });
+        }
         toast?.show(result.message, "success", 5000);
         // Reset the form
         setSelectedMemberId(null);

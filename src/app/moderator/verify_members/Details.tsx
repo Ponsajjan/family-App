@@ -11,8 +11,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { appFetch } from "@/utils/appFetch";
-import { useDispatch } from 'react-redux';
-import { setFamilyLastUpdates, updateAccountIssues } from '@/store/slices/termsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { updateAccountIssues } from '@/store/slices/termsSlice';
 
 export default function NewMemberDetails({
     showDetailsFor,
@@ -28,6 +29,7 @@ export default function NewMemberDetails({
     const router = useRouter();
     const { logout } = useAuth();
     const dispatch = useDispatch();
+    const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
     const { mutate } = useSWRConfig();
     const { data: swrResult, error: swrError, isLoading: loadingDetails } = useSWR(
         showDetailsFor.id ? `/api/moderator/verifyMember/${showDetailsFor.id}` : null
@@ -44,24 +46,6 @@ export default function NewMemberDetails({
     }, [swrResult]);
 
     const error = swrError?.message;
-
-    const handleSyncModeratorStatus = (counts: any) => {
-        if (counts) {
-            // Update SWR cache for the dashboard immediately with the fresh counts
-            mutate('/api/moderator', counts, { revalidate: false });
-
-            // Update Redux state for the sidebar pulsing dot
-            dispatch(updateAccountIssues({
-                hasChanges: (counts.unverifiedMembers + counts.pendingRequests) > 0,
-                anyOtherAccountHasIssues: counts.anyOtherAccountHasIssues
-            }));
-
-            // Sync the updated version timestamps
-            if (counts.updatedAt) {
-                dispatch(setFamilyLastUpdates(counts.updatedAt));
-            }
-        }
-    };
 
 
     const handleVerification = async (memberId: number) => {
@@ -93,7 +77,6 @@ export default function NewMemberDetails({
             }
 
             toast?.show(result.message, "success", 5000);
-            mutate('/api/moderator', undefined, { revalidate: false });
 
             const wasVerified = data?.generalInformation.verified;
             const isNowVerified = !wasVerified;
@@ -118,9 +101,11 @@ export default function NewMemberDetails({
                 const updatedData = members.filter((item: any) => item.id !== memberId);
                 setMembers(updatedData);
                 if (updatedData.length === 0) {
-                    mutate('/api/moderator');
+                    dispatch(updateAccountIssues({
+                        hasChanges: false,
+                        anyOtherAccountHasIssues: anyOtherAccountHasIssues
+                    }));
                 }
-                handleSyncModeratorStatus(result.moderatorCounts);
             } else if (shouldAdd) {
                 setMembers((prev: any) => {
                     const exists = prev.some((item: any) => item.id === memberId);
@@ -174,15 +159,16 @@ export default function NewMemberDetails({
                 // throw allows the error to be caught and handled by any surrounding `try...catch` blocks or global error handlers
             }
             toast?.show(result.message, "success", 5000);
-            mutate('/api/moderator', undefined, { revalidate: false });
             const updatedData = members.filter(
                 (item: any) => item.id !== memberId
             );
             setMembers(updatedData);
             if (updatedData.length === 0) {
-                mutate('/api/moderator');
+                dispatch(updateAccountIssues({
+                    hasChanges: false,
+                    anyOtherAccountHasIssues: anyOtherAccountHasIssues
+                }));
             }
-            handleSyncModeratorStatus(result.moderatorCounts);
             setDeleted(true);
         } catch (error: any) {
             console.error("Error submitting form:", error);

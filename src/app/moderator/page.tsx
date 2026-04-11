@@ -170,7 +170,7 @@ export default function ModeratorDashboard() {
                     )}
                 </div>
             </Topnav>
-            {!isLoading ? <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
+            <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
                 <div className="flex items-center gap-2 mb-2 h-9">
                     {choosePopupAccounts.length > 1 && <>
                         <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
@@ -192,13 +192,13 @@ export default function ModeratorDashboard() {
                 <LinkButtonOutline
                     linkto={`moderator/verify_members`}
                     className="w-full mb-4"
-                    buttonText={`Verify Members (${data?.unverifiedMembers ?? '..'})`}
+                    buttonText={`Verify Members (${isLoading ? '..' : data?.unverifiedMembers ?? '..'})`}
                     disabled={disabledButtons}
                 />
                 <LinkButtonOutline
                     linkto={`moderator/verify_changes`}
                     className="w-full mb-4"
-                    buttonText={`Verify Changes (${data?.pendingRequests ?? '..'})`}
+                    buttonText={`Verify Changes (${isLoading ? '..' : data?.pendingRequests ?? '..'})`}
                     disabled={disabledButtons}
                 />
                 <ButtonOutline
@@ -213,25 +213,7 @@ export default function ModeratorDashboard() {
                     onClick={handleUpdateRelationsChart}
                     disabled={updatingChart || data?.chartStatus === 'building' || disabledButtons}
                 />
-            </div> :
-                <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
-                    <div className="mb-2 h-9">
-                    </div>
-                    <LinkButtonOutline
-                        linkto={`moderator/verify_members`}
-                        className="w-full mb-4 opacity-50"
-                        buttonText=""
-                    />
-                    <LinkButtonOutline
-                        linkto={`moderator/verify_changes`}
-                        className="w-full mb-4 opacity-50"
-                        buttonText=""
-                    />
-                    <ButtonOutline
-                        className="w-full mb-4 opacity-50"
-                        buttonText=""
-                    />
-                </div>}
+            </div>
 
             {showChoosePopup && (
                 <ChoosePopup

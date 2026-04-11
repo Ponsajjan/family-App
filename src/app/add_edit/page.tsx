@@ -13,7 +13,7 @@ export default function AddEditPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const { mainMemberName, choosePopupAccounts, loading } = useSelector((state: RootState) => state.terms);
+    const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
 
     // Get the 'mode' parameter from URL, default to 'add'
     const currentMode = searchParams.get('mode') || 'add'
@@ -45,52 +45,33 @@ export default function AddEditPage() {
                 <span className={`absolute top-0 bottom-0 rounded-xl w-1/2 ${isAddMode ? 'left-0' : 'transform translate-x-full'} bg-accent_color transition-all duration-500 ease-in-out`}></span>
             </div>
 
-            {!loading ? (
-                <>
-                    <div className="flex items-center gap-2 h-10">
-                        {choosePopupAccounts.length > 1 && mainMemberName &&
-                            <>
-                                <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
-                                <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{mainMemberName} Family</span>
-                                <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
-                                <div
-                                    onClick={() => setShowChoosePopup(true)}
-                                    className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
-                                    <SwitchIcon />
-                                </div>
-                            </>}
-                    </div>
-                    <div className="pt-2">
-                        <LinkButtonOutline
-                            linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_member`}
-                            className="w-full mb-4"
-                            buttonText={`${isAddMode ? 'Add' : 'Edit'} Member`}
-                        />
+            <div className="flex items-center gap-2 h-10">
+                {choosePopupAccounts.length > 1 && mainMemberName &&
+                    <>
+                        <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
+                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{mainMemberName} Family</span>
+                        <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
+                        <div
+                            onClick={() => setShowChoosePopup(true)}
+                            className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
+                            <SwitchIcon />
+                        </div>
+                    </>}
+            </div>
+            <div className="pt-2">
+                <LinkButtonOutline
+                    linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_member`}
+                    className="w-full mb-4"
+                    buttonText={`${isAddMode ? 'Add' : 'Edit'} Member`}
+                />
 
-                        <LinkButtonOutline
-                            linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_relationship`}
-                            className="w-full"
-                            buttonText={`${isAddMode ? 'Add' : 'Edit'} Relationship`}
-                        />
-                    </div>
-                </>
-            ) : (
-                <>
-                    <div className="flex items-center gap-2 h-10">
-                    </div>
-                    <div className="pt-2">
-                        <LinkButtonOutline
-                            className="w-full mb-4 opacity-50"
-                            buttonText=""
-                        />
+                <LinkButtonOutline
+                    linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_relationship`}
+                    className="w-full"
+                    buttonText={`${isAddMode ? 'Add' : 'Edit'} Relationship`}
+                />
+            </div>
 
-                        <LinkButtonOutline
-                            className="w-full opacity-50"
-                            buttonText=""
-                        />
-                    </div>
-                </>
-            )}
             {showChoosePopup && (
                 <ChoosePopup
                     showPopup={showChoosePopup}

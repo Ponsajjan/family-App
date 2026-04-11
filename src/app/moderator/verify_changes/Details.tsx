@@ -8,8 +8,9 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { appFetch } from "@/utils/appFetch";
-import { useDispatch } from 'react-redux';
-import { setFamilyLastUpdates, updateAccountIssues } from '@/store/slices/termsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { updateAccountIssues } from '@/store/slices/termsSlice';
 
 const ChangeRequestView = ({
   showDetailsFor,
@@ -31,6 +32,7 @@ const ChangeRequestView = ({
   const { logout } = useAuth()
   const { mutate } = useSWRConfig();
   const dispatch = useDispatch();
+  const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
 
   // Process request removal and move to next
   const processRequestRemoval = () => {
@@ -45,7 +47,10 @@ const ChangeRequestView = ({
       const updatedChangeList = changeList.filter((item: any) => item.id !== memberId);
       setChangeList(updatedChangeList);
       if (updatedChangeList.length === 0) {
-        mutate('/api/moderator');
+        dispatch(updateAccountIssues({
+          hasChanges: false,
+          anyOtherAccountHasIssues: anyOtherAccountHasIssues
+        }));
       }
       setShowDetails(false);
     }
@@ -55,23 +60,6 @@ const ChangeRequestView = ({
     }
   };
 
-  const handleSyncModeratorStatus = (counts: any) => {
-    if (counts) {
-      // Update SWR cache for the dashboard immediately with the fresh counts
-      mutate('/api/moderator', counts, { revalidate: false });
-
-      // Update Redux state for the sidebar pulsing dot
-      dispatch(updateAccountIssues({
-        hasChanges: (counts.unverifiedMembers + counts.pendingRequests) > 0,
-        anyOtherAccountHasIssues: counts.anyOtherAccountHasIssues
-      }));
-
-      // Sync the updated version timestamps
-      if (counts.updatedAt) {
-        dispatch(setFamilyLastUpdates(counts.updatedAt));
-      }
-    }
-  };
 
   const currentRequestId = showDetailsFor?.[currentDetailIndex]?.id;
   const { data: swrResult, error: swrError, isLoading: loading } = useSWR(
@@ -141,8 +129,6 @@ const ChangeRequestView = ({
       setActionError(null);
       toast?.show(result.message || "Change verification approved", "success", 5000);
       setRequestStatus('approved');
-      mutate('/api/moderator', undefined, { revalidate: false });
-      handleSyncModeratorStatus(result.moderatorCounts);
       setTimeout(processRequestRemoval, 2000);
 
     } catch (error: any) {
@@ -186,8 +172,6 @@ const ChangeRequestView = ({
       toast?.show(result.message || "Change verification rejected", "success", 5000);
       setActionError(null);
       setRequestStatus('rejected');
-      mutate('/api/moderator', undefined, { revalidate: false });
-      handleSyncModeratorStatus(result.moderatorCounts);
 
       // Show status for 2 second before removing
       setTimeout(processRequestRemoval, 2000);

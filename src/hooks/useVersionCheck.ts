@@ -22,8 +22,8 @@ export function useVersionCheck() {
             if (idsToCheck.length === 0) return;
 
             const now = Date.now();
-            // Throttle to 10 seconds unless forced
-            if (!force && now - globalLastCheckTime < 10000) return;
+            // Throttle to 5 seconds unless forced
+            if (!force && now - globalLastCheckTime < 5000) return;
             globalLastCheckTime = now;
 
             const res = await appFetch(`/api/auth/version?ids=${idsToCheck.join(',')}`);
