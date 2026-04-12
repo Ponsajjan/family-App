@@ -86,17 +86,16 @@ export default function Page() {
             </Topnav>
             <Container>
                 <form className="max-w-lg px-4 pt-10 mx-auto">
-                    <div className="flex items-center gap-2 h-10 mb-2">
+                    <div className="relative flex items-center gap-2 h-10 mb-2">
                         {choosePopupAccounts.length > 1 &&
                             <>
-                                <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
-                                <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{mainMemberName} Family</span>
-                                <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
+                                <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
                                 <div
                                     onClick={() => setShowChoosePopup(true)}
-                                    className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors">
+                                    className="ml-auto mr-0 border z-10 bg-main_background border-border_color  flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors">
                                     <SwitchIcon />
                                 </div>
+                                <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />
                             </>}
                     </div>
 

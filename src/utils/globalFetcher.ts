@@ -29,10 +29,10 @@ export const globalFetcher = async (url: string) => {
   }
 
   // 2. Double check that the Service Worker didn't intercept and return the offline HTML page
-  const contentType = res.headers.get('content-type');
-  if (contentType && contentType.includes('text/html')) {
-    throw new Error("OfflineFallbackInterception");
-  }
+  // const contentType = res.headers.get('content-type');
+  // if (contentType && contentType.includes('text/html')) {
+  //   throw new Error("OfflineFallbackInterception");
+  // }
 
   // 3. Get current authId from Redux
   const state = store.getState();

@@ -11,6 +11,18 @@ const withPWA = withPWAInit({
   disable: false, // Enabled even in development so testing offline works
   workboxOptions: {
     disableDevLogs: true,
+    runtimeCaching: [
+      {
+        urlPattern: ({ request }) => request.mode === "navigate",
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "pages",
+          expiration: {
+            maxEntries: 50,
+          },
+        },
+      },
+    ],
   },
   fallbacks: {
     document: "/~offline",

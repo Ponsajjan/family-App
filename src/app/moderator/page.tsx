@@ -171,23 +171,22 @@ export default function ModeratorDashboard() {
                 </div>
             </Topnav>
             <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
-                <div className="flex items-center gap-2 mb-2 h-9">
-                    {choosePopupAccounts.length > 1 && <>
-                        <span className="text-text_color/60 w-10 border-b border-border_color border-dashed" />
-                        <span className="text-text_color/60 md:text-sm text-xs whitespace-nowrap max-w-56 text-ellipsis overflow-clip">{mainMemberName} Family</span>
-                        <span className="text-text_color/60 w-full border-b border-border_color border-dashed" />
-                        <div
-                            onClick={() => setShowChoosePopup(true)}
-                            className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-full px-1 py-1 cursor-pointer hover:bg-field_hover transition-colors relative"
-                        >
-                            <SwitchIcon />
-                            {anyOtherAccountHasIssues && (
-                                <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
-                                    <span className="inline-flex h-full w-full rounded-full bg-black"></span>
-                                </span>
-                            )}
-                        </div>
-                    </>}
+                <div className="relative flex items-center gap-2 h-10 mb-2">
+                    {choosePopupAccounts.length > 1 &&
+                        <>
+                            <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
+                            <div
+                                onClick={() => setShowChoosePopup(true)}
+                                className="ml-auto mr-0 border z-10 bg-main_background border-border_color  flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors relative">
+                                <SwitchIcon />
+                                {anyOtherAccountHasIssues && (
+                                    <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                                        <span className="inline-flex h-full w-full rounded-full bg-black"></span>
+                                    </span>
+                                )}
+                            </div>
+                            <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />
+                        </>}
                 </div>
                 <LinkButtonOutline
                     linkto={`moderator/verify_members`}
