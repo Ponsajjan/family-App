@@ -136,24 +136,30 @@ export default function EditMemberDetails() {
         },
         body: JSON.stringify(memberData),
       });
+      const result = await response.json();
+      if (response.status === 401) {
+        logout();
+        return;
+      }
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to update member");
+      } else {
+        mutate('/api/relatives', undefined, { revalidate: false });
+        if (result.isRequest) {
+          dispatch(updateAccountIssues({
+            hasChanges: true,
+            anyOtherAccountHasIssues: anyOtherAccountHasIssues
+          }));
+          // Clear SWR cache for /api/moderator
+          mutate('/api/moderator', undefined, { revalidate: false });
+        }
+        toast?.show(result.message, "success", 5000);
+        setEditedMember('')
+        setFormData(EditMemberDefaultFormValue);
+        setErrors(EditMemberDefaultFormErrorValue);
+        setSubmitError("");
       }
-      const result = await response.json();
-      if (result.isRequest) {
-        dispatch(updateAccountIssues({
-          hasChanges: true,
-          anyOtherAccountHasIssues: anyOtherAccountHasIssues
-        }));
-        // Clear SWR cache for /api/moderator
-        mutate('/api/moderator', undefined, { revalidate: false });
-      }
-      toast?.show(result.message, "success", 5000);
-      setEditedMember('')
-      setFormData(EditMemberDefaultFormValue);
-      setErrors(EditMemberDefaultFormErrorValue);
-      setSubmitError("");
     } catch (error: any) {
       const errorMsg = error.message || "Failed to update member";
       toast?.show(errorMsg, "error", 5000);

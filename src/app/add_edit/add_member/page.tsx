@@ -101,7 +101,7 @@ export default function AddMemberDetails() {
         toast?.show(errorMsg, "error", 5000);
         setSubmitError(errorMsg);
       } else {
-        toast?.show(result.message, "success", 5000);
+        mutate('/api/relatives', undefined, { revalidate: false });
         if (result.isRequest) {
           dispatch(updateAccountIssues({
             hasChanges: true,
@@ -109,6 +109,7 @@ export default function AddMemberDetails() {
           }));
           mutate('/api/moderator', undefined, { revalidate: false });
         }
+        toast?.show(result.message, "success", 5000);
         setFormData(AddMemberDefaultFormValue);
         setErrors(AddMemberDefaultErrorValue);
         setSubmitError("");

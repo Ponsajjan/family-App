@@ -169,10 +169,15 @@ export default function AddRelationshipDetails() {
       }
 
       const result = await response.json();
+      if (response.status === 401) {
+        logout();
+        return;
+      }
       if (!response.ok) {
         setSubmitError(result.error || "Something went wrong");
         toast?.show(result.error || "Something went wrong", "error", 5000);
       } else {
+        mutate('/api/relatives', undefined, { revalidate: false });
         if (result.isRequest) {
           dispatch(updateAccountIssues({
             hasChanges: true,
