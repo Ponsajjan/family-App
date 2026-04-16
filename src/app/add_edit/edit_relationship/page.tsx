@@ -32,7 +32,6 @@ export default function EditRelationshipDetails() {
   const [resetValue, setResetValue] = useState<any>({});
   const [showPartnerSwitchPanel, setShowPartnerSwitchPanel] = useState<boolean>(false);
   const [removedPartnerData, setRemovedPartnerData] = useState<{ id: number, name: string } | null>(null);
-  const { mutate } = useSWRConfig();
   const { logout } = useAuth();
   const router = useRouter();
   const dispatch = useDispatch();
@@ -206,15 +205,11 @@ export default function EditRelationshipDetails() {
         if (result.partnerRemoved && removedPartnerData) {
           handleSkip();
         }
-
-        mutate('/api/relatives', undefined, { revalidate: false });
         if (result.isRequest) {
           dispatch(updateAccountIssues({
             hasChanges: true,
             anyOtherAccountHasIssues: anyOtherAccountHasIssues
           }));
-          // Clear SWR cache for /api/moderator
-          mutate('/api/moderator', undefined, { revalidate: false });
         }
         toast?.show(result.message, "success", 5000);
         setFormData(editRelationshipDefaultFormValue);

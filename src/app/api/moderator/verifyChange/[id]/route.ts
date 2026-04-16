@@ -203,8 +203,8 @@ export async function PUT(request: NextRequest) {
     await bumpFamilyUpdateVersion(authId);
 
     revalidatePath('/api/relatives');
-    revalidatePath('/api/calendar/[month]/[year]');
-    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/api/calendar/[month]/[year]', 'page');
+    revalidatePath('/api/relatives/[id]', 'page');
     revalidatePath('/tree');
 
     return NextResponse.json({
@@ -294,8 +294,8 @@ export async function DELETE(request: NextRequest) {
     await bumpFamilyUpdateVersion(authId);
 
     revalidatePath('/api/relatives');
-    revalidatePath('/api/calendar/[month]/[year]');
-    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/api/calendar/[month]/[year]', 'page');
+    revalidatePath('/api/relatives/[id]', 'page');
     revalidatePath('/tree');
 
     return NextResponse.json({

@@ -25,7 +25,6 @@ export default function AddMemberDetails() {
   const { logout } = useAuth();
   const dispatch = useDispatch();
   const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
-  const { mutate } = useSWRConfig();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (loading) return;
@@ -100,20 +99,17 @@ export default function AddMemberDetails() {
         const errorMsg = result.error || "Something went wrong";
         toast?.show(errorMsg, "error", 5000);
         setSubmitError(errorMsg);
-      } else {
-        mutate('/api/relatives', undefined, { revalidate: false });
-        if (result.isRequest) {
-          dispatch(updateAccountIssues({
-            hasChanges: true,
-            anyOtherAccountHasIssues: anyOtherAccountHasIssues
-          }));
-          mutate('/api/moderator', undefined, { revalidate: false });
-        }
-        toast?.show(result.message, "success", 5000);
-        setFormData(AddMemberDefaultFormValue);
-        setErrors(AddMemberDefaultErrorValue);
-        setSubmitError("");
+        return
       }
+      dispatch(updateAccountIssues({
+        hasChanges: true,
+        anyOtherAccountHasIssues: anyOtherAccountHasIssues
+      }));
+      toast?.show(result.message, "success", 5000);
+      setFormData(AddMemberDefaultFormValue);
+      setErrors(AddMemberDefaultErrorValue);
+      setSubmitError("");
+
 
     } catch (error: any) {
       const errorMsg = error.message || "An unexpected error occurred.";

@@ -29,8 +29,8 @@ export async function getAllAuthIds(authId: number, userType: string, selectedAu
             const authRecords = await prisma.auth.findMany({
                 where: {
                     OR: [
-                        { memberAuthId: { in: loginAuthIds } },
-                        { moderatorAuthId: { in: loginAuthIds } }
+                        { memberAuthId: { in: loginAuthIds.filter(Boolean) } },
+                        { moderatorAuthId: { in: loginAuthIds.filter(Boolean) } }
                     ]
                 },
                 select: {
@@ -95,8 +95,8 @@ export async function getSelectedMembersData(mainMemberId: number, loginAuthIds:
             const authRecords = await prisma.auth.findMany({
                 where: {
                     OR: [
-                        { memberAuthId: { in: loginAuthIds } },
-                        { moderatorAuthId: { in: loginAuthIds } }
+                        { memberAuthId: { in: loginAuthIds.filter(Boolean) } },
+                        { moderatorAuthId: { in: loginAuthIds.filter(Boolean) } }
                     ]
                 },
                 select: {

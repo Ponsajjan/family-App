@@ -50,7 +50,6 @@ export interface TermsState {
   choosePopupAccounts: ChoosePopupAccount[];  // current:true accounts in ChoosePopup format
   currentAuthId: string;
   isModerator: boolean;
-  familyLastUpdates: Record<string, number>;
   anyOtherAccountHasIssues: boolean;
   anyAccountHasIssues: boolean;
 }
@@ -72,12 +71,6 @@ export const fetchTermsData = createAsyncThunk(
       const data = await response.json();
 
       const accounts = data.allAuthDetails as AccountDetail[];
-      const familyLastUpdates: Record<string, number> = {};
-      accounts.forEach(acc => {
-        if (acc.authId && acc.updatedAt) {
-          familyLastUpdates[acc.authId] = acc.updatedAt;
-        }
-      });
 
       return {
         mainMemberName: data.mainMemberName,
@@ -85,7 +78,6 @@ export const fetchTermsData = createAsyncThunk(
         currentAuthId: data.currentAuthId,
         accounts: accounts,
         isModerator: data.userType === 'Moderator',
-        familyLastUpdates,
       };
     } catch (error: any) {
       if (error && error.status === 401) return rejectWithValue({ status: 401 });
@@ -104,7 +96,6 @@ const initialState: TermsState = {
   choosePopupAccounts: [],
   currentAuthId: '',
   isModerator: false,
-  familyLastUpdates: {},
   anyOtherAccountHasIssues: false,
   anyAccountHasIssues: false,
 };
@@ -141,9 +132,6 @@ const termsSlice = createSlice({
     setChoosePopupAccounts(state, action: PayloadAction<ChoosePopupAccount[]>) {
       state.choosePopupAccounts = action.payload;
     },
-    setFamilyLastUpdates(state, action: PayloadAction<Record<string, number>>) {
-      state.familyLastUpdates = { ...state.familyLastUpdates, ...action.payload };
-    },
     updateAccountIssues(state, action: PayloadAction<{ hasChanges: boolean, anyOtherAccountHasIssues: boolean }>) {
       const { hasChanges, anyOtherAccountHasIssues } = action.payload;
       const currentAccount = state.accounts.find(acc => String(acc.authId) === String(state.currentAuthId));
@@ -170,7 +158,6 @@ const termsSlice = createSlice({
         state.accounts = action.payload.accounts;
         state.choosePopupAccounts = toChoosePopup(action.payload.accounts);
         state.isModerator = action.payload.isModerator;
-        state.familyLastUpdates = { ...state.familyLastUpdates, ...action.payload.familyLastUpdates };
         state.anyOtherAccountHasIssues = action.payload.accounts.some(acc => acc.current && String(acc.authId) !== String(action.payload.currentAuthId) && acc.hasChanges);
         state.anyAccountHasIssues = action.payload.accounts.some(acc => acc.current && acc.hasChanges);
       })
@@ -189,7 +176,6 @@ export const {
   setIsModerator,
   setTermsData,
   setChoosePopupAccounts,
-  setFamilyLastUpdates,
   updateAccountIssues,
 } = termsSlice.actions;
 

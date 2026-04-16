@@ -29,7 +29,6 @@ export default function AddRelationshipDetails() {
   const [newChildrenData, setNewChildrenData] = useState<AddRelationFormValuesType>(AddRelationDefaultFormValue);
   const [showListFor, setShowListFor] = useState<'selectMember' | 'selectChildren' | 'selectPartner'>('selectMember');
   const [showList, setShowList] = useState<boolean>(false);
-  const { mutate } = useSWRConfig();
   const { logout } = useAuth();
   const dispatch = useDispatch();
   const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
@@ -176,23 +175,20 @@ export default function AddRelationshipDetails() {
       if (!response.ok) {
         setSubmitError(result.error || "Something went wrong");
         toast?.show(result.error || "Something went wrong", "error", 5000);
-      } else {
-        mutate('/api/relatives', undefined, { revalidate: false });
-        if (result.isRequest) {
-          dispatch(updateAccountIssues({
-            hasChanges: true,
-            anyOtherAccountHasIssues: anyOtherAccountHasIssues
-          }));
-          // Clear SWR cache for /api/moderator
-          mutate('/api/moderator', undefined, { revalidate: false });
-        }
-        toast?.show(result.message, "success", 5000);
-        // Reset the form
-        setSelectedMemberId(null);
-        setSelectedPartnerId(null);
-        setNewChildrenData(AddRelationDefaultFormValue);
-        setSubmitError("");
+        return
       }
+      if (result.isRequest) {
+        dispatch(updateAccountIssues({
+          hasChanges: true,
+          anyOtherAccountHasIssues: anyOtherAccountHasIssues
+        }));
+      }
+      toast?.show(result.message, "success", 5000);
+      // Reset the form
+      setSelectedMemberId(null);
+      setSelectedPartnerId(null);
+      setNewChildrenData(AddRelationDefaultFormValue);
+      setSubmitError("");
 
     } catch (error: any) {
       const errorMsg = error.message || "Failed to update member";

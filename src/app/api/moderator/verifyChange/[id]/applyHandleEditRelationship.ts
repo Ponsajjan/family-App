@@ -108,8 +108,8 @@ export const applyHandleEditRelationship = async (data: RequestData, tx: any) =>
     await Promise.all(updatePromises);
 
     revalidatePath('/api/relatives');
-    revalidatePath('/api/calendar/[month]/[year]');
-    revalidatePath('/api/relatives/[id]');
+    revalidatePath('/api/calendar/[month]/[year]', 'page');
+    revalidatePath('/api/relatives/[id]', 'page');
     revalidatePath('/tree');
 
     return {

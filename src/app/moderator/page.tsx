@@ -27,11 +27,12 @@ export default function ModeratorDashboard() {
     const dispatch = useDispatch<AppDispatch>();
     const { mainMemberName, choosePopupAccounts, isModerator, accounts, anyOtherAccountHasIssues, currentAuthId } = useSelector((state: RootState) => state.terms);
 
-    const { data, isLoading, mutate } = useSWR('/api/moderator');
+    const url = '/api/moderator';
+    const { data, isLoading, mutate } = useSWR(url);
 
     useEffect(() => {
         if (!isLoading) {
-            checkVersion();
+            checkVersion(url);
         }
     }, []);
     const { mutate: globalMutate } = useSWRConfig();

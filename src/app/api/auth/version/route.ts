@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
     const authRecords = await prisma.auth.findMany({
       where: {
         OR: [
-          { memberAuthId: { in: allMemberAuthIds } },
-          { moderatorAuthId: { in: allMemberAuthIds } }
+          { memberAuthId: { in: allMemberAuthIds.filter(Boolean) } },
+          { moderatorAuthId: { in: allMemberAuthIds.filter(Boolean) } }
         ]
       },
       select: {

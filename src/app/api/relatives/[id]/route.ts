@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
+import { getAllAuthIds } from "@/utils/switchAccountHelpers";
+
+export const dynamic = 'force-dynamic';
 
 interface MemberResponse {
   generalInformation: {
@@ -54,8 +57,10 @@ export async function GET(request: NextRequest) {
   try {
     const decoded = await verifyToken(token);
     const authId = decoded.authId;
+    const userType = decoded.userType;
     if (!authId) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
+    const { updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
     // Fetch member with all relations and auth info in a single query
     const member = await prisma.member.findFirst({
       where: { id },
@@ -134,7 +139,11 @@ export async function GET(request: NextRequest) {
       ...(mainMemberName && loginAuthIds.length > 1 && { mainMemberName })
     };
 
-    return NextResponse.json({ data: responseData });
+    return NextResponse.json({ data: responseData }, {
+      headers: {
+        'X-Family-Last-Update': JSON.stringify(updatedAt)
+      }
+    });
   } catch (error) {
     console.error("Error fetching member data:", error);
     if (error instanceof Error) {

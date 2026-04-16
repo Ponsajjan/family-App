@@ -29,8 +29,7 @@ const ChangeRequestView = ({
   const [actionError, setActionError] = useState<string | null>(null);
   const router = useRouter();
   const toast = useToast();
-  const { logout } = useAuth()
-  const { mutate } = useSWRConfig();
+  const { logout } = useAuth();
   const dispatch = useDispatch();
   const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
 

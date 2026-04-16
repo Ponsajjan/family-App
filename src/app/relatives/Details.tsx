@@ -4,20 +4,25 @@ import { CloseIcon } from '@/utils/Icons';
 import Loading from '@/components/Loading';
 import MemberDetails from '@/components/MemberDetails';
 import useSWR from 'swr';
+import { useVersionCheck } from '@/hooks/useVersionCheck';
+import { useEffect } from 'react';
 
 export default function Details({ showMember, openDetails }: any) {
-  const { 
-    data: swrResult, 
-    error, 
-    isLoading: loadingDetails 
-  } = useSWR(
-    showMember ? `/api/relatives/${showMember}` : null
-  );
+  const { checkVersion } = useVersionCheck();
+  const url = showMember ? `/api/relatives/${showMember}` : null;
+  const {
+    data: swrResult,
+    error,
+    isLoading: loadingDetails
+  } = useSWR(url);
+
+  useEffect(() => {
+    if (!loadingDetails) {
+      checkVersion(url);
+    }
+  }, [url]);
 
   const data = swrResult?.data;
-
-  if (error) return <div className='p-4'>Error: {error.message || 'Error fetching data'}</div>;
-  if (!data && !loadingDetails) return <div className='p-4 loading-text'>No data found</div>;
 
   return (
     <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
@@ -25,7 +30,13 @@ export default function Details({ showMember, openDetails }: any) {
         <CloseIcon />
       </div>
 
-      {loadingDetails ? <Loading /> : (
+      {error ? (
+        <div className='p-4'>Error: {error.message || 'Error fetching data'}</div>
+      ) : !data && !loadingDetails ? (
+        <div className='p-4 loading-text'>No data found</div>
+      ) : loadingDetails ? (
+        <Loading />
+      ) : (
         <MemberDetails data={data} />
       )}
     </Container>

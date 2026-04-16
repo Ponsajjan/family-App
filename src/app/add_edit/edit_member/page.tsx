@@ -28,7 +28,6 @@ export default function EditMemberDetails() {
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const { mutate } = useSWRConfig();
   const { logout } = useAuth();
   const dispatch = useDispatch();
   const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
@@ -145,14 +144,11 @@ export default function EditMemberDetails() {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to update member");
       } else {
-        mutate('/api/relatives', undefined, { revalidate: false });
         if (result.isRequest) {
           dispatch(updateAccountIssues({
             hasChanges: true,
             anyOtherAccountHasIssues: anyOtherAccountHasIssues
           }));
-          // Clear SWR cache for /api/moderator
-          mutate('/api/moderator', undefined, { revalidate: false });
         }
         toast?.show(result.message, "success", 5000);
         setEditedMember('')

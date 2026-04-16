@@ -153,16 +153,14 @@ export default function Calendar() {
   }
 
   const { checkVersion } = useVersionCheck();
-
-  const { data: calendarData, error, isLoading } = useSWR(
-    `/api/calendar/${month + 1}/${year}`
-  );
+  const url = `/api/calendar/${month + 1}/${year}`;
+  const { data: calendarData, error, isLoading } = useSWR(url);
 
   useEffect(() => {
     if (!isLoading) {
-      checkVersion();
+      checkVersion(url);
     }
-  }, []);
+  }, [url]);
 
   const eventDatesValue = useMemo(() => calendarData?.eventDates || {}, [calendarData]);
   const datesList = useMemo(() => calendarData?.datesList || [], [calendarData]);

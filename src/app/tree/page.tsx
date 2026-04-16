@@ -18,16 +18,14 @@ export default function FamilyTreePage() {
   const { checkVersion } = useVersionCheck();
   const token = getCookie('token');
   const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+  const url = '/api/tree';
 
-  const { data: swrResult, error, isLoading, mutate } = useSWR(
-    token ? '/api/tree' : null
-  );
-
+  const { data: swrResult, error, isLoading, mutate } = useSWR(token ? url : null);
   useEffect(() => {
     if (!isLoading) {
-      checkVersion();
+      checkVersion(url);
     }
-  }, []);
+  }, [url]);
 
   const data = swrResult?.treeData || null;
 

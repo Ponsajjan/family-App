@@ -3,7 +3,7 @@
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
 import { useRef, useState, useMemo, useEffect } from 'react'
-import useSWRInfinite from 'swr/infinite';
+import useSWRInfinite, { unstable_serialize } from 'swr/infinite';
 import Details from './Details';
 import Link from 'next/link';
 import Topnav from "@/components/Topnav";
@@ -64,7 +64,7 @@ export default function Relatives() {
 
   useEffect(() => {
     if (!isLoading) {
-      checkVersion();
+      checkVersion(unstable_serialize(getKey));
     }
   }, []);
 

@@ -30,7 +30,6 @@ export default function NewMemberDetails({
     const { logout } = useAuth();
     const dispatch = useDispatch();
     const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
-    const { mutate } = useSWRConfig();
     const { data: swrResult, error: swrError, isLoading: loadingDetails } = useSWR(
         showDetailsFor.id ? `/api/moderator/verifyMember/${showDetailsFor.id}` : null
     );

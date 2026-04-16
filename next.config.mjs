@@ -13,6 +13,10 @@ const withPWA = withPWAInit({
     disableDevLogs: true,
     runtimeCaching: [
       {
+        urlPattern: ({ url }) => url.pathname.startsWith("/api/"),
+        handler: "NetworkFirst",
+      },
+      {
         urlPattern: ({ request }) => request.mode === "navigate",
         handler: "NetworkFirst",
         options: {
@@ -31,7 +35,8 @@ const withPWA = withPWAInit({
 
 const nextConfig = {
   output: "standalone",
-  turbopack: {}
+  turbopack: {},
+  allowedDevOrigins: ['192.168.43.100', '192.168.43.100:3000', 'localhost:3000'],
 };
 
 export default withPWA(nextConfig);
