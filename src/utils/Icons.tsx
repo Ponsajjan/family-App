@@ -664,7 +664,7 @@ export const ChangeMember = () => {
 
 export const Divorced = () => {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="2.25rem" height={"auto"} fill="#000000" version="1.1" viewBox="0 0 128 128" >
+        <svg xmlns="http://www.w3.org/2000/svg" width="2.25rem" height="1.5rem" fill="#000000" version="1.1" viewBox="0 0 128 128" >
             <rect x="58.9" y="10.1" transform="matrix(2.929675e-03 -1 1 2.929675e-03 51.3057 74.6855)" width="8.3" height="3.1" />
             <path d="M64.4,101.7l-3.1,0l0-14.3l3.1,0L64.4,101.7z M64.5,73.1l-3.1,0l0-14.3l3.1,0L64.5,73.1z M64.6,44.4l-3.1,0l0-14.3l3.1,0     L64.6,44.4z" />
             <rect x="58.6" y="118.7" transform="matrix(3.255191e-03 -1 1 3.255191e-03 -57.6402 182.6096)" width="8.3" height="3.1" />
