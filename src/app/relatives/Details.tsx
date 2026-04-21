@@ -7,6 +7,7 @@ import useSWR from 'swr';
 import { appFetch } from '@/utils/appFetch';
 import { useEffect } from 'react';
 
+
 export default function Details({ showMember, openDetails }: any) {
   // no-op selector or just remove if possible. Adding one to avoid empty destructuring if needed, but here we can just remove.
   const url = showMember ? `/api/relatives/${showMember}` : null;
@@ -18,9 +19,10 @@ export default function Details({ showMember, openDetails }: any) {
   } = useSWR(url);
 
   useEffect(() => {
-    if (swrResult && showMember) {
+    // Only check version if data is present at the moment showMember changes (from SWR cache)
+    if (swrResult?._version && showMember) {
       const checkMemberVersion = async () => {
-        const currentVersion = swrResult._version ? JSON.stringify(swrResult._version) : "";
+        const currentVersion = JSON.stringify(swrResult._version);
 
         try {
           const res = await appFetch(`/api/auth/versionCheck/member?memberId=${showMember}&version=${encodeURIComponent(currentVersion)}`);
@@ -39,7 +41,10 @@ export default function Details({ showMember, openDetails }: any) {
       };
       checkMemberVersion();
     }
-  }, [swrResult, showMember, mutate]);
+  }, [showMember, mutate]);
+
+
+
 
   const data = swrResult?.data;
 

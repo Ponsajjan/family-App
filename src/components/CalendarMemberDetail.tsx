@@ -4,6 +4,7 @@ import MemberDetails from './MemberDetails';
 import { appFetch } from '@/utils/appFetch';
 import { useEffect } from 'react';
 
+
 export default function CalendarMemberDetail({ memberId }: any) {
   const url = memberId ? `/api/relatives/${memberId}` : null;
   const {
@@ -14,10 +15,10 @@ export default function CalendarMemberDetail({ memberId }: any) {
   } = useSWR(url);
 
   useEffect(() => {
-    if (swrResult && memberId) {
+    // Only check version if data is present at the moment memberId changes (from SWR cache)
+    if (swrResult?._version && memberId) {
       const checkMemberVersion = async () => {
-        const swrKey = `/api/relatives/${memberId}`;
-        const currentVersion = swrResult._version ? JSON.stringify(swrResult._version) : "";
+        const currentVersion = JSON.stringify(swrResult._version);
 
         try {
           const res = await appFetch(`/api/auth/versionCheck/member?memberId=${memberId}&version=${encodeURIComponent(currentVersion)}`);
@@ -36,7 +37,10 @@ export default function CalendarMemberDetail({ memberId }: any) {
       };
       checkMemberVersion();
     }
-  }, [swrResult, memberId, mutate]);
+  }, [memberId, mutate]);
+
+
+
 
   const data = swrResult?.data;
 

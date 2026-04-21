@@ -2,7 +2,7 @@
 
 import Topnav from "@/components/Topnav";
 import { Announcement, CloseIcon, SkipBack, SkipForward } from "@/utils/Icons";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import useSWR from 'swr';
 import moment from "moment-timezone";
 import CalendarMonthlyData from "../components/CalendarMonthlyData";
@@ -156,9 +156,11 @@ export default function Calendar() {
   const { data: calendarData, error, isLoading, mutate } = useSWR(url);
 
   useEffect(() => {
-    if (calendarData) {
+    // Only check version if data is present at the moment month/year changes
+    // Since PWA is NetworkFirst, freshly fetched data is already the latest.
+    if (calendarData?._version) {
       const checkCalendarVersion = async () => {
-        const currentVersion = calendarData._version ? JSON.stringify(calendarData._version) : "";
+        const currentVersion = JSON.stringify(calendarData._version);
         try {
           const res = await appFetch(`/api/auth/versionCheck/calendar?month=${month + 1}&year=${year}&version=${encodeURIComponent(currentVersion)}`);
           if (res.ok) {
@@ -176,7 +178,10 @@ export default function Calendar() {
       };
       checkCalendarVersion();
     }
-  }, [calendarData, month, year, url, mutate]);
+  }, [month, year, mutate]);
+
+
+
 
   const eventDatesValue = useMemo(() => calendarData?.eventDates || {}, [calendarData]);
   const datesList = useMemo(() => calendarData?.datesList || [], [calendarData]);

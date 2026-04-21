@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { getAllAuthIds } from "@/utils/switchAccountHelpers";
+import { fetchPrebuiltTree } from "@/utils/treeUtils";
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
@@ -22,17 +22,14 @@ export async function GET(request: NextRequest) {
 
     const { updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
 
-    const familyTree = await prisma.familyTree.findUnique({
-      where: { authId: authId },
-      select: { data: true }
-    });
+    const treeData = await fetchPrebuiltTree(authId);
 
-    if (!familyTree) {
+    if (!treeData) {
       return NextResponse.json({ error: "No chart found. Please update the chart first." }, { status: 404 });
     }
 
     return NextResponse.json({
-      treeData: familyTree.data,
+      treeData: treeData,
       _version: updatedAt
     });
   } catch (error) {
@@ -43,3 +40,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+

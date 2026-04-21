@@ -6,6 +6,7 @@ import DragScroll from "@/components/DragScroll";
 import { getCookie } from 'cookies-next';
 import { SwitchIcon } from "@/utils/Icons";
 import { useState, useEffect } from "react";
+
 import { ChoosePopup } from "@/components/ChoosePopup";
 import useSWR from 'swr';
 import { useSelector } from "react-redux";
@@ -18,12 +19,14 @@ export default function FamilyTreePage() {
   const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
   const token = getCookie('token');
   const url = '/api/tree';
-
   const { data: swrResult, error, isLoading, mutate } = useSWR(token ? url : null);
+
   useEffect(() => {
-    if (swrResult) {
+
+    // Only check version if data is present on mount (from SWR cache)
+    if (swrResult?._version) {
       const checkTreeVersion = async () => {
-        const currentVersion = swrResult._version ? JSON.stringify(swrResult._version) : "";
+        const currentVersion = JSON.stringify(swrResult._version);
         try {
           const res = await appFetch(`/api/auth/versionCheck/tree?version=${encodeURIComponent(currentVersion)}`);
           if (res.ok) {
@@ -41,7 +44,10 @@ export default function FamilyTreePage() {
       };
       checkTreeVersion();
     }
-  }, [swrResult, url, mutate]);
+  }, [mutate]);
+
+
+
 
   const data = swrResult?.treeData || null;
 

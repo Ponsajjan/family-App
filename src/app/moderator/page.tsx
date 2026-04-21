@@ -29,9 +29,10 @@ export default function ModeratorDashboard() {
     const { data, isLoading, mutate } = useSWR(url);
 
     useEffect(() => {
-        if (data) {
+        // Only check version if data is present on mount (from SWR cache)
+        if (data?._version) {
             const checkVersion = async () => {
-                const currentVersion = data._version ? JSON.stringify(data._version) : "";
+                const currentVersion = JSON.stringify(data._version);
                 try {
                     const res = await appFetch(`/api/auth/versionCheck/moderator?version=${encodeURIComponent(currentVersion)}`);
                     if (res.ok) {
@@ -49,7 +50,8 @@ export default function ModeratorDashboard() {
             };
             checkVersion();
         }
-    }, [data, url, mutate]);
+    }, [mutate]);
+
     const { mutate: globalMutate } = useSWRConfig();
     // Effect for Toasts based on chartStatus and sync notification status with Redux
     useEffect(() => {

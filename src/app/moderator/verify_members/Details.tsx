@@ -9,7 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CloseIcon, Condolences, Female2, Info, Male2, Verified } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
 import { appFetch } from "@/utils/appFetch";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -30,21 +29,38 @@ export default function NewMemberDetails({
     const { logout } = useAuth();
     const dispatch = useDispatch();
     const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
-    const { data: swrResult, error: swrError, isLoading: loadingDetails } = useSWR(
-        showDetailsFor.id ? `/api/moderator/verifyMember/${showDetailsFor.id}` : null
-    );
-
     const [data, setData] = useState<any>(null);
+    const [loadingDetails, setLoadingDetails] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [deleted, setDeleted] = useState(false);
 
     useEffect(() => {
-        if (swrResult?.data) {
-            setData(swrResult.data);
-            setDeleted(false);
-        }
-    }, [swrResult]);
+        if (!showDetailsFor.id) return;
 
-    const error = swrError?.message;
+        const fetchMemberDetails = async () => {
+            setLoadingDetails(true);
+            setError(null);
+            try {
+                const res = await appFetch(`/api/moderator/verifyMember/${showDetailsFor.id}`);
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || "Failed to fetch member details");
+                }
+                const result = await res.json();
+                if (result.data) {
+                    setData(result.data);
+                    setDeleted(false);
+                }
+            } catch (err: any) {
+                console.error("[NewMemberDetails] Fetch failed:", err);
+                setError(err.message);
+            } finally {
+                setLoadingDetails(false);
+            }
+        };
+
+        fetchMemberDetails();
+    }, [showDetailsFor.id]);
 
 
     const handleVerification = async (memberId: number) => {

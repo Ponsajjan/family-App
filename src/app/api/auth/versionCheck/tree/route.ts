@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { getAllAuthIds } from "@/utils/switchAccountHelpers";
+import { fetchPrebuiltTree } from "@/utils/treeUtils";
 
 export async function GET(request: NextRequest) {
     const token = request.cookies.get("token")?.value;
@@ -23,19 +23,16 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ mismatch: false });
         }
 
-        const familyTree = await prisma.familyTree.findUnique({
-            where: { authId },
-            select: { data: true }
-        });
+        const treeData = await fetchPrebuiltTree(authId);
 
-        if (!familyTree) {
+        if (!treeData) {
             return NextResponse.json({ error: "No chart found" }, { status: 404 });
         }
 
         return NextResponse.json({
             mismatch: true,
             data: {
-                treeData: familyTree.data,
+                treeData: treeData,
                 _version: updatedAt
             }
         });
@@ -44,3 +41,4 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+

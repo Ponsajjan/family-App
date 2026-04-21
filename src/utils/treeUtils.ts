@@ -130,3 +130,11 @@ export async function fetchFamilyTreeData(
         return { tree: [], conflicts };
     }
 }
+
+export async function fetchPrebuiltTree(authId: number) {
+    const familyTree = await prisma.familyTree.findUnique({
+        where: { authId },
+        select: { data: true }
+    });
+    return familyTree?.data || null;
+}

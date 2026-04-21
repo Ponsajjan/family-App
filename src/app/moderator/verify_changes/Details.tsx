@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Approved, CloseIcon, NavIconVerified, Rejected, Warning } from '@/utils/Icons';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
 import { appFetch } from "@/utils/appFetch";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
@@ -60,20 +59,40 @@ const ChangeRequestView = ({
   };
 
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const currentRequestId = showDetailsFor?.[currentDetailIndex]?.id;
-  const { data: swrResult, error: swrError, isLoading: loading } = useSWR(
-    currentRequestId ? `/api/moderator/verifyChange/${currentRequestId}` : null
-  );
 
   useEffect(() => {
-    if (swrResult?.data) {
-      setData(swrResult.data);
-      setDisableButton(false);
-      setRequestStatus('pending');
-    }
-  }, [swrResult, setDisableButton]);
+    if (!currentRequestId) return;
 
-  const error = swrError?.message;
+    const fetchChangeDetails = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await appFetch(`/api/moderator/verifyChange/${currentRequestId}`);
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to fetch change details");
+        }
+        const result = await res.json();
+        if (result.data) {
+          setData(result.data);
+          setDisableButton(false);
+          setRequestStatus('pending');
+        }
+      } catch (err: any) {
+        console.error("[ChangeRequestView] Fetch failed:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChangeDetails();
+  }, [currentRequestId, setDisableButton]);
+
 
   const handleNext = () => {
     if (showDetailsFor && currentDetailIndex < showDetailsFor.length - 1) {

@@ -63,10 +63,11 @@ export default function Relatives() {
   } = useSWRInfinite(getKey);
 
   useEffect(() => {
-    if (swrData?.[0]) {
+
+    // Only check version if data is present at the moment params change (from SWR cache)
+    if (swrData?.[0]?._version) {
       const checkRelativesVersion = async () => {
-        const swrKey = `/api/relatives?page=1&limit=${params.limit}&search=${params.search}`;
-        const currentVersion = swrData[0]._version ? JSON.stringify(swrData[0]._version) : "";
+        const currentVersion = JSON.stringify(swrData[0]._version);
 
         try {
           const res = await appFetch(`/api/auth/versionCheck/relatives?page=1&limit=${params.limit}&search=${encodeURIComponent(params.search)}&version=${encodeURIComponent(currentVersion)}`);
@@ -76,6 +77,7 @@ export default function Relatives() {
               console.log(`[VersionCheck] Stale data detected for relatives. Updating...`);
               const { clearPWACaches } = await import("@/utils/pwaCache");
               await clearPWACaches();
+
               // Update the first page of the infinite cache
               await mutate((prev) => {
                 if (!prev) return prev;
@@ -91,7 +93,10 @@ export default function Relatives() {
       };
       checkRelativesVersion();
     }
-  }, [swrData, params, mutate]);
+  }, [params.search, params.limit, mutate]);
+
+
+
 
   const members = useMemo(() => {
     if (!swrData) return [];
