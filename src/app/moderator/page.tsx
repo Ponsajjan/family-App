@@ -13,12 +13,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
 import { setIsModerator, setCurrentAuthId, setAccounts, updateAccountIssues } from '@/store/slices/termsSlice';
 import Link from 'next/link';
-import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { appFetch } from "@/utils/appFetch";
 
 export default function ModeratorDashboard() {
     const toast = useToast();
-    const { checkVersion } = useVersionCheck();
     const [updatingChart, setUpdatingChart] = useState(false);
     const [disabledButtons, setDisabledButtons] = useState(false);
     const [showChoosePopup, setShowChoosePopup] = useState(false);
@@ -31,10 +29,27 @@ export default function ModeratorDashboard() {
     const { data, isLoading, mutate } = useSWR(url);
 
     useEffect(() => {
-        if (!isLoading) {
-            checkVersion(url);
+        if (data) {
+            const checkVersion = async () => {
+                const currentVersion = data._version ? JSON.stringify(data._version) : "";
+                try {
+                    const res = await appFetch(`/api/auth/versionCheck/moderator?version=${encodeURIComponent(currentVersion)}`);
+                    if (res.ok) {
+                        const result = await res.json();
+                        if (result.mismatch) {
+                            console.log(`[VersionCheck] Stale data detected for ${url}. Updating...`);
+                            const { clearPWACaches } = await import("@/utils/pwaCache");
+                            await clearPWACaches();
+                            await mutate(result.data, false);
+                        }
+                    }
+                } catch (err) {
+                    console.error("[Moderator] Version check failed:", err);
+                }
+            };
+            checkVersion();
         }
-    }, []);
+    }, [data, url, mutate]);
     const { mutate: globalMutate } = useSWRConfig();
     // Effect for Toasts based on chartStatus and sync notification status with Redux
     useEffect(() => {

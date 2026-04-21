@@ -127,10 +127,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       data: groupedData,
       totalCount: totalCount + 1,
-    }, {
-      headers: {
-        'X-Family-Last-Update': JSON.stringify(updatedAt)
-      }
+      _version: updatedAt,
     });
   } catch (error) {
     console.error("Error fetching members:", error);

@@ -82,15 +82,9 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const response = NextResponse.json({
-      updatedAt: updates,
-    }, {
-      headers: {
-        'X-Family-Last-Update': JSON.stringify(updates)
-      }
+    return NextResponse.json({
+      _version: updates,
     });
-
-    return response;
 
   } catch (error) {
     console.error("Internal Server Error:", error);

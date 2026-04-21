@@ -3,7 +3,7 @@
 import { CloseIcon, SearchIcon } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
 import { useRef, useState, useMemo, useEffect } from 'react'
-import useSWRInfinite, { unstable_serialize } from 'swr/infinite';
+import useSWRInfinite from 'swr/infinite';
 import Details from './Details';
 import Link from 'next/link';
 import Topnav from "@/components/Topnav";
@@ -11,12 +11,11 @@ import { useDebounce } from "@/utils/debounce";
 import SlidePanel from "@/components/SlidePanel";
 import Container from "@/components/Container";
 import { useInfiniteScroll } from '@/utils/useInfiniteScroll';
-import { useVersionCheck } from "@/hooks/useVersionCheck";
+import { appFetch } from '@/utils/appFetch';
 
 
 export default function Relatives() {
   const [searchInput, setSearchInput] = useState("");
-  const { checkVersion } = useVersionCheck();
   const [showDetails, setShowDetails] = useState(false);
   const [showMember, setShowMember] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -60,13 +59,39 @@ export default function Relatives() {
     isLoading,
     isValidating,
     error,
+    mutate
   } = useSWRInfinite(getKey);
 
   useEffect(() => {
-    if (!isLoading) {
-      checkVersion(unstable_serialize(getKey));
+    if (swrData?.[0]) {
+      const checkRelativesVersion = async () => {
+        const swrKey = `/api/relatives?page=1&limit=${params.limit}&search=${params.search}`;
+        const currentVersion = swrData[0]._version ? JSON.stringify(swrData[0]._version) : "";
+
+        try {
+          const res = await appFetch(`/api/auth/versionCheck/relatives?page=1&limit=${params.limit}&search=${encodeURIComponent(params.search)}&version=${encodeURIComponent(currentVersion)}`);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.mismatch) {
+              console.log(`[VersionCheck] Stale data detected for relatives. Updating...`);
+              const { clearPWACaches } = await import("@/utils/pwaCache");
+              await clearPWACaches();
+              // Update the first page of the infinite cache
+              await mutate((prev) => {
+                if (!prev) return prev;
+                const next = [...prev];
+                next[0] = result.data;
+                return next;
+              }, false);
+            }
+          }
+        } catch (err) {
+          console.error("[Relatives] Version check failed:", err);
+        }
+      };
+      checkRelativesVersion();
     }
-  }, []);
+  }, [swrData, params, mutate]);
 
   const members = useMemo(() => {
     if (!swrData) return [];

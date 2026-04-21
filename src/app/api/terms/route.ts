@@ -205,10 +205,7 @@ export async function GET(request: NextRequest) {
       currentAuthId: currentAuthId,
       userType: userType,
       allAuthDetails: authDetails, // Array of objects with authId, mainMemberRef, and current flag
-    }, {
-      headers: {
-        'X-Family-Last-Update': JSON.stringify(updatedAt)
-      }
+      _version: updatedAt,
     });
 
     // Update the authId cookie with the latest list

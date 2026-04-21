@@ -15,34 +15,32 @@ interface CalendarMonthlyEvent {
 
 export async function GET(request: NextRequest) {
     const token = request.cookies.get("token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const month = parseInt(searchParams.get("month") || "");
+    const year = parseInt(searchParams.get("year") || "");
+    const clientVersion = searchParams.get("version");
+
+    if (!month || !year) {
+        return NextResponse.json({ error: "Month and year are required" }, { status: 400 });
     }
 
     try {
         const decoded = await verifyToken(token);
         const authId = decoded.authId;
         const userType = decoded.userType;
-
-        if (!authId) {
-            return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-        }
-
         const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+
         const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
-
-        // Extract month and year from URL
-        const url = new URL(request.url);
-        const pathParts = url.pathname.split('/');
-        const month = parseInt(pathParts[pathParts.length - 2]);
-        const year = parseInt(pathParts[pathParts.length - 1]);
-
-        if (!month || !year) {
-            return NextResponse.json({ error: "Month and year are required" }, { status: 400 });
+        
+        // Version check logic
+        const serverVersionString = JSON.stringify(updatedAt);
+        if (clientVersion === serverVersionString) {
+            return NextResponse.json({ mismatch: false });
         }
 
-        // Fetch data from Prisma
+        // Mismatch found, fetch full data
         const members = await prisma.member.findMany({
             where: {
                 authId: { in: allAuthIds },
@@ -64,13 +62,11 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        // Compute IST "today" once
         const today = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
         const currentMonth = today.getMonth() + 1;
         const currentYear = today.getFullYear();
         const todayDate = today.getDate();
 
-        // Pre-compute week boundaries once (not per event)
         const isCurrentMonth = currentMonth === month && currentYear === year;
         let weekEndDate = 0;
         if (isCurrentMonth) {
@@ -92,7 +88,6 @@ export async function GET(request: NextRequest) {
         const calcAge = (eventYear: number | null, refYear: number): number | 'n/a' =>
             eventYear && eventYear < refYear ? refYear - eventYear : 'n/a';
 
-        // Build ISO string from components without toIST or Date construction
         const makeDate = (y: number | null, m: number, d: number) =>
             new Date(y || 1600, m - 1, d).toISOString();
 
@@ -100,7 +95,6 @@ export async function GET(request: NextRequest) {
             if (member.birthMonth === month) {
                 const day = member.birthDate || 1;
                 categorise.datesList.add(day);
-
                 const event: CalendarMonthlyEvent = {
                     id: member.id,
                     name: member.name,
@@ -110,18 +104,12 @@ export async function GET(request: NextRequest) {
                     hasDate: member.birthDate !== null,
                     age: calcAge(member.birthYear, currentYear)
                 };
-
-                if (isCurrentMonth) {
-                    categorizeCurrentMonth(event, categorise, todayDate, weekEndDate);
-                } else {
-                    categorise.selectedMonthEvents.push({ ...event, age: calcAge(member.birthYear, year) });
-                }
+                if (isCurrentMonth) categorizeCurrentMonth(event, categorise, todayDate, weekEndDate);
+                else categorise.selectedMonthEvents.push({ ...event, age: calcAge(member.birthYear, year) });
             }
-
             if (member.deathMonth === month) {
                 const day = member.deathDate || 1;
                 categorise.datesList.add(day);
-
                 const event: CalendarMonthlyEvent = {
                     id: member.id,
                     name: member.name,
@@ -131,16 +119,11 @@ export async function GET(request: NextRequest) {
                     hasDate: member.deathDate !== null,
                     age: calcAge(member.deathYear, currentYear)
                 };
-
-                if (isCurrentMonth) {
-                    categorizeCurrentMonth(event, categorise, todayDate, weekEndDate);
-                } else {
-                    categorise.selectedMonthEvents.push({ ...event, age: calcAge(member.deathYear, year) });
-                }
+                if (isCurrentMonth) categorizeCurrentMonth(event, categorise, todayDate, weekEndDate);
+                else categorise.selectedMonthEvents.push({ ...event, age: calcAge(member.deathYear, year) });
             }
         }
 
-        // Sort by day number directly — no Date parsing needed
         const sortAsc = (a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => a.day - b.day;
         const sortDesc = (a: CalendarMonthlyEvent, b: CalendarMonthlyEvent) => b.day - a.day;
         categorise.pastEvents.sort(sortDesc);
@@ -151,39 +134,25 @@ export async function GET(request: NextRequest) {
         categorise.selectedMonthEvents.sort(sortAsc);
 
         return NextResponse.json({
-            eventDates: { ...categorise },
-            datesList: Array.from(categorise.datesList),
-            _version: updatedAt
+            mismatch: true,
+            data: {
+                eventDates: { ...categorise },
+                datesList: Array.from(categorise.datesList),
+                _version: updatedAt
+            }
         });
 
     } catch (error) {
-        console.error('API error:', error);
-        if (error instanceof Error) {
-            if (error.name === 'JsonWebTokenError') {
-                return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-            }
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-        return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
+        console.error('Calendar Version Check Error:', error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
 
-function categorizeCurrentMonth(
-    event: CalendarMonthlyEvent,
-    categories: { pastEvents: CalendarMonthlyEvent[], todayEvents: CalendarMonthlyEvent[], tomorrowEvents: CalendarMonthlyEvent[], thisWeekEvents: CalendarMonthlyEvent[], upcomingEvents: CalendarMonthlyEvent[] },
-    todayDate: number,
-    weekEndDate: number
-) {
+function categorizeCurrentMonth(event: CalendarMonthlyEvent, categories: any, todayDate: number, weekEndDate: number) {
     const day = event.day;
-    if (day < todayDate) {
-        categories.pastEvents.push(event);
-    } else if (day === todayDate) {
-        categories.todayEvents.push(event);
-    } else if (day === todayDate + 1) {
-        categories.tomorrowEvents.push(event);
-    } else if (day <= weekEndDate) {
-        categories.thisWeekEvents.push(event);
-    } else {
-        categories.upcomingEvents.push(event);
-    }
+    if (day < todayDate) categories.pastEvents.push(event);
+    else if (day === todayDate) categories.todayEvents.push(event);
+    else if (day === todayDate + 1) categories.tomorrowEvents.push(event);
+    else if (day <= weekEndDate) categories.thisWeekEvents.push(event);
+    else categories.upcomingEvents.push(event);
 }

@@ -10,7 +10,7 @@ import Container from "@/components/Container";
 import Loading from "@/components/Loading";
 import OnDate from "../components/OnDate";
 import { format } from 'date-fns';
-import { useVersionCheck } from "@/hooks/useVersionCheck";
+import { appFetch } from "@/utils/appFetch";
 import CalendarMemberDetail from "../components/CalendarMemberDetail";
 // import { useDailyNotifications } from "@/utils/notificationUtils";
 
@@ -152,15 +152,31 @@ export default function Calendar() {
     setCalendarDate(currentIndiaDate);
   }
 
-  const { checkVersion } = useVersionCheck();
   const url = `/api/calendar/${month + 1}/${year}`;
-  const { data: calendarData, error, isLoading } = useSWR(url);
+  const { data: calendarData, error, isLoading, mutate } = useSWR(url);
 
   useEffect(() => {
-    if (!isLoading) {
-      checkVersion(url);
+    if (calendarData) {
+      const checkCalendarVersion = async () => {
+        const currentVersion = calendarData._version ? JSON.stringify(calendarData._version) : "";
+        try {
+          const res = await appFetch(`/api/auth/versionCheck/calendar?month=${month + 1}&year=${year}&version=${encodeURIComponent(currentVersion)}`);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.mismatch) {
+              console.log(`[VersionCheck] Stale data detected for calendar. Updating...`);
+              const { clearPWACaches } = await import("@/utils/pwaCache");
+              await clearPWACaches();
+              await mutate(result.data, false);
+            }
+          }
+        } catch (err) {
+          console.error("[Calendar] Version check failed:", err);
+        }
+      };
+      checkCalendarVersion();
     }
-  }, [url]);
+  }, [calendarData, month, year, url, mutate]);
 
   const eventDatesValue = useMemo(() => calendarData?.eventDates || {}, [calendarData]);
   const datesList = useMemo(() => calendarData?.datesList || [], [calendarData]);

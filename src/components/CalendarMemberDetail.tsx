@@ -1,23 +1,42 @@
 'use client'
 import useSWR from 'swr';
 import MemberDetails from './MemberDetails';
-import { useVersionCheck } from '@/hooks/useVersionCheck';
+import { appFetch } from '@/utils/appFetch';
 import { useEffect } from 'react';
 
 export default function CalendarMemberDetail({ memberId }: any) {
-  const { checkVersion } = useVersionCheck();
   const url = memberId ? `/api/relatives/${memberId}` : null;
   const {
     data: swrResult,
     error,
-    isLoading: loadingDetails
+    isLoading: loadingDetails,
+    mutate
   } = useSWR(url);
 
   useEffect(() => {
-    if (!loadingDetails) {
-      checkVersion(url);
+    if (swrResult && memberId) {
+      const checkMemberVersion = async () => {
+        const swrKey = `/api/relatives/${memberId}`;
+        const currentVersion = swrResult._version ? JSON.stringify(swrResult._version) : "";
+
+        try {
+          const res = await appFetch(`/api/auth/versionCheck/member?memberId=${memberId}&version=${encodeURIComponent(currentVersion)}`);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.mismatch) {
+              console.log(`[VersionCheck] Stale details detected for member ${memberId}. Updating...`);
+              const { clearPWACaches } = await import("@/utils/pwaCache");
+              await clearPWACaches();
+              await mutate(result.data, false);
+            }
+          }
+        } catch (err) {
+          console.error("[CalendarMemberDetail] Version check failed:", err);
+        }
+      };
+      checkMemberVersion();
     }
-  }, [url]);
+  }, [swrResult, memberId, mutate]);
 
   const data = swrResult?.data;
 

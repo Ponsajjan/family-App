@@ -4,23 +4,42 @@ import { CloseIcon } from '@/utils/Icons';
 import Loading from '@/components/Loading';
 import MemberDetails from '@/components/MemberDetails';
 import useSWR from 'swr';
-import { useVersionCheck } from '@/hooks/useVersionCheck';
+import { appFetch } from '@/utils/appFetch';
 import { useEffect } from 'react';
 
 export default function Details({ showMember, openDetails }: any) {
-  const { checkVersion } = useVersionCheck();
+  // no-op selector or just remove if possible. Adding one to avoid empty destructuring if needed, but here we can just remove.
   const url = showMember ? `/api/relatives/${showMember}` : null;
   const {
     data: swrResult,
     error,
-    isLoading: loadingDetails
+    isLoading: loadingDetails,
+    mutate
   } = useSWR(url);
 
   useEffect(() => {
-    if (!loadingDetails) {
-      checkVersion(url);
+    if (swrResult && showMember) {
+      const checkMemberVersion = async () => {
+        const currentVersion = swrResult._version ? JSON.stringify(swrResult._version) : "";
+
+        try {
+          const res = await appFetch(`/api/auth/versionCheck/member?memberId=${showMember}&version=${encodeURIComponent(currentVersion)}`);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.mismatch) {
+              console.log(`[VersionCheck] Stale details detected for member ${showMember}. Updating...`);
+              const { clearPWACaches } = await import("@/utils/pwaCache");
+              await clearPWACaches();
+              await mutate(result.data, false);
+            }
+          }
+        } catch (err) {
+          console.error("[Details] Version check failed:", err);
+        }
+      };
+      checkMemberVersion();
     }
-  }, [url]);
+  }, [swrResult, showMember, mutate]);
 
   const data = swrResult?.data;
 

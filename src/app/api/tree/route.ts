@@ -31,8 +31,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No chart found. Please update the chart first." }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { treeData: familyTree.data }, { headers: { 'X-Family-Last-Update': JSON.stringify(updatedAt) } });
+    return NextResponse.json({
+      treeData: familyTree.data,
+      _version: updatedAt
+    });
   } catch (error) {
     console.error("Error fetching relations chart:", error);
     return NextResponse.json(

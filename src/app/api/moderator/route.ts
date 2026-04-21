@@ -88,10 +88,7 @@ export async function GET(request: NextRequest) {
       anyOtherAccountHasIssues: anyOtherAccountHasIssues,
       lastBuildStartedAt: familyTree?.lastBuildStartedAt || null,
       updatedAt: familyTree?.updatedAt || null,
-    }, {
-      headers: {
-        'X-Family-Last-Update': JSON.stringify(updatedAt)
-      }
+      _version: updatedAt,
     });
   } catch (error) {
     console.error("Error fetching moderator dashboard data:", error);

@@ -139,10 +139,9 @@ export async function GET(request: NextRequest) {
       ...(mainMemberName && loginAuthIds.length > 1 && { mainMemberName })
     };
 
-    return NextResponse.json({ data: responseData }, {
-      headers: {
-        'X-Family-Last-Update': JSON.stringify(updatedAt)
-      }
+    return NextResponse.json({
+      data: responseData,
+      _version: updatedAt
     });
   } catch (error) {
     console.error("Error fetching member data:", error);

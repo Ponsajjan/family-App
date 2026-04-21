@@ -25,5 +25,6 @@ export const globalFetcher = async (url: string) => {
     throw new Error("OfflineFallbackInterception");
   }
 
-  return res.json();
+  const json = await res.json();
+  return json;
 };

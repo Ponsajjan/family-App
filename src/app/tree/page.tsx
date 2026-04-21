@@ -10,22 +10,38 @@ import { ChoosePopup } from "@/components/ChoosePopup";
 import useSWR from 'swr';
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { useVersionCheck } from "@/hooks/useVersionCheck";
+import { appFetch } from "@/utils/appFetch";
 
 
 export default function FamilyTreePage() {
   const [showChoosePopup, setShowChoosePopup] = useState(false);
-  const { checkVersion } = useVersionCheck();
-  const token = getCookie('token');
   const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+  const token = getCookie('token');
   const url = '/api/tree';
 
   const { data: swrResult, error, isLoading, mutate } = useSWR(token ? url : null);
   useEffect(() => {
-    if (!isLoading) {
-      checkVersion(url);
+    if (swrResult) {
+      const checkTreeVersion = async () => {
+        const currentVersion = swrResult._version ? JSON.stringify(swrResult._version) : "";
+        try {
+          const res = await appFetch(`/api/auth/versionCheck/tree?version=${encodeURIComponent(currentVersion)}`);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.mismatch) {
+              console.log(`[VersionCheck] Stale data detected for tree. Updating...`);
+              const { clearPWACaches } = await import("@/utils/pwaCache");
+              await clearPWACaches();
+              await mutate(result.data, false);
+            }
+          }
+        } catch (err) {
+          console.error("[Tree] Version check failed:", err);
+        }
+      };
+      checkTreeVersion();
     }
-  }, [url]);
+  }, [swrResult, url, mutate]);
 
   const data = swrResult?.treeData || null;
 
