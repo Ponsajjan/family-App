@@ -3,6 +3,7 @@
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
 import Loading from '@/components/Loading'
+import Link from 'next/link';
 
 export default function Terms() {
   const { loading, moderatorGroups } = useSelector((state: RootState) => state.terms);
@@ -21,10 +22,12 @@ export default function Terms() {
           )}
           <ul>
             {group.moderators.map((member: any, index: number) => (
-              <li key={index} className='flex items-end justify-between mb-1'>
-                <span>{member.moderatorName}</span>
-                <span className='border-b border-dashed border-border_color block w-full mx-2 mb-2' />
-                <span>{member.moderatorContact}</span>
+              <li key={index} className='mb-1'>
+                <Link href={`tel:${member.moderatorContact}`} className='flex items-end justify-between'>
+                  <span>{member.moderatorName}</span>
+                  <span className='border-b border-dashed border-border_color block w-full mx-2 mb-2' />
+                  <span>{member.moderatorContact}</span>
+                </Link>
               </li>
             ))}
           </ul>
