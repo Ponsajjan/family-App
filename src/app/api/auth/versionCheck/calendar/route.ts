@@ -20,10 +20,10 @@ export async function GET(request: NextRequest) {
         const decoded = await verifyToken(token);
         const authId = decoded.authId;
         const userType = decoded.userType;
-        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
 
         const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
-        
+
         // Version check logic
         const serverVersionString = JSON.stringify(updatedAt);
         if (clientVersion === serverVersionString) {

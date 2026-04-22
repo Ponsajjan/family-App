@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
     const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
 
     const { data, totalCount } = await fetchRelativesData(allAuthIds, page, limit, searchQuery);
@@ -49,4 +49,4 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-}
+}

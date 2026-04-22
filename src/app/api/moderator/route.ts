@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const decoded = await verifyToken(token);
     const authId = decoded.authId;
     const userType = decoded.userType;
-    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });

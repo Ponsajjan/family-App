@@ -14,10 +14,10 @@ export async function GET(request: NextRequest) {
         const decoded = await verifyToken(token);
         const authId = decoded.authId;
         const userType = decoded.userType;
-        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+        const selectedAuthId = "";
 
         const { updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
-        
+
         const serverVersionString = JSON.stringify(updatedAt);
         if (clientVersion === serverVersionString) {
             return NextResponse.json({ mismatch: false });

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const decoded = await verifyToken(token);
     const authId = decoded.authId;
     const userType = decoded.userType;
-    const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+    const selectedAuthId = "";
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const treeData = await fetchPrebuiltTree(authId);
 
     if (!treeData) {
-      return NextResponse.json({ error: "No chart found. Please update the chart first." }, { status: 404 });
+      return NextResponse.json({ error: "No chart found / Chart not updated" }, { status: 404 });
     }
 
     return NextResponse.json({

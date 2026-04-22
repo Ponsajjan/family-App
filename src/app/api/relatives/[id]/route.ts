@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
   const loginAuthIds = JSON.parse(selectedAuthId);
-  
+
   // Validate inputs
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (isNaN(id)) return NextResponse.json({ error: "Invalid Member ID" }, { status: 400 });
@@ -22,9 +22,9 @@ export async function GET(request: NextRequest) {
     const userType = decoded.userType;
     if (!authId) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-    const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
-    
-    const responseData = await fetchMemberData(id, allAuthIds, loginAuthIds.length);
+    const { updatedAt } = await getAllAuthIds(authId, userType, "");
+
+    const responseData = await fetchMemberData(id, loginAuthIds.length);
 
     if (!responseData) return NextResponse.json({ error: "Member not found" }, { status: 404 });
 

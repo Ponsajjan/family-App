@@ -19,18 +19,18 @@ export async function GET(request: NextRequest) {
         const decoded = await verifyToken(token);
         const authId = decoded.authId;
         const userType = decoded.userType;
-        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
         const loginAuthIds = JSON.parse(selectedAuthId);
 
-        const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
-        
+        const { updatedAt } = await getAllAuthIds(authId, userType, "");
+
         const serverVersionString = JSON.stringify(updatedAt);
-        
+
         if (clientVersion === serverVersionString) {
             return NextResponse.json({ mismatch: false });
         }
 
-        const responseData = await fetchMemberData(memberId, allAuthIds, loginAuthIds.length);
+        const responseData = await fetchMemberData(memberId, loginAuthIds.length);
 
         if (!responseData) return NextResponse.json({ error: "Member not found" }, { status: 404 });
 

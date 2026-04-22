@@ -164,7 +164,8 @@ export default function EditCredential() {
       <Container>
         <div className={`w-full max-w-3xl p-4 mx-auto ${isLoading && 'cursor-not-allowed'}`}>
           <form className="text-text_color" onSubmit={handleSubmit}>
-            <p className='text-lg'>Edit Descendant Details</p>
+            <p className='text-lg mb-2'>Edit Main Member Details</p>
+            <label className='text-sm font-medium'>Name</label>
             <Input
               name="name"
               value={formData.name || ''}
@@ -173,7 +174,7 @@ export default function EditCredential() {
             />
             <div className="py-4">
               <div className="flex gap-2">
-                <p className="text-sm font-medium">Gender:</p>
+                <label className="text-sm font-medium">Gender:</label>
                 <RadioButton
                   label="Male"
                   name="gender"
@@ -196,9 +197,9 @@ export default function EditCredential() {
               </div>
             </div>
             <div>
-              <p className="text-sm font-medium">
+              <label className="text-sm font-medium">
                 Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
-              </p>
+              </label>
               <div className="w-full mb-2 flex gap-2">
                 <Input
                   type="number"
@@ -241,9 +242,9 @@ export default function EditCredential() {
               )}
             </div>
             <div className='mb-2'>
-              <p className="text-sm font-medium">
+              <label className="text-sm font-medium">
                 Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
-              </p>
+              </label>
               <div className="w-full flex gap-2">
                 <Input
                   type="number"

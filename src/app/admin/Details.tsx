@@ -5,11 +5,11 @@ import { HoldButton } from "@/components/HoldButton"
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthEntry, Moderator } from "@/types/admin/types"
-import { Copy } from "@/utils/Icons";
+import { CloseIcon, Copy } from "@/utils/Icons";
 import { useEffect, useState } from "react";
 import { appFetch } from "@/utils/appFetch";
 
-function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEntry, onDelete: (id: number) => void }) {
+function Details({ selectedCredential, onDelete, openDetails }: { selectedCredential: AuthEntry, onDelete: (id: number) => void, openDetails: (val: boolean) => void }) {
     const toast = useToast();
     const { logout } = useAuth();
     const [deleting, setDeleting] = useState(false);
@@ -223,8 +223,85 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
         setNewModerator({ moderatorName: "", moderatorContact: "" });
     };
 
+    const handleDownloadBackup = async () => {
+        try {
+            setLoading(true);
+            const response = await appFetch(`/api/admin/backup?authId=${selectedCredential.id}`);
+            if (!response.ok) throw new Error("Failed to generate backup");
+
+            const data = await response.json();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            const date = new Date().toISOString().split('T')[0];
+            a.href = url;
+            a.download = `Backup_${selectedCredential.mainMemberName}_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            toast?.show("Backup downloaded successfully", "success", 5000);
+        } catch (error: any) {
+            toast?.show(error.message || "Failed to download backup", "error", 5000);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRestoreBackup = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const content = e.target?.result as string;
+                const backupData = JSON.parse(content);
+
+                if (backupData.type !== "single" || backupData.authId !== selectedCredential.id) {
+                    if (!confirm("This backup file doesn't seem to match this family. Are you sure you want to restore it here? This will overwrite the current family data.")) {
+                        return;
+                    }
+                } else {
+                    if (!confirm("Are you sure you want to restore this backup? This will delete all current members and relations for this family and replace them with the backup data.")) {
+                        return;
+                    }
+                }
+
+                setLoading(true);
+                // Ensure the backup knows it's being restored to THIS family
+                backupData.authId = selectedCredential.id;
+                backupData.type = "single";
+
+                const response = await appFetch(`/api/admin/backup`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(backupData),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || "Restore failed");
+                }
+
+                toast?.show("Family data restored successfully", "success", 5000);
+                window.location.reload(); // Refresh to show restored data
+            } catch (error: any) {
+                toast?.show(error.message || "Invalid backup file", "error", 5000);
+            } finally {
+                setLoading(false);
+                event.target.value = ""; // Clear file input
+            }
+        };
+        reader.readAsText(file);
+    };
+
     return (
-        <Container className="p-4 text-text_color">
+
+        <Container className="p-4 text-text_color relative">
+            <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
+                <CloseIcon />
+            </div>
             <h2 className="text-2xl font-bold mb-2">{selectedCredential.mainMemberName}</h2>
 
             <div className="pl-4 border-l-4 border-text_color/30 mb-4">
@@ -256,7 +333,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
                 </div>
             </div>
 
-            <div className="border border-border_color rounded-lg p-4 pt-2">
+            <div className="border border-border_color rounded-lg p-4 pt-2 mb-6">
                 <h3 className="font-semibold text-lg mb-1">
                     Moderators
                 </h3>
@@ -374,7 +451,31 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
                 </div>
             </div>
 
-            <div className='flex flex-col mt-8 gap-2'>
+            <div className="border border-border_color border-dashed rounded-lg p-4 pt-2 mb-8 bg-field_color/30">
+                <h3 className="font-semibold text-lg mb-2">Backup & Restore</h3>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleDownloadBackup}
+                        disabled={loading || deleting}
+                        className="flex-1 py-2 bg-field_color border border-border_color rounded-md hover:bg-field_hover transition-colors font-medium text-sm"
+                    >
+                        Download Backup
+                    </button>
+                    <label className={`flex-1 py-2 bg-field_color border border-border_color rounded-md hover:bg-field_hover transition-colors font-medium text-sm text-center cursor-pointer ${loading || deleting ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        Restore Backup
+                        <input
+                            type="file"
+                            accept=".json"
+                            className="hidden"
+                            onChange={handleRestoreBackup}
+                            disabled={loading || deleting}
+                        />
+                    </label>
+                </div>
+                <p className="text-xs text-text_color/60 mt-2 italic">* Restore will overwrite all members and metadata for this family.</p>
+            </div>
+
+            <div className='flex flex-col mt-4 gap-2'>
                 <LinkButtonSolid
                     disabled={loading || deleting || editingModerator.id !== null}
                     buttonText='Edit Credentials'
@@ -388,6 +489,7 @@ function Details({ selectedCredential, onDelete }: { selectedCredential: AuthEnt
                 />
             </div>
         </Container>
+
     )
 }
 

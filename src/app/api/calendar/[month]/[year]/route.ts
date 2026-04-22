@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
-        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
         const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
 
         // Extract month and year from URL
@@ -50,4 +50,4 @@ export async function GET(request: NextRequest) {
         }
         return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
     }
-}
+}

@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
     );
 
     // Get selected authIds from cookies for UI state
-    const selectedAuthIdCookie = request.cookies.get("selectedAuthId")?.value || "[]";
+    const selectedAuthIdCookie = request.cookies.get("selectedAuthId")?.value || "";
     let selectedAuthIds: string[] = [];
     try {
       selectedAuthIds = JSON.parse(selectedAuthIdCookie);

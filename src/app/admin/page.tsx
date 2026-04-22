@@ -136,6 +136,75 @@ export default function Relatives() {
     setSelectedCredential(null);
   };
 
+  const [isGlobalActionLoading, setIsGlobalActionLoading] = useState<boolean>(false);
+
+  const handleDownloadGlobalBackup = async () => {
+    try {
+      setIsGlobalActionLoading(true);
+      const response = await appFetch(`/api/admin/backup`);
+      if (!response.ok) throw new Error("Failed to generate global backup");
+
+      const data = await response.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const date = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `GLOBAL_DATABASE_BACKUP_${date}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast?.show("Global backup downloaded successfully", "success", 5000);
+    } catch (error: any) {
+      toast?.show(error.message || "Failed to download global backup", "error", 5000);
+    } finally {
+      setIsGlobalActionLoading(false);
+    }
+  };
+
+  const handleRestoreGlobalBackup = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const content = e.target?.result as string;
+        const backupData = JSON.parse(content);
+
+        if (backupData.type !== "full") {
+          throw new Error("This is not a full database backup file.");
+        }
+
+        if (!confirm("⚠️ CAUTION: You are about to restore the ENTIRE DATABASE. This will delete all current families, members, and credentials and replace them with the backup. This cannot be undone. Are you absolutely sure?")) {
+          return;
+        }
+
+        setIsGlobalActionLoading(true);
+        const response = await appFetch(`/api/admin/backup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(backupData),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || "Global restore failed");
+        }
+
+        toast?.show("Database restored successfully", "success", 5000);
+        window.location.reload();
+      } catch (error: any) {
+        toast?.show(error.message || "Invalid backup file", "error", 5000);
+      } finally {
+        setIsGlobalActionLoading(false);
+        event.target.value = "";
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="w-full">
       <Topnav>
@@ -159,10 +228,30 @@ export default function Relatives() {
           </button>
         </div>
       </Topnav>
+
       <div className="w-full md:flex">
         <Container className='scroll-stable pt-3' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
+              <div className="flex gap-2 mr-auto ml-0 mb-2">
+                <button
+                  onClick={handleDownloadGlobalBackup}
+                  disabled={isGlobalActionLoading}
+                  className="px-3 py-1 bg-field_color border border-border_color rounded-md hover:bg-field_hover transition-colors text-xs font-semibold whitespace-nowrap"
+                >
+                  Full DB Backup
+                </button>
+                <label className={`px-3 py-1 bg-field_color border border-border_color rounded-md hover:bg-field_hover transition-colors text-xs font-semibold whitespace-nowrap cursor-pointer ${isGlobalActionLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  Full DB Restore
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={handleRestoreGlobalBackup}
+                    disabled={isGlobalActionLoading}
+                  />
+                </label>
+              </div>
               {data?.map((row: AuthEntry, rowIndex: number) => (
                 <div key={row.id || rowIndex} className="pl-4 pr-3">
                   <div className="py-0.5">
@@ -182,7 +271,7 @@ export default function Relatives() {
                 </div>
               ))}
               <div className="min-h-10 px-4 py-2">
-                {loading || isFetching && <p className="px-4 text-text_color">Loading...</p>}
+                {(loading || isFetching) && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loading && data.length === 0 && !params.search) &&
                   <p className="p-4 text-text_color">No credentials available</p>
                 }
@@ -194,12 +283,22 @@ export default function Relatives() {
             </div>
           </div>
         </Container>
+        {isGlobalActionLoading && (
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[9999]">
+            <div className="bg-main_background border border-border_color px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-bounce">
+              <div className="w-4 h-4 border-2 border-accent_color border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm font-semibold text-text_color">Processing Global Data...</span>
+            </div>
+          </div>
+        )}
+
 
         <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails}>
           {selectedCredential && (
             <Details
               selectedCredential={selectedCredential}
               onDelete={handleDelete}
+              openDetails={setShowDetails}
             />
           )}
         </SlidePanel>

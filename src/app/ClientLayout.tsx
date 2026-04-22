@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ReduxProvider } from "@/store/ReduxProvider";
 import { AppInitializer } from "@/store/AppInitializer";
 import { AppSWRConfig } from "@/store/AppSWRConfig";
+import AdminSidenav from "@/components/AdminSidenav";
 
 export default function ClientLayout({
   children,
@@ -31,7 +32,22 @@ export default function ClientLayout({
     '/terms/add_login',
   ];
 
+  const IncludeAdminSideNavLayoutPaths = [
+    '/admin',
+    '/admin/new_login',
+    '/admin/edit_login/[id]',
+  ];
+
   const hasSideNav = IncludeSideNavLayoutPaths.includes(pathname);
+  
+  // Support dynamic routes like /admin/edit_login/[id]
+  const hasAdminSideNav = IncludeAdminSideNavLayoutPaths.some(path => {
+    if (path.includes('[id]')) {
+      const base = path.replace('/[id]', '');
+      return pathname.startsWith(base);
+    }
+    return pathname === path;
+  });
 
   return (
     <ReduxProvider>
@@ -41,6 +57,7 @@ export default function ClientLayout({
           <div className="w-full transition-all duration-500 ease-in-out">
             <div className="w-full max-w-[162.5rem] mx-auto md:border-x md:border-border_color md:min-h-screen relative flex">
               {hasSideNav && <Sidenav />}
+              {hasAdminSideNav && <AdminSidenav />}
               <div className="w-full relative">
                 <main id="MainDiv">
                   <noscript>Amor fati!..</noscript>

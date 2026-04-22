@@ -31,6 +31,7 @@ export default function AddRelationshipDetails() {
   const [showList, setShowList] = useState<boolean>(false);
   const { logout } = useAuth();
   const dispatch = useDispatch();
+  const { mutate } = useSWRConfig();
   const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
   const [memberListConstrain, setMemberListConstrain] = useState<memberListConstrainType>({
     gender: null,
@@ -182,6 +183,7 @@ export default function AddRelationshipDetails() {
           hasChanges: true,
           anyOtherAccountHasIssues: anyOtherAccountHasIssues
         }));
+        mutate('/api/moderator', undefined, { revalidate: false });
       }
       toast?.show(result.message, "success", 5000);
       // Reset the form

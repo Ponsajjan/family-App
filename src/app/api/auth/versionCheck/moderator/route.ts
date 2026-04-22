@@ -13,10 +13,10 @@ export async function GET(request: NextRequest) {
         const decoded = await verifyToken(token);
         const authId = decoded.authId;
         const userType = decoded.userType;
-        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "[]";
+        const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
 
         const data = await getModeratorData(authId, userType, selectedAuthId);
-        
+
         const serverVersionString = JSON.stringify(data._version);
         if (clientVersion === serverVersionString) {
             return NextResponse.json({ mismatch: false });

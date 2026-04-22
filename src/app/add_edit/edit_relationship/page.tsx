@@ -35,6 +35,7 @@ export default function EditRelationshipDetails() {
   const { logout } = useAuth();
   const router = useRouter();
   const dispatch = useDispatch();
+  const { mutate } = useSWRConfig();
   const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
 
   const handleShowList = () => {
@@ -210,6 +211,7 @@ export default function EditRelationshipDetails() {
             hasChanges: true,
             anyOtherAccountHasIssues: anyOtherAccountHasIssues
           }));
+          mutate('/api/moderator', undefined, { revalidate: false });
         }
         toast?.show(result.message, "success", 5000);
         setFormData(editRelationshipDefaultFormValue);

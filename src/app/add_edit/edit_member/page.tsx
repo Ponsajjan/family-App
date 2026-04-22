@@ -30,6 +30,7 @@ export default function EditMemberDetails() {
   const [submitError, setSubmitError] = useState("");
   const { logout } = useAuth();
   const dispatch = useDispatch();
+  const { mutate } = useSWRConfig();
   const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
 
   const handleSelectedValue = (name: string, id: number) => {
@@ -149,6 +150,7 @@ export default function EditMemberDetails() {
             hasChanges: true,
             anyOtherAccountHasIssues: anyOtherAccountHasIssues
           }));
+          mutate('/api/moderator', undefined, { revalidate: false });
         }
         toast?.show(result.message, "success", 5000);
         setEditedMember('')
