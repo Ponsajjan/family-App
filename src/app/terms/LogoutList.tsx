@@ -7,7 +7,7 @@ import { useToast } from '@/components/Toast';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, setChoosePopupAccounts } from '@/store/slices/termsSlice';
+import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, setChoosePopupAccounts, setIsModerator } from '@/store/slices/termsSlice';
 import { appFetch } from "@/utils/appFetch";
 
 function LogoutList() {
@@ -62,6 +62,7 @@ function LogoutList() {
                         storeLoginValues(data.newtoken, data.userType, data.authId);
                         dispatch(setCurrentAuthId(data.authId));
                         dispatch(setMainMemberName(data.mainMemberName || 'Account'));
+                        dispatch(setIsModerator(data.userType === "Moderator"));
                         clearFamilyCache();
                     } else {
                         toast?.show(data.error || "Failed to switch account automatically", "error", 3000);

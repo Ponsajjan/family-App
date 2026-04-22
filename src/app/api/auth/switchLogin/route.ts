@@ -82,7 +82,6 @@ export async function POST(request: Request) {
       authId: account,
       familyId: login.id,
       mainMemberName,
-      password: login.password,
       moderators: login.moderatorList
     });
   } catch (error) {
