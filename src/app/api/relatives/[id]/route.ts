@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const userType = decoded.userType;
     if (!authId) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-    const { updatedAt } = await getAllAuthIds(authId, userType, "");
+    const { updatedAt } = await getAllAuthIds(authId, userType);
 
     const responseData = await fetchMemberData(id, loginAuthIds.length);
 

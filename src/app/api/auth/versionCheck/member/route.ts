@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
         const authId = decoded.authId;
         const userType = decoded.userType;
         const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
-        const loginAuthIds = JSON.parse(selectedAuthId);
+        const loginAuthIds = selectedAuthId ? JSON.parse(selectedAuthId) : [];
 
-        const { updatedAt } = await getAllAuthIds(authId, userType, "");
+        const { updatedAt } = await getAllAuthIds(authId, userType);
 
         const serverVersionString = JSON.stringify(updatedAt);
 

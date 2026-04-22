@@ -5,22 +5,14 @@ import prisma from "@/db/db";
  * along with their respective update timestamps.
  *
  * @param authId          - The numeric auth ID of the currently logged-in user (from JWT).
- * @param selectedAuthId  - Raw cookie value of "selectedAuthId" (a JSON-stringified string[]).
+ * @param selectedAuthId  - (Optional) Raw cookie value of "selectedAuthId" (a JSON-stringified string[]).
  * @returns               - Object containing IDs, the latest timestamp, and a map of all timestamps.
  */
-export async function getAllAuthIds(authId: number, userType: string, selectedAuthId: string): Promise<{
+export async function getAllAuthIds(authId: number, userType: string, selectedAuthId?: string): Promise<{
     allAuthIds: number[];
     updatedAt: Record<number, number>
 }> {
-    let loginAuthIds: string[] = [];
-    try {
-        const parsed = JSON.parse(selectedAuthId);
-        if (Array.isArray(parsed)) {
-            loginAuthIds = parsed;
-        }
-    } catch (e) {
-        console.error("Error parsing selectedAuthId cookie", e);
-    }
+    const loginAuthIds = selectedAuthId ? JSON.parse(selectedAuthId) : [];
 
     const updatedAt: Record<any, number> = {};
 
@@ -43,10 +35,10 @@ export async function getAllAuthIds(authId: number, userType: string, selectedAu
 
             const switchedIds = authRecords.map(record => {
                 const ts = record.updatedAt.getTime();
-                if (record.memberAuthId && selectedAuthId.includes(record.memberAuthId)) {
+                if (record.memberAuthId && loginAuthIds.includes(record.memberAuthId)) {
                     updatedAt[record.memberAuthId] = ts;
                 }
-                if (record.moderatorAuthId && selectedAuthId.includes(record.moderatorAuthId)) {
+                if (record.moderatorAuthId && loginAuthIds.includes(record.moderatorAuthId)) {
                     updatedAt[record.moderatorAuthId] = ts;
                 }
                 return record.id;

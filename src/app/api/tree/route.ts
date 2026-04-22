@@ -14,13 +14,12 @@ export async function GET(request: NextRequest) {
     const decoded = await verifyToken(token);
     const authId = decoded.authId;
     const userType = decoded.userType;
-    const selectedAuthId = "";
 
     if (!authId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const { updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
+    const { updatedAt } = await getAllAuthIds(authId, userType);
 
     const treeData = await fetchPrebuiltTree(authId);
 
