@@ -133,7 +133,6 @@ export default function Page() {
                 </form>
                 {showChoosePopup && (
                     <ChoosePopup
-                        showPopup={showChoosePopup}
                         setShowPopup={setShowChoosePopup}
                     />
                 )}

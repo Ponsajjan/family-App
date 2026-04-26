@@ -145,6 +145,11 @@ export default function ModeratorDashboard() {
                 throw new Error('Failed to logout from moderator');
             }
 
+            if (response.status === 403) {
+                router.push('/moderator/login');
+                return;
+            }
+
             const data = await response.json();
             if (data.newtoken) {
                 await storeLoginValues(data.newtoken, data.userType, data.authId, data.oldAuthId);
@@ -234,7 +239,6 @@ export default function ModeratorDashboard() {
 
             {showChoosePopup && (
                 <ChoosePopup
-                    showPopup={showChoosePopup}
                     setShowPopup={setShowChoosePopup}
                     onSwitchSuccess={() => mutate()}
                     showWarning={true}

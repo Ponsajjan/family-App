@@ -7,7 +7,7 @@ import { applyHandleEditMember } from "./applyHandleEditMember";
 import { handleEditRelationshipCase } from "./handleEditRelationshipCase";
 import { handleAddRelationshipCase } from "./handleAddRelationshipCase";
 import { handleEditMemberCase } from "./handleEditMemberCase";
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache";
 import { bumpFamilyUpdateVersion } from "@/utils/syncUtils";
 
 interface RequestData {
@@ -202,10 +202,10 @@ export async function PUT(request: NextRequest) {
 
     await bumpFamilyUpdateVersion(authId);
 
-    revalidatePath('/api/relatives');
-    revalidatePath('/api/calendar/[month]/[year]', 'page');
-    revalidatePath('/api/relatives/[id]', 'page');
-    revalidatePath('/tree');
+    // revalidatePath('/api/relatives');
+    // revalidatePath('/api/calendar/[month]/[year]', 'page');
+    // revalidatePath('/api/relatives/[id]', 'page');
+    // revalidatePath('/tree');
 
     return NextResponse.json({
       ...result
@@ -293,10 +293,10 @@ export async function DELETE(request: NextRequest) {
 
     await bumpFamilyUpdateVersion(authId);
 
-    revalidatePath('/api/relatives');
-    revalidatePath('/api/calendar/[month]/[year]', 'page');
-    revalidatePath('/api/relatives/[id]', 'page');
-    revalidatePath('/tree');
+    // revalidatePath('/api/relatives');
+    // revalidatePath('/api/calendar/[month]/[year]', 'page');
+    // revalidatePath('/api/relatives/[id]', 'page');
+    // revalidatePath('/tree');
 
     return NextResponse.json({
       success: true,

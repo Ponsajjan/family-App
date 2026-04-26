@@ -82,7 +82,6 @@ export default function FamilyTreePage() {
 
       {showChoosePopup && (
         <ChoosePopup
-          showPopup={showChoosePopup}
           setShowPopup={setShowChoosePopup}
           onSwitchSuccess={() => mutate()} // Refresh tree data on account switch
         />

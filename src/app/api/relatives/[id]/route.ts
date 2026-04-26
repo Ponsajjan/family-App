@@ -3,7 +3,7 @@ import { verifyToken } from "@/utils/auth";
 import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 import { fetchMemberData } from "@/utils/memberUtils";
 
-export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);

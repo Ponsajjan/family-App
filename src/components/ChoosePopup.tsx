@@ -5,27 +5,26 @@ import { useToast } from '@/components/Toast';
 import Radio from '@/components/RadioButton';
 import { useSWRConfig } from 'swr';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from '@/store';
+import { AppDispatch, RootState } from '@/store';
 import { selectChoosePopupAccounts, ChoosePopupAccount } from '@/store/slices/termsSlice';
 import { setCurrentAuthId, setMainMemberName, setIsModerator, fetchTermsData } from '@/store/slices/termsSlice';
 import { appFetch } from "@/utils/appFetch";
 import { CloseIcon } from '@/utils/Icons';
 
 interface ChoosePopupProps {
-    showPopup: boolean;
     setShowPopup: (show: boolean) => void;
     onSwitchSuccess?: () => void;
     showWarning?: boolean;
 }
 
 export const ChoosePopup = ({
-    showPopup,
     setShowPopup,
     onSwitchSuccess,
     showWarning = false
 }: ChoosePopupProps) => {
     const reduxAccounts = useSelector(selectChoosePopupAccounts);
     const accounts: ChoosePopupAccount[] = reduxAccounts;
+    const currentAuthId = useSelector((state: RootState) => state.terms.currentAuthId);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const { storeLoginValues } = useAuth();
@@ -50,6 +49,11 @@ export const ChoosePopup = ({
 
     const handleSwitchAccount = async (account: ChoosePopupAccount) => {
         if (switchingAccount) {
+            return;
+        }
+
+        if (String(account.authId) === String(currentAuthId)) {
+            setShowPopup(false);
             return;
         }
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache";
 import { bumpFamilyUpdateVersion } from "@/utils/syncUtils";
 
 export async function GET(request: NextRequest) {
@@ -304,10 +304,10 @@ export async function PUT(request: NextRequest) {
     await Promise.all(updatePromises);
     await bumpFamilyUpdateVersion(authId);
 
-    revalidatePath('/api/relatives');
-    revalidatePath('/api/calendar/[month]/[year]', 'page');
-    revalidatePath('/api/relatives/[id]', 'page');
-    revalidatePath('/tree');
+    // revalidatePath('/api/relatives');
+    // revalidatePath('/api/calendar/[month]/[year]', 'page');
+    // revalidatePath('/api/relatives/[id]', 'page');
+    // revalidatePath('/tree');
 
     return NextResponse.json({
       success: true,

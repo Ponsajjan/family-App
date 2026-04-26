@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation"
 import { LinkButtonOutline } from "../../components/Button"
 import { SwitchIcon } from "@/utils/Icons"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ChoosePopup } from "@/components/ChoosePopup"
 import { useSelector } from "react-redux"
 import { RootState } from "@/store"
@@ -14,6 +14,12 @@ export default function AddEditPage() {
     const router = useRouter();
 
     const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+
+    useEffect(() => {
+        if (choosePopupAccounts.length > 1) {
+            setShowChoosePopup(true);
+        }
+    }, [choosePopupAccounts.length]);
 
     // Get the 'mode' parameter from URL, default to 'add'
     const currentMode = searchParams.get('mode') || 'add'
@@ -73,7 +79,6 @@ export default function AddEditPage() {
 
             {showChoosePopup && (
                 <ChoosePopup
-                    showPopup={showChoosePopup}
                     setShowPopup={setShowChoosePopup}
                 />
             )}
