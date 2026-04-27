@@ -14,15 +14,16 @@ export default function AddEditPage() {
     const router = useRouter();
 
     const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+    const mode = searchParams.get('mode');
 
     useEffect(() => {
-        if (choosePopupAccounts.length > 1) {
+        if (choosePopupAccounts.length > 1 && !mode) {
             setShowChoosePopup(true);
         }
-    }, [choosePopupAccounts.length]);
+    }, [choosePopupAccounts.length, mode, setShowChoosePopup]);
 
     // Get the 'mode' parameter from URL, default to 'add'
-    const currentMode = searchParams.get('mode') || 'add'
+    const currentMode = mode || 'add'
     const isAddMode = currentMode === 'add'
 
     const handleModeChange = (mode: 'add' | 'edit') => {

@@ -239,7 +239,7 @@ export default function AddRelationshipDetails() {
             allowChildrenSelect={allowChildrenSelect}
             submitError={submitError}
           />
-          <LinkButtonOutline buttonText="Cancel" linkto="/add_edit" className="hidden md:block" />
+          <LinkButtonOutline buttonText="Cancel" linkto="/add_edit?mode=add" className="hidden md:block" />
         </div>
       </Container>
       <SlidePanel setShowDetails={setShowList} showDetails={showList} >

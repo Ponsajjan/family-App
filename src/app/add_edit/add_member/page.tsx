@@ -142,7 +142,7 @@ export default function AddMemberDetails() {
           handleFormSubmit={handleFormSubmit}
           submitError={submitError}
         />
-        <LinkButtonOutline buttonText="Cancel" disabled={loading} linkto="/add_edit" className="hidden md:block" />
+        <LinkButtonOutline buttonText="Cancel" disabled={loading} linkto="/add_edit?mode=add" className="hidden md:block" />
       </div>
     </Container>
   );
