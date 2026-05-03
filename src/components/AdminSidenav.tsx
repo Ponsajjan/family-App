@@ -1,5 +1,5 @@
 "use client";
-import { BurgerMenuIcon, CloseIcon, Login, LoginList, Logout } from "@/utils/Icons";
+import { BurgerMenuIcon, CloseIcon, Login, LoginList, Logout, DatabaseBackup } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
@@ -40,6 +40,7 @@ export default function AdminSidenav() {
                     <div>
                         <AdminNavLink linkName="Login List" link="/admin" onClick={closeNav} />
                         <AdminNavLink linkName="New Login" link="/admin/new_login" onClick={closeNav} />
+                        <AdminNavLink linkName="DB Backup" link="/admin/backup" onClick={closeNav} />
                     </div>
                     <button onClick={logout} className="py-2 flex gap-2 items-center justify-center border-t border-border_color">
                         <Logout />
@@ -64,6 +65,7 @@ export function AdminNavLink({ link, linkName, onClick }: { link: string, linkNa
             <p className={`group-hover:invert ${pathName === link ? "invert" : " "}`}>
                 {linkName === 'New Login' && <Login />}
                 {linkName === 'Login List' && <LoginList />}
+                {linkName === 'DB Backup' && <DatabaseBackup />}
             </p>
             <p>{linkName}</p>
         </Link>

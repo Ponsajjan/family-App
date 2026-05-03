@@ -36,10 +36,11 @@ export default function ClientLayout({
     '/admin',
     '/admin/new_login',
     '/admin/edit_login/[id]',
+    '/admin/backup',
   ];
 
   const hasSideNav = IncludeSideNavLayoutPaths.includes(pathname);
-  
+
   // Support dynamic routes like /admin/edit_login/[id]
   const hasAdminSideNav = IncludeAdminSideNavLayoutPaths.some(path => {
     if (path.includes('[id]')) {

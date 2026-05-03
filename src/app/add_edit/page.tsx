@@ -36,6 +36,11 @@ export default function AddEditPage() {
 
     return (
         <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
+            {showChoosePopup && (
+                <ChoosePopup
+                    setShowPopup={setShowChoosePopup}
+                />
+            )}
             <div className="relative flex mx-auto border-2 border-text_color rounded-2xl overflow-hidden w-fit select-none mb-2">
                 <p
                     onClick={() => handleModeChange('add')}
@@ -77,12 +82,6 @@ export default function AddEditPage() {
                     buttonText={`${isAddMode ? 'Add' : 'Edit'} Relationship`}
                 />
             </div>
-
-            {showChoosePopup && (
-                <ChoosePopup
-                    setShowPopup={setShowChoosePopup}
-                />
-            )}
         </div>
     )
 }
