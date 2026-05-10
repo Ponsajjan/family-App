@@ -217,7 +217,7 @@ export default function VerifyMember() {
                       <path d="M15.281 7.188v17.594l-15.281-8.781z" />
                     </svg>
                   </Link>
-                  <div className="px-2 py-0.5">
+                  <div className="px-2 py-0.5 text-sm md:text-base">
                     {selectedFilter} Members {params.search && '(Search)'}
                   </div>
                 </div>

@@ -2,18 +2,18 @@ import { Birthday, Deathday } from '@/utils/Icons';
 import { format } from 'date-fns';
 
 interface CalendarMonthlyEvent {
-  id: string;
-  name: string;
-  date: Date;
-  type: 'birthday' | 'deathday';
-  hasDate: boolean;
-  age: number | string;
+    id: string;
+    name: string;
+    date: Date;
+    type: 'birthday' | 'deathday';
+    hasDate: boolean;
+    age: number | string;
 }
 
 function OnDate({ events }: { events: CalendarMonthlyEvent[] }) {
 
     return (
-        <>
+        <div className='pt-4 pb-2 px-4'>
             {events.map((item, index) => {
                 return (
                     <div
@@ -29,12 +29,12 @@ function OnDate({ events }: { events: CalendarMonthlyEvent[] }) {
                                 <div className="text-xs font-light capitalize">
                                     {item.type === 'birthday' ? 'Born At:' : 'Died At:'}{' '}
                                     {item.hasDate ?
-                                    new Date(item.date).getFullYear() === 1600
-                                        ? format(item.date, 'd MMM')
-                                        : format(item.date, 'd MMM yyyy') :
-                                    new Date(item.date).getFullYear() === 1600
-                                        ? format(item.date, '-- MMM')
-                                        : format(item.date, '-- MM yyyy')
+                                        new Date(item.date).getFullYear() === 1600
+                                            ? format(item.date, 'd MMM')
+                                            : format(item.date, 'd MMM yyyy') :
+                                        new Date(item.date).getFullYear() === 1600
+                                            ? format(item.date, '-- MMM')
+                                            : format(item.date, '-- MM yyyy')
                                     }
                                 </div>
                             </div>
@@ -47,7 +47,7 @@ function OnDate({ events }: { events: CalendarMonthlyEvent[] }) {
                     </div>
                 );
             })}
-        </>
+        </div>
     );
 }
 

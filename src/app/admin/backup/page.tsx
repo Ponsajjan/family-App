@@ -5,6 +5,7 @@ import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import { appFetch } from "@/utils/appFetch";
 import { FileUploadIcon, ResetData } from "@/utils/Icons";
+import { ButtonOutline } from '@/components/Button';
 
 export default function DBBackupRestore() {
   const toast = useToast();
@@ -95,16 +96,13 @@ export default function DBBackupRestore() {
             <p className="text-text_color/70 mb-8 max-w-sm h-12">
               Download a complete snapshot of all families, members, and credentials in JSON format.
             </p>
-            <button
+            <ButtonOutline
               onClick={handleDownloadGlobalBackup}
               disabled={isGlobalActionLoading}
-              className={`w-full max-w-xs py-3 rounded-xl font-bold text-white shadow-md transition-all duration-300 ${isGlobalActionLoading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 hover:-translate-y-0.5'
-                }`}
-            >
-              {isGlobalActionLoading ? 'Processing...' : 'Download Backup'}
-            </button>
+              type='button'
+              className='w-full'
+              buttonText={isGlobalActionLoading ? 'Processing...' : 'Download Backup'}
+            />
           </div>
 
           {/* Restore Card */}
@@ -120,10 +118,10 @@ export default function DBBackupRestore() {
               ⚠️ Warning: Restoring a backup will completely overwrite all existing data. This action cannot be undone.
             </p>
 
-            <label className={`w-full max-w-xs py-3 rounded-xl font-bold text-white shadow-md transition-all duration-300 flex items-center justify-center ${isGlobalActionLoading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 hover:-translate-y-0.5 cursor-pointer'
-              }`}>
+            <label className={`flex justify-center items-center bg-accent_color text-accent_contrast h-10 md:h-12 text-base md:text-lg shadow-md rounded-md font-medium active:shadow-none w-full
+              ${isGlobalActionLoading
+                ? 'opacity-60 cursor-not-allowed'
+                : 'cursor-pointer'}`}>
               {isGlobalActionLoading ? 'Processing...' : 'Upload & Restore'}
               <input
                 type="file"

@@ -49,17 +49,17 @@ export default function Details({ showMember, openDetails }: any) {
   const data = swrResult?.data;
 
   return (
-    <Container className='text-text_color py-6 px-4 relative bg-main_background scroll-stable'>
-      <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
+    <Container className='text-text_color bg-main_background'>
+      <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer z-20'>
         <CloseIcon />
       </div>
 
       {error ? (
-        <div className='p-4'>Error: {error.message || 'Error fetching data'}</div>
+        <div className='p-6'>Error: {error?.message || 'Error fetching data'}</div>
       ) : !data && !loadingDetails ? (
-        <div className='p-4 loading-text'>No data found</div>
+        <div className='p-6 loading-text'>No data found</div>
       ) : loadingDetails ? (
-        <Loading />
+        <div className='p-4'><Loading /></div>
       ) : (
         <MemberDetails data={data} />
       )}

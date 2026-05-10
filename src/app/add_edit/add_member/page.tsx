@@ -127,7 +127,7 @@ export default function AddMemberDetails() {
       <div className="w-full md:max-w-xl px-4 py-5 md:py-10 mx-auto">
         <div className="flex justify-start items-center mb-3">
           <span className="hidden md:block"><AddMember /></span>
-          <Link href={"/add_edit"} className="md:hidden block">
+          <Link href={"/add_edit?mode=add"} className="md:hidden block">
             <span><BackButton /></span>
           </Link>
           <p className="text-2xl font-semibold text-center text-text_color underline pl-3">

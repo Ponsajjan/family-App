@@ -45,13 +45,13 @@ export default function CalendarMemberDetail({ memberId }: any) {
   const data = swrResult?.data;
 
   return (
-    <div className='text-text_color py-2 relative bg-main_background scroll-stable'>
+    <div className='text-text_color bg-main_background scroll-stable'>
       {error ? (
-        <div className='p-4'>Error: {error.message || 'Error fetching data'}</div>
+        <div className='p-6'>Error: {error.message || 'Error fetching data'}</div>
       ) : !data && !loadingDetails ? (
-        <div className='p-4 loading-text'>No data found</div>
+        <div className='p-6 loading-text'>No data found</div>
       ) : loadingDetails ? (
-        <span>Loading...</span>
+        <div className='p-6'>Loading...</div>
       ) : (
         <MemberDetails data={data} />
       )}

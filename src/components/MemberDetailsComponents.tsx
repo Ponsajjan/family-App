@@ -9,7 +9,7 @@ export const InformationSection = ({
   children: React.ReactNode
 }) => (
   <>
-    <div className="flex pt-3 items-center">
+    <div className="flex pt-4 pb-1.5 items-center">
       <p className="font-semibold pr-2 md:pr-4 whitespace-nowrap">{title}</p>
       <p className="border-t border-border_color w-full"></p>
     </div>
@@ -45,13 +45,13 @@ export const MemberItem = ({ label, value, isList = false }: {
 
   return (
     <>
-      {label && <div className="w-2/5 md:leading-7 font-medium">
+      {label && <div className="w-2/5 md:leading-7 font-medium mb-0.5">
         <div className="flex">
           <span className='whitespace-nowrap'>{label}</span>
           <span className="border-b border-dotted border-border_color w-full mb-2 mx-2"></span>
         </div>
       </div>}
-      <div className={`${label ? 'w-3/5' : 'w-full'} md:leading-7 flex flex-wrap`}>
+      <div className={`${label ? 'w-3/5' : 'w-full'} md:leading-7 flex flex-wrap mb-0.5`}>
         {isList && Array.isArray(value) ? (
           value.map((item, index) => (
             <span key={index}>

@@ -2,7 +2,7 @@
 
 import Topnav from "@/components/Topnav";
 import { Announcement, CloseIcon, SkipBack, SkipForward } from "@/utils/Icons";
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo } from "react";
 import useSWR from 'swr';
 import moment from "moment-timezone";
 import CalendarMonthlyData from "../components/CalendarMonthlyData";
@@ -234,7 +234,7 @@ export default function Calendar() {
       </Topnav>
 
       <div className="md:flex">
-        <Container className='px-3 md:border-r md:border-border_color pb-3 w-full'>
+        <Container className='px-3 xl:px-6 md:border-r md:border-border_color pb-3 w-full scroll-stable'>
           <div className="w-full max-w-3xl mx-auto mt-6">
             <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">
@@ -294,7 +294,7 @@ export default function Calendar() {
             <div onClick={() => setShowPopup(false)} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-[600ms] bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden md:h-0'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className="relative">
-                <span onClick={() => setShowPopup(false)} className="absolute top-4 right-4 hidden md:block border border-border_color rounded-md cursor-pointer z-10"><CloseIcon /></span>
+                <span onClick={() => setShowPopup(false)} className="absolute top-4 right-4 hidden md:block border border-border_color rounded-md cursor-pointer z-20"><CloseIcon /></span>
                 {showPopupFor === 'date' && (() => {
                   const selected = new Date(selectedDate);
                   const selectedIsToday = isToday(selected);
@@ -316,7 +316,7 @@ export default function Calendar() {
                     </div>
                   );
                 })()}
-                <div className={`p-4 ${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
+                <div className={`${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
                   {showPopupFor === 'date' && <OnDate events={eventForDate} />}
                   {showPopupFor === 'member' && <CalendarMemberDetail memberId={selectedMemberId} />}
                 </div>

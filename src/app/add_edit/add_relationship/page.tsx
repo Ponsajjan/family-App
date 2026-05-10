@@ -214,7 +214,7 @@ export default function AddRelationshipDetails() {
             <div className="w-full flex items-center justify-between">
               <div className="flex items-center">
                 <span className="hidden md:block"><AddRelationship /></span>
-                <Link href={"/add_edit"} className="md:hidden block">
+                <Link href={"/add_edit?mode=add"} className="md:hidden block">
                   <span><BackButton /></span>
                 </Link>
                 <p className="cursor-pointer text-2xl font-semibold text-center text-text_color underline pl-3">

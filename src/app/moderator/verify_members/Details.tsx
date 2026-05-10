@@ -204,7 +204,7 @@ export default function NewMemberDetails({
             {loadingDetails ? <Loading /> : (
                 <>
                     {deleted && <div className='bg-field_color text-text_color p-2 border border-border_color border-dashed rounded-md my-4'><span className='inline-block align-bottom pr-1'><Info /></span>Member deleted</div>}
-                    <div className='flex gap-2 items-center w-full pb-1 md:pb-3'>
+                    <div className='flex gap-2 items-center w-full pb-1.5 md:pb-3'>
                         <div className='border border-border_color p-2 rounded-md relative'>
                             {data?.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
                             {data?.generalInformation.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
