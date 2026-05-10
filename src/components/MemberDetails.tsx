@@ -41,7 +41,7 @@ function MemberDetails({ data }: { data: any }) {
                 {data.mainMemberName && <div className='mr-0 ml-auto text-xs text-text_color/60 w-fit'>--- {data.mainMemberName} Family</div>}
             </div>
 
-            <div className="px-4 pt-2 pb-6">
+            <div className="px-4 pb-6">
                 {/* Relation Information */}
                 {data.relationInformation && (
                     <InformationSection title="Relation Information">
