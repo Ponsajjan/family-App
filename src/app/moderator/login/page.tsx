@@ -89,16 +89,15 @@ export default function Page() {
                     <div className="relative flex items-center gap-2 h-10 mb-2">
                         {choosePopupAccounts.length > 1 &&
                             <>
-                                <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
-                                <div
-                                    onClick={() => setShowChoosePopup(true)}
-                                    className="ml-auto mr-0 border z-10 bg-main_background border-border_color  flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors">
-                                    <SwitchIcon />
+                                <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1.5 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
+                                <div className="ml-auto mr-0 z-10 bg-main_background px-1.5">
+                                    <div onClick={() => setShowChoosePopup(true)} className="border  border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors">
+                                        <SwitchIcon />
+                                    </div>
                                 </div>
                                 <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />
                             </>}
                     </div>
-
 
                     <div
                         key={errorTrigger}
