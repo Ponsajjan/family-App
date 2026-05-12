@@ -35,9 +35,10 @@ interface MemberResponse {
   };
   contactInformation?: {
     phoneNumber?: string;
-    address?: string;
+    address?: string; // This will map to currentAddress for display
   };
   personalInformation?: {
+    birthPlace?: string;
     occupation?: string;
     education?: string;
   };
@@ -80,7 +81,8 @@ export async function GET(request: NextRequest) {
           gender: true,
           verified: true,
           phoneNumber: true,
-          address: true,
+          birthPlace: true,
+          currentAddress: true,
           occupation: true,
           education: true,
           birthDate: true,
@@ -200,14 +202,15 @@ function buildRelationInfo(member: any, siblings: any[]) {
 }
 
 function buildContactInfo(member: any) {
-  return member.phoneNumber || member.address ? {
+  return member.phoneNumber || member.currentAddress ? {
     ...(member.phoneNumber && { phoneNumber: member.phoneNumber }),
-    ...(member.address && { address: member.address })
+    ...(member.currentAddress && { address: member.currentAddress }) // Map currentAddress to address label for UI
   } : undefined;
 }
 
 function buildPersonalInfo(member: any) {
-  return member.occupation || member.education ? {
+  return member.occupation || member.education || member.birthPlace ? {
+    ...(member.birthPlace && { birthPlace: member.birthPlace }),
     ...(member.occupation && { occupation: member.occupation }),
     ...(member.education && { education: member.education })
   } : undefined;

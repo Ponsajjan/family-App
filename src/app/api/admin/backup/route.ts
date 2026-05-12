@@ -89,7 +89,14 @@ export async function POST(request: Request) {
 
          // 2. Restore members (preserving IDs where possible to maintain relations)
          if (backupData.members?.length > 0) {
-            await tx.member.createMany({ data: backupData.members });
+            const membersToRestore = backupData.members.map((m: any) => {
+               const { address, ...rest } = m;
+               return {
+                  ...rest,
+                  currentAddress: rest.currentAddress || address,
+               };
+            });
+            await tx.member.createMany({ data: membersToRestore });
          }
 
          // 3. Restore relations
@@ -126,7 +133,14 @@ export async function POST(request: Request) {
          }
          
          if (backupData.members?.length > 0) {
-            await tx.member.createMany({ data: backupData.members });
+            const membersToRestore = backupData.members.map((m: any) => {
+               const { address, ...rest } = m;
+               return {
+                  ...rest,
+                  currentAddress: rest.currentAddress || address,
+               };
+            });
+            await tx.member.createMany({ data: membersToRestore });
          }
 
          if (backupData.nonDescendantRelations?.length > 0) {

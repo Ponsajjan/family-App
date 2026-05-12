@@ -71,13 +71,14 @@ function MemberDetails({ data }: { data: any }) {
                 {data.contactInformation && (
                     <InformationSection title="Contact Information">
                         <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
-                        <MemberItem label="Address" value={data.contactInformation.address} />
+                        <MemberItem label="Address" value={data.contactInformation.currentAddress} />
                     </InformationSection>
                 )}
 
                 {/* Personal Information */}
                 {data.personalInformation && (
                     <InformationSection title="Personal Information">
+                        <MemberItem label="Birth Place" value={data.personalInformation.birthPlace} />
                         <MemberItem label="Occupation" value={data.personalInformation.occupation} />
                         <MemberItem label="Education" value={data.personalInformation.education} />
                     </InformationSection>

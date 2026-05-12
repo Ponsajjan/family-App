@@ -331,6 +331,7 @@ export default function NewMemberDetails({
 
                     {(data?.personalInformation) &&
                         <InformationSection title="Personal Information">
+                            <MemberItem label="Birth Place" value={data.personalInformation.birthPlace} />
                             <MemberItem label="Occupation" value={data.personalInformation.occupation} />
                             <MemberItem label="Education" value={data.personalInformation.education} />
                         </InformationSection>}

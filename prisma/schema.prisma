@@ -41,7 +41,8 @@ model Member {
 
   gender              String
   phoneNumber         String?
-  address             String?
+  birthPlace          String?
+  currentAddress      String? @map("address")
   occupation          String?
   education           String?
   additionalInfo      String?

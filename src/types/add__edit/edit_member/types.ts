@@ -14,7 +14,8 @@ export interface EditMemberFormValueTypes {
     phone_number: string | null;
     occupation: string;
     education: string;
-    address: string;
+    birthPlace: string;
+    currentAddress: string;
     additionalInfo: string;
     descendant: string | undefined;
     father: string;
@@ -45,7 +46,8 @@ export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
     phone_number: null,
     occupation: '',
     education: '',
-    address: '',
+    birthPlace: '',
+    currentAddress: '',
     additionalInfo: '',
     descendant: undefined,
     father: '',

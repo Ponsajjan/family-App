@@ -70,7 +70,8 @@ export type MemberMinAggregateOutputType = {
   deathYear: number | null
   gender: string | null
   phoneNumber: string | null
-  address: string | null
+  birthPlace: string | null
+  currentAddress: string | null
   occupation: string | null
   education: string | null
   additionalInfo: string | null
@@ -97,7 +98,8 @@ export type MemberMaxAggregateOutputType = {
   deathYear: number | null
   gender: string | null
   phoneNumber: string | null
-  address: string | null
+  birthPlace: string | null
+  currentAddress: string | null
   occupation: string | null
   education: string | null
   additionalInfo: string | null
@@ -124,7 +126,8 @@ export type MemberCountAggregateOutputType = {
   deathYear: number
   gender: number
   phoneNumber: number
-  address: number
+  birthPlace: number
+  currentAddress: number
   occupation: number
   education: number
   additionalInfo: number
@@ -183,7 +186,8 @@ export type MemberMinAggregateInputType = {
   deathYear?: true
   gender?: true
   phoneNumber?: true
-  address?: true
+  birthPlace?: true
+  currentAddress?: true
   occupation?: true
   education?: true
   additionalInfo?: true
@@ -210,7 +214,8 @@ export type MemberMaxAggregateInputType = {
   deathYear?: true
   gender?: true
   phoneNumber?: true
-  address?: true
+  birthPlace?: true
+  currentAddress?: true
   occupation?: true
   education?: true
   additionalInfo?: true
@@ -237,7 +242,8 @@ export type MemberCountAggregateInputType = {
   deathYear?: true
   gender?: true
   phoneNumber?: true
-  address?: true
+  birthPlace?: true
+  currentAddress?: true
   occupation?: true
   education?: true
   additionalInfo?: true
@@ -351,7 +357,8 @@ export type MemberGroupByOutputType = {
   deathYear: number | null
   gender: string
   phoneNumber: string | null
-  address: string | null
+  birthPlace: string | null
+  currentAddress: string | null
   occupation: string | null
   education: string | null
   additionalInfo: string | null
@@ -401,7 +408,8 @@ export type MemberWhereInput = {
   deathYear?: Prisma.IntNullableFilter<"Member"> | number | null
   gender?: Prisma.StringFilter<"Member"> | string
   phoneNumber?: Prisma.StringNullableFilter<"Member"> | string | null
-  address?: Prisma.StringNullableFilter<"Member"> | string | null
+  birthPlace?: Prisma.StringNullableFilter<"Member"> | string | null
+  currentAddress?: Prisma.StringNullableFilter<"Member"> | string | null
   occupation?: Prisma.StringNullableFilter<"Member"> | string | null
   education?: Prisma.StringNullableFilter<"Member"> | string | null
   additionalInfo?: Prisma.StringNullableFilter<"Member"> | string | null
@@ -437,7 +445,8 @@ export type MemberOrderByWithRelationInput = {
   deathYear?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
-  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  birthPlace?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   occupation?: Prisma.SortOrderInput | Prisma.SortOrder
   education?: Prisma.SortOrderInput | Prisma.SortOrder
   additionalInfo?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -476,7 +485,8 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   deathYear?: Prisma.IntNullableFilter<"Member"> | number | null
   gender?: Prisma.StringFilter<"Member"> | string
   phoneNumber?: Prisma.StringNullableFilter<"Member"> | string | null
-  address?: Prisma.StringNullableFilter<"Member"> | string | null
+  birthPlace?: Prisma.StringNullableFilter<"Member"> | string | null
+  currentAddress?: Prisma.StringNullableFilter<"Member"> | string | null
   occupation?: Prisma.StringNullableFilter<"Member"> | string | null
   education?: Prisma.StringNullableFilter<"Member"> | string | null
   additionalInfo?: Prisma.StringNullableFilter<"Member"> | string | null
@@ -512,7 +522,8 @@ export type MemberOrderByWithAggregationInput = {
   deathYear?: Prisma.SortOrderInput | Prisma.SortOrder
   gender?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
-  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  birthPlace?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   occupation?: Prisma.SortOrderInput | Prisma.SortOrder
   education?: Prisma.SortOrderInput | Prisma.SortOrder
   additionalInfo?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -547,7 +558,8 @@ export type MemberScalarWhereWithAggregatesInput = {
   deathYear?: Prisma.IntNullableWithAggregatesFilter<"Member"> | number | null
   gender?: Prisma.StringWithAggregatesFilter<"Member"> | string
   phoneNumber?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
-  address?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
+  birthPlace?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
+  currentAddress?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   occupation?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   education?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   additionalInfo?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
@@ -572,7 +584,8 @@ export type MemberCreateInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -605,7 +618,8 @@ export type MemberUncheckedCreateInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -635,7 +649,8 @@ export type MemberUpdateInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -668,7 +683,8 @@ export type MemberUncheckedUpdateInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -700,7 +716,8 @@ export type MemberCreateManyInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -725,7 +742,8 @@ export type MemberUpdateManyMutationInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -749,7 +767,8 @@ export type MemberUncheckedUpdateManyInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -791,7 +810,8 @@ export type MemberCountOrderByAggregateInput = {
   deathYear?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
-  address?: Prisma.SortOrder
+  birthPlace?: Prisma.SortOrder
+  currentAddress?: Prisma.SortOrder
   occupation?: Prisma.SortOrder
   education?: Prisma.SortOrder
   additionalInfo?: Prisma.SortOrder
@@ -833,7 +853,8 @@ export type MemberMaxOrderByAggregateInput = {
   deathYear?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
-  address?: Prisma.SortOrder
+  birthPlace?: Prisma.SortOrder
+  currentAddress?: Prisma.SortOrder
   occupation?: Prisma.SortOrder
   education?: Prisma.SortOrder
   additionalInfo?: Prisma.SortOrder
@@ -860,7 +881,8 @@ export type MemberMinOrderByAggregateInput = {
   deathYear?: Prisma.SortOrder
   gender?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
-  address?: Prisma.SortOrder
+  birthPlace?: Prisma.SortOrder
+  currentAddress?: Prisma.SortOrder
   occupation?: Prisma.SortOrder
   education?: Prisma.SortOrder
   additionalInfo?: Prisma.SortOrder
@@ -1157,7 +1179,8 @@ export type MemberCreateWithoutAuthInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1188,7 +1211,8 @@ export type MemberUncheckedCreateWithoutAuthInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1249,7 +1273,8 @@ export type MemberScalarWhereInput = {
   deathYear?: Prisma.IntNullableFilter<"Member"> | number | null
   gender?: Prisma.StringFilter<"Member"> | string
   phoneNumber?: Prisma.StringNullableFilter<"Member"> | string | null
-  address?: Prisma.StringNullableFilter<"Member"> | string | null
+  birthPlace?: Prisma.StringNullableFilter<"Member"> | string | null
+  currentAddress?: Prisma.StringNullableFilter<"Member"> | string | null
   occupation?: Prisma.StringNullableFilter<"Member"> | string | null
   education?: Prisma.StringNullableFilter<"Member"> | string | null
   additionalInfo?: Prisma.StringNullableFilter<"Member"> | string | null
@@ -1274,7 +1299,8 @@ export type MemberCreateWithoutFatherOfInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1306,7 +1332,8 @@ export type MemberUncheckedCreateWithoutFatherOfInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1340,7 +1367,8 @@ export type MemberCreateWithoutMotherOfInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1372,7 +1400,8 @@ export type MemberUncheckedCreateWithoutMotherOfInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1406,7 +1435,8 @@ export type MemberCreateWithoutPartnerOfInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1438,7 +1468,8 @@ export type MemberUncheckedCreateWithoutPartnerOfInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1472,7 +1503,8 @@ export type MemberCreateWithoutPartnerInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1504,7 +1536,8 @@ export type MemberUncheckedCreateWithoutPartnerInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1543,7 +1576,8 @@ export type MemberCreateWithoutFatherInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1575,7 +1609,8 @@ export type MemberUncheckedCreateWithoutFatherInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1614,7 +1649,8 @@ export type MemberCreateWithoutMotherInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1646,7 +1682,8 @@ export type MemberUncheckedCreateWithoutMotherInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1696,7 +1733,8 @@ export type MemberUpdateWithoutFatherOfInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1728,7 +1766,8 @@ export type MemberUncheckedUpdateWithoutFatherOfInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1768,7 +1807,8 @@ export type MemberUpdateWithoutMotherOfInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1800,7 +1840,8 @@ export type MemberUncheckedUpdateWithoutMotherOfInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1840,7 +1881,8 @@ export type MemberUpdateWithoutPartnerOfInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1872,7 +1914,8 @@ export type MemberUncheckedUpdateWithoutPartnerOfInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1949,7 +1992,8 @@ export type MemberCreateWithoutPendingVerificationInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -1981,7 +2025,8 @@ export type MemberUncheckedCreateWithoutPendingVerificationInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -2026,7 +2071,8 @@ export type MemberUpdateWithoutPendingVerificationInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2058,7 +2104,8 @@ export type MemberUncheckedUpdateWithoutPendingVerificationInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2087,7 +2134,8 @@ export type MemberCreateWithoutNonDescendantRelationInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -2119,7 +2167,8 @@ export type MemberUncheckedCreateWithoutNonDescendantRelationInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -2164,7 +2213,8 @@ export type MemberUpdateWithoutNonDescendantRelationInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2196,7 +2246,8 @@ export type MemberUncheckedUpdateWithoutNonDescendantRelationInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2226,7 +2277,8 @@ export type MemberCreateManyAuthInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -2251,7 +2303,8 @@ export type MemberUpdateWithoutAuthInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2282,7 +2335,8 @@ export type MemberUncheckedUpdateWithoutAuthInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2313,7 +2367,8 @@ export type MemberUncheckedUpdateManyWithoutAuthInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2340,7 +2395,8 @@ export type MemberCreateManyPartnerInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -2366,7 +2422,8 @@ export type MemberCreateManyFatherInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -2392,7 +2449,8 @@ export type MemberCreateManyMotherInput = {
   deathYear?: number | null
   gender: string
   phoneNumber?: string | null
-  address?: string | null
+  birthPlace?: string | null
+  currentAddress?: string | null
   occupation?: string | null
   education?: string | null
   additionalInfo?: string | null
@@ -2416,7 +2474,8 @@ export type MemberUpdateWithoutPartnerInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2448,7 +2507,8 @@ export type MemberUncheckedUpdateWithoutPartnerInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2479,7 +2539,8 @@ export type MemberUncheckedUpdateManyWithoutPartnerInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2503,7 +2564,8 @@ export type MemberUpdateWithoutFatherInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2535,7 +2597,8 @@ export type MemberUncheckedUpdateWithoutFatherInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2566,7 +2629,8 @@ export type MemberUncheckedUpdateManyWithoutFatherInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2590,7 +2654,8 @@ export type MemberUpdateWithoutMotherInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2622,7 +2687,8 @@ export type MemberUncheckedUpdateWithoutMotherInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2653,7 +2719,8 @@ export type MemberUncheckedUpdateManyWithoutMotherInput = {
   deathYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   gender?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthPlace?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currentAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   additionalInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2746,7 +2813,8 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   deathYear?: boolean
   gender?: boolean
   phoneNumber?: boolean
-  address?: boolean
+  birthPlace?: boolean
+  currentAddress?: boolean
   occupation?: boolean
   education?: boolean
   additionalInfo?: boolean
@@ -2783,7 +2851,8 @@ export type MemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   deathYear?: boolean
   gender?: boolean
   phoneNumber?: boolean
-  address?: boolean
+  birthPlace?: boolean
+  currentAddress?: boolean
   occupation?: boolean
   education?: boolean
   additionalInfo?: boolean
@@ -2814,7 +2883,8 @@ export type MemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   deathYear?: boolean
   gender?: boolean
   phoneNumber?: boolean
-  address?: boolean
+  birthPlace?: boolean
+  currentAddress?: boolean
   occupation?: boolean
   education?: boolean
   additionalInfo?: boolean
@@ -2845,7 +2915,8 @@ export type MemberSelectScalar = {
   deathYear?: boolean
   gender?: boolean
   phoneNumber?: boolean
-  address?: boolean
+  birthPlace?: boolean
+  currentAddress?: boolean
   occupation?: boolean
   education?: boolean
   additionalInfo?: boolean
@@ -2858,7 +2929,7 @@ export type MemberSelectScalar = {
   updatedAt?: boolean
 }
 
-export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authId" | "verified" | "name" | "birthDate" | "birthMonth" | "birthYear" | "deceased" | "deathDate" | "deathMonth" | "deathYear" | "gender" | "phoneNumber" | "address" | "occupation" | "education" | "additionalInfo" | "descendant" | "order" | "fatherId" | "motherId" | "partnerId" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
+export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "authId" | "verified" | "name" | "birthDate" | "birthMonth" | "birthYear" | "deceased" | "deathDate" | "deathMonth" | "deathYear" | "gender" | "phoneNumber" | "birthPlace" | "currentAddress" | "occupation" | "education" | "additionalInfo" | "descendant" | "order" | "fatherId" | "motherId" | "partnerId" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
 export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pendingVerification?: boolean | Prisma.Member$pendingVerificationArgs<ExtArgs>
   nonDescendantRelation?: boolean | Prisma.Member$nonDescendantRelationArgs<ExtArgs>
@@ -2911,7 +2982,8 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     deathYear: number | null
     gender: string
     phoneNumber: string | null
-    address: string | null
+    birthPlace: string | null
+    currentAddress: string | null
     occupation: string | null
     education: string | null
     additionalInfo: string | null
@@ -3367,7 +3439,8 @@ export interface MemberFieldRefs {
   readonly deathYear: Prisma.FieldRef<"Member", 'Int'>
   readonly gender: Prisma.FieldRef<"Member", 'String'>
   readonly phoneNumber: Prisma.FieldRef<"Member", 'String'>
-  readonly address: Prisma.FieldRef<"Member", 'String'>
+  readonly birthPlace: Prisma.FieldRef<"Member", 'String'>
+  readonly currentAddress: Prisma.FieldRef<"Member", 'String'>
   readonly occupation: Prisma.FieldRef<"Member", 'String'>
   readonly education: Prisma.FieldRef<"Member", 'String'>
   readonly additionalInfo: Prisma.FieldRef<"Member", 'String'>

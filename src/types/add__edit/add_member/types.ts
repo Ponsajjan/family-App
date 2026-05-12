@@ -11,7 +11,8 @@ export interface AddMemberFormValueTypes {
     phone_number: string;
     occupation: string;
     education: string;
-    address: string;
+    birthPlace: string;
+    currentAddress: string;
     additionalInfo: string;
     descendant: "Yes" | "No" | undefined;
     father: string;
@@ -41,7 +42,8 @@ export const AddMemberDefaultFormValue: AddMemberFormValueTypes = {
     phone_number: '',
     occupation: '',
     education: '',
-    address: '',
+    birthPlace: '',
+    currentAddress: '',
     additionalInfo: '',
     descendant: undefined,
     father: '',

@@ -190,10 +190,17 @@ function EditMemberForm({
                 onChange={handleInputChange}
             />
             <Input
+                className="mb-2"
+                label="Birth Place"
+                name="birthPlace"
+                value={formData.birthPlace || ''}
+                onChange={handleInputChange}
+            />
+            <Input
                 className="mb-4"
-                label="Address"
-                name="address"
-                value={formData.address || ''}
+                label="Current Address"
+                name="currentAddress"
+                value={formData.currentAddress || ''}
                 onChange={handleInputChange}
             />
             <TextArea

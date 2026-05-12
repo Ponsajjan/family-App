@@ -196,11 +196,19 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 onChange={handleInputChange}
             />
             <Input
+                className="mb-2"
+                showOptional={true}
+                name="birthPlace"
+                label="Birth Place"
+                value={formData.birthPlace || ''}
+                onChange={handleInputChange}
+            />
+            <Input
                 className="mb-4"
                 showOptional={true}
-                name="address"
-                label="Address"
-                value={formData.address || ''}
+                name="currentAddress"
+                label="Current Address"
+                value={formData.currentAddress || ''}
                 onChange={handleInputChange}
             />
             <TextArea
