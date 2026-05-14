@@ -58,6 +58,9 @@ export async function POST(request: NextRequest) {
       education: formData.education || null,
       birthPlace: formData.birthPlace || null,
       currentAddress: formData.currentAddress || null,
+      city: formData.city || null,
+      state: formData.state || null,
+      country: formData.country || null,
       additionalInfo: formData.additionalInfo || null,
       descendant: formData.descendant,
     };

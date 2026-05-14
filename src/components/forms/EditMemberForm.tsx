@@ -1,4 +1,5 @@
 'use client'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { ChangeMember, Error, Info } from '@/utils/Icons'
@@ -7,6 +8,7 @@ import TextArea from '@/components/TextArea'
 import { ButtonSolid } from '@/components/Button'
 import RadioButton from "@/components/RadioButton";
 import { useToast } from '../Toast';
+import { appFetch } from '@/utils/appFetch';
 
 function EditMemberForm({
     handleSubmit,
@@ -21,9 +23,78 @@ function EditMemberForm({
 
     const head = useSelector((state: RootState) => state.terms.mainMemberName);
     const toast = useToast();
+    const [options, setOptions] = useState<{
+        occupations: string[],
+        educations: string[],
+        birthPlaces: string[],
+        countries: string[],
+        states: string[],
+        cities: string[]
+    }>({
+        occupations: [],
+        educations: [],
+        birthPlaces: [],
+        countries: [],
+        states: [],
+        cities: []
+    });
+
     const showWarning = (input: string) => {
         toast?.show(`Can not change ${input} for this member`, "warning", 5000);
     }
+
+    useEffect(() => {
+        const fetchInitialOptions = async () => {
+            try {
+                const res = await appFetch('/api/relatives/filterOptions');
+                if (res.ok) {
+                    const data = await res.json();
+                    setOptions(prev => ({ ...prev, ...data }));
+                }
+            } catch (err) {
+                console.error("Failed to fetch filter options", err);
+            }
+        };
+        fetchInitialOptions();
+    }, []);
+
+    useEffect(() => {
+        if (formData.country) {
+            const fetchStates = async () => {
+                try {
+                    const res = await appFetch(`/api/relatives/filterOptions?type=states&country=${encodeURIComponent(formData.country)}`);
+                    if (res.ok) {
+                        const { data } = await res.json();
+                        setOptions(prev => ({ ...prev, states: data }));
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch states", err);
+                }
+            };
+            fetchStates();
+        } else {
+            setOptions(prev => ({ ...prev, states: [], cities: [] }));
+        }
+    }, [formData.country]);
+
+    useEffect(() => {
+        if (formData.country && formData.state) {
+            const fetchCities = async () => {
+                try {
+                    const res = await appFetch(`/api/relatives/filterOptions?type=cities&country=${encodeURIComponent(formData.country)}&state=${encodeURIComponent(formData.state)}`);
+                    if (res.ok) {
+                        const { data } = await res.json();
+                        setOptions(prev => ({ ...prev, cities: data }));
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch cities", err);
+                }
+            };
+            fetchCities();
+        } else {
+            setOptions(prev => ({ ...prev, cities: [] }));
+        }
+    }, [formData.country, formData.state]);
 
     const getCurrentISTYear = () => {
         return new Date().toLocaleString("en-US", {
@@ -179,30 +250,84 @@ function EditMemberForm({
                 className="mb-2"
                 label="Occupation"
                 name="occupation"
+                list="edit-occupations-list"
                 value={formData.occupation || ''}
                 onChange={handleInputChange}
             />
+            <datalist id="edit-occupations-list">
+                {options.occupations.map(opt => <option key={opt} value={opt} />)}
+            </datalist>
+
             <Input
                 className="mb-2"
                 label="Education"
                 name="education"
+                list="edit-educations-list"
                 value={formData.education || ''}
                 onChange={handleInputChange}
             />
+            <datalist id="edit-educations-list">
+                {options.educations.map(opt => <option key={opt} value={opt} />)}
+            </datalist>
+
             <Input
                 className="mb-2"
                 label="Birth Place"
                 name="birthPlace"
+                list="edit-birthPlaces-list"
                 value={formData.birthPlace || ''}
                 onChange={handleInputChange}
             />
-            <Input
-                className="mb-4"
+            <datalist id="edit-birthPlaces-list">
+                {options.birthPlaces.map(opt => <option key={opt} value={opt} />)}
+            </datalist>
+
+            <TextArea
+                className="mb-1"
                 label="Current Address"
                 name="currentAddress"
                 value={formData.currentAddress || ''}
                 onChange={handleInputChange}
             />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
+                <div>
+                    <Input
+                        name="country"
+                        label="Country"
+                        list="edit-countries-list"
+                        value={formData.country || ''}
+                        onChange={handleInputChange}
+                    />
+                    <datalist id="edit-countries-list">
+                        {options.countries.map(opt => <option key={opt} value={opt} />)}
+                    </datalist>
+                </div>
+                <div>
+                    <Input
+                        name="state"
+                        label="State"
+                        list="edit-states-list"
+                        value={formData.state || ''}
+                        onChange={handleInputChange}
+                    />
+                    <datalist id="edit-states-list">
+                        {options.states.map(opt => <option key={opt} value={opt} />)}
+                    </datalist>
+                </div>
+                <div>
+                    <Input
+                        name="city"
+                        label="City"
+                        list="edit-cities-list"
+                        value={formData.city || ''}
+                        onChange={handleInputChange}
+                    />
+                    <datalist id="edit-cities-list">
+                        {options.cities.map(opt => <option key={opt} value={opt} />)}
+                    </datalist>
+                </div>
+            </div>
+
             <TextArea
                 className="mb-4"
                 label="Additional Info"
@@ -265,4 +390,4 @@ function EditMemberForm({
     )
 }
 
-export default EditMemberForm
+export default EditMemberForm;

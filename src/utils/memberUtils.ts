@@ -28,6 +28,9 @@ export interface MemberResponse {
   contactInformation?: {
     phoneNumber?: string;
     currentAddress?: string;
+    city?: string;
+    state?: string;
+    country?: string;
   };
   personalInformation?: {
     birthPlace?: string;
@@ -53,6 +56,9 @@ export async function fetchMemberData(id: number, loginAuthIdsCount: number) {
       phoneNumber: true,
       birthPlace: true,
       currentAddress: true,
+      city: true,
+      state: true,
+      country: true,
       occupation: true,
       education: true,
       additionalInfo: true,
@@ -157,9 +163,12 @@ function buildRelationInfo(member: any, siblings: any[]) {
 }
 
 function buildContactInfo(member: any) {
-  return member.phoneNumber || member.currentAddress ? {
+  return member.phoneNumber || member.currentAddress || member.city || member.state || member.country ? {
     ...(member.phoneNumber && { phoneNumber: member.phoneNumber }),
-    ...(member.currentAddress && { currentAddress: member.currentAddress })
+    ...(member.currentAddress && { currentAddress: member.currentAddress }),
+    ...(member.city && { city: member.city }),
+    ...(member.state && { state: member.state }),
+    ...(member.country && { country: member.country })
   } : undefined;
 }
 

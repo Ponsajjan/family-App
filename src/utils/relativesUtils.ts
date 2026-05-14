@@ -1,16 +1,39 @@
 import prisma from "@/db/db";
+import { prioritizeSearchResults } from "./searchUtils";
 
-export async function fetchRelativesData(allAuthIds: number[], page: number, limit: number, searchQuery: string) {
+export async function fetchRelativesData(
+    allAuthIds: number[],
+    page: number,
+    limit: number,
+    searchQuery: string,
+    filters: {
+        occupation?: string;
+        education?: string;
+        birthPlace?: string;
+        country?: string;
+        state?: string;
+        city?: string;
+    } = {}
+) {
+    const { occupation, education, birthPlace, country, state, city } = filters;
     const baseSkip = (page - 1) * limit;
     const skip = page === 1 ? baseSkip : baseSkip - 1;
     const take = page === 1 ? limit : limit + 1;
 
+    const where: any = {
+        authId: { in: allAuthIds },
+        ...(searchQuery && { name: { contains: searchQuery, mode: "insensitive" } }),
+        ...(occupation && { occupation: { contains: occupation, mode: "insensitive" } }),
+        ...(education && { education: { contains: education, mode: "insensitive" } }),
+        ...(birthPlace && { birthPlace: { equals: birthPlace, mode: "insensitive" } }),
+        ...(country && { country: { equals: country, mode: "insensitive" } }),
+        ...(state && { state: { equals: state, mode: "insensitive" } }),
+        ...(city && { city: { equals: city, mode: "insensitive" } }),
+    };
+
     const [members, totalCount] = await Promise.all([
         prisma.member.findMany({
-            where: {
-                authId: { in: allAuthIds },
-                ...(searchQuery && { name: { contains: searchQuery, mode: "insensitive" } }),
-            },
+            where,
             select: {
                 id: true,
                 name: true,
@@ -24,13 +47,11 @@ export async function fetchRelativesData(allAuthIds: number[], page: number, lim
             skip,
             take,
         }),
-        prisma.member.count({
-            where: {
-                authId: { in: allAuthIds },
-                ...(searchQuery && { name: { contains: searchQuery, mode: "insensitive" } }),
-            },
-        })
+        prisma.member.count({ where })
     ]);
+    
+    // Prioritize results starting with the search query
+    prioritizeSearchResults(members, searchQuery, (m) => m.name);
 
     const groupedData: any[] = [];
     let previousFirstLetter = '';

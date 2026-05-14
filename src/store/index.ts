@@ -1,9 +1,9 @@
-import { configureStore } from '@reduxjs/toolkit';
-import termsReducer from './slices/termsSlice';
+import { configureStore, Reducer } from '@reduxjs/toolkit';
+import termsReducer, { TermsState } from './slices/termsSlice';
 
 export const store = configureStore({
   reducer: {
-    terms: termsReducer,
+    terms: termsReducer as Reducer<TermsState>,
   },
 });
 

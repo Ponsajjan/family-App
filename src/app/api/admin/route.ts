@@ -1,19 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/db/db';
 import { verifyToken } from '@/utils/auth';
-
-interface FormattedAuthEntry {
-  id: number;
-  mainMemberId: number | null;
-  mainMemberName: string;
-  memberPassword: string;
-  moderatorPassword: string;
-  moderators: {
-    id: number;
-    name: string;
-    contactNumber: string;
-  }[];
-}
+import { formatAdminAuthEntries } from '@/utils/adminUtils';
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
@@ -87,23 +75,8 @@ export async function GET(request: NextRequest) {
     const mainMemberMap = new Map(
       mainMembers.map((member) => [member.id, member])
     );
-    const formattedResponse: FormattedAuthEntry[] = authEntries.map((auth) => {
 
-      const mainMember = auth.mainMemberId ? mainMemberMap.get(auth.mainMemberId) : null;
-
-      return {
-        id: auth.id,
-        mainMemberId: auth.mainMemberId,
-        mainMemberName: mainMember?.name || 'Unknown',
-        memberPassword: auth.password,
-        moderatorPassword: auth.moderatorPassword,
-        moderators: auth.moderatorList.map((moderator: { id: number, moderatorName: string, moderatorContact: string }) => ({
-          id: moderator.id,
-          name: moderator.moderatorName,
-          contactNumber: moderator.moderatorContact,
-        })),
-      };
-    });
+    const formattedResponse = formatAdminAuthEntries(authEntries, mainMemberMap, searchTerm);
 
     // Return response with pagination metadata
     return NextResponse.json({

@@ -71,6 +71,9 @@ function MemberDetails({ data }: { data: any }) {
                 {data.contactInformation && (
                     <InformationSection title="Contact Information">
                         <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
+                        <MemberItem label="Country" value={data.contactInformation.country} />
+                        <MemberItem label="State" value={data.contactInformation.state} />
+                        <MemberItem label="City" value={data.contactInformation.city} />
                         <MemberItem label="Address" value={data.contactInformation.currentAddress} />
                     </InformationSection>
                 )}

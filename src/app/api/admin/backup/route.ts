@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { cookies } from "next/headers";
-import { Prisma } from "@/generated/client/client";
+import { Prisma } from "@prisma/client";
 
 /**
  * GET: Export database data
@@ -93,7 +93,10 @@ export async function POST(request: Request) {
                const { address, ...rest } = m;
                return {
                   ...rest,
-                  currentAddress: rest.currentAddress || address,
+                  currentAddress: rest.currentAddress || address || null,
+                  city: rest.city || null,
+                  state: rest.state || null,
+                  country: rest.country || null,
                };
             });
             await tx.member.createMany({ data: membersToRestore });
@@ -137,7 +140,11 @@ export async function POST(request: Request) {
                const { address, ...rest } = m;
                return {
                   ...rest,
-                  currentAddress: rest.currentAddress || address,
+                  currentAddress: rest.currentAddress || address || null,
+                  // Ensure new fields are present at least as nulls if missing from old backup
+                  city: rest.city || null,
+                  state: rest.state || null,
+                  country: rest.country || null,
                };
             });
             await tx.member.createMany({ data: membersToRestore });

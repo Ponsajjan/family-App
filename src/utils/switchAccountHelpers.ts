@@ -10,9 +10,32 @@ import prisma from "@/db/db";
  */
 export async function getAllAuthIds(authId: number, userType: string, selectedAuthId?: string): Promise<{
     allAuthIds: number[];
-    updatedAt: Record<number, number>
+    updatedAt: Record<string, number>
 }> {
-    const loginAuthIds = selectedAuthId ? JSON.parse(selectedAuthId) : [];
+    if (userType === 'Admin' && (!selectedAuthId || selectedAuthId === '[]')) {
+        const allAuths = await prisma.auth.findMany({
+            select: { id: true, updatedAt: true, memberAuthId: true, moderatorAuthId: true }
+        });
+        const updatedAt: Record<string, number> = {};
+        allAuths.forEach(a => {
+            if (a.memberAuthId) updatedAt[a.memberAuthId] = a.updatedAt.getTime();
+            if (a.moderatorAuthId) updatedAt[a.moderatorAuthId] = a.updatedAt.getTime();
+        });
+        return {
+            allAuthIds: allAuths.map(a => a.id),
+            updatedAt
+        };
+    }
+
+    let loginAuthIds: string[] = [];
+    if (selectedAuthId) {
+        try {
+            const parsed = JSON.parse(selectedAuthId);
+            loginAuthIds = Array.isArray(parsed) ? parsed : [String(parsed)];
+        } catch (e) {
+            loginAuthIds = [selectedAuthId];
+        }
+    }
 
     const updatedAt: Record<any, number> = {};
 
@@ -45,7 +68,7 @@ export async function getAllAuthIds(authId: number, userType: string, selectedAu
             });
 
             return {
-                allAuthIds: [...new Set(switchedIds)],
+                allAuthIds: [...new Set(switchedIds)].filter(id => typeof id === 'number' && !isNaN(id)),
                 updatedAt
             };
         } catch (e) {
@@ -72,7 +95,7 @@ export async function getAllAuthIds(authId: number, userType: string, selectedAu
     }
 
     return {
-        allAuthIds: [authId],
+        allAuthIds: [authId].filter(id => typeof id === 'number' && !isNaN(id)),
         updatedAt
     };
 }

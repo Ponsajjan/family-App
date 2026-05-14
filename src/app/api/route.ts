@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
+import { prioritizeSearchResults } from "@/utils/searchUtils";
 
 interface Member {
   id: number;
@@ -257,6 +258,9 @@ export async function GET(request: NextRequest) {
     };
 
     const totalCount = await prisma.member.count({ where: countWhere });
+    
+    // Prioritize results starting with the search query
+    prioritizeSearchResults(memberList, searchQuery, (m) => m.name);
 
     // Process the data to add letter headers
     let previousFirstLetter = lastLetterId;

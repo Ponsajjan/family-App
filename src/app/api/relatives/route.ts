@@ -10,6 +10,12 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "40", 10)));
   const searchQuery = searchParams.get("search")?.trim() || "";
+  const occupation = searchParams.get("occupation")?.trim() || "";
+  const education = searchParams.get("education")?.trim() || "";
+  const birthPlace = searchParams.get("birthPlace")?.trim() || "";
+  const country = searchParams.get("country")?.trim() || "";
+  const state = searchParams.get("state")?.trim() || "";
+  const city = searchParams.get("city")?.trim() || "";
 
   // Authentication
   const token = request.cookies.get("token")?.value;
@@ -30,7 +36,14 @@ export async function GET(request: NextRequest) {
     const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
     const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
 
-    const { data, totalCount } = await fetchRelativesData(allAuthIds, page, limit, searchQuery);
+    const { data, totalCount } = await fetchRelativesData(allAuthIds, page, limit, searchQuery, {
+      occupation,
+      education,
+      birthPlace,
+      country,
+      state,
+      city,
+    });
 
     return NextResponse.json({
       data,

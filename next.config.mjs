@@ -36,7 +36,10 @@ const withPWA = withPWAInit({
 const nextConfig = {
   output: "standalone",
   turbopack: {},
-  allowedDevOrigins: ['192.168.43.100', '192.168.43.100:3000', 'localhost:3000'],
+  allowedDevOrigins: ['192.168.43.100', '192.168.43.100:3000', 'localhost:3000', '192.168.43.239:3000'],
+  env: {
+    RELOAD_FOR_PRISMA: "v2"
+  }
 };
 
 export default withPWA(nextConfig);

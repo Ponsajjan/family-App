@@ -202,7 +202,7 @@ export default function ModeratorDashboard() {
                                 <div onClick={() => setShowChoosePopup(true)} className='border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors relative'>
                                     <SwitchIcon />
                                     {anyOtherAccountHasIssues && (
-                                        <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                                        <span className="absolute -bottom-0.5 right-0 flex h-2.5 w-2.5">
                                             <span className="inline-flex h-full w-full rounded-full bg-black"></span>
                                         </span>
                                     )}

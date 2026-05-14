@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/client"
 }
 
 datasource db {
@@ -41,7 +42,7 @@ model Member {
   gender              String
   phoneNumber         String?
   birthPlace          String?
-  currentAddress      String? @map("address")
+  currentAddress      String?          @map("address")
   city                String?
   state               String?
   country             String?
@@ -111,7 +112,7 @@ model ModeratorList {
 model FamilyTree {
   id                 Int       @id @default(autoincrement())
   authId             Int       @unique
-  data               Json?     // Nullable since it won't exist during "building" status
+  data               Json? // Nullable since it won't exist during "building" status
   status             String    @default("completed") // "building", "completed", "failed"
   lastBuildStartedAt DateTime? // Track when build started (for timeout detection)
   auth               Auth      @relation(fields: [authId], references: [id], onDelete: Cascade)

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
+import { prioritizeSearchResults } from "@/utils/searchUtils";
 
 export async function GET(request: NextRequest) {
   // Extract search parameters
@@ -55,6 +56,9 @@ export async function GET(request: NextRequest) {
       skip,
       take: limit,
     });
+    
+    // Prioritize results starting with the search query
+    prioritizeSearchResults(memberList, searchQuery, (m) => m.name);
 
     // Total count for pagination
     const totalCount = await prisma.member.count({

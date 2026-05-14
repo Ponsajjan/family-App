@@ -13,6 +13,9 @@ export interface AddMemberFormValueTypes {
     education: string;
     birthPlace: string;
     currentAddress: string;
+    city: string;
+    state: string;
+    country: string;
     additionalInfo: string;
     descendant: "Yes" | "No" | undefined;
     father: string;
@@ -44,6 +47,9 @@ export const AddMemberDefaultFormValue: AddMemberFormValueTypes = {
     education: '',
     birthPlace: '',
     currentAddress: '',
+    city: '',
+    state: '',
+    country: '',
     additionalInfo: '',
     descendant: undefined,
     father: '',

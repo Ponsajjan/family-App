@@ -20,10 +20,10 @@ export const globalFetcher = async (url: string) => {
   }
 
   // Check that the Service Worker didn't intercept and return the offline HTML page
-  const contentType = res.headers.get('content-type');
-  if (contentType && contentType.includes('text/html')) {
-    throw new Error("OfflineFallbackInterception");
-  }
+  // const contentType = res.headers.get('content-type');
+  // if (contentType && contentType.includes('text/html')) {
+  //   throw new Error("OfflineFallbackInterception");
+  // }
 
   const json = await res.json();
   return json;

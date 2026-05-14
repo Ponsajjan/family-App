@@ -1,10 +1,11 @@
 'use client'
 
-import { CloseIcon, SearchIcon } from "@/utils/Icons";
+import { CloseIcon, SearchIcon, Filter } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
 import { useRef, useState, useMemo, useEffect } from 'react'
 import useSWRInfinite from 'swr/infinite';
 import Details from './Details';
+import FilterPanel from './FilterPanel';
 import Link from 'next/link';
 import Topnav from "@/components/Topnav";
 import { useDebounce } from "@/utils/debounce";
@@ -17,6 +18,7 @@ import { appFetch } from '@/utils/appFetch';
 export default function Relatives() {
   const [searchInput, setSearchInput] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [showMember, setShowMember] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [params, setParams] = useState({
@@ -24,6 +26,17 @@ export default function Relatives() {
     limit: 40,
     search: "",
   });
+
+  const [filters, setFilters] = useState({
+    occupation: '',
+    education: '',
+    birthPlace: '',
+    country: '',
+    state: '',
+    city: ''
+  });
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   const handleSetSearchFilter = useDebounce((value) => {
     setParams((prevParams) => ({
@@ -49,7 +62,12 @@ export default function Relatives() {
 
   const getKey = (pageIndex: number, previousPageData: any) => {
     if (previousPageData && !previousPageData.data.length) return null;
-    return `/api/relatives?search=${encodeURIComponent(params.search)}&page=${pageIndex + 1}&limit=${params.limit}`;
+    const filterQuery = Object.entries(filters)
+      .filter(([_, v]) => v)
+      .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+      .join('&');
+
+    return `/api/relatives?search=${encodeURIComponent(params.search)}&page=${pageIndex + 1}&limit=${params.limit}${filterQuery ? `&${filterQuery}` : ''}`;
   };
 
   const {
@@ -63,7 +81,6 @@ export default function Relatives() {
   } = useSWRInfinite(getKey);
 
   useEffect(() => {
-
     // Only check version if data is present at the moment params change (from SWR cache)
     if (swrData?.[0]?._version) {
       const checkRelativesVersion = async () => {
@@ -95,13 +112,10 @@ export default function Relatives() {
     }
   }, [params.search, params.limit, mutate]);
 
-
-
-
   const members = useMemo(() => {
     if (!swrData) return [];
     const allMembers = swrData.flatMap((page) => page.data);
-    // Remove duplicates based on ID if any (similar to your previous logic)
+    // Remove duplicates based on ID if any
     const seen = new Set();
     return allMembers.filter((member) => {
       const duplicate = seen.has(member.id);
@@ -130,30 +144,74 @@ export default function Relatives() {
 
   function highlightText(text: string, searchText: string): string {
     if (!searchText) return text;
-    const regex = new RegExp(`(${searchText})`, 'gi');
+    // Escape special regex characters like dots to treat them as literals
+    const escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedSearchText})`, 'gi');
     return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>');
   }
+
+  const handleApplyFilters = (newFilters: any) => {
+    setFilters(newFilters);
+
+    const hasActiveFilters = Object.values(newFilters).some(v => v !== '');
+    if (hasActiveFilters) {
+      setSearchInput("");
+      setParams(prev => ({
+        ...prev,
+        search: "",
+        page: 1,
+      }));
+    }
+  };
+  const handleSetDetails = (value: boolean) => {
+    if (value) {
+      setShowFilters(false);
+    }
+    setShowDetails(value)
+  };
+
+  const handleSetFilter = (value: boolean) => {
+    if (value) {
+      setShowDetails(false);
+    }
+    setShowFilters(value)
+  };
+
 
   return (
     <div className="w-full">
       <Topnav>
-        <div className="relative w-full md:w-64 ml-auto mr-0">
-          <input
-            value={searchInput}
-            onChange={(e) => handleMemberSearch(e.target.value)}
-            type="text"
-            placeholder="Search"
-            className="ml-auto peer mr-0 input-not-placeholder cursor-pointer block p-1 pl-4 focus:pr-8 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
-          />
-          <span className="absolute right-[0.3125rem] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
-            <SearchIcon />
-          </span>
+        <div className="flex items-center gap-2 ml-auto mr-0">
+          <div className="relative w-full md:w-64">
+            <input
+              value={searchInput}
+              onChange={(e) => handleMemberSearch(e.target.value)}
+              type="text"
+              placeholder="Search"
+              className="ml-auto peer mr-0 input-not-placeholder cursor-pointer block p-1 pl-4 focus:pr-8 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
+            />
+            <span className="absolute right-[0.3125rem] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
+              <SearchIcon />
+            </span>
+            <button
+              onClick={resetSearch}
+              className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
+              aria-label="Clear search"
+            >
+              <CloseIcon />
+            </button>
+          </div>
           <button
-            onClick={resetSearch}
-            className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
-            aria-label="Clear search"
+            onClick={() => handleSetFilter(true)}
+            className={`p-1 border border-border_color rounded-md bg-main_background hover:bg-field_color relative ${activeFilterCount > 0 ? 'border-border_active shadow-sm' : ''}`}
+            aria-label="Toggle filters"
           >
-            <CloseIcon />
+            <Filter />
+            {activeFilterCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-border_active text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                {activeFilterCount}
+              </span>
+            )}
           </button>
         </div>
       </Topnav>
@@ -170,7 +228,7 @@ export default function Relatives() {
                   <div key={member.id} className="pl-4">
                     <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
                       <div
-                        onClick={() => { setShowDetails(true); setShowMember(member.id) }}
+                        onClick={() => { handleSetDetails(true); setShowMember(member.id) }}
                         className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                       >
                         <div>
@@ -213,15 +271,26 @@ export default function Relatives() {
               <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loadingList && members.length === 0) && (
-                  params.search ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for &lsquo;{params.search}&lsquo;</p> : error ? 'Failed to load relatives.' : ''
+                  (params.search || activeFilterCount > 0) ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for current search/filters.</p> : error ? 'Failed to load relatives.' : ''
                 )}
-                {!hasMore && !error && <p className="text-text_color">, , ,</p>}
+                {!hasMore && !error && members.length > 0 && <p className="text-text_color text-center opacity-45">, , ,</p>}
               </div>
             </div>
           </div>
         </Container>
-        <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
-          <Details showMember={showMember} openDetails={setShowDetails} />
+
+        {/* Details Panel */}
+        <SlidePanel setShowDetails={handleSetDetails} showDetails={showDetails} >
+          <Details showMember={showMember} openDetails={handleSetDetails} />
+        </SlidePanel>
+
+        {/* Filter Panel */}
+        <SlidePanel setShowDetails={handleSetFilter} showDetails={showFilters} >
+          <FilterPanel
+            onClose={() => handleSetFilter(false)}
+            onApply={handleApplyFilters}
+            currentFilters={filters}
+          />
         </SlidePanel>
       </div>
     </div>
