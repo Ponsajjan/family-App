@@ -48,7 +48,7 @@ export default function DragScroll({ children }: { children: React.ReactNode }) 
   return (
     <div
       ref={scrollContainerRef}
-      className="cursor-grab select-none overflow-auto px-4 h-[calc(100vh-3rem)]"
+      className="cursor-grab select-none overflow-auto px-4 w-full h-[calc(100vh-3rem)]"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}

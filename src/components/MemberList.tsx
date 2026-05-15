@@ -390,7 +390,7 @@ export default function MemberList({
             )}
             <div className="min-h-10 px-4 py-2">
               {loadingList && <p className="py-2 px-4 text-text_color">Loading...</p>}
-              {!loadingList && !hasMore && <p>, , ,</p>}
+              {!loadingList && !hasMore && <p className="text-text_color">, , ,</p>}
             </div>
           </>
           : loadingList ? <p className="py-4 text-center text-text_color loading-text">Loading....</p>

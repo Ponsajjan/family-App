@@ -12,10 +12,14 @@ import useSWR from 'swr';
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { appFetch } from "@/utils/appFetch";
+import Details from "../relatives/Details";
+import SlidePanel from "@/components/SlidePanel";
 
 
 export default function FamilyTreePage() {
   const [showChoosePopup, setShowChoosePopup] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showMember, setShowMember] = useState<number | null>(null);
   const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
   const token = getCookie('token');
   const url = '/api/tree';
@@ -46,9 +50,6 @@ export default function FamilyTreePage() {
     }
   }, [mutate]);
 
-
-
-
   const data = swrResult?.treeData || null;
 
   if (!token) {
@@ -75,11 +76,20 @@ export default function FamilyTreePage() {
       ) : error ? (
         <div className="text-center text-text_color p-10">{error.message || "An error occurred"}</div>
       ) : (
-        <DragScroll>
-          <FetchFamilyTree data={data} />
-        </DragScroll>
-      )}
+        <div className="w-full md:flex">
+          <DragScroll>
+            <FetchFamilyTree data={data} onMemberClick={(id) => {
+              setShowMember(id);
+              setShowDetails(true);
+            }} />
+          </DragScroll>
 
+          {/* Details Panel */}
+          <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
+            <Details showMember={showMember} openDetails={setShowDetails} />
+          </SlidePanel>
+        </div>
+      )}
       {showChoosePopup && (
         <ChoosePopup
           setShowPopup={setShowChoosePopup}

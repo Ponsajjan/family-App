@@ -67,6 +67,9 @@ export default function EditCredential() {
           phone_number: edit_member.phone_number || "",
           occupation: edit_member.occupation || "",
           education: edit_member.education || "",
+          country: edit_member.country || "",
+          state: edit_member.state || "",
+          city: edit_member.city || "",
           address: edit_member.address || "",
           member_password: edit_member.member_password,
           moderator_password: edit_member.moderator_password,
@@ -130,6 +133,9 @@ export default function EditCredential() {
         phoneNumber: formData.phone_number,
         occupation: formData.occupation,
         education: formData.education,
+        country: formData.country,
+        state: formData.state,
+        city: formData.city,
         address: formData.address,
         memberPassword: formData.member_password,
         moderatorPassword: formData.moderator_password,
@@ -339,6 +345,32 @@ export default function EditCredential() {
               value={formData.education}
               onChange={handleInputChange}
             />
+            <div className='flex gap-2'>
+              <Input
+                className="mb-2 w-full"
+                showOptional={true}
+                name="country"
+                label="Country"
+                value={formData.country}
+                onChange={handleInputChange}
+              />
+              <Input
+                className="mb-2 w-full"
+                showOptional={true}
+                name="state"
+                label="State"
+                value={formData.state}
+                onChange={handleInputChange}
+              />
+              <Input
+                className="mb-2 w-full"
+                showOptional={true}
+                name="city"
+                label="City"
+                value={formData.city}
+                onChange={handleInputChange}
+              />
+            </div>
             <Input
               className="mb-2"
               showOptional={true}

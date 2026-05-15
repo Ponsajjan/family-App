@@ -63,6 +63,9 @@ export default function Page() {
         phoneNumber: formData.phone_number,
         occupation: formData.occupation,
         education: formData.education,
+        country: formData.country,
+        state: formData.state,
+        city: formData.city,
         address: formData.address,
         memberPassword: formData.member_password,
         moderatorPassword: formData.moderator_password,
@@ -276,6 +279,32 @@ export default function Page() {
               value={formData.education}
               onChange={handleInputChange}
             />
+            <div className='flex gap-2'>
+              <Input
+                className="mb-2 w-full"
+                showOptional={true}
+                name="country"
+                label="Country"
+                value={formData.country}
+                onChange={handleInputChange}
+              />
+              <Input
+                className="mb-2 w-full"
+                showOptional={true}
+                name="state"
+                label="State"
+                value={formData.state}
+                onChange={handleInputChange}
+              />
+              <Input
+                className="mb-2 w-full"
+                showOptional={true}
+                name="city"
+                label="City"
+                value={formData.city}
+                onChange={handleInputChange}
+              />
+            </div>
             <Input
               className="mb-2"
               showOptional={true}

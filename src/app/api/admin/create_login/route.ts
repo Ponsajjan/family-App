@@ -68,6 +68,9 @@ export async function POST(request: NextRequest) {
       phoneNumber: formData.phoneNumber,
       occupation: formData.occupation || null,
       education: formData.education || null,
+      country: formData.country || null,
+      state: formData.state || null,
+      city: formData.city || null,
       address: formData.address || null,
     };
 

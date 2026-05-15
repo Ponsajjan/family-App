@@ -35,6 +35,9 @@ interface MemberResponse {
   };
   contactInformation?: {
     phoneNumber?: string;
+    country?: string;
+    state?: string;
+    city?: string;
     address?: string; // This will map to currentAddress for display
   };
   personalInformation?: {
@@ -83,6 +86,9 @@ export async function GET(request: NextRequest) {
           phoneNumber: true,
           birthPlace: true,
           currentAddress: true,
+          city: true,
+          state: true,
+          country: true,
           occupation: true,
           education: true,
           birthDate: true,
@@ -202,8 +208,11 @@ function buildRelationInfo(member: any, siblings: any[]) {
 }
 
 function buildContactInfo(member: any) {
-  return member.phoneNumber || member.currentAddress ? {
+  return member.phoneNumber || member.currentAddress || member.country || member.state || member.city ? {
     ...(member.phoneNumber && { phoneNumber: member.phoneNumber }),
+    ...(member.country && { country: member.country }),
+    ...(member.state && { state: member.state }),
+    ...(member.city && { city: member.city }),
     ...(member.currentAddress && { address: member.currentAddress }) // Map currentAddress to address label for UI
   } : undefined;
 }

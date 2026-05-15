@@ -33,10 +33,22 @@ export default function Relatives() {
     birthPlace: '',
     country: '',
     state: '',
-    city: ''
+    city: '',
+    birthYearStart: '',
+    birthYearEnd: ''
   });
 
-  const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.occupation) count++;
+    if (filters.education) count++;
+    if (filters.birthPlace) count++;
+    if (filters.country) count++;
+    if (filters.state) count++;
+    if (filters.city) count++;
+    if (filters.birthYearStart || filters.birthYearEnd) count++;
+    return count;
+  }, [filters]);
 
   const handleSetSearchFilter = useDebounce((value) => {
     setParams((prevParams) => ({
@@ -62,12 +74,22 @@ export default function Relatives() {
 
   const getKey = (pageIndex: number, previousPageData: any) => {
     if (previousPageData && !previousPageData.data.length) return null;
-    const filterQuery = Object.entries(filters)
-      .filter(([_, v]) => v)
-      .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
-      .join('&');
+    return ['/api/relatives', params.search, pageIndex + 1, params.limit, filters];
+  };
 
-    return `/api/relatives?search=${encodeURIComponent(params.search)}&page=${pageIndex + 1}&limit=${params.limit}${filterQuery ? `&${filterQuery}` : ''}`;
+  const fetcher = async ([url, search, page, limit, filtersData]: any) => {
+    const res = await appFetch(`${url}?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ filters: filtersData }),
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || 'Failed to fetch relatives');
+    }
+    return res.json();
   };
 
   const {
@@ -78,7 +100,7 @@ export default function Relatives() {
     isValidating,
     error,
     mutate
-  } = useSWRInfinite(getKey);
+  } = useSWRInfinite(getKey, fetcher);
 
   useEffect(() => {
     // Only check version if data is present at the moment params change (from SWR cache)
@@ -187,7 +209,7 @@ export default function Relatives() {
               value={searchInput}
               onChange={(e) => handleMemberSearch(e.target.value)}
               type="text"
-              placeholder="Search"
+              placeholder="Search by name"
               className="ml-auto peer mr-0 input-not-placeholder cursor-pointer block p-1 pl-4 focus:pr-8 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
             />
             <span className="absolute right-[0.3125rem] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
@@ -271,9 +293,12 @@ export default function Relatives() {
               <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loadingList && members.length === 0) && (
-                  (params.search || activeFilterCount > 0) ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for current search/filters.</p> : error ? 'Failed to load relatives.' : ''
+                  error ? 'Failed to load relatives.' :
+                    (params.search && activeFilterCount > 0) ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for the current search and filters.</p> :
+                      params.search ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for "{params.search}".</p> :
+                        activeFilterCount > 0 ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for the current filters.</p> : ''
                 )}
-                {!hasMore && !error && members.length > 0 && <p className="text-text_color text-center opacity-45">, , ,</p>}
+                {!hasMore && !error && members.length > 0 && <p className="text-text_color">, , ,</p>}
               </div>
             </div>
           </div>

@@ -92,7 +92,7 @@ export const ChoosePopup = ({
     };
 
     return ReactDom.createPortal(
-        <div className='fixed z-[100] inset-0 overflow-hidden'>
+        <div className='fixed z-[110] inset-0 overflow-hidden'>
             <div
                 onClick={() => setShowPopup(false)}
                 className={`xl:pl-40 xl:mt-12 bg-gray-500/60 absolute max-w-[162.5rem] mx-auto inset-0 backdrop-blur-sm`}

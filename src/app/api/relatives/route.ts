@@ -4,18 +4,31 @@ import { verifyToken } from "@/utils/auth";
 import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 import { fetchRelativesData } from "@/utils/relativesUtils";
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   // Extract and validate parameters
   const { searchParams } = new URL(request.url);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "40", 10)));
   const searchQuery = searchParams.get("search")?.trim() || "";
-  const occupation = searchParams.get("occupation")?.trim() || "";
-  const education = searchParams.get("education")?.trim() || "";
-  const birthPlace = searchParams.get("birthPlace")?.trim() || "";
-  const country = searchParams.get("country")?.trim() || "";
-  const state = searchParams.get("state")?.trim() || "";
-  const city = searchParams.get("city")?.trim() || "";
+
+  let filters: any = {};
+  try {
+    const body = await request.json();
+    if (body.filters) {
+      filters = body.filters;
+    }
+  } catch (e) {
+    // Ignore invalid JSON body
+  }
+
+  const occupation = filters.occupation?.trim() || "";
+  const education = filters.education?.trim() || "";
+  const birthPlace = filters.birthPlace?.trim() || "";
+  const country = filters.country?.trim() || "";
+  const state = filters.state?.trim() || "";
+  const city = filters.city?.trim() || "";
+  const birthYearStart = filters.birthYearStart ? parseInt(filters.birthYearStart, 10) : null;
+  const birthYearEnd = filters.birthYearEnd ? parseInt(filters.birthYearEnd, 10) : null;
 
   // Authentication
   const token = request.cookies.get("token")?.value;
@@ -43,6 +56,8 @@ export async function GET(request: NextRequest) {
       country,
       state,
       city,
+      birthYearStart,
+      birthYearEnd,
     });
 
     return NextResponse.json({

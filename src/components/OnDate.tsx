@@ -10,7 +10,7 @@ interface CalendarMonthlyEvent {
     age: number | string;
 }
 
-function OnDate({ events }: { events: CalendarMonthlyEvent[] }) {
+function OnDate({ events, onMemberClick }: { events: CalendarMonthlyEvent[], onMemberClick?: (id: string) => void }) {
 
     return (
         <div className='pt-4 pb-2 px-4'>
@@ -18,7 +18,8 @@ function OnDate({ events }: { events: CalendarMonthlyEvent[] }) {
                 return (
                     <div
                         key={index}
-                        className="flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[3.75rem] mb-2"
+                        onClick={() => onMemberClick?.(item.id)}
+                        className={`flex items-center bg-field_color text-text_color border border-l-4 border-border_color rounded-md min-h-[3.75rem] mb-2 ${onMemberClick ? 'cursor-pointer' : ''}`}
                     >
                         <span className="p-2">
                             {item.type === 'birthday' ? <Birthday /> : <Deathday />}

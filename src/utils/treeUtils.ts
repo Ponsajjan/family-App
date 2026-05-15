@@ -109,8 +109,8 @@ export async function fetchFamilyTreeData(
 
                     // Current generation data
                     const currentGen = [
-                        { name: member.name, gender: member.gender },
-                        ...(member.partner ? [{ name: member.partner.name, gender: member.partner.gender }] : []),
+                        { id: member.id, name: member.name, gender: member.gender },
+                        ...(member.partner ? [{ id: member.partner.id, name: member.partner.name, gender: member.partner.gender }] : []),
                     ];
 
                     return {

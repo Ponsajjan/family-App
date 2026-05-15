@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { CloseIcon, ResetData } from '@/utils/Icons';
+import { CloseIcon, ResetData, Info } from '@/utils/Icons';
 import { appFetch } from '@/utils/appFetch';
 import { ButtonSolid } from '@/components/Button';
 import FilterSelect from '@/components/FilterSelect';
+import Input from '@/components/Input';
 
 interface FilterPanelProps {
   onClose: () => void;
@@ -81,7 +82,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     }
   }, [filters.country, filters.state]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     setFilters((prev: any) => {
       const newFilters = { ...prev, [name]: value };
@@ -108,7 +109,9 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
       birthPlace: '',
       country: '',
       state: '',
-      city: ''
+      city: '',
+      birthYearStart: '',
+      birthYearEnd: ''
     };
     setFilters(reset);
     onApply(reset);
@@ -172,7 +175,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           disabled={!filters.country}
         />
         <FilterSelect
-          className="mb-4"
+          className="mb-6"
           label="City"
           name="city"
           value={filters.city}
@@ -180,6 +183,39 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           onChange={handleChange}
           disabled={!filters.state}
         />
+        <hr className="border-t border-border_color block mb-4" />
+        <div className="mb-6">
+          <label className="text-sm font-medium mb-2 block">Born Between</label>
+          <div className="flex gap-2 items-center w-full">
+            <Input
+              type="number"
+              placeholder="YYYY"
+              name="birthYearStart"
+              value={filters.birthYearStart || ''}
+              onChange={handleChange}
+              min="1600"
+              max={new Date().getFullYear()}
+              maxLength={4}
+              label=""
+            />
+            <span className="opacity-50">-</span>
+            <Input
+              type="number"
+              placeholder="YYYY"
+              name="birthYearEnd"
+              value={filters.birthYearEnd || ''}
+              onChange={handleChange}
+              min="1600"
+              max={new Date().getFullYear()}
+              maxLength={4}
+              label=""
+            />
+          </div>
+          <div className="text-xs text-text_color/60 mt-2 flex items-center gap-1 p-2 bg-field_color rounded-md">
+            <span className="mt-0.5"><Info /></span>
+            <span>This will only filter for members with a birth year assigned.</span>
+          </div>
+        </div>
         <ButtonSolid
           onClick={Object.values(filters).some(v => v !== '') || Object.values(currentFilters).some(v => v !== '') ? handleApply : onClose}
           buttonText={Object.values(filters).some(v => v !== '') || Object.values(currentFilters).some(v => v !== '') ? "Apply Filters" : "Cancel"}

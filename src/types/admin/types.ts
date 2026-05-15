@@ -11,6 +11,9 @@ export interface NewLoginFormValueTypes {
   phone_number: string;
   occupation: string;
   education: string;
+  country: string;
+  state: string;
+  city: string;
   address: string;
   father: string;
   mother: string;
@@ -60,6 +63,9 @@ export const NewLoginDefaultFormValue: NewLoginFormValueTypes = {
   phone_number: '',
   occupation: '',
   education: '',
+  country: '',
+  state: '',
+  city: '',
   address: '',
   father: '',
   mother: '',

@@ -13,9 +13,11 @@ export async function fetchRelativesData(
         country?: string;
         state?: string;
         city?: string;
+        birthYearStart?: number | null;
+        birthYearEnd?: number | null;
     } = {}
 ) {
-    const { occupation, education, birthPlace, country, state, city } = filters;
+    const { occupation, education, birthPlace, country, state, city, birthYearStart, birthYearEnd } = filters;
     const baseSkip = (page - 1) * limit;
     const skip = page === 1 ? baseSkip : baseSkip - 1;
     const take = page === 1 ? limit : limit + 1;
@@ -30,6 +32,12 @@ export async function fetchRelativesData(
         ...(state && { state: { equals: state, mode: "insensitive" } }),
         ...(city && { city: { equals: city, mode: "insensitive" } }),
     };
+
+    if (birthYearStart !== undefined && birthYearStart !== null || birthYearEnd !== undefined && birthYearEnd !== null) {
+        where.birthYear = {};
+        if (birthYearStart !== undefined && birthYearStart !== null) where.birthYear.gte = birthYearStart;
+        if (birthYearEnd !== undefined && birthYearEnd !== null) where.birthYear.lte = birthYearEnd;
+    }
 
     const [members, totalCount] = await Promise.all([
         prisma.member.findMany({

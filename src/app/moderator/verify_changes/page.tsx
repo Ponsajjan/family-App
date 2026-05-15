@@ -112,7 +112,7 @@ export default function NewMembers() {
                       <path d="M15.281 7.188v17.594l-15.281-8.781z" />
                     </svg>
                   </Link>
-                  <div className="px-2 py-0.5 text-sm md:text-base">
+                  <div className="px-2 py-0.5">
                     Verify Changes
                   </div>
                 </div>
