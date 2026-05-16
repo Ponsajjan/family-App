@@ -100,11 +100,11 @@ export const ChoosePopup = ({
             <div className="xl:pl-40 w-full h-full max-w-[162.5rem] px-2 mx-auto relative z-20 pointer-events-none">
                 <div className={`w-full h-full top-full left-0 right-0 static flex flex-col justify-center items-center transition-all duration-500 ease-in-out`}>
                     <div className={`
-                        w-full max-h-[80vh] md:max-h-[90%] text-text_color overflow-y-auto cursor-default
+                        w-full max-h-[80vh] md:max-h-[70%] text-text_color overflow-y-auto cursor-default
                         md:max-w-[28.125rem] mx-auto bg-main_background overflow-x-hidden 
-                        rounded-lg text-left md:shadow-xl p-4 md:p-6 md:pt-4 pointer-events-auto
+                        rounded-lg text-left md:shadow-xl p-4 md:px-6 md:py-4 pointer-events-auto
                     `}>
-                        <div className="flex justify-between items-center mb-4 border-b pb-1">
+                        <div className="flex justify-between items-center mb-4 border-b border-border_color pb-1">
                             <h2 className="text-xl font-semibold">
                                 {switchingAccount ? "Switching..." : "Select Account"}
                             </h2>

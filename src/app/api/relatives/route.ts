@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
     // Ignore invalid JSON body
   }
 
-  const occupation = filters.occupation?.trim() || "";
-  const education = filters.education?.trim() || "";
-  const birthPlace = filters.birthPlace?.trim() || "";
+  const occupation = Array.isArray(filters.occupation) ? filters.occupation : filters.occupation?.trim() || "";
+  const education = Array.isArray(filters.education) ? filters.education : filters.education?.trim() || "";
+  const birthPlace = Array.isArray(filters.birthPlace) ? filters.birthPlace : filters.birthPlace?.trim() || "";
   const country = filters.country?.trim() || "";
   const state = filters.state?.trim() || "";
   const city = filters.city?.trim() || "";

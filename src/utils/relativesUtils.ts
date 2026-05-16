@@ -7,9 +7,9 @@ export async function fetchRelativesData(
     limit: number,
     searchQuery: string,
     filters: {
-        occupation?: string;
-        education?: string;
-        birthPlace?: string;
+        occupation?: string | string[];
+        education?: string | string[];
+        birthPlace?: string | string[];
         country?: string;
         state?: string;
         city?: string;
@@ -25,9 +25,6 @@ export async function fetchRelativesData(
     const where: any = {
         authId: { in: allAuthIds },
         ...(searchQuery && { name: { contains: searchQuery, mode: "insensitive" } }),
-        ...(occupation && { occupation: { contains: occupation, mode: "insensitive" } }),
-        ...(education && { education: { contains: education, mode: "insensitive" } }),
-        ...(birthPlace && { birthPlace: { equals: birthPlace, mode: "insensitive" } }),
         ...(country && { country: { equals: country, mode: "insensitive" } }),
         ...(state && { state: { equals: state, mode: "insensitive" } }),
         ...(city && { city: { equals: city, mode: "insensitive" } }),
@@ -37,6 +34,36 @@ export async function fetchRelativesData(
         where.birthYear = {};
         if (birthYearStart !== undefined && birthYearStart !== null) where.birthYear.gte = birthYearStart;
         if (birthYearEnd !== undefined && birthYearEnd !== null) where.birthYear.lte = birthYearEnd;
+    }
+
+    const andConditions: any[] = [];
+    
+    if (occupation) {
+        if (Array.isArray(occupation) && occupation.length > 0) {
+            andConditions.push({ OR: occupation.map(o => ({ occupation: { contains: o, mode: "insensitive" } })) });
+        } else if (typeof occupation === 'string') {
+            andConditions.push({ occupation: { contains: occupation, mode: "insensitive" } });
+        }
+    }
+
+    if (education) {
+        if (Array.isArray(education) && education.length > 0) {
+            andConditions.push({ OR: education.map(e => ({ education: { contains: e, mode: "insensitive" } })) });
+        } else if (typeof education === 'string') {
+            andConditions.push({ education: { contains: education, mode: "insensitive" } });
+        }
+    }
+
+    if (birthPlace) {
+        if (Array.isArray(birthPlace) && birthPlace.length > 0) {
+            andConditions.push({ OR: birthPlace.map(b => ({ birthPlace: { equals: b, mode: "insensitive" } })) });
+        } else if (typeof birthPlace === 'string') {
+            andConditions.push({ birthPlace: { equals: birthPlace, mode: "insensitive" } });
+        }
+    }
+
+    if (andConditions.length > 0) {
+        where.AND = andConditions;
     }
 
     const [members, totalCount] = await Promise.all([

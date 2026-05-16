@@ -110,7 +110,7 @@ export default function EditMemberDetails() {
       const descendant = formData.descendant === "Yes";
       const memberData = {
         id: formData.id,
-        name: formData.name?.trimEnd(),
+        name: formData.name?.trim(),
         gender: formData.gender,
         birthDate: formData.birth_date || null,
         birthMonth: formData.birth_month || null,
@@ -119,19 +119,19 @@ export default function EditMemberDetails() {
         deathDate: deceased ? formData.death_date || null : null,
         deathMonth: deceased ? formData.death_month || null : null,
         deathYear: deceased ? formData.death_year || null : null,
-        phoneNumber: formData.phone_number?.trimEnd(),
-        occupation: formData.occupation?.trimEnd(),
-        education: formData.education?.trimEnd(),
-        birthPlace: formData.birthPlace?.trimEnd(),
-        currentAddress: formData.currentAddress?.trimEnd(),
-        city: formData.city?.trimEnd(),
-        state: formData.state?.trimEnd(),
-        country: formData.country?.trimEnd(),
-        additionalInfo: formData.additionalInfo?.trimEnd(),
+        phoneNumber: formData.phone_number?.trim(),
+        occupation: formData.occupation?.trim(),
+        education: formData.education?.trim(),
+        birthPlace: formData.birthPlace?.trim(),
+        currentAddress: formData.currentAddress?.trim(),
+        city: formData.city?.trim(),
+        state: formData.state?.trim(),
+        country: formData.country?.trim(),
+        additionalInfo: formData.additionalInfo?.trim(),
         descendant: descendant,
-        father: descendant ? null : formData.father?.trimEnd(),
-        mother: descendant ? null : formData.mother?.trimEnd(),
-        siblings: descendant ? null : formData.siblings?.trimEnd()
+        father: descendant ? null : formData.father?.trim(),
+        mother: descendant ? null : formData.mother?.trim(),
+        siblings: descendant ? null : formData.siblings?.trim()
       };
       const response = await appFetch(`/api/editMember/${formData.id}`, {
         method: "PUT",

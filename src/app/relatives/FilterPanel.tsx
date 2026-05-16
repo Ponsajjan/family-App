@@ -3,6 +3,8 @@ import { CloseIcon, ResetData, Info } from '@/utils/Icons';
 import { appFetch } from '@/utils/appFetch';
 import { ButtonSolid } from '@/components/Button';
 import FilterSelect from '@/components/FilterSelect';
+import MultiSelectPopup from '@/components/MultiSelectPopup';
+import SingleSelectPopup from '@/components/SingleSelectPopup';
 import Input from '@/components/Input';
 
 interface FilterPanelProps {
@@ -104,9 +106,9 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
 
   const handleReset = () => {
     const reset = {
-      occupation: '',
-      education: '',
-      birthPlace: '',
+      occupation: [],
+      education: [],
+      birthPlace: [],
       country: '',
       state: '',
       city: '',
@@ -132,55 +134,49 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
         </button>
       </div>
       <div className='px-4 pb-6 pt-2'>
-        <FilterSelect
+        <MultiSelectPopup
           className="mb-4"
           label="Occupation"
-          name="occupation"
-          value={filters.occupation}
+          values={filters.occupation || []}
           options={options.occupations}
-          onChange={handleChange}
+          onChange={(values) => setFilters((prev: any) => ({ ...prev, occupation: values }))}
         />
-        <FilterSelect
+        <MultiSelectPopup
           className="mb-4"
           label="Education"
-          name="education"
-          value={filters.education}
+          values={filters.education || []}
           options={options.educations}
-          onChange={handleChange}
+          onChange={(values) => setFilters((prev: any) => ({ ...prev, education: values }))}
         />
-        <FilterSelect
+        <MultiSelectPopup
           className="mb-6"
           label="Birth Place"
-          name="birthPlace"
-          value={filters.birthPlace}
+          values={filters.birthPlace || []}
           options={options.birthPlaces}
-          onChange={handleChange}
+          onChange={(values) => setFilters((prev: any) => ({ ...prev, birthPlace: values }))}
         />
         <hr className="border-t border-border_color block mb-4" />
-        <FilterSelect
+        <SingleSelectPopup
           className="mb-4"
           label="Country"
-          name="country"
           value={filters.country}
           options={options.countries}
-          onChange={handleChange}
+          onChange={(val) => handleChange({ target: { name: 'country', value: val } } as any)}
         />
-        <FilterSelect
+        <SingleSelectPopup
           className="mb-4"
           label="State"
-          name="state"
           value={filters.state}
           options={options.states}
-          onChange={handleChange}
+          onChange={(val) => handleChange({ target: { name: 'state', value: val } } as any)}
           disabled={!filters.country}
         />
-        <FilterSelect
+        <SingleSelectPopup
           className="mb-6"
           label="City"
-          name="city"
           value={filters.city}
           options={options.cities}
-          onChange={handleChange}
+          onChange={(val) => handleChange({ target: { name: 'city', value: val } } as any)}
           disabled={!filters.state}
         />
         <hr className="border-t border-border_color block mb-4" />
@@ -217,8 +213,8 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           </div>
         </div>
         <ButtonSolid
-          onClick={Object.values(filters).some(v => v !== '') || Object.values(currentFilters).some(v => v !== '') ? handleApply : onClose}
-          buttonText={Object.values(filters).some(v => v !== '') || Object.values(currentFilters).some(v => v !== '') ? "Apply Filters" : "Cancel"}
+          onClick={Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') || Object.values(currentFilters).some(v => Array.isArray(v) ? (v as string[]).length > 0 : v !== '') ? handleApply : onClose}
+          buttonText={Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') || Object.values(currentFilters).some(v => Array.isArray(v) ? (v as string[]).length > 0 : v !== '') ? "Apply Filters" : "Cancel"}
           className='w-full mt-4'
         />
       </div>

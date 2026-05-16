@@ -27,10 +27,19 @@ export default function Relatives() {
     search: "",
   });
 
-  const [filters, setFilters] = useState({
-    occupation: '',
-    education: '',
-    birthPlace: '',
+  const [filters, setFilters] = useState<{
+    occupation: string[];
+    education: string[];
+    birthPlace: string[];
+    country: string;
+    state: string;
+    city: string;
+    birthYearStart: string;
+    birthYearEnd: string;
+  }>({
+    occupation: [],
+    education: [],
+    birthPlace: [],
     country: '',
     state: '',
     city: '',
@@ -40,9 +49,9 @@ export default function Relatives() {
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
-    if (filters.occupation) count++;
-    if (filters.education) count++;
-    if (filters.birthPlace) count++;
+    if (filters.occupation && filters.occupation.length > 0) count++;
+    if (filters.education && filters.education.length > 0) count++;
+    if (filters.birthPlace && filters.birthPlace.length > 0) count++;
     if (filters.country) count++;
     if (filters.state) count++;
     if (filters.city) count++;
@@ -175,7 +184,7 @@ export default function Relatives() {
   const handleApplyFilters = (newFilters: any) => {
     setFilters(newFilters);
 
-    const hasActiveFilters = Object.values(newFilters).some(v => v !== '');
+    const hasActiveFilters = Object.values(newFilters).some(v => Array.isArray(v) ? v.length > 0 : v !== '');
     if (hasActiveFilters) {
       setSearchInput("");
       setParams(prev => ({
