@@ -325,7 +325,7 @@ export default function Calendar() {
                   );
                 })()}
                 {showPopupFor === 'member' && canGoBackToDate && (
-                  <div className="border-b sticky top-0 z-20 bg-main_background flex justify-between items-center border-border_color px-4 pt-3 pb-2">
+                  <div className="border-b z-20 bg-main_background flex justify-between items-center border-border_color px-4 pt-3 pb-2">
                     <button
                       onClick={() => { setShowPopupFor('date'); setCanGoBackToDate(false); }}
                       className="text-accent_color font-medium flex items-center gap-1 hover:underline"

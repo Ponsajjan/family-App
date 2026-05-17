@@ -17,8 +17,16 @@ import { appFetch } from '@/utils/appFetch';
 
 export default function Relatives() {
   const [searchInput, setSearchInput] = useState("");
+  const [showSidePanel, setShowSidePanel] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    if (!showSidePanel) {
+      setShowDetails(false);
+      setShowFilters(false);
+    }
+  }, [showSidePanel]);
   const [showMember, setShowMember] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [params, setParams] = useState({
@@ -199,16 +207,24 @@ export default function Relatives() {
   };
   const handleSetDetails = (value: boolean) => {
     if (value) {
+      setShowSidePanel(true);
+      setShowDetails(true);
       setShowFilters(false);
+    } else {
+      setShowSidePanel(false);
+      setShowDetails(false);
     }
-    setShowDetails(value)
   };
 
   const handleSetFilter = (value: boolean) => {
     if (value) {
+      setShowSidePanel(true);
+      setShowFilters(true);
       setShowDetails(false);
+    } else {
+      setShowSidePanel(false);
+      setShowFilters(false);
     }
-    setShowFilters(value)
   };
 
 
@@ -316,18 +332,16 @@ export default function Relatives() {
           </div>
         </Container>
 
-        {/* Details Panel */}
-        <SlidePanel setShowDetails={handleSetDetails} showDetails={showDetails} >
-          <Details showMember={showMember} openDetails={handleSetDetails} />
-        </SlidePanel>
-
-        {/* Filter Panel */}
-        <SlidePanel setShowDetails={handleSetFilter} showDetails={showFilters} >
-          <FilterPanel
-            onClose={() => handleSetFilter(false)}
-            onApply={handleApplyFilters}
-            currentFilters={filters}
-          />
+        {/* Side Panel for Details and Filters */}
+        <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
+          {showDetails && <Details showMember={showMember} openDetails={handleSetDetails} />}
+          {showFilters && (
+            <FilterPanel
+              onClose={() => handleSetFilter(false)}
+              onApply={handleApplyFilters}
+              currentFilters={filters}
+            />
+          )}
         </SlidePanel>
       </div>
     </div>

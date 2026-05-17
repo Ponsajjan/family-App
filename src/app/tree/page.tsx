@@ -63,12 +63,13 @@ export default function FamilyTreePage() {
   return (
     <div className="w-full">
       <Topnav>
-        {choosePopupAccounts.length > 1 && <div
+        {choosePopupAccounts.length > 1 && <button
+          type="button"
           onClick={() => setShowChoosePopup(true)}
-          className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer"
+          className="ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer bg-transparent text-inherit focus:outline-none"
         >
           <SwitchIcon />
-        </div>}
+        </button>}
       </Topnav>
 
       {isLoading ? (

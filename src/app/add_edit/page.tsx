@@ -62,9 +62,13 @@ export default function AddEditPage() {
                     <>
                         <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1.5 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
                         <div className="ml-auto mr-0 z-10 bg-main_background px-1.5">
-                            <div onClick={() => setShowChoosePopup(true)} className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors">
+                            <button
+                                type="button"
+                                onClick={() => setShowChoosePopup(true)}
+                                className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
+                            >
                                 <SwitchIcon />
-                            </div>
+                            </button>
                         </div>
                         <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />
                     </>}

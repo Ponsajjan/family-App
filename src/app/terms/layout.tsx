@@ -3,7 +3,7 @@
 import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
 import { Community, Logout, SwitchLogin } from '@/utils/Icons'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import SlidePanel from '@/components/SlidePanel'
 import SwitchLoginList from './SwitchLoginList'
 import LogoutList from './LogoutList'
@@ -21,31 +21,36 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
     // const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
 
 
+    useEffect(() => {
+        if (!showSidePanel) {
+            setShowLogin(false);
+            setShowLogout(false);
+        }
+    }, [showSidePanel]);
+
     const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
         if (loading) {
-            return
+            return;
         }
+
         if (value === 'switchLogin') {
-            setShowSidePanel(true);
-            setShowLogin(true);
-            setShowLogout(false);
-        };
-        if (value === 'switchLogout') {
-            setShowSidePanel(true);
-            setShowLogin(false);
-            setShowLogout(true);
-        };
-        if (value === 'switchLogin' && showLogin) {
-            setShowSidePanel(false);
-            setShowLogin(false);
-            setShowLogout(false);
-            return;
-        }
-        if (value === 'switchLogout' && showLogout) {
-            setShowSidePanel(false);
-            setShowLogin(false);
-            setShowLogout(false);
-            return;
+            if (showSidePanel && showLogin) {
+                setShowSidePanel(false);
+                setShowLogin(false);
+            } else {
+                setShowSidePanel(true);
+                setShowLogin(true);
+                setShowLogout(false);
+            }
+        } else if (value === 'switchLogout') {
+            if (showSidePanel && showLogout) {
+                setShowSidePanel(false);
+                setShowLogout(false);
+            } else {
+                setShowSidePanel(true);
+                setShowLogin(false);
+                setShowLogout(true);
+            }
         }
     };
 
@@ -59,9 +64,15 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
     return (
         <div className='flex flex-col w-full text-text_color'>
             <Topnav>
-                <div onClick={() => handleSidePanelToggle('switchLogin')} className={`ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 ${loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'}`} title="Switch Account">
+                <button
+                    type="button"
+                    onClick={() => handleSidePanelToggle('switchLogin')}
+                    disabled={loading}
+                    className={`ml-auto mr-0 border border-border_color flex items-center justify-between rounded-md px-1 py-1 bg-transparent text-inherit focus:outline-none ${loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'}`}
+                    title="Switch Account"
+                >
                     <SwitchLogin />
-                </div>
+                </button>
             </Topnav>
             <div className="w-full md:flex">
                 <Container>

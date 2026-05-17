@@ -206,7 +206,7 @@ export default function EditCredential() {
             </div>
             <div>
               <label className="text-sm font-medium">
-                Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
+                Date Of Birth
               </label>
               <div className="w-full mb-2 flex gap-2">
                 <Input
@@ -251,7 +251,7 @@ export default function EditCredential() {
             </div>
             <div className='mb-2'>
               <label className="text-sm font-medium">
-                Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
+                Date Of Death
               </label>
               <div className="w-full flex gap-2">
                 <Input
@@ -297,7 +297,6 @@ export default function EditCredential() {
             <div className='flex gap-2'>
               <Input
                 className="mb-2"
-                showOptional={true}
                 name="father"
                 label="Father"
                 value={formData.father}
@@ -305,7 +304,6 @@ export default function EditCredential() {
               />
               <Input
                 className="mb-2"
-                showOptional={true}
                 name="mother"
                 label="Mother"
                 value={formData.mother}
@@ -314,7 +312,6 @@ export default function EditCredential() {
             </div>
             <Input
               className="mb-2"
-              showOptional={true}
               name="siblings"
               label="Siblings"
               value={formData.siblings}
@@ -324,7 +321,6 @@ export default function EditCredential() {
               <Input
                 className="mb-2"
                 type="number"
-                showOptional={true}
                 name="phone_number"
                 label="Contact"
                 value={formData.phone_number}
@@ -332,7 +328,6 @@ export default function EditCredential() {
               />
               <Input
                 className="mb-2"
-                showOptional={true}
                 name="occupation"
                 label="Occupation"
                 value={formData.occupation}
@@ -340,56 +335,58 @@ export default function EditCredential() {
               />
             </div>
             <Input
-              className="mb-2"
-              showOptional={true}
+              className="mb-3"
               name="education"
               label="Education"
               value={formData.education}
               onChange={handleInputChange}
             />
-            <div className='flex gap-2'>
+            <div className='p-2 border border-border_color rounded-lg mb-2'>
               <Input
-                className="mb-2 w-full"
-                showOptional={true}
-                name="city"
-                label="City/Town"
-                value={formData.city}
+                className="mb-2"
+                name="address"
+                label="Address"
+                value={formData.address}
                 onChange={handleInputChange}
               />
-              <Input
-                className="mb-2 w-full"
-                showOptional={true}
-                name="district"
-                label="District"
-                value={formData.district || ""}
-                onChange={handleInputChange}
-              />
-              <Input
-                className="mb-2 w-full"
-                showOptional={true}
-                name="state"
-                label="State/Province"
-                value={formData.state}
-                onChange={handleInputChange}
-              />
-              <Input
-                className="mb-2 w-full"
-                showOptional={true}
-                name="country"
-                label="Country"
-                value={formData.country}
-                onChange={handleInputChange}
-              />
+              <div className='grid grid-col-1 md:grid-cols-2 gap-2'>
+                <Input
+                  className="mb-2 w-full"
+
+                  name="city"
+                  label="City/Town"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  className="mb-2 w-full"
+
+                  name="district"
+                  label="District"
+                  value={formData.district || ""}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+                <Input
+                  className="mb-2 w-full"
+
+                  name="state"
+                  label="State/Province"
+                  value={formData.state}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  className="mb-2"
+
+                  name="country"
+                  label="Country"
+                  value={formData.country}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
-            <Input
-              className="mb-2"
-              showOptional={true}
-              name="address"
-              label="Address"
-              value={formData.address}
-              onChange={handleInputChange}
-            />
-            <div className='flex gap-2'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
               <Input
                 className="mb-2"
                 name="member_password"

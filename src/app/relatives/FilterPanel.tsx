@@ -242,10 +242,10 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
               label=""
             />
           </div>
-          <div className="text-xs text-text_color/60 mt-2 flex items-center gap-1 p-2 bg-field_color rounded-md">
-            <span className="mt-0.5"><Info /></span>
-            <span>This will only filter for members with a birth year assigned.</span>
-          </div>
+        </div>
+        <div className="text-xs text-text_color/60 mt-4 flex items-center gap-1 p-2 bg-field_color rounded-md">
+          <span className="mt-0.5"><Info /></span>
+          <span>Members missing any of the selected filter fields are excluded.</span>
         </div>
         <ButtonSolid
           onClick={Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') || Object.values(currentFilters).some(v => Array.isArray(v) ? (v as string[]).length > 0 : v !== '') ? handleApply : onClose}
