@@ -315,9 +315,9 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 <TextArea
                     className="mb-1"
                     showOptional={true}
-                    name="currentAddress"
+                    name="address"
                     label="Current Address"
-                    value={formData.currentAddress || ''}
+                    value={formData.address || ''}
                     onChange={handleInputChange}
                 />
                 <div className="grid grid-col-1 md:grid-cols-2 gap-2 mb-2">

@@ -307,8 +307,8 @@ function EditMemberForm({
                 <TextArea
                     className="mb-1"
                     label="Current Address"
-                    name="currentAddress"
-                    value={formData.currentAddress || ''}
+                    name="address"
+                    value={formData.address || ''}
                     onChange={handleInputChange}
                 />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">

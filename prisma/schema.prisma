@@ -41,7 +41,7 @@ model Member {
   gender              String
   phoneNumber         String?
   birthPlace          String?
-  currentAddress      String? @map("address")
+  address             String?
   city                String?
   district            String?
   state               String?

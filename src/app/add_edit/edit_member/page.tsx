@@ -123,7 +123,7 @@ export default function EditMemberDetails() {
         occupation: formData.occupation?.trim(),
         education: formData.education?.trim(),
         birthPlace: formData.birthPlace?.trim(),
-        currentAddress: formData.currentAddress?.trim(),
+        address: formData.address?.trim(),
         city: formData.city?.trim(),
         district: formData.district?.trim(),
         state: formData.state?.trim(),

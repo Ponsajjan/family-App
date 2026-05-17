@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       phone_number: member.phoneNumber,
       occupation: member.occupation,
       education: member.education,
-      currentAddress: member.currentAddress,
+      address: member.address,
       city: member.city || null,
       district: member.district || null,
       state: member.state || null,

@@ -26,7 +26,7 @@ export async function handleEditMemberCase(member: any, changeData: any) {
     occupation: member.occupation || null,
     education: member.education || null,
     birthPlace: member.birthPlace || null,
-    currentAddress: member.currentAddress || null,
+    address: member.address || null,
     city: member.city || null,
     district: member.district || null,
     state: member.state || null,

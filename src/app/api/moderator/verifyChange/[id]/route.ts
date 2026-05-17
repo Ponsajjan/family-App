@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         gender: true,
         phoneNumber: true,
         birthPlace: true,
-        currentAddress: true,
+        address: true,
         city: true,
         district: true,
         state: true,

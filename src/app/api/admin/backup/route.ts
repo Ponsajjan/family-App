@@ -93,7 +93,7 @@ export async function POST(request: Request) {
                const { address, ...rest } = m;
                return {
                   ...rest,
-                  currentAddress: rest.currentAddress || address || null,
+                  address: address || null,
                   city: rest.city || null,
                   state: rest.state || null,
                   country: rest.country || null,
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
                const { address, ...rest } = m;
                return {
                   ...rest,
-                  currentAddress: rest.currentAddress || address || null,
+                  address: address || null,
                   // Ensure new fields are present at least as nulls if missing from old backup
                   city: rest.city || null,
                   state: rest.state || null,

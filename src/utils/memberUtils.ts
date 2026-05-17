@@ -27,7 +27,7 @@ export interface MemberResponse {
   };
   contactInformation?: {
     phoneNumber?: string;
-    currentAddress?: string;
+    address?: string;
     city?: string;
     state?: string;
     country?: string;
@@ -55,7 +55,7 @@ export async function fetchMemberData(id: number, loginAuthIdsCount: number) {
       verified: true,
       phoneNumber: true,
       birthPlace: true,
-      currentAddress: true,
+      address: true,
       city: true,
       state: true,
       district: true,
@@ -164,9 +164,9 @@ function buildRelationInfo(member: any, siblings: any[]) {
 }
 
 function buildContactInfo(member: any) {
-  return member.phoneNumber || member.currentAddress || member.city || member.state || member.country ? {
+  return member.phoneNumber || member.address || member.city || member.state || member.country ? {
     ...(member.phoneNumber && { phoneNumber: member.phoneNumber }),
-    ...(member.currentAddress && { currentAddress: member.currentAddress }),
+    ...(member.address && { address: member.address }),
     ...(member.city && { city: member.city }),
     ...(member.district && { district: member.district }),
     ...(member.state && { state: member.state }),

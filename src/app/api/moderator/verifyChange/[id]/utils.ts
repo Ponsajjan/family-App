@@ -10,7 +10,7 @@ export function normalizeValue(value: any, key: string): string {
 }
 
 export function formatFieldName(key: string): string {
-  if (key === 'currentAddress') return 'Address';
+  if (key === 'address') return 'Address';
   if (key === 'city') return 'City/Town';
   if (key === 'district') return 'District';
   if (key === 'state') return 'State/Province';
