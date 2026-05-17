@@ -156,7 +156,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
             <ResetData />
           </button>
         </div>
-        <button onClick={onClose} className="absolute top-0 right-0 hover:bg-field_color border border-border_color rounded-md m-2">
+        <button onClick={onClose} className="absolute top-4 right-3 hover:bg-field_color border border-border_color rounded-md cursor-pointer z-20">
           <CloseIcon />
         </button>
       </div>

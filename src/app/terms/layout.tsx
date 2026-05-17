@@ -129,8 +129,8 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
                     </div>
                 </Container>
                 <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-                    {showLogin && <SwitchLoginList />}
-                    {showLogout && <LogoutList />}
+                    {showLogin && <SwitchLoginList handleSidePanelToggle={handleSidePanelToggle} />}
+                    {showLogout && <LogoutList handleSidePanelToggle={handleSidePanelToggle} />}
                 </SlidePanel>
             </div>
         </div>

@@ -206,46 +206,49 @@ const ChangeRequestView = ({
   if (!data && !loading) return <div className='p-4 loading-text'>No data found</div>;
 
   return (
-    <Container className='text-text_color p-4 relative bg-main_background'>
-      <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
-        <CloseIcon />
-      </div>
-
-      <div className='flex justify-between items-center'>
-        <div className='text-xl font-semibold mb-2 flex gap-2'>
-          <span><NavIconVerified /></span>
-          <span>Verify Changes</span>
+    <Container className='text-text_color relative bg-main_background'>
+      <div className='p-4 sticky top-0 z-10 bg-main_background border-b border-border_color'>
+        <div onClick={() => setShowDetails(false)} className='absolute top-4 right-4 border border-border_color rounded-md cursor-pointer'>
+          <CloseIcon />
         </div>
-        {showDetailsFor?.length > 1 && (
-          <div className='flex mr-10'>
-            <button
-              disabled={loading || disableButton || currentDetailIndex === 0}
-              className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${currentDetailIndex === 0 || loading || disableButton
-                ? 'opacity-50 cursor-not-allowed'
-                : ''
-                }`}
-              onClick={handlePrevious}
-            >{`<`}</button>
 
-            <span>{currentDetailIndex + 1}/{showDetailsFor.length}</span>
-
-            <button
-              disabled={loading || disableButton || currentDetailIndex === showDetailsFor.length - 1}
-              className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${currentDetailIndex === showDetailsFor.length - 1 || loading || disableButton
-                ? 'opacity-50 cursor-not-allowed'
-                : ''
-                }`}
-              onClick={handleNext}
-            >{`>`}</button>
+        <div className='flex justify-between items-center'>
+          <div className='text-xl font-semibold mb-2 flex gap-2'>
+            <span><NavIconVerified /></span>
+            <span>Verify Changes</span>
           </div>
-        )}
+          {showDetailsFor?.length > 1 && (
+            <div className='flex mr-10'>
+              <button
+                disabled={loading || disableButton || currentDetailIndex === 0}
+                className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${currentDetailIndex === 0 || loading || disableButton
+                  ? 'opacity-50 cursor-not-allowed'
+                  : ''
+                  }`}
+                onClick={handlePrevious}
+              >{`<`}</button>
+
+              <span>{currentDetailIndex + 1}/{showDetailsFor.length}</span>
+
+              <button
+                disabled={loading || disableButton || currentDetailIndex === showDetailsFor.length - 1}
+                className={`block cursor-pointer bg-field_color text-center mx-2 border border-border_color rounded-md min-w-6 min-h-6 ${currentDetailIndex === showDetailsFor.length - 1 || loading || disableButton
+                  ? 'opacity-50 cursor-not-allowed'
+                  : ''
+                  }`}
+                onClick={handleNext}
+              >{`>`}</button>
+            </div>
+          )}
+        </div>
+        {data?.assignDate && <div className="text-sm text-gray-500 italic">Assigned on: {data.assignDate}</div>}
       </div>
 
       {loading ? (
         <Loading />
       ) : (
         <>
-          <div className='relative'>
+          <div className='relative px-4 pt-2'>
             {data && <div dangerouslySetInnerHTML={{ __html: data.htmlContent }} />}
             {error && <div className='p-4'>Error: {error}</div>}
             {actionError && <div className='bg-field_color text-text_color p-2 border border-border_color border-dashed rounded-md my-4'><span className='inline-block align-bottom pr-1'><Warning /></span>Error: {actionError}</div>}
@@ -254,7 +257,7 @@ const ChangeRequestView = ({
               {requestStatus === 'rejected' && <Rejected />}
             </div>
           </div>
-          <div className='flex flex-col mt-6 gap-2'>
+          <div className='px-4 py-6 flex flex-col gap-2'>
             {data?.newChange === false ? (
               <HoldButton
                 disabled={disableButton || requestStatus !== 'pending'}

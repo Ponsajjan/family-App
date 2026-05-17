@@ -10,7 +10,7 @@ import { RootState, AppDispatch } from '@/store';
 import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, setChoosePopupAccounts, setIsModerator } from '@/store/slices/termsSlice';
 import { appFetch } from "@/utils/appFetch";
 
-function LogoutList() {
+function LogoutList({ handleSidePanelToggle }: { handleSidePanelToggle: (value: 'switchLogin' | 'switchLogout') => void }) {
     const dispatch = useDispatch<AppDispatch>();
     const { accounts, currentAuthId, moderatorGroups } = useSelector((state: RootState) => state.terms);
     const [loggingOut, setLoggingOut] = useState<boolean>(false);
@@ -150,12 +150,15 @@ function LogoutList() {
 
     return (
         <>
-            <div className='relative px-2 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-start'>
+            <div className='sticky top-0 z-20 bg-main_background px-4 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-between'>
                 <div className='z-10'>{loggingOut ? "Logging out..." : "Accounts"}</div>
+                <div onClick={() => handleSidePanelToggle('switchLogout')} className='border border-border_color rounded-md cursor-pointer'>
+                    <CloseIcon />
+                </div>
             </div>
 
             {/* Current Account Section */}
-            <div className='pl-4 pt-4 border-b border-dashed pb-2 pr-[1.375rem] w-full'>
+            <div className='p-4 pb-3 border-b border-dashed w-full'>
                 <div onClick={logout} className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[2.8125rem] bg-field_color text-text_color border border-border_color rounded-md cursor-pointer`}>
                     <div className="flex flex-col">
                         <div className="font-semibold">Logout</div>
@@ -167,7 +170,7 @@ function LogoutList() {
             </div>
 
             {/* Other Accounts Section */}
-            <div className='px-4 py-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
+            <div className='px-4 pt-2 pb-4'>
                 {accounts.map((account) => {
                     return (
                         <div key={account.authId} className='py-0.5 md:py-1 w-full'>

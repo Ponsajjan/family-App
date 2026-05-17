@@ -46,9 +46,17 @@ export default function Details({ showMember, openDetails }: any) {
   const data = swrResult?.data;
 
   return (
-    <Container className='text-text_color bg-main_background'>
-      <div onClick={() => openDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer z-20'>
-        <CloseIcon />
+    <Container className='text-text_color bg-main_background relative'>
+      {/* Sticky Close Button Container */}
+      <div className="sticky top-0 z-30 h-0 w-full pointer-events-none">
+        <div className="relative w-full h-0">
+          <div
+            onClick={() => openDetails(false)}
+            className="absolute top-4 right-4 border border-border_color rounded-md cursor-pointer pointer-events-auto z-20"
+          >
+            <CloseIcon />
+          </div>
+        </div>
       </div>
 
       {error ? (

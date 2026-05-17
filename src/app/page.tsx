@@ -302,14 +302,25 @@ export default function Calendar() {
             <div onClick={() => { setShowPopup(false); setCanGoBackToDate(false); }} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-[600ms] bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden md:h-0'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className="relative">
-                <span onClick={() => { setShowPopup(false); setCanGoBackToDate(false); }} className="absolute top-4 right-4 hidden md:block border border-border_color rounded-md cursor-pointer z-20"><CloseIcon /></span>
+                {/* Sticky Close Button Container */}
+                <div className="sticky top-0 z-30 h-0 w-full pointer-events-none">
+                  <div className="relative w-full h-0">
+                    <span
+                      onClick={() => { setShowPopup(false); setCanGoBackToDate(false); }}
+                      className="absolute top-4 right-4 border border-border_color rounded-md cursor-pointer pointer-events-auto z-20"
+                    >
+                      <CloseIcon />
+                    </span>
+                  </div>
+                </div>
+
                 {showPopupFor === 'date' && (() => {
                   const selected = new Date(selectedDate);
                   const selectedIsToday = isToday(selected);
 
                   return (
-                    <div className={`border-b sticky top-0  ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 pt-3 pb-2`}>
-                      <p className="flex flex-wrap text-lg md:text-xl font-medium md:font-semibold text-text_color items-end min-h-[1.875rem]">
+                    <div className={`border-b sticky top-0 z-20 ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 h-[3.2rem]`}>
+                      <p className="flex flex-wrap text-lg md:text-xl font-medium md:font-semibold text-text_color items-end min-h-[1.875rem] pr-10">
                         {selectedIsToday &&
                           <>
                             <Announcement />
@@ -325,16 +336,17 @@ export default function Calendar() {
                   );
                 })()}
                 {showPopupFor === 'member' && canGoBackToDate && (
-                  <div className="border-b z-20 bg-main_background flex justify-between items-center border-border_color px-4 pt-3 pb-2">
+                  <div className="border-b sticky top-0 z-20 bg-main_background flex justify-between items-center border-border_color px-4 h-[3.2rem]">
                     <button
                       onClick={() => { setShowPopupFor('date'); setCanGoBackToDate(false); }}
-                      className="text-accent_color font-medium flex items-center gap-1 hover:underline"
+                      className="group text-accent_color font-medium flex items-center gap-1"
                     >
-                      <span>{"←"}</span> Back to Date
+                      <span className="transition-transform duration-200 group-hover:-translate-x-1 group-active:-translate-x-1.5">{"←"}</span>
+                      <div className="hover:underline pr-10">Back to Date</div>
                     </button>
                   </div>
                 )}
-                <div className={`${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'}`}>
+                <div className={`${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'} ${canGoBackToDate ? '[&_.sticky]:!top-[3.2rem]' : ''}`}>
                   {showPopupFor === 'date' && <OnDate events={eventForDate} onMemberClick={(id) => HandlePopupData('member', id)} />}
                   {showPopupFor === 'member' && <CalendarMemberDetail memberId={selectedMemberId} />}
                 </div>

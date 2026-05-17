@@ -144,7 +144,6 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
   // Generate HTML
   const htmlContent = `
     <div class="space-y-2 bg-main_background text-text_color">
-      <div class="text-sm text-gray-500 mb-4 italic">Assigned on: ${formatDate(changeData.createdAt)}</div>
       <div class="italic mb-4">---- ${changeData.type || 'Edit Relationship'} ----</div>
       <div class="flex">
         <div class="font-medium md:font-semibold min-w-[6.25rem]">
@@ -242,6 +241,7 @@ export async function handleEditRelationshipCase(member: any, changeData: any) {
         type: changeData.type,
         formData: details
       },
+      assignDate: formatDate(changeData.createdAt),
       htmlContent
     },
   });

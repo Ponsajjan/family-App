@@ -223,7 +223,7 @@ export default function VerifyMember() {
                 </div>
                 <span className="border-b border-border_color block w-full mr-3"></span>
               </div>
-              <div className="pt-3">
+              <div className="pt-4">
                 {members?.map((member: any) => (
                   <div key={member.id} className="pl-4">
                     <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">

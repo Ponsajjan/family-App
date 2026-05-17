@@ -197,159 +197,171 @@ export default function NewMemberDetails({
     if (!data && !loadingDetails) return <div className='p-4 loading-text'>No data found</div>;
 
     return (
-        <Container className='text-text_color py-6 px-4 relative bg-main_background'>
-            <div onClick={() => setShowDetails(false)} className='hidden md:block absolute top-0 right-0 border border-border_color rounded-md m-2 cursor-pointer'>
-                <CloseIcon />
+        <Container className='text-text_color relative bg-main_background'>
+            {/* Sticky Close Button Container */}
+            <div className="sticky top-0 z-30 h-0 w-full pointer-events-none">
+                <div className="relative w-full h-0">
+                    <div
+                        onClick={() => setShowDetails(false)}
+                        className="absolute top-4 right-4 border border-border_color rounded-md cursor-pointer z-20 pointer-events-auto"
+                    >
+                        <CloseIcon />
+                    </div>
+                </div>
             </div>
             {loadingDetails ? <Loading /> : (
                 <>
                     {deleted && <div className='bg-field_color text-text_color p-2 border border-border_color border-dashed rounded-md my-4'><span className='inline-block align-bottom pr-1'><Info /></span>Member deleted</div>}
-                    <div className='flex gap-2 items-center w-full pb-1.5 md:pb-3'>
-                        <div className='border border-border_color p-2 rounded-md relative'>
-                            {data?.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
-                            {data?.generalInformation.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
-                        </div>
-                        <div className='w-full'>
-                            <p onClick={() => handleMemberSearch(data?.generalInformation.name)} className='text-lg font-semibold flex items-center'>
-                                <span className='hover:underline cursor-pointer'>{data?.generalInformation.name || 'Name Unavailable'}</span>
-                                {data?.generalInformation.verified && <span className='pl-2'><Verified /></span>}
-                            </p>
+                    <div className='p-4 sticky top-0 z-10 bg-main_background border-b border-border_color pb-1.5 md:pb-3'>
+                        <div className='flex gap-2 items-center w-full'>
+                            <div className='border border-border_color p-2 rounded-md relative'>
+                                {data?.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
+                                {data?.generalInformation.deceased && <span className='absolute -bottom-2 -right-2'><Condolences /></span>}
+                            </div>
+                            <div className='w-full'>
+                                <p onClick={() => handleMemberSearch(data?.generalInformation.name)} className='text-lg font-semibold flex items-center'>
+                                    <span className='hover:underline cursor-pointer'>{data?.generalInformation.name || 'Name Unavailable'}</span>
+                                    {data?.generalInformation.verified && <span className='pl-2'><Verified /></span>}
+                                </p>
 
-                            <DateInfo
-                                prefix="Born At"
-                                date={data.generalInformation.birthDate}
-                                month={data.generalInformation.birthMonth}
-                                year={data.generalInformation.birthYear}
-                            />
-
-                            {data.generalInformation.deceased && (
                                 <DateInfo
-                                    prefix="Died At"
-                                    date={data.generalInformation.deathDate}
-                                    month={data.generalInformation.deathMonth}
-                                    year={data.generalInformation.deathYear}
-                                    fallback="Deceased"
+                                    prefix="Born At"
+                                    date={data.generalInformation.birthDate}
+                                    month={data.generalInformation.birthMonth}
+                                    year={data.generalInformation.birthYear}
                                 />
-                            )}
+
+                                {data.generalInformation.deceased && (
+                                    <DateInfo
+                                        prefix="Died At"
+                                        date={data.generalInformation.deathDate}
+                                        month={data.generalInformation.deathMonth}
+                                        year={data.generalInformation.deathYear}
+                                        fallback="Deceased"
+                                    />
+                                )}
+                            </div>
                         </div>
+                        <div className='ml-auto mr-0 w-fit'>{data?.descendant && !data?.isMainMember ? '-- Descendant -- ' : !data?.isMainMember ? '-- Non-descendant -- ' : '-- Main Member --'}</div>
                     </div>
-                    <div className='ml-auto mr-0 w-fit'>{data?.descendant && !data?.isMainMember ? '-- Descendant -- ' : !data?.isMainMember ? '-- Non-descendant -- ' : '-- Main Member --'}</div>
-                    {(data?.relationInformation) &&
-                        <InformationSection title="Relation Information">
-                            {data?.relationInformation.father && (
-                                <MemberItemVerify
-                                    label="Father"
-                                    name={data?.relationInformation.father}
-                                    isVerified={data?.relationInformation.v_father}
-                                    onClick={() => handleMemberSearch(data?.relationInformation.father!)}
-                                />
-                            )}
+                    <div className='px-4 pb-6'>
+                        {(data?.relationInformation) &&
+                            <InformationSection title="Relation Information">
+                                {data?.relationInformation.father && (
+                                    <MemberItemVerify
+                                        label="Father"
+                                        name={data?.relationInformation.father}
+                                        isVerified={data?.relationInformation.v_father}
+                                        onClick={() => handleMemberSearch(data?.relationInformation.father!)}
+                                    />
+                                )}
 
-                            {data?.relationInformation.mother && (
-                                <MemberItemVerify
-                                    label="Mother"
-                                    name={data?.relationInformation.mother}
-                                    isVerified={data?.relationInformation.v_mother}
-                                    onClick={() => handleMemberSearch(data?.relationInformation.mother!)}
-                                />
-                            )}
+                                {data?.relationInformation.mother && (
+                                    <MemberItemVerify
+                                        label="Mother"
+                                        name={data?.relationInformation.mother}
+                                        isVerified={data?.relationInformation.v_mother}
+                                        onClick={() => handleMemberSearch(data?.relationInformation.mother!)}
+                                    />
+                                )}
 
-                            {data?.descendant && !(data?.relationInformation.father || data?.relationInformation.mother) && !data?.isMainMember && (
-                                <MemberItemVerify
-                                    label="Parents"
-                                    name="-- Unassigned --"
-                                    isCustom
-                                />
-                            )}
+                                {data?.descendant && !(data?.relationInformation.father || data?.relationInformation.mother) && !data?.isMainMember && (
+                                    <MemberItemVerify
+                                        label="Parents"
+                                        name="-- Unassigned --"
+                                        isCustom
+                                    />
+                                )}
 
-                            {/* Non-descendant parents */}
-                            {data?.relationInformation.nonDescendantRelations?.fatherName && (
-                                <MemberItemVerify
-                                    label="Father"
-                                    name={data?.relationInformation.nonDescendantRelations.fatherName}
-                                />
-                            )}
+                                {/* Non-descendant parents */}
+                                {data?.relationInformation.nonDescendantRelations?.fatherName && (
+                                    <MemberItemVerify
+                                        label="Father"
+                                        name={data?.relationInformation.nonDescendantRelations.fatherName}
+                                    />
+                                )}
 
-                            {data?.relationInformation.nonDescendantRelations?.motherName && (
-                                <MemberItemVerify
-                                    label="Mother"
-                                    name={data?.relationInformation.nonDescendantRelations.motherName}
-                                />
-                            )}
+                                {data?.relationInformation.nonDescendantRelations?.motherName && (
+                                    <MemberItemVerify
+                                        label="Mother"
+                                        name={data?.relationInformation.nonDescendantRelations.motherName}
+                                    />
+                                )}
 
-                            {data?.relationInformation.partner && (
-                                <MemberItemVerify
-                                    label="Partner"
-                                    name={data?.relationInformation.partner}
-                                    isVerified={data?.relationInformation.v_partner}
-                                    onClick={data?.relationInformation.partner ? () => handleMemberSearch(data?.relationInformation.partner!) : undefined}
-                                />
-                            )}
+                                {data?.relationInformation.partner && (
+                                    <MemberItemVerify
+                                        label="Partner"
+                                        name={data?.relationInformation.partner}
+                                        isVerified={data?.relationInformation.v_partner}
+                                        onClick={data?.relationInformation.partner ? () => handleMemberSearch(data?.relationInformation.partner!) : undefined}
+                                    />
+                                )}
 
-                            {!data?.descendant && !data?.relationInformation.partner && (
-                                <MemberItemVerify
-                                    label="Partner"
-                                    name="-- Unassigned --"
-                                    isCustom
-                                />
-                            )}
+                                {!data?.descendant && !data?.relationInformation.partner && (
+                                    <MemberItemVerify
+                                        label="Partner"
+                                        name="-- Unassigned --"
+                                        isCustom
+                                    />
+                                )}
 
-                            {/* Children */}
-                            {data?.relationInformation.children && data?.relationInformation.children.length > 0 && (
-                                <MemberListItemVerify
-                                    label={data?.relationInformation.children.length > 1 ? 'Children' : 'Child'}
-                                    items={data?.relationInformation.children}
-                                    onItemClick={(name) => handleMemberSearch(name)}
-                                />
-                            )}
+                                {/* Children */}
+                                {data?.relationInformation.children && data?.relationInformation.children.length > 0 && (
+                                    <MemberListItemVerify
+                                        label={data?.relationInformation.children.length > 1 ? 'Children' : 'Child'}
+                                        items={data?.relationInformation.children}
+                                        onItemClick={(name) => handleMemberSearch(name)}
+                                    />
+                                )}
 
-                            {/* Siblings */}
-                            {data?.relationInformation.siblings && data?.relationInformation.siblings.length > 0 && (
-                                <MemberListItemVerify
-                                    label={data?.relationInformation.siblings.length > 1 ? 'Siblings' : 'Sibling'}
-                                    items={data?.relationInformation.siblings}
-                                    onItemClick={(name) => handleMemberSearch(name)}
-                                />
-                            )}
+                                {/* Siblings */}
+                                {data?.relationInformation.siblings && data?.relationInformation.siblings.length > 0 && (
+                                    <MemberListItemVerify
+                                        label={data?.relationInformation.siblings.length > 1 ? 'Siblings' : 'Sibling'}
+                                        items={data?.relationInformation.siblings}
+                                        onItemClick={(name) => handleMemberSearch(name)}
+                                    />
+                                )}
 
-                            {/* Non-descendant siblings */}
-                            {data?.relationInformation.nonDescendantRelations?.siblingNames && (
-                                <MemberItemVerify
-                                    label={data?.relationInformation.nonDescendantRelations.siblingNames.split(',').length > 1 ? 'Siblings' : 'Sibling'}
-                                    name={data?.relationInformation.nonDescendantRelations.siblingNames}
-                                />
-                            )}
+                                {/* Non-descendant siblings */}
+                                {data?.relationInformation.nonDescendantRelations?.siblingNames && (
+                                    <MemberItemVerify
+                                        label={data?.relationInformation.nonDescendantRelations.siblingNames.split(',').length > 1 ? 'Siblings' : 'Sibling'}
+                                        name={data?.relationInformation.nonDescendantRelations.siblingNames}
+                                    />
+                                )}
 
-                        </InformationSection>}
+                            </InformationSection>}
 
-                    {(data?.contactInformation) &&
-                        <InformationSection title="Contact Information">
-                            <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
-                            <MemberItem label="Address" value={data.contactInformation.address} />
-                            <MemberItem label="City/Town" value={data.contactInformation.city} />
-                            <MemberItem label="District" value={data.contactInformation.district} />
-                            <MemberItem label="State/Province" value={data.contactInformation.state} />
-                            <MemberItem label="Country" value={data.contactInformation.country} />
-                        </InformationSection>
-                    }
+                        {(data?.contactInformation) &&
+                            <InformationSection title="Contact Information">
+                                <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
+                                <MemberItem label="Address" value={data.contactInformation.address} />
+                                <MemberItem label="City/Town" value={data.contactInformation.city} />
+                                <MemberItem label="District" value={data.contactInformation.district} />
+                                <MemberItem label="State/Province" value={data.contactInformation.state} />
+                                <MemberItem label="Country" value={data.contactInformation.country} />
+                            </InformationSection>
+                        }
 
-                    {(data?.personalInformation) &&
-                        <InformationSection title="Personal Information">
-                            <MemberItem label="Birth Place" value={data.personalInformation.birthPlace} />
-                            <MemberItem label="Occupation" value={data.personalInformation.occupation} />
-                            <MemberItem label="Education" value={data.personalInformation.education} />
-                        </InformationSection>}
+                        {(data?.personalInformation) &&
+                            <InformationSection title="Personal Information">
+                                <MemberItem label="Birth Place" value={data.personalInformation.birthPlace} />
+                                <MemberItem label="Occupation" value={data.personalInformation.occupation} />
+                                <MemberItem label="Education" value={data.personalInformation.education} />
+                            </InformationSection>}
 
-                    {/* Additional Information */}
-                    {(data?.additionalInformation) && (
-                        <InformationSection title="Additional Information">
-                            <MemberItem value={data.additionalInformation.additionalInfo} />
-                        </InformationSection>
-                    )}
+                        {/* Additional Information */}
+                        {(data?.additionalInformation) && (
+                            <InformationSection title="Additional Information">
+                                <MemberItem value={data.additionalInformation.additionalInfo} />
+                            </InformationSection>
+                        )}
 
-                    <div className='flex flex-col mt-6 gap-2'>
-                        <HoldButton disabled={deleted || preparingList} holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />
-                        <HoldButton disabled={deleted || preparingList} type='outline' buttonText='Delete Member' onClick={() => handleDelete(data?.generalInformation.id)} />
+                        <div className='flex flex-col mt-6 gap-2'>
+                            <HoldButton disabled={deleted || preparingList} holdDuration={3000} buttonText={data?.generalInformation.verified ? 'Switch To Unverified' : 'Switch To Verified'} onClick={() => handleVerification(data?.generalInformation.id)} />
+                            <HoldButton disabled={deleted || preparingList} type='outline' buttonText='Delete Member' onClick={() => handleDelete(data?.generalInformation.id)} />
+                        </div>
                     </div>
                 </>
             )}

@@ -73,8 +73,8 @@ export async function handleEditMemberCase(member: any, changeData: any) {
         type: changeData.type,
         formData: { ...formData, ...changeDetails },
       },
+      assignDate: formatDate(changeData.createdAt),
       htmlContent: `<div class="space-y-2 bg-main_background text-text_color">
-        <div class="text-sm text-gray-500 mb-4 italic">Assigned on: ${formatDate(changeData.createdAt)}</div>
         <div class="italic mb-4">---- ${changeData.type || 'Edit Member'} ----</div>
         ${changesJsx}
         ${!anyFieldChanged ? '<div class="text-blue-600 font-semibold py-2">Outdated changes / Already applied changes</div>' : ''}

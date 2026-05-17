@@ -8,8 +8,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { setAccounts, setCurrentAuthId, setMainMemberName, AccountDetail, setIsModerator, setChoosePopupAccounts, fetchTermsData } from '@/store/slices/termsSlice';
 import { appFetch } from "@/utils/appFetch";
+import { CloseIcon } from '@/utils/Icons';
 
-function SwitchLoginList() {
+function SwitchLoginList({ handleSidePanelToggle }: { handleSidePanelToggle: (value: 'switchLogin' | 'switchLogout') => void }) {
     const dispatch = useDispatch<AppDispatch>();
     const { accounts, currentAuthId } = useSelector((state: RootState) => state.terms);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
@@ -211,11 +212,14 @@ function SwitchLoginList() {
 
     return (
         <>
-            <div className='relative px-2 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-start'>
+            <div className='sticky top-0 z-20 bg-main_background px-4 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-between'>
                 <div className='z-10'>{switchingAccount ? "Adding..." : "Multi-login"}</div>
+                <div onClick={() => handleSidePanelToggle('switchLogin')} className='border border-border_color rounded-md cursor-pointer'>
+                    <CloseIcon />
+                </div>
             </div>
 
-            <div className='px-4 pt-4 pb-2 h-[30vh] md:h-full overflow-y-auto scroll-stable'>
+            <div className='px-4 pt-4 pb-2'>
                 {accounts.map((account) => {
                     const isCurrentAccount = account.current;
                     return (
@@ -237,7 +241,7 @@ function SwitchLoginList() {
                 }
             </div>
 
-            <div className='px-4 pb-4 border-t border-dashed pt-2 mr-[0.375rem]'>
+            <div className='px-4 pb-4 border-t border-dashed pt-3'>
                 <form onSubmit={handleSubmit}>
                     <div
                         key={errorTrigger}
