@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
       country: formData.country || null,
       state: formData.state || null,
       city: formData.city || null,
+      district: formData.district || null,
       address: formData.address || null,
     };
 

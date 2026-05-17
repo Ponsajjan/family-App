@@ -183,15 +183,14 @@ export default function EditRelationshipDetails() {
           childrenOrder: formData.children?.map(({ id, order }) => ({ id, order }))
         }),
       });
-      const result = await response.json();
       if (response.status === 401) {
         logout();
         return;
       }
+      const result = await response.json();
 
       if (!response.ok) {
-        const errorData = await response.json();
-        const errorMsg = errorData.error || "Failed to update member";
+        const errorMsg = result.error || "Failed to update member";
         toast?.show(errorMsg, "error", 5000);
         setSubmitError(errorMsg);
         throw new Error(errorMsg);

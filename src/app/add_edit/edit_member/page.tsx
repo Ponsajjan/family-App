@@ -125,6 +125,7 @@ export default function EditMemberDetails() {
         birthPlace: formData.birthPlace?.trim(),
         currentAddress: formData.currentAddress?.trim(),
         city: formData.city?.trim(),
+        district: formData.district?.trim(),
         state: formData.state?.trim(),
         country: formData.country?.trim(),
         additionalInfo: formData.additionalInfo?.trim(),
@@ -140,14 +141,13 @@ export default function EditMemberDetails() {
         },
         body: JSON.stringify(memberData),
       });
-      const result = await response.json();
       if (response.status === 401) {
         logout();
         return;
       }
+      const result = await response.json();
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update member");
+        throw new Error(result.error || "Failed to update member");
       } else {
         if (result.isRequest) {
           dispatch(updateAccountIssues({

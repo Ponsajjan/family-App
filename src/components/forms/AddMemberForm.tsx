@@ -26,6 +26,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
         birthPlaces: string[],
         countries: string[],
         states: string[],
+        districts: string[],
         cities: string[]
     }>({
         occupations: [],
@@ -33,6 +34,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
         birthPlaces: [],
         countries: [],
         states: [],
+        districts: [],
         cities: []
     });
 
@@ -68,15 +70,34 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
             };
             fetchStates();
         } else {
-            setOptions(prev => ({ ...prev, states: [], cities: [] }));
+            setOptions(prev => ({ ...prev, states: [], districts: [], cities: [] }));
         }
     }, [formData.country]);
 
     useEffect(() => {
         if (formData.country && formData.state) {
+            const fetchDistricts = async () => {
+                try {
+                    const res = await appFetch(`/api/relatives/filterOptions?type=districts&country=${encodeURIComponent(formData.country)}&state=${encodeURIComponent(formData.state)}`);
+                    if (res.ok) {
+                        const { data } = await res.json();
+                        setOptions(prev => ({ ...prev, districts: data }));
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch districts", err);
+                }
+            };
+            fetchDistricts();
+        } else {
+            setOptions(prev => ({ ...prev, districts: [], cities: [] }));
+        }
+    }, [formData.country, formData.state]);
+
+    useEffect(() => {
+        if (formData.country && formData.state && formData.district) {
             const fetchCities = async () => {
                 try {
-                    const res = await appFetch(`/api/relatives/filterOptions?type=cities&country=${encodeURIComponent(formData.country)}&state=${encodeURIComponent(formData.state)}`);
+                    const res = await appFetch(`/api/relatives/filterOptions?type=cities&country=${encodeURIComponent(formData.country)}&state=${encodeURIComponent(formData.state)}&district=${encodeURIComponent(formData.district)}`);
                     if (res.ok) {
                         const { data } = await res.json();
                         setOptions(prev => ({ ...prev, cities: data }));
@@ -89,7 +110,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
         } else {
             setOptions(prev => ({ ...prev, cities: [] }));
         }
-    }, [formData.country, formData.state]);
+    }, [formData.country, formData.state, formData.district]);
 
     const getCurrentISTYear = () => {
         return new Date().toLocaleString("en-US", {
@@ -278,7 +299,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
             </datalist>
 
             <Input
-                className="mb-2"
+                className="mb-3"
                 showOptional={true}
                 name="birthPlace"
                 label="Birth Place"
@@ -290,58 +311,76 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                 {options.birthPlaces.map(opt => <option key={opt} value={opt} />)}
             </datalist>
 
-            <TextArea
-                className="mb-1"
-                showOptional={true}
-                name="currentAddress"
-                label="Current Address"
-                value={formData.currentAddress || ''}
-                onChange={handleInputChange}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
-                <div>
-                    <Input
-                        showOptional={true}
-                        name="country"
-                        label="Country"
-                        list="countries-list"
-                        value={formData.country || ''}
-                        onChange={handleInputChange}
-                    />
-                    <datalist id="countries-list">
-                        {options.countries.map(opt => <option key={opt} value={opt} />)}
-                    </datalist>
+            <div className='border border-border_color p-2 rounded-lg mb-2'>
+                <TextArea
+                    className="mb-1"
+                    showOptional={true}
+                    name="currentAddress"
+                    label="Current Address"
+                    value={formData.currentAddress || ''}
+                    onChange={handleInputChange}
+                />
+                <div className="grid grid-col-1 md:grid-cols-2 gap-2 mb-2">
+                    <div>
+                        <Input
+                            showOptional={true}
+                            name="city"
+                            label="City/Town"
+                            list="cities-list"
+                            value={formData.city || ''}
+                            onChange={handleInputChange}
+                        />
+                        <datalist id="cities-list">
+                            {options.cities.map(opt => <option key={opt} value={opt} />)}
+                        </datalist>
+                    </div>
+                    <div>
+                        <Input
+                            showOptional={true}
+                            name="district"
+                            label="District"
+                            list="districts-list"
+                            value={formData.district || ''}
+                            onChange={handleInputChange}
+                        />
+                        <datalist id="districts-list">
+                            {options.districts.map(opt => <option key={opt} value={opt} />)}
+                        </datalist>
+                    </div>
                 </div>
-                <div>
-                    <Input
-                        showOptional={true}
-                        name="state"
-                        label="State"
-                        list="states-list"
-                        value={formData.state || ''}
-                        onChange={handleInputChange}
-                    />
-                    <datalist id="states-list">
-                        {options.states.map(opt => <option key={opt} value={opt} />)}
-                    </datalist>
-                </div>
-                <div>
-                    <Input
-                        showOptional={true}
-                        name="city"
-                        label="City"
-                        list="cities-list"
-                        value={formData.city || ''}
-                        onChange={handleInputChange}
-                    />
-                    <datalist id="cities-list">
-                        {options.cities.map(opt => <option key={opt} value={opt} />)}
-                    </datalist>
+
+                <div className="grid grid-col-1 md:grid-cols-2 gap-2">
+                    <div>
+                        <Input
+                            showOptional={true}
+                            name="state"
+                            label="State/Province"
+                            list="states-list"
+                            value={formData.state || ''}
+                            onChange={handleInputChange}
+                        />
+                        <datalist id="states-list">
+                            {options.states.map(opt => <option key={opt} value={opt} />)}
+                        </datalist>
+                    </div>
+                    <div>
+                        <Input
+                            showOptional={true}
+                            name="country"
+                            label="Country"
+                            list="countries-list"
+                            value={formData.country || ''}
+                            onChange={handleInputChange}
+                        />
+                        <datalist id="countries-list">
+                            {options.countries.map(opt => <option key={opt} value={opt} />)}
+                        </datalist>
+                    </div>
                 </div>
             </div>
 
             <TextArea
-                className="mb-4"
+                className="mb-3"
                 showOptional={true}
                 name="additionalInfo"
                 label="Additional Info"

@@ -21,6 +21,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     birthPlaces: string[],
     countries: string[],
     states: string[],
+    districts: string[],
     cities: string[]
   }>({
     occupations: [],
@@ -28,6 +29,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     birthPlaces: [],
     countries: [],
     states: [],
+    districts: [],
     cities: []
   });
 
@@ -61,15 +63,34 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
       };
       fetchStates();
     } else {
-      setOptions(prev => ({ ...prev, states: [], cities: [] }));
+      setOptions(prev => ({ ...prev, states: [], districts: [], cities: [] }));
     }
   }, [filters.country]);
 
   useEffect(() => {
     if (filters.country && filters.state) {
+      const fetchDistricts = async () => {
+        try {
+          const res = await appFetch(`/api/relatives/filterOptions?type=districts&country=${encodeURIComponent(filters.country)}&state=${encodeURIComponent(filters.state)}`);
+          if (res.ok) {
+            const { data } = await res.json();
+            setOptions(prev => ({ ...prev, districts: data }));
+          }
+        } catch (err) {
+          console.error("Failed to fetch districts", err);
+        }
+      };
+      fetchDistricts();
+    } else {
+      setOptions(prev => ({ ...prev, districts: [], cities: [] }));
+    }
+  }, [filters.country, filters.state]);
+
+  useEffect(() => {
+    if (filters.country && filters.state && filters.district) {
       const fetchCities = async () => {
         try {
-          const res = await appFetch(`/api/relatives/filterOptions?type=cities&country=${encodeURIComponent(filters.country)}&state=${encodeURIComponent(filters.state)}`);
+          const res = await appFetch(`/api/relatives/filterOptions?type=cities&country=${encodeURIComponent(filters.country)}&state=${encodeURIComponent(filters.state)}&district=${encodeURIComponent(filters.district)}`);
           if (res.ok) {
             const { data } = await res.json();
             setOptions(prev => ({ ...prev, cities: data }));
@@ -82,7 +103,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     } else {
       setOptions(prev => ({ ...prev, cities: [] }));
     }
-  }, [filters.country, filters.state]);
+  }, [filters.country, filters.state, filters.district]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -90,9 +111,14 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
       const newFilters = { ...prev, [name]: value };
       if (name === 'country') {
         newFilters.state = '';
+        newFilters.district = '';
         newFilters.city = '';
       }
       if (name === 'state') {
+        newFilters.district = '';
+        newFilters.city = '';
+      }
+      if (name === 'district') {
         newFilters.city = '';
       }
       return newFilters;
@@ -111,6 +137,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
       birthPlace: [],
       country: '',
       state: '',
+      district: '',
       city: '',
       birthYearStart: '',
       birthYearEnd: ''
@@ -172,12 +199,20 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           disabled={!filters.country}
         />
         <SingleSelectPopup
+          className="mb-4"
+          label="District"
+          value={filters.district}
+          options={options.districts}
+          onChange={(val) => handleChange({ target: { name: 'district', value: val } } as any)}
+          disabled={!filters.state}
+        />
+        <SingleSelectPopup
           className="mb-6"
           label="City"
           value={filters.city}
           options={options.cities}
           onChange={(val) => handleChange({ target: { name: 'city', value: val } } as any)}
-          disabled={!filters.state}
+          disabled={!filters.district}
         />
         <hr className="border-t border-border_color block mb-4" />
         <div className="mb-6">

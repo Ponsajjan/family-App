@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
       birthPlace: formData.birthPlace || null,
       currentAddress: formData.currentAddress || null,
       city: formData.city || null,
+      district: formData.district || null,
       state: formData.state || null,
       country: formData.country || null,
       additionalInfo: formData.additionalInfo || null,

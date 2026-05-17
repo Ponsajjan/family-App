@@ -325,10 +325,11 @@ export default function NewMemberDetails({
                     {(data?.contactInformation) &&
                         <InformationSection title="Contact Information">
                             <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
-                            <MemberItem label="Country" value={data.contactInformation.country} />
-                            <MemberItem label="State" value={data.contactInformation.state} />
-                            <MemberItem label="City" value={data.contactInformation.city} />
                             <MemberItem label="Address" value={data.contactInformation.currentAddress || data.contactInformation.address} />
+                            <MemberItem label="City/Town" value={data.contactInformation.city} />
+                            <MemberItem label="District" value={data.contactInformation.district} />
+                            <MemberItem label="State/Province" value={data.contactInformation.state} />
+                            <MemberItem label="Country" value={data.contactInformation.country} />
                         </InformationSection>
                     }
 

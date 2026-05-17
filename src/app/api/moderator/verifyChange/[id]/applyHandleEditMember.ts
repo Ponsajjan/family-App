@@ -14,6 +14,7 @@ interface MemberUpdateData {
   birthPlace?: string | null;
   currentAddress?: string | null;
   city?: string | null;
+  district?: string | null;
   state?: string | null;
   country?: string | null;
   descendant: string;
@@ -49,6 +50,7 @@ export const applyHandleEditMember = async (data: RequestData, tx: any) => {
     birthPlace: formData.birthPlace || null,
     currentAddress: formData.currentAddress || null,
     city: formData.city || null,
+    district: formData.district || null,
     state: formData.state || null,
     country: formData.country || null,
     descendant: formData.descendant === 'Yes',

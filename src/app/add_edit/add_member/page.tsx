@@ -77,6 +77,7 @@ export default function AddMemberDetails() {
         birthPlace: formData.birthPlace?.trim(),
         currentAddress: formData.currentAddress?.trim(),
         city: formData.city?.trim(),
+        district: formData.district?.trim(),
         state: formData.state?.trim(),
         country: formData.country?.trim(),
         additionalInfo: formData.additionalInfo?.trim(),

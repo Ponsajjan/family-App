@@ -14,6 +14,7 @@ export interface NewLoginFormValueTypes {
   country: string;
   state: string;
   city: string;
+  district: string;
   address: string;
   father: string;
   mother: string;
@@ -66,6 +67,7 @@ export const NewLoginDefaultFormValue: NewLoginFormValueTypes = {
   country: '',
   state: '',
   city: '',
+  district: '',
   address: '',
   father: '',
   mother: '',

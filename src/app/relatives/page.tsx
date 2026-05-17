@@ -33,6 +33,7 @@ export default function Relatives() {
     birthPlace: string[];
     country: string;
     state: string;
+    district: string;
     city: string;
     birthYearStart: string;
     birthYearEnd: string;
@@ -42,6 +43,7 @@ export default function Relatives() {
     birthPlace: [],
     country: '',
     state: '',
+    district: '',
     city: '',
     birthYearStart: '',
     birthYearEnd: ''
@@ -54,6 +56,7 @@ export default function Relatives() {
     if (filters.birthPlace && filters.birthPlace.length > 0) count++;
     if (filters.country) count++;
     if (filters.state) count++;
+    if (filters.district) count++;
     if (filters.city) count++;
     if (filters.birthYearStart || filters.birthYearEnd) count++;
     return count;

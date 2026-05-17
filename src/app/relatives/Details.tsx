@@ -43,9 +43,6 @@ export default function Details({ showMember, openDetails }: any) {
     }
   }, [showMember, mutate]);
 
-
-
-
   const data = swrResult?.data;
 
   return (

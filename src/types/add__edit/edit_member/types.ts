@@ -17,6 +17,7 @@ export interface EditMemberFormValueTypes {
     birthPlace: string;
     currentAddress: string;
     city: string;
+    district: string;
     state: string;
     country: string;
     additionalInfo: string;
@@ -52,6 +53,7 @@ export const EditMemberDefaultFormValue: EditMemberFormValueTypes = {
     birthPlace: '',
     currentAddress: '',
     city: '',
+    district: '',
     state: '',
     country: '',
     additionalInfo: '',

@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
   const birthPlace = Array.isArray(filters.birthPlace) ? filters.birthPlace : filters.birthPlace?.trim() || "";
   const country = filters.country?.trim() || "";
   const state = filters.state?.trim() || "";
+  const district = filters.district?.trim() || "";
   const city = filters.city?.trim() || "";
   const birthYearStart = filters.birthYearStart ? parseInt(filters.birthYearStart, 10) : null;
   const birthYearEnd = filters.birthYearEnd ? parseInt(filters.birthYearEnd, 10) : null;
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
       birthPlace,
       country,
       state,
+      district,
       city,
       birthYearStart,
       birthYearEnd,

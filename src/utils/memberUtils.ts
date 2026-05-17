@@ -58,6 +58,7 @@ export async function fetchMemberData(id: number, loginAuthIdsCount: number) {
       currentAddress: true,
       city: true,
       state: true,
+      district: true,
       country: true,
       occupation: true,
       education: true,
@@ -167,6 +168,7 @@ function buildContactInfo(member: any) {
     ...(member.phoneNumber && { phoneNumber: member.phoneNumber }),
     ...(member.currentAddress && { currentAddress: member.currentAddress }),
     ...(member.city && { city: member.city }),
+    ...(member.district && { district: member.district }),
     ...(member.state && { state: member.state }),
     ...(member.country && { country: member.country })
   } : undefined;

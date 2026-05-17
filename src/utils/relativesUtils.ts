@@ -12,12 +12,13 @@ export async function fetchRelativesData(
         birthPlace?: string | string[];
         country?: string;
         state?: string;
+        district?: string;
         city?: string;
         birthYearStart?: number | null;
         birthYearEnd?: number | null;
     } = {}
 ) {
-    const { occupation, education, birthPlace, country, state, city, birthYearStart, birthYearEnd } = filters;
+    const { occupation, education, birthPlace, country, state, district, city, birthYearStart, birthYearEnd } = filters;
     const baseSkip = (page - 1) * limit;
     const skip = page === 1 ? baseSkip : baseSkip - 1;
     const take = page === 1 ? limit : limit + 1;
@@ -27,6 +28,7 @@ export async function fetchRelativesData(
         ...(searchQuery && { name: { contains: searchQuery, mode: "insensitive" } }),
         ...(country && { country: { equals: country, mode: "insensitive" } }),
         ...(state && { state: { equals: state, mode: "insensitive" } }),
+        ...(district && { district: { equals: district, mode: "insensitive" } }),
         ...(city && { city: { equals: city, mode: "insensitive" } }),
     };
 

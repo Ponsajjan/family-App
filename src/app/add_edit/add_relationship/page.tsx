@@ -155,29 +155,19 @@ export default function AddRelationshipDetails() {
         },
         body: JSON.stringify(memberData),
       });
-      // Handle 401 Unauthorized
       if (response.status === 401) {
         logout();
         return;
       }
+      
+      const result = await response.json();
       if (!response.ok) {
-        const errorData = await response.json();
-        const errorMsg = errorData.error || "Failed to update member";
-        toast?.show(errorMsg, "error", 5000)
+        const errorMsg = result.error || "Failed to update member";
+        toast?.show(errorMsg, "error", 5000);
         setSubmitError(errorMsg);
-        return
+        return;
       }
 
-      const result = await response.json();
-      if (response.status === 401) {
-        logout();
-        return;
-      }
-      if (!response.ok) {
-        setSubmitError(result.error || "Something went wrong");
-        toast?.show(result.error || "Something went wrong", "error", 5000);
-        return
-      }
       if (result.isRequest) {
         dispatch(updateAccountIssues({
           hasChanges: true,

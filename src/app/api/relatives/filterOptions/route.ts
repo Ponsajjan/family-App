@@ -50,15 +50,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: sanitizeOptions(states.map((s) => s.state)) });
     }
 
-    if (type === "cities") {
+    if (type === "districts") {
       const country = searchParams.get("country");
       const state = searchParams.get("state");
       if (!country || !state) return NextResponse.json({ data: [] });
+      const districts = await prisma.member.findMany({
+        where: {
+          authId: { in: allAuthIds },
+          country: { equals: country, mode: "insensitive" },
+          state: { equals: state, mode: "insensitive" },
+        },
+        select: { district: true },
+      });
+      return NextResponse.json({ data: sanitizeOptions(districts.map((d) => d.district)) });
+    }
+
+    if (type === "cities") {
+      const country = searchParams.get("country");
+      const state = searchParams.get("state");
+      const district = searchParams.get("district");
+      if (!country || !state || !district) return NextResponse.json({ data: [] });
       const cities = await prisma.member.findMany({
         where: {
           authId: { in: allAuthIds },
           country: { equals: country, mode: "insensitive" },
           state: { equals: state, mode: "insensitive" },
+          district: { equals: district, mode: "insensitive" },
         },
         select: { city: true },
       });

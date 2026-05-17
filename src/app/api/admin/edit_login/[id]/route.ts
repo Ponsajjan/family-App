@@ -78,6 +78,7 @@ export async function GET(request: NextRequest) {
       education: member.education,
       currentAddress: member.currentAddress,
       city: member.city || null,
+      district: member.district || null,
       state: member.state || null,
       country: member.country || null,
       father: member.nonDescendantRelation[0]?.fatherName || null,
@@ -154,6 +155,7 @@ export async function PUT(request: NextRequest) {
       country: formData.country || null,
       state: formData.state || null,
       city: formData.city || null,
+      district: formData.district || null,
       address: formData.address || null,
     };
 

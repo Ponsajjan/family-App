@@ -70,6 +70,7 @@ export default function EditCredential() {
           country: edit_member.country || "",
           state: edit_member.state || "",
           city: edit_member.city || "",
+          district: edit_member.district || "",
           address: edit_member.address || "",
           member_password: edit_member.member_password,
           moderator_password: edit_member.moderator_password,
@@ -136,6 +137,7 @@ export default function EditCredential() {
         country: formData.country,
         state: formData.state,
         city: formData.city,
+        district: formData.district,
         address: formData.address,
         memberPassword: formData.member_password,
         moderatorPassword: formData.moderator_password,
@@ -349,25 +351,33 @@ export default function EditCredential() {
               <Input
                 className="mb-2 w-full"
                 showOptional={true}
-                name="country"
-                label="Country"
-                value={formData.country}
+                name="city"
+                label="City/Town"
+                value={formData.city}
+                onChange={handleInputChange}
+              />
+              <Input
+                className="mb-2 w-full"
+                showOptional={true}
+                name="district"
+                label="District"
+                value={formData.district || ""}
                 onChange={handleInputChange}
               />
               <Input
                 className="mb-2 w-full"
                 showOptional={true}
                 name="state"
-                label="State"
+                label="State/Province"
                 value={formData.state}
                 onChange={handleInputChange}
               />
               <Input
                 className="mb-2 w-full"
                 showOptional={true}
-                name="city"
-                label="City"
-                value={formData.city}
+                name="country"
+                label="Country"
+                value={formData.country}
                 onChange={handleInputChange}
               />
             </div>

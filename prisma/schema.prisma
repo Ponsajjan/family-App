@@ -43,6 +43,7 @@ model Member {
   birthPlace          String?
   currentAddress      String? @map("address")
   city                String?
+  district            String?
   state               String?
   country             String?
   occupation          String?

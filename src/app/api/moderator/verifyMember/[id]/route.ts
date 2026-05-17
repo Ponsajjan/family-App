@@ -38,6 +38,7 @@ interface MemberResponse {
     country?: string;
     state?: string;
     city?: string;
+    district?: string;
     address?: string; // This will map to currentAddress for display
   };
   personalInformation?: {
@@ -87,6 +88,7 @@ export async function GET(request: NextRequest) {
           birthPlace: true,
           currentAddress: true,
           city: true,
+          district: true,
           state: true,
           country: true,
           occupation: true,
@@ -208,11 +210,12 @@ function buildRelationInfo(member: any, siblings: any[]) {
 }
 
 function buildContactInfo(member: any) {
-  return member.phoneNumber || member.currentAddress || member.country || member.state || member.city ? {
+  return member.phoneNumber || member.currentAddress || member.country || member.state || member.city || member.district ? {
     ...(member.phoneNumber && { phoneNumber: member.phoneNumber }),
     ...(member.country && { country: member.country }),
     ...(member.state && { state: member.state }),
     ...(member.city && { city: member.city }),
+    ...(member.district && { district: member.district }),
     ...(member.currentAddress && { address: member.currentAddress }) // Map currentAddress to address label for UI
   } : undefined;
 }

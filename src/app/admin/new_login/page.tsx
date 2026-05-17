@@ -66,6 +66,7 @@ export default function Page() {
         country: formData.country,
         state: formData.state,
         city: formData.city,
+        district: formData.district,
         address: formData.address,
         memberPassword: formData.member_password,
         moderatorPassword: formData.moderator_password,
@@ -272,48 +273,60 @@ export default function Page() {
               />
             </div>
             <Input
-              className="mb-2"
+              className="mb-3"
               showOptional={true}
               name="education"
               label="Education"
               value={formData.education}
               onChange={handleInputChange}
             />
-            <div className='flex gap-2'>
+            <div className='p-2 border border-border_color rounded-lg mb-2'>
               <Input
-                className="mb-2 w-full"
+                className="mb-2"
                 showOptional={true}
-                name="country"
-                label="Country"
-                value={formData.country}
+                name="address"
+                label="Address"
+                value={formData.address}
                 onChange={handleInputChange}
               />
-              <Input
-                className="mb-2 w-full"
-                showOptional={true}
-                name="state"
-                label="State"
-                value={formData.state}
-                onChange={handleInputChange}
-              />
-              <Input
-                className="mb-2 w-full"
-                showOptional={true}
-                name="city"
-                label="City"
-                value={formData.city}
-                onChange={handleInputChange}
-              />
+              <div className='grid grid-col-1 md:grid-cols-2 gap-2'>
+                <Input
+                  className="mb-2 w-full"
+                  showOptional={true}
+                  name="city"
+                  label="City/Town"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  className="mb-2 w-full"
+                  showOptional={true}
+                  name="district"
+                  label="District"
+                  value={formData.district || ""}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
+                <Input
+                  className="mb-2 w-full"
+                  showOptional={true}
+                  name="state"
+                  label="State/Province"
+                  value={formData.state}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  className="mb-2"
+                  showOptional={true}
+                  name="country"
+                  label="Country"
+                  value={formData.country}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
-            <Input
-              className="mb-2"
-              showOptional={true}
-              name="address"
-              label="Address"
-              value={formData.address}
-              onChange={handleInputChange}
-            />
-            <div className='flex gap-2'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
               <Input
                 className="mb-2"
                 name="member_password"

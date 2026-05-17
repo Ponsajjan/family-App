@@ -11,6 +11,9 @@ export function normalizeValue(value: any, key: string): string {
 
 export function formatFieldName(key: string): string {
   if (key === 'currentAddress') return 'Address';
+  if (key === 'city') return 'City/Town';
+  if (key === 'district') return 'District';
+  if (key === 'state') return 'State/Province';
   return key
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, str => str.toUpperCase());

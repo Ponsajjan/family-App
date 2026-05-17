@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
         birthPlace: true,
         currentAddress: true,
         city: true,
+        district: true,
         state: true,
         country: true,
         occupation: true,
