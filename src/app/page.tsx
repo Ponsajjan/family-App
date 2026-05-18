@@ -203,10 +203,10 @@ export default function Calendar() {
     }
   }, [calendarData, loadingInitialToday, month, year, currentMonth, currentYear]);
 
-  const HandlePopupData = (event: 'member' | 'date', data: any) => {
+  const HandlePopupData = (event: 'member' | 'date', data: any, fromDatePopup?: boolean) => {
     if (event === 'member') {
       setSelectedMemberId(data);
-      if (showPopupFor === 'date') {
+      if (fromDatePopup) {
         setCanGoBackToDate(true);
       } else {
         setCanGoBackToDate(false);
@@ -347,7 +347,7 @@ export default function Calendar() {
                   </div>
                 )}
                 <div className={`${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'} ${canGoBackToDate ? '[&_.sticky]:!top-[3.2rem]' : ''}`}>
-                  {showPopupFor === 'date' && <OnDate events={eventForDate} onMemberClick={(id) => HandlePopupData('member', id)} />}
+                  {showPopupFor === 'date' && <OnDate events={eventForDate} onMemberClick={(id) => HandlePopupData('member', id, true)} />}
                   {showPopupFor === 'member' && <CalendarMemberDetail memberId={selectedMemberId} />}
                 </div>
               </div>

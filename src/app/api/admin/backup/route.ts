@@ -9,171 +9,179 @@ import { Prisma } from "@prisma/client";
  * Query Param: authId (optional) - if provided, exports only a specific family
  */
 export async function GET(request: Request) {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
-    
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+   try {
+      const cookieStore = await cookies();
+      const token = cookieStore.get("token")?.value;
 
-    const userPayload = await verifyToken(token);
+      if (!token) {
+         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
 
-    if (!userPayload || userPayload.userType !== "Admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+      const userPayload = await verifyToken(token);
 
-    const { searchParams } = new URL(request.url);
-    const authId = searchParams.get("authId") ? parseInt(searchParams.get("authId")!) : null;
+      if (!userPayload || userPayload.userType !== "Admin") {
+         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
 
-    const data: any = {};
+      const { searchParams } = new URL(request.url);
+      const authId = searchParams.get("authId") ? parseInt(searchParams.get("authId")!) : null;
 
-    if (authId) {
-      // Single Family Backup
-      data.type = "single";
-      data.authId = authId;
-      data.members = await prisma.member.findMany({ where: { authId } });
-      data.requests = await prisma.requestDetails.findMany({ where: { authId } });
-      data.nonDescendantRelations = await prisma.nonDescendantRelation.findMany({
-        where: { member: { authId } },
-      });
-      data.moderators = await prisma.moderatorList.findMany({ where: { authId } });
-    } else {
-      // Full Database Backup
-      data.type = "full";
-      data.auths = await prisma.auth.findMany();
-      data.members = await prisma.member.findMany();
-      data.requests = await prisma.requestDetails.findMany();
-      data.nonDescendantRelations = await prisma.nonDescendantRelation.findMany();
-      data.moderators = await prisma.moderatorList.findMany();
-      data.familyTrees = await prisma.familyTree.findMany();
-    }
+      const data: any = {};
 
-    return NextResponse.json(data);
-  } catch (error: any) {
-    console.error("[Backup Export] Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+      if (authId) {
+         // Single Family Backup
+         data.type = "single";
+         data.authId = authId;
+         data.members = await prisma.member.findMany({ where: { authId } });
+         data.requests = await prisma.requestDetails.findMany({ where: { authId } });
+         data.nonDescendantRelations = await prisma.nonDescendantRelation.findMany({
+            where: { member: { authId } },
+         });
+         data.moderators = await prisma.moderatorList.findMany({ where: { authId } });
+      } else {
+         // Full Database Backup
+         data.type = "full";
+         data.auths = await prisma.auth.findMany();
+         data.members = await prisma.member.findMany();
+         data.requests = await prisma.requestDetails.findMany();
+         data.nonDescendantRelations = await prisma.nonDescendantRelation.findMany();
+         data.moderators = await prisma.moderatorList.findMany();
+         data.familyTrees = await prisma.familyTree.findMany();
+      }
+
+      return NextResponse.json(data);
+   } catch (error: any) {
+      console.error("[Backup Export] Error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+   }
 }
 
 /**
  * POST: Restore database from JSON
  */
 export async function POST(request: Request) {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+   try {
+      const cookieStore = await cookies();
+      const token = cookieStore.get("token")?.value;
 
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+      if (!token) {
+         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
 
-    const userPayload = await verifyToken(token);
+      const userPayload = await verifyToken(token);
 
-    if (!userPayload || userPayload.userType !== "Admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+      if (!userPayload || userPayload.userType !== "Admin") {
+         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
 
-    const backupData = await request.json();
-    const { type, authId } = backupData;
+      const backupData = await request.json();
+      const { type, authId } = backupData;
 
-    if (type === "single" && authId) {
-       // Restore single family
-       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-         // 1. Delete existing data for this family
-         await tx.requestDetails.deleteMany({ where: { authId } });
-         await tx.nonDescendantRelation.deleteMany({ where: { member: { authId } } });
-         await tx.moderatorList.deleteMany({ where: { authId } });
-         await tx.familyTree.deleteMany({ where: { authId } });
-         await tx.member.deleteMany({ where: { authId } });
+      if (type === "single" && authId) {
+         // Restore single family
+         await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+            // 1. Delete existing data for this family
+            await tx.requestDetails.deleteMany({ where: { authId } });
+            await tx.nonDescendantRelation.deleteMany({ where: { member: { authId } } });
+            await tx.moderatorList.deleteMany({ where: { authId } });
+            await tx.familyTree.deleteMany({ where: { authId } });
+            await tx.member.deleteMany({ where: { authId } });
 
-         // 2. Restore members (preserving IDs where possible to maintain relations)
-         if (backupData.members?.length > 0) {
-            const membersToRestore = backupData.members.map((m: any) => {
-               const { address, ...rest } = m;
-               return {
-                  ...rest,
-                  address: address || null,
-                  city: rest.city || null,
-                  state: rest.state || null,
-                  country: rest.country || null,
-               };
-            });
-            await tx.member.createMany({ data: membersToRestore });
-         }
+            // 2. Restore members (preserving IDs where possible to maintain relations)
+            if (backupData.members?.length > 0) {
+               const membersToRestore = backupData.members.map((m: any) => {
+                  const { address, ...rest } = m;
+                  return {
+                     ...rest,
+                     address: address || null,
+                     city: rest.city || null,
+                     district: rest.district || null,
+                     state: rest.state || null,
+                     country: rest.country || null,
+                  };
+               });
+               await tx.member.createMany({ data: membersToRestore });
+            }
 
-         // 3. Restore relations
-         if (backupData.nonDescendantRelations?.length > 0) {
-            await tx.nonDescendantRelation.createMany({ data: backupData.nonDescendantRelations });
-         }
+            // 3. Restore relations
+            if (backupData.nonDescendantRelations?.length > 0) {
+               await tx.nonDescendantRelation.createMany({ data: backupData.nonDescendantRelations });
+            }
 
-         // 4. Restore moderators
-         if (backupData.moderators?.length > 0) {
-            await tx.moderatorList.createMany({ data: backupData.moderators });
-         }
+            // 4. Restore moderators
+            if (backupData.moderators?.length > 0) {
+               await tx.moderatorList.createMany({ data: backupData.moderators });
+            }
 
-         // 5. Restore requests
-         if (backupData.requests?.length > 0) {
-            await tx.requestDetails.createMany({ data: backupData.requests });
-         }
-       });
+            // 5. Restore requests
+            if (backupData.requests?.length > 0) {
+               await tx.requestDetails.createMany({ data: backupData.requests });
+            }
+         }, {
+            maxWait: 20000,
+            timeout: 60000
+         });
 
-       return NextResponse.json({ message: "Family data restored successfully" });
-    } else if (type === "full") {
-       // Full Database Restore (Extremely dangerous!)
-       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-         // Delete everything
-         await tx.familyTree.deleteMany();
-         await tx.requestDetails.deleteMany();
-         await tx.nonDescendantRelation.deleteMany();
-         await tx.moderatorList.deleteMany();
-         await tx.member.deleteMany();
-         await tx.auth.deleteMany();
+         return NextResponse.json({ message: "Family data restored successfully" });
+      } else if (type === "full") {
+         // Full Database Restore (Extremely dangerous!)
+         await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+            // Delete everything
+            await tx.familyTree.deleteMany();
+            await tx.requestDetails.deleteMany();
+            await tx.nonDescendantRelation.deleteMany();
+            await tx.moderatorList.deleteMany();
+            await tx.member.deleteMany();
+            await tx.auth.deleteMany();
 
-         // Restore Auths first (because others depend on it)
-         if (backupData.auths?.length > 0) {
-            await tx.auth.createMany({ data: backupData.auths });
-         }
-         
-         if (backupData.members?.length > 0) {
-            const membersToRestore = backupData.members.map((m: any) => {
-               const { address, ...rest } = m;
-               return {
-                  ...rest,
-                  address: address || null,
-                  // Ensure new fields are present at least as nulls if missing from old backup
-                  city: rest.city || null,
-                  state: rest.state || null,
-                  country: rest.country || null,
-               };
-            });
-            await tx.member.createMany({ data: membersToRestore });
-         }
+            // Restore Auths first (because others depend on it)
+            if (backupData.auths?.length > 0) {
+               await tx.auth.createMany({ data: backupData.auths });
+            }
 
-         if (backupData.nonDescendantRelations?.length > 0) {
-            await tx.nonDescendantRelation.createMany({ data: backupData.nonDescendantRelations });
-         }
+            if (backupData.members?.length > 0) {
+               const membersToRestore = backupData.members.map((m: any) => {
+                  const { address, ...rest } = m;
+                  return {
+                     ...rest,
+                     address: address || null,
+                     // Ensure new fields are present at least as nulls if missing from old backup
+                     city: rest.city || null,
+                     district: rest.district || null,
+                     state: rest.state || null,
+                     country: rest.country || null,
+                  };
+               });
+               await tx.member.createMany({ data: membersToRestore });
+            }
 
-         if (backupData.moderators?.length > 0) {
-            await tx.moderatorList.createMany({ data: backupData.moderators });
-         }
+            if (backupData.nonDescendantRelations?.length > 0) {
+               await tx.nonDescendantRelation.createMany({ data: backupData.nonDescendantRelations });
+            }
 
-         if (backupData.requests?.length > 0) {
-            await tx.requestDetails.createMany({ data: backupData.requests });
-         }
-         
-         if (backupData.familyTrees?.length > 0) {
-            await tx.familyTree.createMany({ data: backupData.familyTrees });
-         }
-       });
+            if (backupData.moderators?.length > 0) {
+               await tx.moderatorList.createMany({ data: backupData.moderators });
+            }
 
-       return NextResponse.json({ message: "Full database restored successfully" });
-    }
+            if (backupData.requests?.length > 0) {
+               await tx.requestDetails.createMany({ data: backupData.requests });
+            }
 
-    return NextResponse.json({ error: "Invalid backup type" }, { status: 400 });
-  } catch (error: any) {
-    console.error("[Backup Restore] Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+            if (backupData.familyTrees?.length > 0) {
+               await tx.familyTree.createMany({ data: backupData.familyTrees });
+            }
+         }, {
+            maxWait: 20000,
+            timeout: 60000
+         });
+
+         return NextResponse.json({ message: "Full database restored successfully" });
+      }
+
+      return NextResponse.json({ error: "Invalid backup type" }, { status: 400 });
+   } catch (error: any) {
+      console.error("[Backup Restore] Error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+   }
 }
 
