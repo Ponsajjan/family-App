@@ -1153,7 +1153,7 @@ export const InstallIcon = () => {
 
 export const SkipBack = () => {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="1.5625rem" height="1.5625rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path fill="none" d="M3 3v5m0 0h5m-5 0l3-2.70832C7.59227 3.86656 9.69494 3 12 3c4.9706 0 9 4.02944 9 9s-4.0294 9-9 9c-4.28317 0-7.86753-2.992-8.77698-7" />
         </svg>
     );
@@ -1162,7 +1162,7 @@ export const SkipBack = () => {
 
 export const SkipForward = () => {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" width="1.5625rem" height="1.5625rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path fill="none" d="M21 3v5m0 0h-5m5 0l-3-2.70832C16.4077 3.86656 14.3051 3 12 3c-4.9706 0-9 4.02944-9 9s4.02944 9 9 9c4.2832 0 7.8675-2.992 8.777-7" />
         </svg>
     );
@@ -1170,7 +1170,7 @@ export const SkipForward = () => {
 
 export const SwitchIcon = () => {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1.5625rem" height="1.5625rem" viewBox="0 0 32 32">
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1.5rem" height="1.5rem" viewBox="0 0 32 32">
             <circle cx="10" cy="9" r="3" />
             <path d="M10,13C8.343,13,7,14.343,7,16s1.343,3,3,3s3-1.343,3-3S11.657,13,10,13z M10,17
                 c-0.551,0-1-0.449-1-1s0.449-1,1-1s1,0.449,1,1S10.551,17,10,17z" />
