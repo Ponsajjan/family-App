@@ -34,8 +34,6 @@ export default function SingleSelectPopup({ label, options, value, onChange, cla
         onChange('');
     };
 
-    const displayValue = value === '' ? `All ${label}s` : value;
-
     return (
         <div className={`block text-sm font-medium opacity-75 ${className}`}>
             <div className="pb-0.5">{label}</div>
@@ -44,7 +42,7 @@ export default function SingleSelectPopup({ label, options, value, onChange, cla
                     className={`w-full p-2 pr-12 border border-border_color rounded-md bg-field_color text-sm focus-within:border-border_active outline-none flex items-center min-h-[38px] ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                     onClick={() => !disabled && setIsOpen(true)}
                 >
-                    <span className="truncate">{displayValue}</span>
+                    {value === '' ? <span className="truncate opacity-70">All {label}s</span> : <span className="truncate">{value}</span>}
                 </div>
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center z-10">
                     {value !== '' ? (
