@@ -10,9 +10,10 @@ interface SingleSelectPopupProps {
     onChange: (value: string) => void;
     className?: string;
     disabled?: boolean;
+    loading?: boolean;
 }
 
-export default function SingleSelectPopup({ label, options, value, onChange, className = '', disabled = false }: SingleSelectPopupProps) {
+export default function SingleSelectPopup({ label, options, value, onChange, className = '', disabled = false, loading = false }: SingleSelectPopupProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
@@ -100,7 +101,9 @@ export default function SingleSelectPopup({ label, options, value, onChange, cla
                                     </div>
 
                                     <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1 pb-4">
-                                        {filteredOptions.length > 0 ? (
+                                        {loading ? (
+                                            <div className="text-center py-4 opacity-70">Loading...</div>
+                                        ) : filteredOptions.length > 0 ? (
                                             filteredOptions.map(opt => (
                                                 <div
                                                     key={opt}

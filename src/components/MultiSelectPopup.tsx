@@ -10,9 +10,10 @@ interface MultiSelectPopupProps {
     values: string[];
     onChange: (values: string[]) => void;
     className?: string;
+    loading?: boolean;
 }
 
-export default function MultiSelectPopup({ label, options, values, onChange, className = '' }: MultiSelectPopupProps) {
+export default function MultiSelectPopup({ label, options, values, onChange, className = '', loading = false }: MultiSelectPopupProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
@@ -127,7 +128,9 @@ export default function MultiSelectPopup({ label, options, values, onChange, cla
                                     </div>
 
                                     <div className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1">
-                                        {filteredOptions.length > 0 ? (
+                                        {loading ? (
+                                            <div className="text-center py-4 opacity-70">Loading...</div>
+                                        ) : filteredOptions.length > 0 ? (
                                             filteredOptions.map(opt => (
                                                 <div
                                                     key={opt}

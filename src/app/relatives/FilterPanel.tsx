@@ -32,9 +32,22 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     cities: []
   });
 
+  const [loadingFields, setLoadingFields] = useState<{
+    initial: boolean;
+    states: boolean;
+    districts: boolean;
+    cities: boolean;
+  }>({
+    initial: true,
+    states: false,
+    districts: false,
+    cities: false,
+  });
+
   useEffect(() => {
     const fetchInitialOptions = async () => {
       try {
+        setLoadingFields(prev => ({ ...prev, initial: true }));
         const res = await appFetch('/api/relatives/filterOptions?excludeLocations=true');
         if (res.ok) {
           const data = await res.json();
@@ -42,6 +55,8 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
         }
       } catch (err) {
         console.error("Failed to fetch filter options", err);
+      } finally {
+        setLoadingFields(prev => ({ ...prev, initial: false }));
       }
     };
     fetchInitialOptions();
@@ -51,6 +66,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     if (filters.country) {
       const fetchStates = async () => {
         try {
+          setLoadingFields(prev => ({ ...prev, states: true }));
           const res = await appFetch(`/api/relatives/filterOptions?type=states&country=${encodeURIComponent(filters.country)}`);
           if (res.ok) {
             const { data } = await res.json();
@@ -58,6 +74,8 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           }
         } catch (err) {
           console.error("Failed to fetch states", err);
+        } finally {
+          setLoadingFields(prev => ({ ...prev, states: false }));
         }
       };
       fetchStates();
@@ -70,6 +88,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     if (filters.country && filters.state) {
       const fetchDistricts = async () => {
         try {
+          setLoadingFields(prev => ({ ...prev, districts: true }));
           const res = await appFetch(`/api/relatives/filterOptions?type=districts&country=${encodeURIComponent(filters.country)}&state=${encodeURIComponent(filters.state)}`);
           if (res.ok) {
             const { data } = await res.json();
@@ -77,6 +96,8 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           }
         } catch (err) {
           console.error("Failed to fetch districts", err);
+        } finally {
+          setLoadingFields(prev => ({ ...prev, districts: false }));
         }
       };
       fetchDistricts();
@@ -89,6 +110,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     if (filters.country && filters.state && filters.district) {
       const fetchCities = async () => {
         try {
+          setLoadingFields(prev => ({ ...prev, cities: true }));
           const res = await appFetch(`/api/relatives/filterOptions?type=cities&country=${encodeURIComponent(filters.country)}&state=${encodeURIComponent(filters.state)}&district=${encodeURIComponent(filters.district)}`);
           if (res.ok) {
             const { data } = await res.json();
@@ -96,6 +118,8 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           }
         } catch (err) {
           console.error("Failed to fetch cities", err);
+        } finally {
+          setLoadingFields(prev => ({ ...prev, cities: false }));
         }
       };
       fetchCities();
@@ -107,6 +131,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     setFilters((prev: any) => {
+      if (prev[name] === value) return prev;
       const newFilters = { ...prev, [name]: value };
       if (name === 'country') {
         newFilters.state = '';
@@ -166,6 +191,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           values={filters.occupation || []}
           options={options.occupations}
           onChange={(values) => setFilters((prev: any) => ({ ...prev, occupation: values }))}
+          loading={loadingFields.initial}
         />
         <MultiSelectPopup
           className="mb-4"
@@ -173,6 +199,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           values={filters.education || []}
           options={options.educations}
           onChange={(values) => setFilters((prev: any) => ({ ...prev, education: values }))}
+          loading={loadingFields.initial}
         />
         <MultiSelectPopup
           className="mb-6"
@@ -180,6 +207,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           values={filters.birthPlace || []}
           options={options.birthPlaces}
           onChange={(values) => setFilters((prev: any) => ({ ...prev, birthPlace: values }))}
+          loading={loadingFields.initial}
         />
         <hr className="border-t border-border_color block mb-4" />
         <SingleSelectPopup
@@ -188,6 +216,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           value={filters.country}
           options={options.countries}
           onChange={(val) => handleChange({ target: { name: 'country', value: val } } as any)}
+          loading={loadingFields.initial}
         />
         <SingleSelectPopup
           className="mb-4"
@@ -196,6 +225,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           options={options.states}
           onChange={(val) => handleChange({ target: { name: 'state', value: val } } as any)}
           disabled={!filters.country}
+          loading={loadingFields.states}
         />
         <SingleSelectPopup
           className="mb-4"
@@ -204,6 +234,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           options={options.districts}
           onChange={(val) => handleChange({ target: { name: 'district', value: val } } as any)}
           disabled={!filters.state}
+          loading={loadingFields.districts}
         />
         <SingleSelectPopup
           className="mb-6"
@@ -212,6 +243,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
           options={options.cities}
           onChange={(val) => handleChange({ target: { name: 'city', value: val } } as any)}
           disabled={!filters.district}
+          loading={loadingFields.cities}
         />
         <hr className="border-t border-border_color block mb-4" />
         <div className="mb-6">
