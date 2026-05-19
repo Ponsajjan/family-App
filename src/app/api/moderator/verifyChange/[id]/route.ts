@@ -185,25 +185,30 @@ export async function PUT(request: NextRequest) {
     }
 
     // Process request in transaction
-    const result = await prisma.$transaction(async (tx) => {
-      const handlers: Record<string, any> = {
-        "Edit Member": applyHandleEditMember,
-        "Add Relationship": applyHandleAddRelationship,
-        "Edit Relationship": applyHandleEditRelationship
-      };
+    const result = await prisma.$transaction(
+      async (tx) => {
+        const handlers: Record<string, any> = {
+          "Edit Member": applyHandleEditMember,
+          "Add Relationship": applyHandleAddRelationship,
+          "Edit Relationship": applyHandleEditRelationship
+        };
 
-      const handler = handlers[requestData.type];
-      if (!handler) throw new Error("Invalid operation type");
+        const handler = handlers[requestData.type];
+        if (!handler) throw new Error("Invalid operation type");
 
-      const result = await handler(requestData, tx);
+        const result = await handler(requestData, tx);
 
-      // Delete the request only if the operation was successful
-      if (result.success === true) {
-        await tx.requestDetails.delete({ where: { id: requestId } });
+        // Delete the request only if the operation was successful
+        if (result.success === true) {
+          await tx.requestDetails.delete({ where: { id: requestId } });
+        }
+
+        return result;
+      },
+      {
+        timeout: 20000, // 20 seconds timeout to handle database load
       }
-
-      return result;
-    });
+    );
 
     await bumpFamilyUpdateVersion(authId);
 

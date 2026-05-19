@@ -55,63 +55,6 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
         fetchInitialOptions();
     }, []);
 
-    useEffect(() => {
-        if (formData.country) {
-            const fetchStates = async () => {
-                try {
-                    const res = await appFetch(`/api/relatives/filterOptions?type=states&country=${encodeURIComponent(formData.country)}`);
-                    if (res.ok) {
-                        const { data } = await res.json();
-                        setOptions(prev => ({ ...prev, states: data }));
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch states", err);
-                }
-            };
-            fetchStates();
-        } else {
-            setOptions(prev => ({ ...prev, states: [], districts: [], cities: [] }));
-        }
-    }, [formData.country]);
-
-    useEffect(() => {
-        if (formData.country && formData.state) {
-            const fetchDistricts = async () => {
-                try {
-                    const res = await appFetch(`/api/relatives/filterOptions?type=districts&country=${encodeURIComponent(formData.country)}&state=${encodeURIComponent(formData.state)}`);
-                    if (res.ok) {
-                        const { data } = await res.json();
-                        setOptions(prev => ({ ...prev, districts: data }));
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch districts", err);
-                }
-            };
-            fetchDistricts();
-        } else {
-            setOptions(prev => ({ ...prev, districts: [], cities: [] }));
-        }
-    }, [formData.country, formData.state]);
-
-    useEffect(() => {
-        if (formData.country && formData.state && formData.district) {
-            const fetchCities = async () => {
-                try {
-                    const res = await appFetch(`/api/relatives/filterOptions?type=cities&country=${encodeURIComponent(formData.country)}&state=${encodeURIComponent(formData.state)}&district=${encodeURIComponent(formData.district)}`);
-                    if (res.ok) {
-                        const { data } = await res.json();
-                        setOptions(prev => ({ ...prev, cities: data }));
-                    }
-                } catch (err) {
-                    console.error("Failed to fetch cities", err);
-                }
-            };
-            fetchCities();
-        } else {
-            setOptions(prev => ({ ...prev, cities: [] }));
-        }
-    }, [formData.country, formData.state, formData.district]);
-
     const getCurrentISTYear = () => {
         return new Date().toLocaleString("en-US", {
             timeZone: "Asia/Kolkata",

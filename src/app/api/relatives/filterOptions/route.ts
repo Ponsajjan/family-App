@@ -82,7 +82,40 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: sanitizeOptions(cities.map((c) => c.city)) });
     }
 
-    const [occupations, educations, birthPlaces, countries] = await Promise.all([
+    const excludeLocations = searchParams.get("excludeLocations") === "true";
+
+    if (excludeLocations) {
+      const [occupations, educations, birthPlaces, countries] = await Promise.all([
+        prisma.member.findMany({
+          where: { authId: { in: allAuthIds } },
+          select: { occupation: true },
+        }),
+        prisma.member.findMany({
+          where: { authId: { in: allAuthIds } },
+          select: { education: true },
+        }),
+        prisma.member.findMany({
+          where: { authId: { in: allAuthIds } },
+          select: { birthPlace: true },
+        }),
+        prisma.member.findMany({
+          where: { authId: { in: allAuthIds } },
+          select: { country: true },
+        }),
+      ]);
+
+      return NextResponse.json({
+        occupations: sanitizeOptions(occupations.map((o) => o.occupation)),
+        educations: sanitizeOptions(educations.map((e) => e.education)),
+        birthPlaces: sanitizeOptions(birthPlaces.map((b) => b.birthPlace)),
+        countries: sanitizeOptions(countries.map((c) => c.country)),
+        states: [],
+        districts: [],
+        cities: [],
+      });
+    }
+
+    const [occupations, educations, birthPlaces, countries, states, districts, cities] = await Promise.all([
       prisma.member.findMany({
         where: { authId: { in: allAuthIds } },
         select: { occupation: true },
@@ -99,6 +132,18 @@ export async function GET(request: NextRequest) {
         where: { authId: { in: allAuthIds } },
         select: { country: true },
       }),
+      prisma.member.findMany({
+        where: { authId: { in: allAuthIds } },
+        select: { state: true },
+      }),
+      prisma.member.findMany({
+        where: { authId: { in: allAuthIds } },
+        select: { district: true },
+      }),
+      prisma.member.findMany({
+        where: { authId: { in: allAuthIds } },
+        select: { city: true },
+      }),
     ]);
 
     return NextResponse.json({
@@ -106,6 +151,9 @@ export async function GET(request: NextRequest) {
       educations: sanitizeOptions(educations.map((e) => e.education)),
       birthPlaces: sanitizeOptions(birthPlaces.map((b) => b.birthPlace)),
       countries: sanitizeOptions(countries.map((c) => c.country)),
+      states: sanitizeOptions(states.map((s) => s.state)),
+      districts: sanitizeOptions(districts.map((d) => d.district)),
+      cities: sanitizeOptions(cities.map((c) => c.city)),
     });
   } catch (error: any) {
     console.error("Error fetching filter options:", error);

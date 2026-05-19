@@ -160,43 +160,48 @@ export async function PUT(request: NextRequest) {
     };
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (prisma) => {
-      // Update the member
-      const updatedMember = await prisma.member.update({
-        where: { id: formData.id }, // Use the ID to find the member to update
-        data: memberData,
-      });
+    const result = await prisma.$transaction(
+      async (tx) => {
+        // Update the member
+        const updatedMember = await tx.member.update({
+          where: { id: formData.id }, // Use the ID to find the member to update
+          data: memberData,
+        });
 
-      // Update nonDescendantRelation if it exists
-      let updatedNonDescendantRelatives = null;
-      if (formData.father || formData.mother || formData.siblings) {
-        updatedNonDescendantRelatives = await prisma.nonDescendantRelation.upsert({
-          where: { memberId: formData.id }, // Use the member ID to find the relation
-          update: {
-            fatherName: formData.father ? formData.father : null,
-            motherName: formData.mother ? formData.mother : null,
-            siblingNames: formData.siblings ? formData.siblings : null,
-          },
-          create: {
-            fatherName: formData.father ? formData.father : null,
-            motherName: formData.mother ? formData.mother : null,
-            siblingNames: formData.siblings ? formData.siblings : null,
-            memberId: formData.id,
+        // Update nonDescendantRelation if it exists
+        let updatedNonDescendantRelatives = null;
+        if (formData.father || formData.mother || formData.siblings) {
+          updatedNonDescendantRelatives = await tx.nonDescendantRelation.upsert({
+            where: { memberId: formData.id }, // Use the member ID to find the relation
+            update: {
+              fatherName: formData.father ? formData.father : null,
+              motherName: formData.mother ? formData.mother : null,
+              siblingNames: formData.siblings ? formData.siblings : null,
+            },
+            create: {
+              fatherName: formData.father ? formData.father : null,
+              motherName: formData.mother ? formData.mother : null,
+              siblingNames: formData.siblings ? formData.siblings : null,
+              memberId: formData.id,
+            },
+          });
+        }
+
+        // Update the Auth entry
+        const updatedAuthEntry = await tx.auth.update({
+          where: { mainMemberId: formData.id },
+          data: {
+            moderatorPassword: formData.moderatorPassword,
+            password: formData.memberPassword,
           },
         });
+
+        return { member: updatedMember, nonDescendantRelatives: updatedNonDescendantRelatives, authEntry: updatedAuthEntry };
+      },
+      {
+        timeout: 20000, // 20 seconds timeout to handle database load
       }
-
-      // Update the Auth entry
-      const updatedAuthEntry = await prisma.auth.update({
-        where: { mainMemberId: formData.id },
-        data: {
-          moderatorPassword: formData.moderatorPassword,
-          password: formData.memberPassword,
-        },
-      });
-
-      return { member: updatedMember, nonDescendantRelatives: updatedNonDescendantRelatives, authEntry: updatedAuthEntry };
-    });
+    );
 
     return NextResponse.json({
       success: true,

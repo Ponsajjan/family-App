@@ -371,17 +371,22 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Use a transaction to ensure atomicity
-    await prisma.$transaction(async (prisma) => {
-      // Delete associated nonDescendantRelation (if it exists)
-      await prisma.nonDescendantRelation.deleteMany({
-        where: { memberId: memberId },
-      });
+    await prisma.$transaction(
+      async (tx) => {
+        // Delete associated nonDescendantRelation (if it exists)
+        await tx.nonDescendantRelation.deleteMany({
+          where: { memberId: memberId },
+        });
 
-      // Delete the member
-      await prisma.member.delete({
-        where: { id: memberId },
-      });
-    });
+        // Delete the member
+        await tx.member.delete({
+          where: { id: memberId },
+        });
+      },
+      {
+        timeout: 20000, // 20 seconds timeout to handle database load
+      }
+    );
 
     await bumpFamilyUpdateVersion(authId);
 

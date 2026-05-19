@@ -35,14 +35,14 @@ export default function SingleSelectPopup({ label, options, value, onChange, cla
     };
 
     return (
-        <div className={`block text-sm font-medium opacity-75 ${className}`}>
+        <div className={`block text-sm font-medium ${className}`}>
             <div className="pb-0.5">{label}</div>
-            <div className={`relative group text-text_color ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className={`relative group text-text_color ${disabled ? 'pointer-events-none' : ''}`}>
                 <div
                     className={`w-full p-2 pr-12 border border-border_color rounded-md bg-field_color text-sm focus-within:border-border_active outline-none flex items-center min-h-[38px] ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                     onClick={() => !disabled && setIsOpen(true)}
                 >
-                    {value === '' ? <span className="truncate opacity-70">All {label}s</span> : <span className="truncate">{value}</span>}
+                    {value === '' ? <span className={`truncate ${disabled ? 'text-text_color/50' : 'text-text_color/70'}`}>All {label}s</span> : <span className="truncate">{value}</span>}
                 </div>
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center z-10">
                     {value !== '' ? (
@@ -58,7 +58,7 @@ export default function SingleSelectPopup({ label, options, value, onChange, cla
                             </div>
                         </button>
                     ) : (
-                        <div className="pointer-events-none opacity-50 mr-1.5">
+                        <div className={`pointer-events-none ${disabled ? 'opacity-40' : 'opacity-80'} mr-1.5`}>
                             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>

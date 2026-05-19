@@ -42,7 +42,7 @@ export default function MultiSelectPopup({ label, options, values, onChange, cla
     };
 
     return (
-        <div className={`block text-sm font-medium opacity-75 ${className}`}>
+        <div className={`block text-sm font-medium ${className}`}>
             <div className="pb-0.5">{label}</div>
             <div className="relative group text-text_color">
                 <div
@@ -50,7 +50,7 @@ export default function MultiSelectPopup({ label, options, values, onChange, cla
                     onClick={() => setIsOpen(true)}
                 >
                     {values.length === 0 ? (
-                        <span className="px-1 truncate opacity-70">All {label}s</span>
+                        <span className="px-1 truncate text-text_color/70">All {label}s</span>
                     ) : (
                         values.map(opt => (
                             <span
@@ -85,7 +85,7 @@ export default function MultiSelectPopup({ label, options, values, onChange, cla
                             </div>
                         </button>
                     ) : (
-                        <div className="pointer-events-none opacity-50 mr-1.5">
+                        <div className="pointer-events-none opacity-80 mr-1.5">
                             <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>

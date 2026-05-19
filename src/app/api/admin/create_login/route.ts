@@ -76,48 +76,53 @@ export async function POST(request: NextRequest) {
     };
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (prisma) => {
-      // Step 1: Create the Auth entry first (without mainMemberId)
-      const authEntry = await prisma.auth.create({
-        data: {
-          moderatorPassword: formData.moderatorPassword,
-          memberAuthId: memberUniqueString,
-          moderatorAuthId: moderatorUniqueString,
-          password: formData.memberPassword,
-          mainMemberId: null, // Initially set to null
-        },
-      });
-
-      // Step 2: Create the member
-      const newMember = await prisma.member.create({
-        data: {
-          ...member,
-          authId: authEntry.id,
-        },
-      });
-
-      // Step 3: If the member has relatives, create nonDescendantRelation
-      let nonDescendantRelatives = null;
-      if (formData.father || formData.mother || formData.siblings) {
-        nonDescendantRelatives = await prisma.nonDescendantRelation.create({
+    const result = await prisma.$transaction(
+      async (tx) => {
+        // Step 1: Create the Auth entry first (without mainMemberId)
+        const authEntry = await tx.auth.create({
           data: {
-            fatherName: formData.father ? formData.father : null,
-            motherName: formData.mother ? formData.mother : null,
-            siblingNames: formData.siblings ? formData.siblings : null,
-            memberId: newMember.id,
+            moderatorPassword: formData.moderatorPassword,
+            memberAuthId: memberUniqueString,
+            moderatorAuthId: moderatorUniqueString,
+            password: formData.memberPassword,
+            mainMemberId: null, // Initially set to null
           },
         });
-      }
 
-      // Step 4: Update the Auth entry with the mainMemberId
-      const updatedAuthEntry = await prisma.auth.update({
-        where: { id: authEntry.id },
-        data: {
-          mainMemberId: newMember.id,
-        },
-      });
-      return { member: newMember, nonDescendantRelatives, authEntry: updatedAuthEntry };
-    });
+        // Step 2: Create the member
+        const newMember = await tx.member.create({
+          data: {
+            ...member,
+            authId: authEntry.id,
+          },
+        });
+
+        // Step 3: If the member has relatives, create nonDescendantRelation
+        let nonDescendantRelatives = null;
+        if (formData.father || formData.mother || formData.siblings) {
+          nonDescendantRelatives = await tx.nonDescendantRelation.create({
+            data: {
+              fatherName: formData.father ? formData.father : null,
+              motherName: formData.mother ? formData.mother : null,
+              siblingNames: formData.siblings ? formData.siblings : null,
+              memberId: newMember.id,
+            },
+          });
+        }
+
+        // Step 4: Update the Auth entry with the mainMemberId
+        const updatedAuthEntry = await tx.auth.update({
+          where: { id: authEntry.id },
+          data: {
+            mainMemberId: newMember.id,
+          },
+        });
+        return { member: newMember, nonDescendantRelatives, authEntry: updatedAuthEntry };
+      },
+      {
+        timeout: 20000, // 20 seconds timeout to handle database load
+      }
+    );
 
     return NextResponse.json({
       success: true,

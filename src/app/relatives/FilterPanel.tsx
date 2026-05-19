@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { CloseIcon, ResetData, Info } from '@/utils/Icons';
 import { appFetch } from '@/utils/appFetch';
 import { ButtonSolid } from '@/components/Button';
-import FilterSelect from '@/components/FilterSelect';
 import MultiSelectPopup from '@/components/MultiSelectPopup';
 import SingleSelectPopup from '@/components/SingleSelectPopup';
 import Input from '@/components/Input';
@@ -36,7 +35,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
   useEffect(() => {
     const fetchInitialOptions = async () => {
       try {
-        const res = await appFetch('/api/relatives/filterOptions');
+        const res = await appFetch('/api/relatives/filterOptions?excludeLocations=true');
         if (res.ok) {
           const data = await res.json();
           setOptions(prev => ({ ...prev, ...data }));

@@ -67,27 +67,32 @@ export async function POST(request: NextRequest) {
     };
 
     // Use a transaction to ensure atomicity
-    const result = await prisma.$transaction(async (prisma) => {
-      // Create the member
-      const newMember = await prisma.member.create({
-        data: member,
-      });
-
-      // If the member is not a descendant and has relatives, create nonDescendantRelation
-      let nonDescendantRelatives = null;
-      if (formData.descendant === false && (formData.father || formData.mother || formData.siblings)) {
-        nonDescendantRelatives = await prisma.nonDescendantRelation.create({
-          data: {
-            fatherName: formData.father ? capitalizeWords(formData.father) : null,
-            motherName: formData.mother ? capitalizeWords(formData.mother) : null,
-            siblingNames: formData.siblings ? formData.siblings : null,
-            memberId: newMember.id, // Link nonDescendantRelation to the newly created Member
-          },
+    const result = await prisma.$transaction(
+      async (tx) => {
+        // Create the member
+        const newMember = await tx.member.create({
+          data: member,
         });
-      }
 
-      return { member: newMember, nonDescendantRelatives };
-    });
+        // If the member is not a descendant and has relatives, create nonDescendantRelation
+        let nonDescendantRelatives = null;
+        if (formData.descendant === false && (formData.father || formData.mother || formData.siblings)) {
+          nonDescendantRelatives = await tx.nonDescendantRelation.create({
+            data: {
+              fatherName: formData.father ? capitalizeWords(formData.father) : null,
+              motherName: formData.mother ? capitalizeWords(formData.mother) : null,
+              siblingNames: formData.siblings ? formData.siblings : null,
+              memberId: newMember.id, // Link nonDescendantRelation to the newly created Member
+            },
+          });
+        }
+
+        return { member: newMember, nonDescendantRelatives };
+      },
+      {
+        timeout: 20000, // 20 seconds timeout to handle database load and serverless cold starts
+      }
+    );
 
     await bumpFamilyUpdateVersion(authId);
 
