@@ -9,11 +9,12 @@ import { ButtonOutline } from '@/components/Button';
 
 export default function DBBackupRestore() {
   const toast = useToast();
-  const [isGlobalActionLoading, setIsGlobalActionLoading] = useState<boolean>(false);
+  const [isDownloadLoading, setIsDownloadLoading] = useState<boolean>(false);
+  const [isRestoreLoading, setIsRestoreLoading] = useState<boolean>(false);
 
   const handleDownloadGlobalBackup = async () => {
     try {
-      setIsGlobalActionLoading(true);
+      setIsDownloadLoading(true);
       const response = await appFetch(`/api/admin/backup`);
       if (!response.ok) throw new Error("Failed to generate global backup");
 
@@ -32,7 +33,7 @@ export default function DBBackupRestore() {
     } catch (error: any) {
       toast?.show(error.message || "Failed to download global backup", "error", 5000);
     } finally {
-      setIsGlobalActionLoading(false);
+      setIsDownloadLoading(false);
     }
   };
 
@@ -54,7 +55,7 @@ export default function DBBackupRestore() {
           return;
         }
 
-        setIsGlobalActionLoading(true);
+        setIsRestoreLoading(true);
         const response = await appFetch(`/api/admin/backup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -72,7 +73,7 @@ export default function DBBackupRestore() {
       } catch (error: any) {
         toast?.show(error.message || "Invalid backup file", "error", 5000);
       } finally {
-        setIsGlobalActionLoading(false);
+        setIsRestoreLoading(false);
         event.target.value = "";
       }
     };
@@ -98,10 +99,10 @@ export default function DBBackupRestore() {
             </p>
             <ButtonOutline
               onClick={handleDownloadGlobalBackup}
-              disabled={isGlobalActionLoading}
+              disabled={isDownloadLoading || isRestoreLoading}
               type='button'
               className='w-full'
-              buttonText={isGlobalActionLoading ? 'Processing...' : 'Download Backup'}
+              buttonText={isDownloadLoading ? 'Processing...' : 'Download Backup'}
             />
           </div>
 
@@ -119,22 +120,22 @@ export default function DBBackupRestore() {
             </p>
 
             <label className={`flex justify-center items-center bg-accent_color text-accent_contrast h-10 md:h-12 text-base md:text-lg shadow-md rounded-md font-medium active:shadow-none w-full
-              ${isGlobalActionLoading
+              ${isRestoreLoading
                 ? 'opacity-60 cursor-not-allowed'
                 : 'cursor-pointer'}`}>
-              {isGlobalActionLoading ? 'Processing...' : 'Upload & Restore'}
+              {isRestoreLoading ? 'Processing...' : 'Upload & Restore'}
               <input
                 type="file"
                 accept=".json"
                 className="hidden"
                 onChange={handleRestoreGlobalBackup}
-                disabled={isGlobalActionLoading}
+                disabled={isRestoreLoading || isDownloadLoading}
               />
             </label>
           </div>
         </div>
 
-        {isGlobalActionLoading && (
+        {(isDownloadLoading || isRestoreLoading) && (
           <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[9999]">
             <div className="bg-main_background border border-border_color px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 animate-bounce">
               <div className="w-4 h-4 border-2 border-accent_color border-t-transparent rounded-full animate-spin"></div>
