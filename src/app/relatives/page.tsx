@@ -3,6 +3,7 @@
 import { CloseIcon, SearchIcon, Filter } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
 import { useRef, useState, useMemo, useEffect } from 'react'
+import ReactDom from 'react-dom';
 import useSWRInfinite from 'swr/infinite';
 import Details from './Details';
 import FilterPanel from './FilterPanel';
@@ -13,6 +14,7 @@ import SlidePanel from "@/components/SlidePanel";
 import Container from "@/components/Container";
 import { useInfiniteScroll } from '@/utils/useInfiniteScroll';
 import { appFetch } from '@/utils/appFetch';
+import PhoneCallPopup from '@/components/PhoneCallPopup';
 
 
 export default function Relatives() {
@@ -28,6 +30,7 @@ export default function Relatives() {
     }
   }, [showSidePanel]);
   const [showMember, setShowMember] = useState<number | null>(null);
+  const [phonePopup, setPhonePopup] = useState<string[] | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [params, setParams] = useState({
     page: 1,
@@ -309,11 +312,26 @@ export default function Relatives() {
                             ) : 'No family relationship assigned yet'}
                           </div>
                         </div>
-                        {member.phoneNumber && (
-                          <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${member.phoneNumber}`}>
-                            <Call />
-                          </Link>
-                        )}
+                        {member.phoneNumber && (() => {
+                          const nums = member.phoneNumber.split(',').map((n: string) => n.trim()).filter(Boolean);
+                          if (nums.length > 1) {
+                            return (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setPhonePopup(nums); }}
+                                className="cursor-pointer"
+                                aria-label="Choose phone number"
+                              >
+                                <Call />
+                              </button>
+                            );
+                          }
+                          return (
+                            <Link onClick={(e) => e.stopPropagation()} className="cursor-pointer" href={`tel:${nums[0]}`}>
+                              <Call />
+                            </Link>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -344,6 +362,8 @@ export default function Relatives() {
           )}
         </SlidePanel>
       </div>
+
+      {phonePopup && <PhoneCallPopup numbers={phonePopup} onClose={() => setPhonePopup(null)} />}
     </div>
   );
 }

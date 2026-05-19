@@ -84,10 +84,17 @@ export const validateAddMemberForm = (formData:AddMemberFormValueTypes) => {
     }
 
     if (formData.phone_number) {
-      const error = validatePhoneNumber(formData.phone_number?.trimEnd())
-
-      if (error) {
-        errorMessage.phone_number = error
+      const phoneNumbers = formData.phone_number.split(',').map(num => num.trim()).filter(Boolean);
+      if (phoneNumbers.length === 0) {
+        errorMessage.phone_number = "Enter valid phone number";
+      } else {
+        for (const num of phoneNumbers) {
+          const error = validatePhoneNumber(num);
+          if (error) {
+            errorMessage.phone_number = error;
+            break;
+          }
+        }
       }
     } 
   

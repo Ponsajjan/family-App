@@ -42,6 +42,14 @@ export default function AddMemberDetails() {
     setSubmitError("");
   };
 
+  const handleDateBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const dateFields = ['birth_date', 'birth_month', 'death_date', 'death_month'];
+    if (dateFields.includes(name) && value.length === 1) {
+      setFormData((prev) => ({ ...prev, [name]: value.padStart(2, '0') }));
+    }
+  };
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -144,6 +152,7 @@ export default function AddMemberDetails() {
           loading={loading}
           errors={errors}
           handleInputChange={handleInputChange}
+          handleDateBlur={handleDateBlur}
           handleFormSubmit={handleFormSubmit}
           submitError={submitError}
         />

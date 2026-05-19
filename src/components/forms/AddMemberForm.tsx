@@ -12,13 +12,14 @@ import { appFetch } from '@/utils/appFetch';
 interface AddMemberFormProps {
     formData: AddMemberFormValueTypes;
     handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    handleDateBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     handleFormSubmit: (e: React.FormEvent) => void;
     errors: AddMemberFormErrorTypes;
     loading: boolean;
     submitError: string;
 }
 
-function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, loading, submitError }: AddMemberFormProps) {
+function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleFormSubmit, errors, loading, submitError }: AddMemberFormProps) {
     const head = useSelector((state: RootState) => state.terms.mainMemberName);
     const [options, setOptions] = useState<{
         occupations: string[],
@@ -112,6 +113,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                         label=""
                         value={formData.birth_date || ''}
                         onChange={handleInputChange}
+                        onBlur={handleDateBlur}
                     />
                     <Input
                         type="number"
@@ -123,6 +125,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                         label=""
                         value={formData.birth_month || ''}
                         onChange={handleInputChange}
+                        onBlur={handleDateBlur}
                     />
                     <Input
                         type="number"
@@ -172,6 +175,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                             label=""
                             value={formData.death_date || ''}
                             onChange={handleInputChange}
+                            onBlur={handleDateBlur}
                         />
                         <Input
                             type="number"
@@ -183,6 +187,7 @@ function AddMemberForm({ formData, handleInputChange, handleFormSubmit, errors, 
                             label=""
                             value={formData.death_month || ''}
                             onChange={handleInputChange}
+                            onBlur={handleDateBlur}
                         />
                         <Input
                             type="number"

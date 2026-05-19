@@ -90,6 +90,14 @@ export default function EditMemberDetails() {
     setSubmitError("");
   };
 
+  const handleDateBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const dateFields = ['birth_date', 'birth_month', 'death_date', 'death_month'];
+    if (dateFields.includes(name) && value.length === 1) {
+      setFormData((prev) => ({ ...prev, [name]: value.padStart(2, '0') }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors = validateEditMemberForm(formData);
@@ -198,6 +206,7 @@ export default function EditMemberDetails() {
             formData={formData}
             setShowList={setShowList}
             handleInputChange={handleInputChange}
+            handleDateBlur={handleDateBlur}
             errors={errors}
             allowedEdit={allowedEdit}
             submitting={submitting}

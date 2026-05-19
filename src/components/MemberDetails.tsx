@@ -1,6 +1,6 @@
 
 import { Condolences, Female2, Male2, Verified } from '@/utils/Icons';
-import { DateInfo, InformationSection, MemberItem } from '@/components/MemberDetailsComponents';
+import { DateInfo, InformationSection, MemberItem, PhoneNumberItem } from '@/components/MemberDetailsComponents';
 
 function MemberDetails({ data }: { data: any }) {
     return (
@@ -70,7 +70,7 @@ function MemberDetails({ data }: { data: any }) {
                 {/* Contact Information */}
                 {data.contactInformation && (
                     <InformationSection title="Contact Information">
-                        <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
+                        <PhoneNumberItem value={data.contactInformation.phoneNumber} />
                         <MemberItem label="Address" value={data.contactInformation.address} />
                         <MemberItem label="City/Town" value={data.contactInformation.city} />
                         <MemberItem label="District" value={data.contactInformation.district} />

@@ -15,6 +15,7 @@ function EditMemberForm({
     formData,
     setShowList,
     handleInputChange,
+    handleDateBlur,
     errors,
     allowedEdit,
     submitting,
@@ -123,6 +124,7 @@ function EditMemberForm({
                         max="31"
                         value={formData.birth_date || ''}
                         onChange={handleInputChange}
+                        onBlur={handleDateBlur}
                     />
                     <Input
                         type="number"
@@ -132,6 +134,7 @@ function EditMemberForm({
                         max="12"
                         value={formData.birth_month || ''}
                         onChange={handleInputChange}
+                        onBlur={handleDateBlur}
                     />
                     <Input
                         type="number"
@@ -172,6 +175,7 @@ function EditMemberForm({
                             max="31"
                             value={formData.death_date || ''}
                             onChange={handleInputChange}
+                            onBlur={handleDateBlur}
                         />
                         <Input
                             type="number"
@@ -181,6 +185,7 @@ function EditMemberForm({
                             max="12"
                             value={formData.death_month || ''}
                             onChange={handleInputChange}
+                            onBlur={handleDateBlur}
                         />
                         <Input
                             type="number"

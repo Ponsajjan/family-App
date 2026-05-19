@@ -1,4 +1,6 @@
 import { format } from 'date-fns';
+import React, { useState } from 'react';
+import PhoneCallPopup from '@/components/PhoneCallPopup';
 
 // Relatives Member Details Components
 export const InformationSection = ({
@@ -132,3 +134,46 @@ export const MemberListItemVerify = ({
     </div>
   </>
 );
+
+export const PhoneNumberItem = ({ value }: { value: string }) => {
+  const [popupOpen, setPopupOpen] = useState(false);
+  if (!value) return null;
+
+  // Split by comma
+  const numbers = value.split(',').map(num => num.trim()).filter(Boolean);
+  if (numbers.length === 0) return null;
+
+  return (
+    <>
+      <div className="w-2/5 md:leading-7 font-medium mb-0.5">
+        <div className="flex">
+          <span className='whitespace-nowrap'>Phone no.</span>
+          <span className="border-b border-dotted border-border_color w-full mb-2 mx-2"></span>
+        </div>
+      </div>
+      <div className="w-3/5 md:leading-7 flex flex-wrap mb-0.5">
+        {numbers.length === 1 ? (
+          <a
+            href={`tel:${numbers[0]}`}
+            className="text-primary hover:underline cursor-pointer font-medium break-all select-text"
+          >
+            {numbers[0]}
+          </a>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPopupOpen(true)}
+            className="text-primary hover:underline cursor-pointer font-medium break-all text-left"
+          >
+            {numbers.map((num, idx) => (
+              <span key={idx}>
+                {num}{idx < numbers.length - 1 && <span className="mr-1">,</span>}
+              </span>
+            ))}
+          </button>
+        )}
+      </div>
+      {popupOpen && <PhoneCallPopup numbers={numbers} onClose={() => setPopupOpen(false)} />}
+    </>
+  );
+};
