@@ -263,7 +263,7 @@ function EditMemberForm({
                     <div>
                         <Input
                             name="city"
-                            label="City/Town"
+                            label="City/Locality"
                             list="edit-cities-list"
                             value={formData.city || ''}
                             onChange={handleInputChange}
@@ -289,7 +289,7 @@ function EditMemberForm({
                     <div>
                         <Input
                             name="state"
-                            label="State/Province"
+                            label="State/Region"
                             list="edit-states-list"
                             value={formData.state || ''}
                             onChange={handleInputChange}

@@ -294,7 +294,7 @@ export default function Page() {
                   className="mb-2 w-full"
                   showOptional={true}
                   name="city"
-                  label="City/Town"
+                  label="City/Locality"
                   value={formData.city}
                   onChange={handleInputChange}
                 />
@@ -312,7 +312,7 @@ export default function Page() {
                   className="mb-2 w-full"
                   showOptional={true}
                   name="state"
-                  label="State/Province"
+                  label="State/Region"
                   value={formData.state}
                   onChange={handleInputChange}
                 />

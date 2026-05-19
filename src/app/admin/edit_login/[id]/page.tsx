@@ -354,7 +354,7 @@ export default function EditCredential() {
                   className="mb-2 w-full"
 
                   name="city"
-                  label="City/Town"
+                  label="City/Locality"
                   value={formData.city}
                   onChange={handleInputChange}
                 />
@@ -372,7 +372,7 @@ export default function EditCredential() {
                   className="mb-2 w-full"
 
                   name="state"
-                  label="State/Province"
+                  label="State/Region"
                   value={formData.state}
                   onChange={handleInputChange}
                 />

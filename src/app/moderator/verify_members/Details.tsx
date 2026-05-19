@@ -337,9 +337,9 @@ export default function NewMemberDetails({
                             <InformationSection title="Contact Information">
                                 <MemberItem label="Phone no." value={data.contactInformation.phoneNumber} />
                                 <MemberItem label="Address" value={data.contactInformation.address} />
-                                <MemberItem label="City/Town" value={data.contactInformation.city} />
+                                <MemberItem label="City/Locality" value={data.contactInformation.city} />
                                 <MemberItem label="District" value={data.contactInformation.district} />
-                                <MemberItem label="State/Province" value={data.contactInformation.state} />
+                                <MemberItem label="State/Region" value={data.contactInformation.state} />
                                 <MemberItem label="Country" value={data.contactInformation.country} />
                             </InformationSection>
                         }

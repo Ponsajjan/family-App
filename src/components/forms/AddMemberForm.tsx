@@ -273,7 +273,7 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
                         <Input
                             showOptional={true}
                             name="city"
-                            label="City/Town"
+                            label="City/Locality"
                             list="cities-list"
                             value={formData.city || ''}
                             onChange={handleInputChange}
@@ -302,7 +302,7 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
                         <Input
                             showOptional={true}
                             name="state"
-                            label="State/Province"
+                            label="State/Region"
                             list="states-list"
                             value={formData.state || ''}
                             onChange={handleInputChange}
