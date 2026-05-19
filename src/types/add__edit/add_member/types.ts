@@ -51,7 +51,7 @@ export const AddMemberDefaultFormValue: AddMemberFormValueTypes = {
     city: '',
     district: '',
     state: '',
-    country: '',
+    country: 'India',
     additionalInfo: '',
     descendant: undefined,
     father: '',

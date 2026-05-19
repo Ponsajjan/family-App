@@ -5,6 +5,7 @@ import Radio from '@/components/RadioButton';
 
 interface SingleSelectPopupProps {
     label: string;
+    placeholder?: string;
     options: string[];
     value: string;
     onChange: (value: string) => void;
@@ -13,7 +14,7 @@ interface SingleSelectPopupProps {
     loading?: boolean;
 }
 
-export default function SingleSelectPopup({ label, options, value, onChange, className = '', disabled = false, loading = false }: SingleSelectPopupProps) {
+export default function SingleSelectPopup({ label, placeholder, options, value, onChange, className = '', disabled = false, loading = false }: SingleSelectPopupProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
@@ -40,10 +41,14 @@ export default function SingleSelectPopup({ label, options, value, onChange, cla
             <div className="pb-0.5">{label}</div>
             <div className={`relative group text-text_color ${disabled ? 'pointer-events-none' : ''}`}>
                 <div
-                    className={`w-full p-2 pr-12 border border-border_color rounded-md bg-field_color text-sm focus-within:border-border_active outline-none flex items-center min-h-[38px] ${disabled ? 'bg-field_hover/35 cursor-not-allowed' : 'cursor-pointer'}`}
-                    onClick={() => !disabled && setIsOpen(true)}
+                    className={`w-full p-2 pr-12 border border-border_color rounded-md bg-field_color text-sm focus-within:border-border_active outline-none flex items-center min-h-[38px] ${disabled ? 'bg-field_hover/35 cursor-not-allowed' : (!disabled && !loading && options.length === 0) ? 'bg-field_hover/35 cursor-not-allowed' : 'cursor-pointer'}`}
+                    onClick={() => !disabled && (loading || options.length > 0) && setIsOpen(true)}
                 >
-                    {value === '' ? <span className={`truncate ${disabled ? 'text-text_color/50' : 'text-text_color/70'}`}>All {label}s</span> : <span className="truncate">{value}</span>}
+                    {value === ''
+                        ? <span className={`truncate ${disabled || (!disabled && !loading && options.length === 0) ? 'text-text_color/50' : 'text-text_color/70'}`}>
+                            {!disabled && !loading && options.length === 0 ? 'No options available' : placeholder || `All ${label}s`}
+                        </span>
+                        : <span className="truncate">{value}</span>}
                 </div>
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center z-10">
                     {value !== '' ? (

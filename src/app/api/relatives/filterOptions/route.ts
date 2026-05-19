@@ -40,6 +40,45 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
 
+    if (type === "locations") {
+      const country = searchParams.get("country");
+      if (!country) return NextResponse.json({ states: [], districts: [], cities: [] });
+      const [rawStates, rawDistricts, rawCities] = await Promise.all([
+        prisma.member.findMany({
+          where: { authId: { in: allAuthIds }, country: { equals: country, mode: "insensitive" } },
+          select: { state: true },
+        }),
+        prisma.member.findMany({
+          where: { authId: { in: allAuthIds }, country: { equals: country, mode: "insensitive" } },
+          select: { state: true, district: true },
+        }),
+        prisma.member.findMany({
+          where: { authId: { in: allAuthIds }, country: { equals: country, mode: "insensitive" } },
+          select: { state: true, district: true, city: true },
+        }),
+      ]);
+
+      const states = sanitizeOptions(rawStates.map((s) => s.state));
+
+      const districtMap = new Map<string, { name: string; state: string }>();
+      rawDistricts.forEach(({ district, state }) => {
+        if (!district?.trim() || !state?.trim()) return;
+        const key = `${district.trim().toLowerCase()}|${state.trim().toLowerCase()}`;
+        if (!districtMap.has(key)) districtMap.set(key, { name: district.trim(), state: state.trim() });
+      });
+      const districts = Array.from(districtMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+      const cityMap = new Map<string, { name: string; state: string; district: string }>();
+      rawCities.forEach(({ city, state, district }) => {
+        if (!city?.trim() || !state?.trim()) return;
+        const key = `${city.trim().toLowerCase()}|${state.trim().toLowerCase()}|${(district ?? '').trim().toLowerCase()}`;
+        if (!cityMap.has(key)) cityMap.set(key, { name: city.trim(), state: state.trim(), district: (district ?? '').trim() });
+      });
+      const cities = Array.from(cityMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+      return NextResponse.json({ states, districts, cities });
+    }
+
     if (type === "states") {
       const country = searchParams.get("country");
       if (!country) return NextResponse.json({ data: [] });
@@ -53,12 +92,12 @@ export async function GET(request: NextRequest) {
     if (type === "districts") {
       const country = searchParams.get("country");
       const state = searchParams.get("state");
-      if (!country || !state) return NextResponse.json({ data: [] });
+      if (!country) return NextResponse.json({ data: [] });
       const districts = await prisma.member.findMany({
         where: {
           authId: { in: allAuthIds },
           country: { equals: country, mode: "insensitive" },
-          state: { equals: state, mode: "insensitive" },
+          ...(state ? { state: { equals: state, mode: "insensitive" } } : {}),
         },
         select: { district: true },
       });
@@ -69,13 +108,13 @@ export async function GET(request: NextRequest) {
       const country = searchParams.get("country");
       const state = searchParams.get("state");
       const district = searchParams.get("district");
-      if (!country || !state || !district) return NextResponse.json({ data: [] });
+      if (!country) return NextResponse.json({ data: [] });
       const cities = await prisma.member.findMany({
         where: {
           authId: { in: allAuthIds },
           country: { equals: country, mode: "insensitive" },
-          state: { equals: state, mode: "insensitive" },
-          district: { equals: district, mode: "insensitive" },
+          ...(state ? { state: { equals: state, mode: "insensitive" } } : {}),
+          ...(district ? { district: { equals: district, mode: "insensitive" } } : {}),
         },
         select: { city: true },
       });

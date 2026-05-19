@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { CloseIcon, ResetData, Info } from '@/utils/Icons';
 import { appFetch } from '@/utils/appFetch';
 import { ButtonSolid } from '@/components/Button';
@@ -32,16 +32,17 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     cities: []
   });
 
+  const [allLocations, setAllLocations] = useState<{
+    districts: { name: string; state: string }[];
+    cities: { name: string; state: string; district: string }[];
+  }>({ districts: [], cities: [] });
+
   const [loadingFields, setLoadingFields] = useState<{
     initial: boolean;
     states: boolean;
-    districts: boolean;
-    cities: boolean;
   }>({
     initial: true,
     states: false,
-    districts: false,
-    cities: false,
   });
 
   useEffect(() => {
@@ -63,70 +64,72 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
   }, []);
 
   useEffect(() => {
-    if (filters.country) {
-      const fetchStates = async () => {
-        try {
-          setLoadingFields(prev => ({ ...prev, states: true }));
-          const res = await appFetch(`/api/relatives/filterOptions?type=states&country=${encodeURIComponent(filters.country)}`);
-          if (res.ok) {
-            const { data } = await res.json();
-            setOptions(prev => ({ ...prev, states: data }));
-          }
-        } catch (err) {
-          console.error("Failed to fetch states", err);
-        } finally {
-          setLoadingFields(prev => ({ ...prev, states: false }));
-        }
-      };
-      fetchStates();
-    } else {
-      setOptions(prev => ({ ...prev, states: [], districts: [], cities: [] }));
+    if (!filters.country) {
+      setOptions(prev => ({ ...prev, states: [] }));
+      setAllLocations({ districts: [], cities: [] });
+      return;
     }
+    const fetchLocations = async () => {
+      try {
+        setLoadingFields(prev => ({ ...prev, states: true }));
+        const res = await appFetch(`/api/relatives/filterOptions?type=locations&country=${encodeURIComponent(filters.country)}`);
+        if (res.ok) {
+          const { states, districts, cities } = await res.json();
+          setOptions(prev => ({ ...prev, states }));
+          setAllLocations({ districts, cities });
+        }
+      } catch (err) {
+        console.error("Failed to fetch location options", err);
+      } finally {
+        setLoadingFields(prev => ({ ...prev, states: false }));
+      }
+    };
+    fetchLocations();
   }, [filters.country]);
 
-  useEffect(() => {
-    if (filters.country && filters.state) {
-      const fetchDistricts = async () => {
-        try {
-          setLoadingFields(prev => ({ ...prev, districts: true }));
-          const res = await appFetch(`/api/relatives/filterOptions?type=districts&country=${encodeURIComponent(filters.country)}&state=${encodeURIComponent(filters.state)}`);
-          if (res.ok) {
-            const { data } = await res.json();
-            setOptions(prev => ({ ...prev, districts: data }));
-          }
-        } catch (err) {
-          console.error("Failed to fetch districts", err);
-        } finally {
-          setLoadingFields(prev => ({ ...prev, districts: false }));
-        }
-      };
-      fetchDistricts();
-    } else {
-      setOptions(prev => ({ ...prev, districts: [], cities: [] }));
-    }
-  }, [filters.country, filters.state]);
+  // Derives the district list from the full country dataset.
+  // When no state is selected: deduplicates all district names across states.
+  // When a state is selected: narrows to districts belonging to that state only.
+  const displayDistricts = useMemo(() => {
+    if (!filters.state)
+      return [...new Set(allLocations.districts.map(d => d.name))].sort((a, b) => a.localeCompare(b));
+    return [...new Set(
+      allLocations.districts
+        .filter(d => d.state.toLowerCase() === filters.state.toLowerCase())
+        .map(d => d.name)
+    )].sort((a, b) => a.localeCompare(b));
+  }, [allLocations.districts, filters.state]);
 
+  // Derives the city list from the full country dataset.
+  // Narrows by state if selected, then further narrows by district if selected.
+  // Uses Set to deduplicate city names that may appear across multiple state/district combos.
+  const displayCities = useMemo(() => {
+    return [...new Set(
+      allLocations.cities
+        .filter(c => {
+          if (filters.state && c.state.toLowerCase() !== filters.state.toLowerCase()) return false;
+          if (filters.district && c.district.toLowerCase() !== filters.district.toLowerCase()) return false;
+          return true;
+        })
+        .map(c => c.name)
+    )].sort((a, b) => a.localeCompare(b));
+  }, [allLocations.cities, filters.state, filters.district]);
+
+  // Auto-clear district when the selected district no longer exists in the computed list
+  // (e.g. user picks a state that doesn't contain the previously selected district).
   useEffect(() => {
-    if (filters.country && filters.state && filters.district) {
-      const fetchCities = async () => {
-        try {
-          setLoadingFields(prev => ({ ...prev, cities: true }));
-          const res = await appFetch(`/api/relatives/filterOptions?type=cities&country=${encodeURIComponent(filters.country)}&state=${encodeURIComponent(filters.state)}&district=${encodeURIComponent(filters.district)}`);
-          if (res.ok) {
-            const { data } = await res.json();
-            setOptions(prev => ({ ...prev, cities: data }));
-          }
-        } catch (err) {
-          console.error("Failed to fetch cities", err);
-        } finally {
-          setLoadingFields(prev => ({ ...prev, cities: false }));
-        }
-      };
-      fetchCities();
-    } else {
-      setOptions(prev => ({ ...prev, cities: [] }));
+    if (filters.district && !displayDistricts.includes(filters.district)) {
+      setFilters((prev: any) => ({ ...prev, district: '' }));
     }
-  }, [filters.country, filters.state, filters.district]);
+  }, [displayDistricts, filters.district]);
+
+  // Auto-clear city when the selected city no longer exists in the computed list
+  // (e.g. user changes state or district making the current city invalid).
+  useEffect(() => {
+    if (filters.city && !displayCities.includes(filters.city)) {
+      setFilters((prev: any) => ({ ...prev, city: '' }));
+    }
+  }, [displayCities, filters.city]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -139,10 +142,6 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
         newFilters.city = '';
       }
       if (name === 'state') {
-        newFilters.district = '';
-        newFilters.city = '';
-      }
-      if (name === 'district') {
         newFilters.city = '';
       }
       return newFilters;
@@ -220,7 +219,8 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
         />
         <SingleSelectPopup
           className="mb-4"
-          label="State"
+          label="State/Region"
+          placeholder="All States/Regions"
           value={filters.state}
           options={options.states}
           onChange={(val) => handleChange({ target: { name: 'state', value: val } } as any)}
@@ -230,20 +230,22 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
         <SingleSelectPopup
           className="mb-4"
           label="District"
+          placeholder="All Districts"
           value={filters.district}
-          options={options.districts}
+          options={displayDistricts}
           onChange={(val) => handleChange({ target: { name: 'district', value: val } } as any)}
-          disabled={!filters.state}
-          loading={loadingFields.districts}
+          disabled={!filters.country}
+          loading={loadingFields.states}
         />
         <SingleSelectPopup
           className="mb-6"
-          label="City"
+          label="City/Locality"
+          placeholder="All Cities/Localities"
           value={filters.city}
-          options={options.cities}
+          options={displayCities}
           onChange={(val) => handleChange({ target: { name: 'city', value: val } } as any)}
-          disabled={!filters.district}
-          loading={loadingFields.cities}
+          disabled={!filters.country}
+          loading={loadingFields.states}
         />
         <hr className="border-t border-border_color block mb-4" />
         <div className="mb-6">
