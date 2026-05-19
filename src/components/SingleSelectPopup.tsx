@@ -39,7 +39,7 @@ export default function SingleSelectPopup({ label, options, value, onChange, cla
             <div className="pb-0.5">{label}</div>
             <div className={`relative group text-text_color ${disabled ? 'pointer-events-none' : ''}`}>
                 <div
-                    className={`w-full p-2 pr-12 border border-border_color rounded-md bg-field_color text-sm focus-within:border-border_active outline-none flex items-center min-h-[38px] ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    className={`w-full p-2 pr-12 border border-border_color rounded-md bg-field_color text-sm focus-within:border-border_active outline-none flex items-center min-h-[38px] ${disabled ? 'bg-field_hover/35 cursor-not-allowed' : 'cursor-pointer'}`}
                     onClick={() => !disabled && setIsOpen(true)}
                 >
                     {value === '' ? <span className={`truncate ${disabled ? 'text-text_color/50' : 'text-text_color/70'}`}>All {label}s</span> : <span className="truncate">{value}</span>}

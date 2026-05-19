@@ -4,6 +4,22 @@ import { verifyToken } from "@/utils/auth";
 import { cookies } from "next/headers";
 import { Prisma } from "@prisma/client";
 
+async function resetSequences(tx: Prisma.TransactionClient) {
+   const tables = [
+      "Auth",
+      "Member",
+      "RequestDetails",
+      "nonDescendantRelation",
+      "ModeratorList",
+      "FamilyTree"
+   ];
+   for (const table of tables) {
+      await tx.$queryRawUnsafe(
+         `SELECT setval(pg_get_serial_sequence('"${table}"', 'id'), COALESCE(MAX(id), 1)) FROM "${table}";`
+      );
+   }
+}
+
 /**
  * GET: Export database data
  * Query Param: authId (optional) - if provided, exports only a specific family
@@ -117,6 +133,9 @@ export async function POST(request: Request) {
             if (backupData.requests?.length > 0) {
                await tx.requestDetails.createMany({ data: backupData.requests });
             }
+
+            // 6. Reset sequences to prevent unique constraint failures
+            await resetSequences(tx);
          }, {
             maxWait: 20000,
             timeout: 60000
@@ -170,6 +189,9 @@ export async function POST(request: Request) {
             if (backupData.familyTrees?.length > 0) {
                await tx.familyTree.createMany({ data: backupData.familyTrees });
             }
+
+            // Reset sequences to prevent unique constraint failures
+            await resetSequences(tx);
          }, {
             maxWait: 20000,
             timeout: 60000
