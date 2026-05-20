@@ -319,7 +319,7 @@ export default function Calendar() {
                   const selectedIsToday = isToday(selected);
 
                   return (
-                    <div className={`border-b sticky top-0 z-20 ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 h-[3.2rem]`}>
+                    <div className={`border-b sticky top-0 z-20 ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 min-h-[3.2rem] py-1.5`}>
                       <p className="flex flex-wrap text-lg md:text-xl font-medium md:font-semibold text-text_color items-end min-h-[1.875rem] pr-10">
                         {selectedIsToday &&
                           <>
@@ -336,7 +336,7 @@ export default function Calendar() {
                   );
                 })()}
                 {showPopupFor === 'member' && canGoBackToDate && (
-                  <div className="border-b sticky top-0 z-20 bg-main_background flex justify-between items-center border-border_color px-4 h-[3.2rem]">
+                  <div className="border-b sticky top-0 z-20 bg-main_background flex justify-between items-center border-border_color px-4 min-h-[3.2rem] py-1.5">
                     <button
                       onClick={() => { setShowPopupFor('date'); setCanGoBackToDate(false); }}
                       className="group text-accent_color font-medium flex items-center gap-1"
