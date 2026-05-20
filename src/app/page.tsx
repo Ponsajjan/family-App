@@ -193,7 +193,7 @@ export default function Calendar() {
       const todayEvents = calendarData.eventDates?.todayEvents || [];
       // Only show popup for today's events if we are looking at the current month/year
       if (todayEvents.length > 0 && month === currentMonth && year === currentYear) {
-        const todayDateObj = new Date();
+        const todayDateObj = getCurrentIndiaDate();
         setSelectedDate(todayDateObj.toISOString());
         setEventForDate(todayEvents);
         setShowPopupFor('date');
@@ -254,6 +254,7 @@ export default function Calendar() {
                   <p className="font-medium text-base">
                     {moment(calendarDate).tz("Asia/Kolkata").format("YYYY")}
                   </p>
+                  <span className="text-[0.6rem] text-text_color/60 ml-1.5">IST</span>
                 </div>
 
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getNextMonth}>{">"}</div>
@@ -320,15 +321,15 @@ export default function Calendar() {
 
                   return (
                     <div className={`border-b sticky top-0 z-20 ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 min-h-[3.2rem] py-1.5`}>
-                      <p className="flex flex-wrap text-lg md:text-xl font-medium md:font-semibold text-text_color items-end min-h-[1.875rem] pr-10">
+                      <p className="flex flex-wrap items-end min-h-[1.875rem] pr-10">
                         {selectedIsToday &&
                           <>
                             <Announcement />
-                            <span className="px-1 font-semibold text-accent_color">Today - </span>
+                            <span className="px-1">Today - </span>
                           </>
                         }
                         {format(selected, 'd MMM yyyy')}
-                        <span className="font-normal pl-2">
+                        <span className="font-normal text-base pl-2">
                           ({format(selected, 'EEEE')})
                         </span>
                       </p>
