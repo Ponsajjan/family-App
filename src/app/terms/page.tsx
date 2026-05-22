@@ -13,7 +13,7 @@ export default function Terms() {
       <div className="text-xl font-medium md:font-semibold mb-2">
         {moderatorGroups.some(g => g.moderators.length > 1) || moderatorGroups.length > 1 ? 'Moderators:' : 'Moderator:'}
       </div>
-      {loading ? <Loading /> : moderatorGroups.map((group: any, idx: number) => (
+      {loading ? <div className='px-2 mb-1'>Loading...</div> : moderatorGroups.map((group: any, idx: number) => (
         <div key={group.id || idx} className={idx > 0 ? 'mt-4 pt-4 border-t border-border_color' : ''}>
           {moderatorGroups.length > 1 && (
             <div className='font-medium mb-2 opacity-80 text-sm italic'>
