@@ -26,30 +26,46 @@ const showNotification = async (title: string, options: NotificationOptions) => 
     new Notification(title, options);
 };
 
-// Function to send push notification
+const requestAndSend = (send: () => void) => {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+        send();
+    } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(p => { if (p === 'granted') send(); });
+    }
+};
+
+// Function to send push notification for today's events
 export const sendNotification = (events: CalendarMonthlyEvent[]) => {
     if (typeof window === 'undefined') return;
+    requestAndSend(() => {
+        events.forEach(event => {
+            const eventName = `${event.name} (${(event.type === 'birthday' ? '\u{1F382} Birthday' : 'Remembrance \u{1F490}')})`;
+            showNotification('Family Calendar Reminder', {
+                body: `Today: ${eventName}`,
+                icon: '/web-app-manifest-192x192.png',
+                badge: '/web-app-manifest-192x192.png'
+            });
+        });
+    });
+};
 
-    if ('Notification' in window) {
-        const sendNotifications = (permission: NotificationPermission) => {
-            if (permission === 'granted') {
-                events.forEach(event => {
-                    const eventName = `${event.name} (${(event.type === 'birthday' ? '\u{1F382} Birthday' : 'Remembrance \u{1F490}')})`;
-                    showNotification('Family Calendar Reminder', {
-                        body: `Today: ${eventName}`,
-                        icon: '/web-app-manifest-192x192.png',
-                        badge: '/web-app-manifest-192x192.png'
-                    });
-                });
-            }
-        };
-
-        if (Notification.permission === 'granted') {
-            sendNotifications('granted');
-        } else if (Notification.permission !== 'denied') {
-            Notification.requestPermission().then(sendNotifications);
-        }
-    }
+// Send notifications for upcoming events (next 7 days)
+const sendUpcomingNotifications = (events: CalendarMonthlyEvent[]) => {
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    events.forEach(event => {
+        const eventDate = new Date(event.date);
+        const diffMs = eventDate.getTime() - now.getTime();
+        const daysUntil = Math.round(diffMs / (1000 * 60 * 60 * 24));
+        if (daysUntil <= 0 || daysUntil > 7) return;
+        const label = event.type === 'birthday' ? '\u{1F382} Birthday' : 'Remembrance \u{1F490}';
+        const dayText = daysUntil === 1 ? 'tomorrow' : `in ${daysUntil} days`;
+        showNotification('Upcoming Family Event', {
+            body: `${event.name}'s ${label} is ${dayText}`,
+            icon: '/web-app-manifest-192x192.png',
+            badge: '/web-app-manifest-192x192.png'
+        });
+    });
 };
 
 // Hook for managing daily notifications
@@ -62,13 +78,31 @@ export const useDailyNotifications = () => {
             if (lastNotificationDate !== today) {
                 sendNotification(todayEvents);
                 localStorage.setItem('lastNotificationDate', today);
-                return true; // Notifications were sent
+                return true;
             }
         }
-        return false; // No notifications sent
+        return false;
+    };
+
+    const checkAndSendUpcomingNotifications = (
+        tomorrowEvents: CalendarMonthlyEvent[],
+        thisWeekEvents: CalendarMonthlyEvent[]
+    ) => {
+        const upcomingEvents = [...tomorrowEvents, ...thisWeekEvents];
+        if (upcomingEvents.length === 0) return false;
+
+        const today = new Date().toDateString();
+        const lastUpcomingDate = localStorage.getItem('lastUpcomingNotificationDate');
+        if (lastUpcomingDate === today) return false;
+
+        if (typeof window === 'undefined') return false;
+        requestAndSend(() => sendUpcomingNotifications(upcomingEvents));
+        localStorage.setItem('lastUpcomingNotificationDate', today);
+        return true;
     };
 
     return {
-        checkAndSendNotifications
+        checkAndSendNotifications,
+        checkAndSendUpcomingNotifications,
     };
 };

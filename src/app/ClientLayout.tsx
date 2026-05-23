@@ -20,6 +20,7 @@ export default function ClientLayout({
     '/relatives',
     '/terms',
     '/tree',
+    // '/announcements',
     '/add_edit',
     '/add_edit/add_member',
     '/add_edit/add_relationship',

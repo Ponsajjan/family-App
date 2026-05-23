@@ -1,6 +1,6 @@
 "use client";
 
-import { BurgerMenuIcon, CalendarIcon, CloseIcon, FamilyProfessionals, Moderator, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
+import { BoardIcon, BurgerMenuIcon, CalendarIcon, CloseIcon, FamilyProfessionals, Moderator, RelativesIcon, Terms, TreeIcon } from "@/utils/Icons";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
@@ -29,6 +29,7 @@ export default function Sidenav() {
                     <div>
                         <NavLink linkName="Calendar" link="" onClick={closeNav} />
                         <NavLink linkName="Relatives" link="relatives" onClick={closeNav} />
+                        {/* <NavLink linkName="Board" link="announcements" onClick={closeNav} /> */}
                         <NavLink linkName="Relations" link="tree" onClick={closeNav} />
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={closeNav} />
                         <NavLink linkName="Moderator" link="moderator" onClick={closeNav} showDot={anyAccountHasIssues} />
@@ -58,6 +59,7 @@ export function NavLink({ link, linkName, onClick, showDot }: { link: string, li
                 {linkName === 'Relatives' && <RelativesIcon />}
                 {linkName === 'Relations' && <TreeIcon />}
                 {linkName === 'Add/Edit' && <FamilyProfessionals />}
+                {/* {linkName === 'Board' && <BoardIcon />} */}
                 {linkName === 'Moderator' && <Moderator />}
                 {linkName === 'Terms' && <Terms />}
                 {linkName === 'Moderator' && showDot && (

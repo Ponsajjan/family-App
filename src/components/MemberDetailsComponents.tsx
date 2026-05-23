@@ -150,7 +150,7 @@ export const PhoneNumberItem = ({ value }: { value: string }) => {
       </div>
       <div className="w-3/5 md:leading-7 flex flex-wrap mb-0.5">
         {numbers.map((num, idx) => (
-          <a href={`tel:${num}`} className='hover:underline cursor-pointer' key={idx}>
+          <a href={`tel:${num}`} className='cursor-pointer' key={idx}>
             {num}{idx < numbers.length - 1 && <span className="mr-1">,</span>}
           </a>
         ))}

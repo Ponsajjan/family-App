@@ -12,7 +12,7 @@ import OnDate from "../components/OnDate";
 import { format } from 'date-fns';
 import { appFetch } from "@/utils/appFetch";
 import CalendarMemberDetail from "../components/CalendarMemberDetail";
-// import { useDailyNotifications } from "@/utils/notificationUtils";
+import { useDailyNotifications } from "@/utils/notificationUtils";
 
 // Helper function to get current date in IST
 const getCurrentIndiaDate = () => {
@@ -61,8 +61,7 @@ export default function Calendar() {
   const [showPopupFor, setShowPopupFor] = useState<'member' | 'date' | null>(null);
   const [canGoBackToDate, setCanGoBackToDate] = useState(false);
 
-  // Use the notification hook
-  // const { checkAndSendNotifications } = useDailyNotifications();
+  const { checkAndSendNotifications, checkAndSendUpcomingNotifications } = useDailyNotifications();
 
   // Helper functions for first/last day of the month
   function getFirstDayOfMonth(year: number, month: number) {
@@ -199,6 +198,11 @@ export default function Calendar() {
         setShowPopupFor('date');
         setShowPopup(true);
       }
+      // Send push notifications once per day for today and next 7 days
+      checkAndSendNotifications(todayEvents);
+      const tomorrowEvents = calendarData.eventDates?.tomorrowEvents || [];
+      const thisWeekEvents = calendarData.eventDates?.thisWeekEvents || [];
+      checkAndSendUpcomingNotifications(tomorrowEvents, thisWeekEvents);
       setLoadingInitialToday(false);
     }
   }, [calendarData, loadingInitialToday, month, year, currentMonth, currentYear]);
