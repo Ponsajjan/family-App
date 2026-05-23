@@ -1,6 +1,4 @@
 import { format } from 'date-fns';
-import React, { useState } from 'react';
-import PhoneCallPopup from '@/components/PhoneCallPopup';
 
 // Relatives Member Details Components
 export const InformationSection = ({
@@ -136,7 +134,6 @@ export const MemberListItemVerify = ({
 );
 
 export const PhoneNumberItem = ({ value }: { value: string }) => {
-  const [popupOpen, setPopupOpen] = useState(false);
   if (!value) return null;
 
   // Split by comma
@@ -152,28 +149,12 @@ export const PhoneNumberItem = ({ value }: { value: string }) => {
         </div>
       </div>
       <div className="w-3/5 md:leading-7 flex flex-wrap mb-0.5">
-        {numbers.length === 1 ? (
-          <a
-            href={`tel:${numbers[0]}`}
-            className="text-primary hover:underline cursor-pointer font-medium break-all select-text"
-          >
-            {numbers[0]}
+        {numbers.map((num, idx) => (
+          <a href={`tel:${num}`} className='hover:underline cursor-pointer' key={idx}>
+            {num}{idx < numbers.length - 1 && <span className="mr-1">,</span>}
           </a>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setPopupOpen(true)}
-            className="text-primary hover:underline cursor-pointer font-medium break-all text-left"
-          >
-            {numbers.map((num, idx) => (
-              <span key={idx}>
-                {num}{idx < numbers.length - 1 && <span className="mr-1">,</span>}
-              </span>
-            ))}
-          </button>
-        )}
+        ))}
       </div>
-      {popupOpen && <PhoneCallPopup numbers={numbers} onClose={() => setPopupOpen(false)} />}
     </>
   );
 };

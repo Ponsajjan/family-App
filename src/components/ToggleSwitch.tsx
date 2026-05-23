@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface ToggleSwitchProps {
   isActive: boolean;
   onChange?: () => void;
@@ -9,8 +7,8 @@ interface ToggleSwitchProps {
 function ToggleSwitch({ isActive, onChange, className }: ToggleSwitchProps) {
   return (
     <label className={`relative inline-flex items-center cursor-pointer mx-4 ${className}`}>
-      <input 
-        className="sr-only peer p-4" 
+      <input
+        className="sr-only peer p-4"
         type="checkbox"
         readOnly={onChange === undefined}
         checked={isActive}
