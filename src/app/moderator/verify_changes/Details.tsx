@@ -10,6 +10,7 @@ import { appFetch } from "@/utils/appFetch";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { updateAccountIssues } from '@/store/slices/termsSlice';
+import { useSWRConfig } from 'swr';
 
 const ChangeRequestView = ({
   showDetailsFor,
@@ -28,6 +29,7 @@ const ChangeRequestView = ({
   const [actionError, setActionError] = useState<string | null>(null);
   const router = useRouter();
   const toast = useToast();
+  const { mutate } = useSWRConfig();
   const { logout } = useAuth();
   const dispatch = useDispatch();
   const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
@@ -148,6 +150,7 @@ const ChangeRequestView = ({
       toast?.show(result.message || "Change verification approved", "success", 5000);
       setRequestStatus('approved');
       setTimeout(processRequestRemoval, 2000);
+      mutate('/api/moderator', undefined, { revalidate: true });
 
     } catch (error: any) {
       console.error("error", error);
@@ -190,6 +193,7 @@ const ChangeRequestView = ({
       toast?.show(result.message || "Change verification rejected", "success", 5000);
       setActionError(null);
       setRequestStatus('rejected');
+      mutate('/api/moderator', undefined, { revalidate: true });
 
       // Show status for 2 second before removing
       setTimeout(processRequestRemoval, 2000);

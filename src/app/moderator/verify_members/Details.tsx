@@ -13,6 +13,7 @@ import { appFetch } from "@/utils/appFetch";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { updateAccountIssues } from '@/store/slices/termsSlice';
+import { useSWRConfig } from 'swr';
 
 export default function NewMemberDetails({
     showDetailsFor,
@@ -26,6 +27,7 @@ export default function NewMemberDetails({
 }: any) {
     const toast = useToast();
     const router = useRouter();
+    const { mutate } = useSWRConfig();
     const { logout } = useAuth();
     const dispatch = useDispatch();
     const { anyOtherAccountHasIssues } = useSelector((state: RootState) => state.terms);
@@ -137,6 +139,7 @@ export default function NewMemberDetails({
                 );
                 setMembers(updatedData);
             }
+            mutate('/api/moderator', undefined, { revalidate: true });
         } catch (error: any) {
             console.error("Error verifying member:", error);
             toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
@@ -185,6 +188,7 @@ export default function NewMemberDetails({
                 }));
             }
             setDeleted(true);
+            mutate('/api/moderator', undefined, { revalidate: true });
         } catch (error: any) {
             console.error("Error submitting form:", error);
             toast?.show(error.message || "An error occurred. Please try again.", "error", 5000);
