@@ -174,13 +174,13 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     <>
       <div className="p-4 z-20 sticky top-0 flex justify-between items-center bg-main_background border-b border-border_color">
         <div className="flex gap-2 items-center">
-          <h2 className="text-xl font-semibold underline decoration-border_active underline-offset-4">Add Search Filters</h2>
-          <button onClick={handleReset} title="Reset Filters" className="p-1 hover:bg-field_color rounded-md">
-            <ResetData />
+          <h2 id="filter-panel-title" className="text-xl font-semibold underline decoration-border_active underline-offset-4">Add Search Filters</h2>
+          <button onClick={handleReset} title="Reset Filters" aria-label="Reset all filters" className="p-1 hover:bg-field_color rounded-md">
+            <ResetData aria-hidden="true" />
           </button>
         </div>
-        <button onClick={onClose} className="absolute top-4 right-3 hover:bg-field_color border border-border_color rounded-md cursor-pointer z-20">
-          <CloseIcon />
+        <button onClick={onClose} aria-label="Close filter panel" className="absolute top-4 right-3 hover:bg-field_color border border-border_color rounded-md cursor-pointer z-20">
+          <CloseIcon aria-hidden="true" />
         </button>
       </div>
       <div className='px-4 pb-6 pt-2'>
@@ -249,12 +249,13 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
         />
         <hr className="border-t border-border_color block mb-4" />
         <div className="mb-6">
-          <label className="text-sm font-medium mb-2 block">Born Between</label>
-          <div className="flex gap-2 items-center w-full">
+          <p id="born-between-label" className="text-sm font-medium mb-2 block">Born Between</p>
+          <div role="group" aria-labelledby="born-between-label" className="flex gap-2 items-center w-full">
             <Input
               type="number"
               placeholder="YYYY"
               name="birthYearStart"
+              aria-label="Birth year start"
               value={filters.birthYearStart || ''}
               onChange={handleChange}
               min="1600"
@@ -262,11 +263,12 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
               maxLength={4}
               label=""
             />
-            <span className="opacity-50">-</span>
+            <span className="opacity-50" aria-hidden="true">-</span>
             <Input
               type="number"
               placeholder="YYYY"
               name="birthYearEnd"
+              aria-label="Birth year end"
               value={filters.birthYearEnd || ''}
               onChange={handleChange}
               min="1600"
@@ -275,16 +277,16 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
               label=""
             />
           </div>
+          <div className="text-xs text-text_color/60 mt-4 flex items-center gap-1 p-2 bg-field_color rounded-md" role="note">
+            <span className="mt-0.5" aria-hidden="true"><Info /></span>
+            <span>Members missing any of the selected filter fields are excluded.</span>
+          </div>
+          <ButtonSolid
+            onClick={Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') || Object.values(currentFilters).some(v => Array.isArray(v) ? (v as string[]).length > 0 : v !== '') ? handleApply : onClose}
+            buttonText={Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') || Object.values(currentFilters).some(v => Array.isArray(v) ? (v as string[]).length > 0 : v !== '') ? "Apply Filters" : "Cancel"}
+            className='w-full mt-4'
+          />
         </div>
-        <div className="text-xs text-text_color/60 mt-4 flex items-center gap-1 p-2 bg-field_color rounded-md">
-          <span className="mt-0.5"><Info /></span>
-          <span>Members missing any of the selected filter fields are excluded.</span>
-        </div>
-        <ButtonSolid
-          onClick={Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') || Object.values(currentFilters).some(v => Array.isArray(v) ? (v as string[]).length > 0 : v !== '') ? handleApply : onClose}
-          buttonText={Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') || Object.values(currentFilters).some(v => Array.isArray(v) ? (v as string[]).length > 0 : v !== '') ? "Apply Filters" : "Cancel"}
-          className='w-full mt-4'
-        />
       </div>
     </>
   );

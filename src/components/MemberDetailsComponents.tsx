@@ -11,7 +11,7 @@ export const InformationSection = ({
   <>
     <div className="flex pt-4 pb-1.5 items-center">
       <p className="font-semibold pr-2 md:pr-4 whitespace-nowrap">{title}</p>
-      <p className="border-t border-border_color w-full"></p>
+      <p className="border-t border-border_color w-full" aria-hidden="true"></p>
     </div>
     <div className="pl-1">
       <div className="flex flex-wrap border-l border-border_color pl-2">
@@ -48,7 +48,7 @@ export const MemberItem = ({ label, value, isList = false }: {
       {label && <div className="w-2/5 md:leading-7 font-medium mb-0.5">
         <div className="flex">
           <span className='whitespace-nowrap'>{label}</span>
-          <span className="border-b border-dotted border-border_color w-full mb-2 mx-2"></span>
+          <span className="border-b border-dotted border-border_color w-full mb-2 mx-2" aria-hidden="true"></span>
         </div>
       </div>}
       <div className={`${label ? 'w-3/5' : 'w-full'} md:leading-7 flex flex-wrap mb-0.5`}>
@@ -85,10 +85,13 @@ export const MemberItemVerify = ({
     <div className='w-2/5 md:leading-7 font-medium capitalize'>
       <div className='flex'>
         <span>{label}</span>
-        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2' aria-hidden="true"></span>
       </div>
     </div>
     <div
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
       className={`w-3/5 md:leading-7 flex flex-wrap ${onClick ? 'hover:underline cursor-pointer' : ''
         } ${isCustom ? 'italic' : isVerified !== undefined
           ? isVerified ? 'text-text_color' : 'text-text_color/70 underline decoration-wavy'
@@ -114,14 +117,18 @@ export const MemberListItemVerify = ({
     <div className='w-2/5 md:leading-7 font-medium capitalize'>
       <div className='flex'>
         <span>{label}</span>
-        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2'></span>
+        <span className='border-b border-dotted border-border_color w-full mb-2 mx-2' aria-hidden="true"></span>
       </div>
     </div>
     <div className='w-3/5 md:leading-7 flex flex-wrap'>
       {items.map((item, index) => (
         <span
           key={index}
+          role="button"
+          tabIndex={0}
           onClick={() => onItemClick(item.name)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onItemClick(item.name); } }}
+          aria-label={`View ${item.name}${!item.verified ? ' (unverified)' : ''}`}
           className={`hover:underline cursor-pointer ${item.verified ? 'text-text_color' : 'text-text_color/70 underline decoration-wavy'
             }`}
         >
@@ -136,7 +143,6 @@ export const MemberListItemVerify = ({
 export const PhoneNumberItem = ({ value }: { value: string }) => {
   if (!value) return null;
 
-  // Split by comma
   const numbers = value.split(',').map(num => num.trim()).filter(Boolean);
   if (numbers.length === 0) return null;
 
@@ -145,13 +151,13 @@ export const PhoneNumberItem = ({ value }: { value: string }) => {
       <div className="w-2/5 md:leading-7 font-medium mb-0.5">
         <div className="flex">
           <span className='whitespace-nowrap'>Phone no.</span>
-          <span className="border-b border-dotted border-border_color w-full mb-2 mx-2"></span>
+          <span className="border-b border-dotted border-border_color w-full mb-2 mx-2" aria-hidden="true"></span>
         </div>
       </div>
       <div className="w-3/5 md:leading-7 flex flex-wrap mb-0.5">
         {numbers.map((num, idx) => (
-          <a href={`tel:${num}`} className='cursor-pointer' key={idx}>
-            {num}{idx < numbers.length - 1 && <span className="mr-1">,</span>}
+          <a href={`tel:${num}`} className='cursor-pointer' key={idx} aria-label={`Call ${num}`}>
+            {num}{idx < numbers.length - 1 && <span className="mr-1" aria-hidden="true">,</span>}
           </a>
         ))}
       </div>

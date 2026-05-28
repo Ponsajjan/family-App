@@ -284,12 +284,19 @@ export default function MemberList({
                     ? 'Select Children'
                     : 'Select Member'
               }
+              aria-label={
+                forType === ForType.SelectPartner
+                  ? 'Search and select partner'
+                  : forType === ForType.SelectChildren
+                    ? 'Search and select children'
+                    : 'Search and select member'
+              }
               className="pl-9"
               value={searchInput}
               onChange={(e) => handleMemberSearch(e.target.value)}
-              type="text"
+              type="search"
             />
-            <span className="absolute left-2 top-1/2 transform -translate-y-1/2">
+            <span className="absolute left-2 top-1/2 transform -translate-y-1/2" aria-hidden="true">
               <SearchIcon />
             </span>
           </div>
@@ -309,18 +316,21 @@ export default function MemberList({
       >
         {forType === ForType.SelectPartner && descendant === true && (
           <div className="py-2 px-4 flex justify-end items-center gap-2 bg-main_background text-sm border-b border-border_color">
-            <p>Show Cousins List</p>
-            <label className="relative inline-flex items-center cursor-pointer p-1">
-              <span className="absolute left-[0.25rem] z-10">
+            <p id="show-cousins-label">Show Cousins List</p>
+            <label className="relative inline-flex items-center cursor-pointer p-1" aria-labelledby="show-cousins-label">
+              <span className="absolute left-[0.25rem] z-10" aria-hidden="true">
                 <Cross />
               </span>
               <input
                 className="sr-only peer"
                 type="checkbox"
+                role="switch"
+                aria-checked={params.showCousin}
+                aria-labelledby="show-cousins-label"
                 checked={params.showCousin}
                 onChange={handleShowCousin}
               />
-              <span className="absolute right-[0.25rem] z-10">
+              <span className="absolute right-[0.25rem] z-10" aria-hidden="true">
                 <Tick />
               </span>
               <div className={`
@@ -343,9 +353,16 @@ export default function MemberList({
                   <span className="border-t border-border_color block w-full"></span>
                 </div>
               ) : (
-                <div key={member.id} onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified)} className="pl-4">
+                <div key={member.id} className="pl-4">
                   <div className="border-l border-border_color py-1 pl-4 pr-3">
-                    <div className="cursor-pointer px-3 py-2 flex items-center border border-l-4 border-border_color bg-field_color rounded text-text_color">
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectedValue(member.name, member.id, forType, member.verified); } }}
+                      aria-label={`Select ${member.name}`}
+                      className="cursor-pointer px-3 py-2 flex items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
+                    >
                       {multiselect && (
                         <div className="pr-3 border-r border-border_color mr-2">
                           <Checkbox checked={selectedValues.some((value: EachMember) => value.id === member.id)} readOnly />
@@ -353,9 +370,9 @@ export default function MemberList({
                       )}
                       <div>
                         <div className="flex gap-2">
-                          <div>
-                            {member.gender === 'Male' && <Male />}
-                            {member.gender === 'Female' && <Female />}
+                          <div aria-label={member.gender} role="img">
+                            {member.gender === 'Male' && <Male aria-hidden="true" />}
+                            {member.gender === 'Female' && <Female aria-hidden="true" />}
                           </div>
                           <div
                             className="font-medium md:font-semibold"

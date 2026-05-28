@@ -41,20 +41,26 @@ export default function AddEditPage() {
                     setShowPopup={setShowChoosePopup}
                 />
             )}
-            <div className="relative flex mx-auto border-2 border-text_color rounded-2xl overflow-hidden w-fit select-none mb-2">
-                <p
+            <div role="group" aria-label="Mode selection" className="relative flex mx-auto border-2 border-text_color rounded-2xl overflow-hidden w-fit select-none mb-2">
+                <button
+                    type="button"
                     onClick={() => handleModeChange('add')}
+                    aria-pressed={isAddMode}
+                    aria-label="Add mode"
                     className={`px-8 md:px-10 z-10 py-1 md:py-2 cursor-pointer ${isAddMode ? 'text-accent_contrast' : 'text-text_color'}  transition-all duration-500 font-semibold ease-in-out`}
                 >
                     Add
-                </p>
-                <p
+                </button>
+                <button
+                    type="button"
                     onClick={() => handleModeChange('edit')}
+                    aria-pressed={!isAddMode}
+                    aria-label="Edit mode"
                     className={`px-8 md:px-10 z-10 py-1 md:py-2 cursor-pointer ${isAddMode ? 'text-text_color' : 'text-accent_contrast'}  transition-all duration-500 font-semibold ease-in-out`}
                 >
                     Edit
-                </p>
-                <span className={`absolute top-0 bottom-0 rounded-xl w-1/2 ${isAddMode ? 'left-0' : 'transform translate-x-full'} bg-accent_color transition-all duration-500 ease-in-out`}></span>
+                </button>
+                <span className={`absolute top-0 bottom-0 rounded-xl w-1/2 ${isAddMode ? 'left-0' : 'transform translate-x-full'} bg-accent_color transition-all duration-500 ease-in-out`} aria-hidden="true"></span>
             </div>
 
             <div className="relative flex items-center gap-2 h-10">
@@ -65,9 +71,10 @@ export default function AddEditPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowChoosePopup(true)}
+                                aria-label="Switch family account"
                                 className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
                             >
-                                <SwitchIcon />
+                                <SwitchIcon aria-hidden="true" />
                             </button>
                         </div>
                         <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />

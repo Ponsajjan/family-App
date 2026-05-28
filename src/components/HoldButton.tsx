@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 
 interface HoldButtonProps {
-  onClick: () => void; // Callback function when the button is held for 5 seconds
-  buttonText: string; // Button text
-  holdDuration?: number; // Duration in milliseconds (default: 5000ms)
-  className?: string; // Custom CSS class for styling
+  onClick: () => void;
+  buttonText: string;
+  holdDuration?: number;
+  className?: string;
   type?: 'solid' | 'outline';
   disabled?: boolean;
 }
@@ -37,7 +37,7 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
         onClick();
         resetHold();
       }
-    }, 16); // ~60fps for smoother animation without redundant updates
+    }, 16);
   };
 
   const resetHold = () => {
@@ -49,6 +49,8 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
     setHoldProgress(0);
     startTimeRef.current = null;
   };
+
+  const remainingSeconds = ((holdDuration - (holdProgress / 100 * holdDuration)) / 1000).toFixed(1);
 
   return (
     <button
@@ -63,20 +65,23 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
       onTouchEnd={resetHold}
       onTouchCancel={resetHold}
       disabled={disabled}
+      aria-busy={isHolding}
+      aria-label={isHolding ? `${buttonText} - hold for ${remainingSeconds} more seconds` : buttonText}
     >
       {/* Progress Overlay */}
       {isHolding && (
         <div
           className='absolute top-0 left-0 bottom-0 bg-blue-600 z-10'
           style={{ width: `${holdProgress}%` }}
+          aria-hidden="true"
         />
       )}
 
       {/* Button Content */}
-      <div className="relative z-20 flex items-center justify-center w-full h-full pointer-events-none">
+      <div className="relative z-20 flex items-center justify-center w-full h-full pointer-events-none" aria-live="polite" aria-atomic="true">
         {isHolding ? (
-          <span className="font-mono">
-            {((holdDuration - (holdProgress / 100 * holdDuration)) / 1000).toFixed(1)}s
+          <span className="font-mono" aria-label={`${remainingSeconds} seconds remaining`}>
+            {remainingSeconds}s
           </span>
         ) : (
           buttonText
@@ -122,6 +127,8 @@ export const HoldTextButton: React.FC<HoldButtonProps> = ({
     startTimeRef.current = null;
   };
 
+  const remainingSeconds = ((holdDuration - (holdProgress / 100 * holdDuration)) / 1000).toFixed(1);
+
   return (
     <button
       className={`relative min-w-[3.3125rem] overflow-hidden flex items-center justify-center ${className}`}
@@ -131,17 +138,20 @@ export const HoldTextButton: React.FC<HoldButtonProps> = ({
       onTouchStart={startHold}
       onTouchEnd={resetHold}
       onTouchCancel={resetHold}
+      aria-busy={isHolding}
+      aria-label={isHolding ? `${buttonText} - hold for ${remainingSeconds} more seconds` : buttonText}
     >
       {isHolding && (
         <div
           className="absolute top-0 left-0 bottom-0 bg-blue-500 z-10"
           style={{ width: `${holdProgress}%` }}
+          aria-hidden="true"
         />
       )}
-      <div className="relative z-20 flex items-center justify-center w-full h-full text-sm pointer-events-none">
+      <div className="relative z-20 flex items-center justify-center w-full h-full text-sm pointer-events-none" aria-live="polite" aria-atomic="true">
         {isHolding ? (
-          <span className="font-mono">
-            {((holdDuration - (holdProgress / 100 * holdDuration)) / 1000).toFixed(1)}s
+          <span className="font-mono" aria-label={`${remainingSeconds} seconds remaining`}>
+            {remainingSeconds}s
           </span>
         ) : (
           buttonText

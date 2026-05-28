@@ -29,12 +29,26 @@ export default function AdminSidenav() {
     return (
         <>
             <span className="block xl:hidden fixed top-3 z-[99] m-0 p-0">
-                <button onClick={() => setShowNav(prev => !prev)} className="absolute h-6 w-6 top-0 left-2">
+                <button
+                    onClick={() => setShowNav(prev => !prev)}
+                    className="absolute h-6 w-6 top-0 left-2"
+                    aria-label={showNav ? "Close navigation menu" : "Open navigation menu"}
+                    aria-expanded={showNav}
+                    aria-controls="admin-sidenav"
+                >
                     {showNav ? <CloseIcon /> : <BurgerMenuIcon />}
                 </button>
             </span>
-            <div onClick={() => setShowNav(false)} className={`fixed xl:hidden ${showNav ? 'right-0 bg-gray-500/60' : 'left-full delay-500 bg-gray-300/5'} inset-0 z-[102] duration-500 ease-in-out`} />
-            <nav className={`${showNav ? 'opacity-100 delay-500 pointer-events-auto' : 'opacity-0 xl:opacity-100 pointer-events-none xl:pointer-events-auto'} transition-all duration-300 ease-in-out xl:block fixed top-14 lg:sticky md:top-0 z-[103] h-[70vh] lg:h-full`}>
+            <div
+                onClick={() => setShowNav(false)}
+                className={`fixed xl:hidden ${showNav ? 'right-0 bg-gray-500/60' : 'left-full delay-500 bg-gray-300/5'} inset-0 z-[102] duration-500 ease-in-out`}
+                aria-hidden="true"
+            />
+            <nav
+                id="admin-sidenav"
+                aria-label="Admin navigation"
+                className={`${showNav ? 'opacity-100 delay-500 pointer-events-auto' : 'opacity-0 xl:opacity-100 pointer-events-none xl:pointer-events-auto'} transition-all duration-300 ease-in-out xl:block fixed top-14 lg:sticky md:top-0 z-[103] h-[70vh] lg:h-full`}
+            >
                 <div className="h-12 border-b border-border_color w-full bg-field_color"></div>
                 <div className={`flex-col justify-between ${showNav ? 'flex' : 'hidden xl:flex'} absolute xl:static top-0 md:pt-8 xl:pt-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-40 min-h-[calc(100vh-10rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden`}>
                     <div>
@@ -42,8 +56,8 @@ export default function AdminSidenav() {
                         <AdminNavLink linkName="New Login" link="/admin/new_login" onClick={closeNav} />
                         <AdminNavLink linkName="DB Backup" link="/admin/backup" onClick={closeNav} />
                     </div>
-                    <button onClick={logout} className="py-2 flex gap-2 items-center justify-center border-t border-border_color">
-                        <Logout />
+                    <button onClick={logout} className="py-2 flex gap-2 items-center justify-center border-t border-border_color" aria-label="Logout">
+                        <Logout aria-hidden="true" />
                         <span>Logout</span>
                     </button>
                 </div>
@@ -60,14 +74,15 @@ export function AdminNavLink({ link, linkName, onClick }: { link: string, linkNa
             href={link}
             onClick={onClick}
             prefetch={true}
+            aria-current={pathName === link ? "page" : undefined}
             className={`group py-2 px-4 w-full flex gap-3 items-end justify-start text-start hover:bg-accent_color_hover/75 hover:text-accent_contrast focus-visible:bg-field_hover ${(pathName === link) ? "bg-accent_color_hover text-accent_contrast" : "bg-transparent text-text_color"}`}
         >
-            <p className={`group-hover:invert ${pathName === link ? "invert" : " "}`}>
+            <span className={`group-hover:invert ${pathName === link ? "invert" : " "}`} aria-hidden="true">
                 {linkName === 'New Login' && <Login />}
                 {linkName === 'Login List' && <LoginList />}
                 {linkName === 'DB Backup' && <DatabaseBackup />}
-            </p>
-            <p>{linkName}</p>
+            </span>
+            <span>{linkName}</span>
         </Link>
     );
 }

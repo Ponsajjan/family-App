@@ -236,14 +236,17 @@ export default function Relatives() {
       <Topnav>
         <div className="flex items-center gap-2 ml-auto mr-0">
           <div className="relative w-full md:w-64">
+            <label htmlFor="relatives-search" className="sr-only">Search members by name</label>
             <input
+              id="relatives-search"
               value={searchInput}
               onChange={(e) => handleMemberSearch(e.target.value)}
-              type="text"
+              type="search"
               placeholder="Search by name"
+              aria-label="Search members by name"
               className="ml-auto peer mr-0 input-not-placeholder cursor-pointer block p-1 pl-4 focus:pr-8 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
             />
-            <span className="absolute right-[0.3125rem] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
+            <span className="absolute right-[0.3125rem] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block" aria-hidden="true">
               <SearchIcon />
             </span>
             <button
@@ -251,7 +254,7 @@ export default function Relatives() {
               className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
               aria-label="Clear search"
             >
-              <CloseIcon />
+              <CloseIcon aria-hidden="true" />
             </button>
           </div>
           <button
@@ -271,24 +274,28 @@ export default function Relatives() {
       <div className="w-full md:flex">
         <Container className='scroll-stable' ref={containerRef}>
           <div className='max-w-3xl'>
-            <div className='max-w-xl mx-auto'>
+            <div className='max-w-xl mx-auto' role="list" aria-label="Family members">
               {members?.map((member: any) => (
                 member.gender === "Letter" ?
-                  <div key={member.id} className="flex text-text_color items-center px-[0.625rem] md:pt-1 bg-main_background sticky top-12 md:top-0 z-10">
+                  <div key={member.id} role="listitem" className="flex text-text_color items-center px-[0.625rem] md:pt-1 bg-main_background sticky top-12 md:top-0 z-10">
                     <span className="font-medium md:font-semibold pr-1">{member.name}</span>
-                    <span className="border-t border-border_color block w-full"></span>
+                    <span className="border-t border-border_color block w-full" aria-hidden="true"></span>
                   </div> :
-                  <div key={member.id} className="pl-4">
+                  <div key={member.id} role="listitem" className="pl-4">
                     <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
                       <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => { handleSetDetails(true); setShowMember(member.id) }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSetDetails(true); setShowMember(member.id); } }}
+                        aria-label={`View details for ${member.name}`}
                         className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                       >
                         <div>
                           <div className="flex gap-2">
-                            <div>
-                              {member.gender === "Male" && <Male />}
-                              {member.gender === "Female" && <Female />}
+                            <div aria-label={member.gender} role="img">
+                              {member.gender === "Male" && <Male aria-hidden="true" />}
+                              {member.gender === "Female" && <Female aria-hidden="true" />}
                             </div>
                             <div
                               className="font-medium md:font-semibold"

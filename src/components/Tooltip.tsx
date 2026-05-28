@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 
 interface TooltipProps {
   content: string;
@@ -9,20 +9,24 @@ interface TooltipProps {
 
 const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
   const [isVisible, setIsVisible] = useState(false);
-
-  const handleMouseEnter = () => {
-    setIsVisible(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsVisible(false);
-  };
+  const tooltipId = useId();
 
   return (
-    <div className='relative' onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <div
+      className='relative'
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+      onFocus={() => setIsVisible(true)}
+      onBlur={() => setIsVisible(false)}
+      aria-describedby={isVisible ? tooltipId : undefined}
+    >
       {children}
-      <div className={`tooltip ${isVisible ? 'visible' : 'invisible'} z-50`} >
-        <div className="tooltip-text" >
+      <div
+        id={tooltipId}
+        role="tooltip"
+        className={`tooltip ${isVisible ? 'visible' : 'invisible'} z-50`}
+      >
+        <div className="tooltip-text">
           {content}
         </div>
       </div>

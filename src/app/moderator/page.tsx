@@ -202,12 +202,13 @@ export default function ModeratorDashboard() {
                                 <button
                                     type="button"
                                     onClick={() => setShowChoosePopup(true)}
+                                    aria-label="Switch family account"
                                     className='border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors relative bg-transparent text-inherit focus:outline-none'
                                 >
-                                    <SwitchIcon />
+                                    <SwitchIcon aria-hidden="true" />
                                     {anyOtherAccountHasIssues && (
-                                        <span className="absolute -bottom-0.5 right-0 flex h-2.5 w-2.5">
-                                            <span className="inline-flex h-full w-full rounded-full bg-black"></span>
+                                        <span className="absolute -bottom-0.5 right-0 flex h-2.5 w-2.5" aria-label="Other accounts have pending items">
+                                            <span className="inline-flex h-full w-full rounded-full bg-black" aria-hidden="true"></span>
                                         </span>
                                     )}
                                 </button>

@@ -233,13 +233,13 @@ export default function Calendar() {
         {(isFuture || isPast) && (
           <div className="ml-auto mr-0 border border-border_color rounded-md p-1 flex items-center">
             {isFuture ? (
-              <div className="cursor-pointer hover:bg-field_color transition-colors" onClick={resetToCurrentMonth} title="Jump to Current Month">
-                <SkipBack />
-              </div>
+              <button className="cursor-pointer hover:bg-field_color transition-colors" onClick={resetToCurrentMonth} aria-label="Jump to current month">
+                <SkipBack aria-hidden="true" />
+              </button>
             ) : (
-              <div className="cursor-pointer hover:bg-field_color transition-colors" onClick={resetToCurrentMonth} title="Jump to Current Month">
-                <SkipForward />
-              </div>
+              <button className="cursor-pointer hover:bg-field_color transition-colors" onClick={resetToCurrentMonth} aria-label="Jump to current month">
+                <SkipForward aria-hidden="true" />
+              </button>
             )}
           </div>
         )}
@@ -250,8 +250,12 @@ export default function Calendar() {
           <div className="w-full max-w-3xl mx-auto mt-6">
             <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">
-                <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
-                <div className="flex items-baseline cursor-default">
+                <button
+                  className="font-light py-2 px-3 cursor-pointer hover:bg-field_hover rounded-tl-md"
+                  onClick={getPreviousMonth}
+                  aria-label="Go to previous month"
+                >{"<"}</button>
+                <div className="flex items-baseline cursor-default" aria-live="polite" aria-atomic="true">
                   <p className="font-medium text-xl pr-2">
                     {moment(calendarDate).tz("Asia/Kolkata").format("MMMM")}
                   </p>
@@ -261,17 +265,21 @@ export default function Calendar() {
                   <span className="text-[0.6rem] text-text_color/60 ml-1.5">IST</span>
                 </div>
 
-                <div className="font-light py-2 px-3 cursor-pointer" onClick={getNextMonth}>{">"}</div>
+                <button
+                  className="font-light py-2 px-3 cursor-pointer hover:bg-field_hover rounded-tr-md"
+                  onClick={getNextMonth}
+                  aria-label="Go to next month"
+                >{">"}</button>
               </div>
             </div>
-            <div className="grid grid-cols-7 cursor-default text-text_color bg-field_color border-l border-border_color text-sm">
+            <div role="grid" aria-label={`${moment(calendarDate).tz("Asia/Kolkata").format("MMMM YYYY")} calendar`} className="grid grid-cols-7 cursor-default text-text_color bg-field_color border-l border-border_color text-sm">
               {daysOfWeek.map((day) => (
-                <div key={day} className="py-1 md:font-medium text-center border-r border-b border-border_color">{day}</div>
+                <div key={day} role="columnheader" aria-label={day} className="py-1 md:font-medium text-center border-r border-b border-border_color">{day}</div>
               ))}
 
               {/* Render Empty Cells Before 1st of Month */}
               {Array.from({ length: firstDayOfMonth }, (_, index) => (
-                <div key={index} className="h-12 border-r border-b border-border_color">
+                <div key={index} role="gridcell" aria-hidden="true" className="h-12 border-r border-b border-border_color">
                   <p className="bg-main_background opacity-25 h-full">&nbsp;</p>
                 </div>
               ))}
@@ -281,16 +289,21 @@ export default function Calendar() {
                 const date = index + 1;
                 const cellDate = new Date(year, month, date);
                 const cellIsToday = isToday(cellDate);
+                const hasEvent = datesList?.includes(date);
 
                 return (
                   <div
                     key={date}
+                    role="gridcell"
+                    aria-label={`${date} ${moment(calendarDate).tz("Asia/Kolkata").format("MMMM")}${hasEvent ? ', has events' : ''}${cellIsToday ? ', today' : ''}`}
+                    tabIndex={hasEvent ? 0 : undefined}
                     onClick={() => HandlePopupData('date', date)}
+                    onKeyDown={hasEvent ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); HandlePopupData('date', date); } } : undefined}
                     style={{ viewTransitionName: `item${date}` }}
                     className={`date-cell ${cellIsToday ? "bg-accent_color text-accent_contrast" : ""
-                      } ${datesList?.includes(date) && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
+                      } ${hasEvent && 'cursor-pointer'} h-12 border-r flex flex-col justify-center items-center border-b border-border_color relative`}
                   >
-                    {datesList?.includes(date) && !isLoading && <p className={`${cellIsToday ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`}>.</p>}
+                    {hasEvent && !isLoading && <p className={`${cellIsToday ? "text-accent_contrast" : "text-accent_color"} mt-4 text-xl font-extrabold`} aria-hidden="true">.</p>}
                     <p className={`absolute p-0.5`}>{date}</p>
                   </div>
                 );
@@ -298,24 +311,25 @@ export default function Calendar() {
 
               {/* Render Empty Cells After Last Day of Month */}
               {Array.from({ length: emptyCellsCount }, (_, index) => (
-                <div key={index} className="h-12 border-r border-b border-border_color">
+                <div key={index} role="gridcell" aria-hidden="true" className="h-12 border-r border-b border-border_color">
                   <p className="bg-main_background opacity-25 h-full">&nbsp;</p>
                 </div>
               ))}
             </div>
 
-            <div onClick={() => { setShowPopup(false); setCanGoBackToDate(false); }} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-[600ms] bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} />
+            <div onClick={() => { setShowPopup(false); setCanGoBackToDate(false); }} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-[600ms] bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} aria-hidden="true" />
             <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden md:h-0'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
               <div className="relative">
                 {/* Sticky Close Button Container */}
                 <div className="sticky top-0 z-30 h-0 w-full pointer-events-none">
                   <div className="relative w-full h-0">
-                    <span
+                    <button
                       onClick={() => { setShowPopup(false); setCanGoBackToDate(false); }}
+                      aria-label="Close event details"
                       className="absolute top-4 right-4 border border-border_color rounded-md cursor-pointer pointer-events-auto z-20"
                     >
-                      <CloseIcon />
-                    </span>
+                      <CloseIcon aria-hidden="true" />
+                    </button>
                   </div>
                 </div>
 

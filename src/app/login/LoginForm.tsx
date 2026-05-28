@@ -118,8 +118,8 @@ export default function LoginForm() {
 
     return (
         <div className="flex flex-col md:flex-row justify-center items-center h-screen w-full max-w-4xl mx-auto overflow-auto px-4 py-6">
-            <div className="w-full max-w-80">
-                <svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550.386 550.387">
+            <div className="w-full max-w-80" aria-hidden="true">
+                <svg fill="#000000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550.386 550.387" aria-hidden="true" focusable="false">
                     <path d="M68.498,550.001c0.279,0.251,0.64,0.386,1.016,0.386h415.383c0.446,0,0.869-0.192,1.159-0.532
                 c0.267-0.312,6.494-7.715,2.154-17.543c-7.665-17.365-47.519-38.93-193.395-43.388c2.992-4.076,6.016-8.137,9.036-12.188
                 c20.214-27.114,36.423-54.776,49.554-84.565c11.766-26.699,23.978-57.841,19.93-89.604c-3.947-30.955-19.97-60.646-35.459-89.346
@@ -188,18 +188,24 @@ export default function LoginForm() {
                 </svg>
             </div>
             <div className="w-full max-w-80">
-                <form onSubmit={handleFormSubmit}>
+                <form onSubmit={handleFormSubmit} aria-label="Login form">
                     <div
                         key={errorTrigger}
                         className={`flex h-12 border border-border_color ${message ? 'passwordError' : ''} ${submitting ? 'pulsing-shadow' : ''} bg-field_color rounded-md overflow-hidden px-2`}
                     >
-                        <label className="flex items-center w-full">
+                        <label htmlFor="login-password" className="flex items-center w-full">
+                            <span className="sr-only">Password</span>
                             <input
+                                id="login-password"
                                 name="password"
+                                type="text"
                                 onChange={handleInputChange}
                                 value={form.password}
                                 disabled={submitting}
                                 required
+                                aria-required="true"
+                                aria-invalid={!!message}
+                                aria-describedby={message ? "login-error" : undefined}
                                 autoFocus
                                 placeholder="hello world !"
                                 className="py-3 px-1 outline-none text-text_color focus:border-border_active text-sm h-full w-full bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
@@ -208,6 +214,8 @@ export default function LoginForm() {
                         <button
                             type="submit"
                             disabled={submitting || !form.password.trim()}
+                            aria-busy={submitting}
+                            aria-label={submitting ? "Logging in..." : "Login"}
                             className={`py-1 transition-opacity duration-200 ${submitting || !form.password.trim()
                                 ? 'cursor-not-allowed opacity-60'
                                 : 'hover:opacity-80'
@@ -218,13 +226,14 @@ export default function LoginForm() {
                                 height="2.5rem"
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 48 48"
+                                aria-hidden="true"
                             >
                                 <path d="M38.8,26.1c-5.9,4.2-16.2,2.6-16.2,5.7s.6,11.1.6,11.1L18.8,44s.6-9.5.6-12.2-7-1.1-10.8-3.1S3.7,16.6,4.2,14c3.3,2.6,5.4,2.6,9.8,4.2s6,5.6,6.7,8.2c0,.1-7.7-1.4-12.1-5.5C10,25,15,26.6,17.2,27.1A4.7,4.7,0,0,1,21,29.7c.5-2.1,5.3-6.8,9.1-8.4s7.6-4.2,8.2-7.1c-4.3,4-8.1,4.1-11.9,6.6a16.3,16.3,0,0,0-4.6,4.5c.6-2.8,2.3-9.6,5.7-12.9C34.1,6.1,38.3,8.7,43.7,4,44.2,5.6,44.8,21.9,38.8,26.1Z" />
                             </svg>
                         </button>
                     </div>
                 </form>
-                <div className="text-text_color text-sm min-h-6">
+                <div id="login-error" role="alert" aria-live="polite" className="text-text_color text-sm min-h-6">
                     {message}
                 </div>
             </div>

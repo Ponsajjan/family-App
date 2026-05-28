@@ -75,34 +75,36 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
                 error={errors.name}
             />
             <div className="py-4">
-                <div className="flex gap-4">
-                    <p className="text-sm font-medium">Gender:</p>
-                    <RadioButton
-                        label="Male"
-                        name="gender"
-                        value="Male"
-                        checked={formData.gender === "Male"}
-                        onChange={handleInputChange}
-                    />
-                    <RadioButton
-                        label="Female"
-                        name="gender"
-                        value="Female"
-                        checked={formData.gender === "Female"}
-                        onChange={handleInputChange}
-                    />
-                </div>
+                <fieldset>
+                    <legend className="text-sm font-medium">Gender:</legend>
+                    <div className="flex gap-4 mt-1">
+                        <RadioButton
+                            label="Male"
+                            name="gender"
+                            value="Male"
+                            checked={formData.gender === "Male"}
+                            onChange={handleInputChange}
+                        />
+                        <RadioButton
+                            label="Female"
+                            name="gender"
+                            value="Female"
+                            checked={formData.gender === "Female"}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                </fieldset>
                 {(errors.gender) && (
-                    <p className="text-red-500 text-sm">
+                    <p role="alert" className="text-red-500 text-sm">
                         {errors.gender}
                     </p>
                 )}
             </div>
             <div>
-                <p className="text-sm font-medium">
+                <p id="dob-label" className="text-sm font-medium">
                     Date Of Birth<span className="font-normal opacity-45 pl-2">(Optional)</span>
                 </p>
-                <div className="w-full mb-2 flex gap-2">
+                <div role="group" aria-labelledby="dob-label" className="w-full mb-2 flex gap-2">
                     <Input
                         type="number"
                         placeholder="DD"
@@ -147,9 +149,12 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
             </div>
             <div className="relative py-2">
                 <div className="pb-2">
-                    <p className="text-sm font-medium pr-2 inline-block">Deceased</p>
+                    <label htmlFor="deceased-checkbox" className="text-sm font-medium pr-2 inline-block cursor-pointer">Deceased</label>
                     <input
+                        id="deceased-checkbox"
                         type="checkbox"
+                        role="switch"
+                        aria-checked={formData.deceased || false}
                         className="peer align-middle inline-block bg-main_background border border-border_active rounded-md"
                         name="deceased"
                         checked={formData.deceased || false}
@@ -158,13 +163,13 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
                 </div>
 
                 <div className={`${showDeathDetails} pt-2`}>
-                    <p className="text-sm font-medium">
+                    <p id="dod-label" className="text-sm font-medium">
                         Date Of Death<span className="font-normal opacity-45 pl-2">(Optional)</span>
                     </p>
                     <p className="text-xs font-extralight absolute top-[0.875rem] left-[6.25rem]">
                         (Remove checkmark if not Deceased)
                     </p>
-                    <div className="w-full flex gap-2">
+                    <div role="group" aria-labelledby="dod-label" className="w-full flex gap-2">
                         <Input
                             type="number"
                             placeholder="DD(Opt)"
@@ -335,21 +340,23 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
                 value={formData.additionalInfo || ''}
                 onChange={handleInputChange}
             />
-            <div className="flex justify-start items-center gap-4">
-                <p className="text-sm font-medium">{head ? `${head}` : 'Family'} descendant:</p>
-                {["Yes", "No"].map((option) => (
-                    <RadioButton
-                        key={option}
-                        label={option}
-                        name="descendant"
-                        value={option} // "Yes" maps to true, "No" maps to false
-                        checked={formData.descendant === option}
-                        onChange={handleInputChange}
-                    />
-                ))}
-            </div>
+            <fieldset>
+                <legend className="text-sm font-medium">{head ? `${head}` : 'Family'} descendant:</legend>
+                <div className="flex justify-start items-center gap-4 mt-1">
+                    {["Yes", "No"].map((option) => (
+                        <RadioButton
+                            key={option}
+                            label={option}
+                            name="descendant"
+                            value={option}
+                            checked={formData.descendant === option}
+                            onChange={handleInputChange}
+                        />
+                    ))}
+                </div>
+            </fieldset>
             {(errors.descendant) && (
-                <p className="text-red-500 text-sm">
+                <p role="alert" className="text-red-500 text-sm">
                     {errors.descendant}
                 </p>
             )}

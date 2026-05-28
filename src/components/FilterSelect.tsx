@@ -19,6 +19,7 @@ function FilterSelect({ label, name, value, options, onChange, disabled = false,
                     value={value}
                     onChange={onChange}
                     disabled={disabled}
+                    aria-label={label}
                     className="w-full p-2 pr-12 border border-border_color rounded-md bg-field_color text-sm focus:border-border_active outline-none disabled:opacity-70 disabled:cursor-not-allowed appearance-none cursor-pointer"
                 >
                     <option value="">All {label}s</option>

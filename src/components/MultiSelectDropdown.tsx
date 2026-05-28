@@ -49,9 +49,15 @@ export default function MultiSelectDropdown({ label, options, values, onChange, 
         <div className={`block text-sm font-medium opacity-75 ${className}`} ref={dropdownRef}>
             <div className="pb-0.5">{label}</div>
             <div className="relative group text-text_color">
-                <div 
+                <div
+                    role="button"
+                    tabIndex={0}
+                    aria-haspopup="listbox"
+                    aria-expanded={isOpen}
+                    aria-label={`${label}: ${displayValue}`}
                     className="w-full p-2 pr-12 border border-border_color rounded-md bg-field_color text-sm focus-within:border-border_active outline-none cursor-pointer flex items-center min-h-[38px]"
                     onClick={() => setIsOpen(!isOpen)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsOpen(!isOpen); } }}
                 >
                     <span className="truncate">{displayValue}</span>
                 </div>
@@ -77,7 +83,12 @@ export default function MultiSelectDropdown({ label, options, values, onChange, 
                 </div>
 
                 {isOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-main_background border border-border_color rounded-md shadow-lg max-h-64 flex flex-col">
+                    <div
+                        role="listbox"
+                        aria-label={`${label} options`}
+                        aria-multiselectable="true"
+                        className="absolute z-50 w-full mt-1 bg-main_background border border-border_color rounded-md shadow-lg max-h-64 flex flex-col"
+                    >
                         <div className="p-2 border-b border-border_color sticky top-0 bg-main_background z-10 rounded-t-md">
                             <div className="relative">
                                 <input
@@ -87,8 +98,9 @@ export default function MultiSelectDropdown({ label, options, values, onChange, 
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="w-full p-1.5 pl-8 text-sm border border-border_color rounded-md bg-field_color outline-none focus:border-border_active"
                                     onClick={(e) => e.stopPropagation()}
+                                    aria-label={`Search ${label} options`}
                                 />
-                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 opacity-50 scale-75">
+                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 opacity-50 scale-75" aria-hidden="true">
                                     <SearchIcon />
                                 </div>
                             </div>
@@ -98,12 +110,18 @@ export default function MultiSelectDropdown({ label, options, values, onChange, 
                                 <div className="p-2 text-center text-sm opacity-50">No options found</div>
                             ) : (
                                 filteredOptions.map(opt => (
-                                    <label key={opt} className="flex items-center p-2 hover:bg-field_color rounded-md cursor-pointer transition-colors">
+                                    <label
+                                        key={opt}
+                                        role="option"
+                                        aria-selected={values.includes(opt)}
+                                        className="flex items-center p-2 hover:bg-field_color rounded-md cursor-pointer transition-colors"
+                                    >
                                         <input
                                             type="checkbox"
                                             checked={values.includes(opt)}
                                             onChange={() => toggleOption(opt)}
                                             className="mr-2 rounded border-border_color text-border_active focus:ring-border_active accent-border_active"
+                                            aria-label={opt}
                                         />
                                         <span className="truncate">{opt}</span>
                                     </label>

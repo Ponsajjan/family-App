@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
@@ -6,15 +6,20 @@ interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   name?: string;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({ 
+const Checkbox: React.FC<CheckboxProps> = ({
   className = '',
   label = '',
   name = '',
+  id: propId,
   ...restProps
 }) => {
+  const generatedId = useId();
+  const inputId = propId || generatedId;
+
   return (
-    <label className="flex items-center space-x-2 cursor-pointer">
+    <label className="flex items-center space-x-2 cursor-pointer" htmlFor={inputId}>
       <input
+        id={inputId}
         type="checkbox"
         name={name}
         className={`bg-main_background border border-border_active rounded-md ${className}`}

@@ -8,16 +8,22 @@ function MemberDetails({ data }: { data: any }) {
             {/* Header Section */}
             <div className='sticky top-0 z-10 bg-main_background pt-4 pb-2.5 md:pb-1 px-4 border-b border-border_color/40'>
                 <div className='flex gap-2 items-center w-full pb-1.5 md:pb-3'>
-                    <div className='border border-border_color p-2 rounded-md relative'>
-                        {data.generalInformation.gender === 'Male' ? <Male2 /> : <Female2 />}
+                    <div
+                        className='border border-border_color p-2 rounded-md relative'
+                        aria-label={`${data.generalInformation.gender}${data.generalInformation.deceased ? ', deceased' : ''}`}
+                        role="img"
+                    >
+                        {data.generalInformation.gender === 'Male' ? <Male2 aria-hidden="true" /> : <Female2 aria-hidden="true" />}
                         {data.generalInformation.deceased && (
-                            <span className='absolute -bottom-2 -right-2'><Condolences /></span>
+                            <span className='absolute -bottom-2 -right-2' aria-hidden="true"><Condolences /></span>
                         )}
                     </div>
                     <div className='w-full'>
                         <div className='text-lg font-semibold flex items-center'>
                             <span>{data.generalInformation.name || 'Name Unavailable'}</span>
-                            {data.generalInformation.verified && <span className='pl-2'><Verified /></span>}
+                            {data.generalInformation.verified && (
+                                <span className='pl-2' aria-label="Verified member"><Verified aria-hidden="true" /></span>
+                            )}
                         </div>
 
                         <DateInfo
