@@ -119,7 +119,7 @@ export default function AddMemberDetails() {
         hasChanges: true,
         anyOtherAccountHasIssues: anyOtherAccountHasIssues
       }));
-      mutate('/api/moderator', undefined, { revalidate: false });;
+      mutate('/api/moderator', undefined, { revalidate: false });
       toast?.show(result.message, "success", 5000);
       setFormData(AddMemberDefaultFormValue);
       setErrors(AddMemberDefaultErrorValue);

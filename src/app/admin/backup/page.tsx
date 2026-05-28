@@ -89,12 +89,12 @@ export default function DBBackupRestore() {
       <div className="w-full p-6 md:p-10 max-w-5xl mx-auto mt-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Backup Card */}
-          <div className="bg-field_color border border-border_color rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div className="bg-field_color border border-border_color rounded-2xl p-8 flex flex-col items-center justify-between text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div className="w-20 h-20 bg-accent_color/10 rounded-full flex items-center justify-center mb-6 text-accent_color">
               <FileUploadIcon />
             </div>
             <h2 className="text-2xl font-bold text-text_color mb-3">Full DB Backup</h2>
-            <p className="text-text_color/70 mb-8 max-w-sm h-12">
+            <p className="text-text_color/70 mb-8 max-w-sm min-h-12">
               Download a complete snapshot of all families, members, and credentials in JSON format.
             </p>
             <ButtonOutline
@@ -107,7 +107,7 @@ export default function DBBackupRestore() {
           </div>
 
           {/* Restore Card */}
-          <div className="bg-field_color border border-border_color rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
+          <div className="bg-field_color border border-border_color rounded-2xl p-8 flex flex-col items-center justify-between text-center shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
             {/* Caution tape pattern top border */}
             <div className="absolute top-0 left-0 w-full h-2 bg-[repeating-linear-gradient(45deg,#ffcc00,#ffcc00_10px,#000_10px,#000_20px)]"></div>
 
@@ -115,7 +115,7 @@ export default function DBBackupRestore() {
               <ResetData />
             </div>
             <h2 className="text-2xl font-bold text-text_color mb-3">Full DB Restore</h2>
-            <p className="text-red-500/80 font-medium mb-8 max-w-sm h-12">
+            <p className="text-red-500/80 font-medium mb-8 max-w-sm min-h-12">
               ⚠️ Warning: Restoring a backup will completely overwrite all existing data. This action cannot be undone.
             </p>
 

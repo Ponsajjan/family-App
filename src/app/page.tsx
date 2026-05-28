@@ -251,7 +251,7 @@ export default function Calendar() {
             <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">
                 <div className="font-light py-2 px-3 cursor-pointer" onClick={getPreviousMonth}>{"<"}</div>
-                <div className="flex items-baseline">
+                <div className="flex items-baseline cursor-default">
                   <p className="font-medium text-xl pr-2">
                     {moment(calendarDate).tz("Asia/Kolkata").format("MMMM")}
                   </p>
