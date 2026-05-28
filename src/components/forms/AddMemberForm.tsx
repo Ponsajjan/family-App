@@ -75,8 +75,8 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
                 error={errors.name}
             />
             <div className="py-4">
-                <fieldset>
-                    <legend className="text-sm font-medium">Gender:</legend>
+                <fieldset className='flex flex-wrap gap-4'>
+                    <legend className="text-sm font-medium contents">Gender:</legend>
                     <div className="flex gap-4 mt-1">
                         <RadioButton
                             label="Male"
@@ -340,8 +340,8 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
                 value={formData.additionalInfo || ''}
                 onChange={handleInputChange}
             />
-            <fieldset>
-                <legend className="text-sm font-medium">{head ? `${head}` : 'Family'} descendant:</legend>
+            <fieldset className='flex flex-wrap gap-4'>
+                <legend className="text-sm font-medium contents">{head ? `${head}` : 'Family'} descendant:</legend>
                 <div className="flex justify-start items-center gap-4 mt-1">
                     {["Yes", "No"].map((option) => (
                         <RadioButton
