@@ -278,7 +278,7 @@ export default function Relatives() {
               {members?.map((member: any) => (
                 member.gender === "Letter" ?
                   <div key={member.id} role="listitem" className="flex text-text_color items-center px-[0.625rem] md:pt-1 bg-main_background sticky top-12 md:top-0 z-10">
-                    <span className="font-medium md:font-semibold pr-1">{member.name}</span>
+                    <span className="font-medium pr-1">{member.name}</span>
                     <span className="border-t border-border_color block w-full" aria-hidden="true"></span>
                   </div> :
                   <div key={member.id} role="listitem" className="pl-4">
@@ -298,7 +298,7 @@ export default function Relatives() {
                               {member.gender === "Female" && <Female aria-hidden="true" />}
                             </div>
                             <div
-                              className="font-medium md:font-semibold"
+                              className="font-medium"
                               dangerouslySetInnerHTML={{
                                 __html: highlightText(member.name, params.search),
                               }}
@@ -307,13 +307,13 @@ export default function Relatives() {
                           <div className="flex text-xs md:text-sm opacity-65 flex-wrap">
                             {(member.father || member.mother) ? (
                               <>
-                                <span className="pr-0.5 font-medium md:font-semibold">Parents:</span>
+                                <span className="pr-0.5 font-medium">Parents:</span>
                                 {member.father && <span className='pr-1'>{member.father.name}, </span>}
                                 {member.mother && <span>{member.mother.name}</span>}
                               </>
                             ) : member.partner ? (
                               <div>
-                                <span className="pr-0.5 font-medium md:font-semibold">Partner:</span>
+                                <span className="pr-0.5 font-medium">Partner:</span>
                                 <span>{member.partner.name}</span>
                               </div>
                             ) : 'No family relationship assigned yet'}
