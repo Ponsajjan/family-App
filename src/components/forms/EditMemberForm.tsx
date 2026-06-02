@@ -339,7 +339,7 @@ function EditMemberForm({
             </div>
 
             <TextArea
-                className="mb-3"
+                className="mb-1"
                 label="Additional Info"
                 name="additionalInfo"
                 value={formData.additionalInfo || ''}

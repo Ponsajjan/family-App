@@ -57,7 +57,7 @@ export const HoldButton: React.FC<HoldButtonProps> = ({
       className={`relative min-w-[9.375rem] disabled:cursor-not-allowed disabled:opacity-45 ${type === 'solid'
         ? 'bg-accent_color md:hover:bg-accent_color_hover text-accent_contrast'
         : 'bg-field_color md:hover:bg-field_hover border-2 border-accent_color text-text_color'
-        } h-10 md:h-12 px-2 md:px-4 py-2 md:py-3 text-base md:text-lg shadow-md rounded-md font-medium overflow-hidden flex items-center justify-center ${className}`}
+        } h-10 md:h-12 px-2 md:px-4 py-2 md:py-3 text-base md:text-lg shadow-md active:shadow-none rounded-md font-medium overflow-hidden flex items-center justify-center ${className}`}
       onMouseDown={startHold}
       onMouseUp={resetHold}
       onMouseLeave={resetHold}

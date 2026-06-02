@@ -333,7 +333,7 @@ function AddMemberForm({ formData, handleInputChange, handleDateBlur, handleForm
             </div>
 
             <TextArea
-                className="mb-3"
+                className="mb-1"
                 showOptional={true}
                 name="additionalInfo"
                 label="Additional Info"
