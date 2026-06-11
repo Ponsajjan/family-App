@@ -7,12 +7,13 @@ import SingleSelectPopup from '@/components/SingleSelectPopup';
 import Input from '@/components/Input';
 
 interface FilterPanelProps {
+  showFilters: boolean;
   onClose: () => void;
   onApply: (filters: any) => void;
   currentFilters: any;
 }
 
-export default function FilterPanel({ onClose, onApply, currentFilters }: FilterPanelProps) {
+export default function FilterPanel({ showFilters, onClose, onApply, currentFilters }: FilterPanelProps) {
   const [filters, setFilters] = useState(currentFilters);
   const [options, setOptions] = useState<{
     occupations: string[],
@@ -45,7 +46,15 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
     states: false,
   });
 
+  // Sync filters with currentFilters when the panel becomes visible
   useEffect(() => {
+    if (showFilters) {
+      setFilters(currentFilters);
+    }
+  }, [showFilters, currentFilters]);
+
+  useEffect(() => {
+    if (!showFilters) return;
     const fetchInitialOptions = async () => {
       try {
         setLoadingFields(prev => ({ ...prev, initial: true }));
@@ -61,10 +70,10 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
       }
     };
     fetchInitialOptions();
-  }, []);
+  }, [showFilters]);
 
   useEffect(() => {
-    if (!filters.country) {
+    if (!showFilters || !filters.country) {
       setOptions(prev => ({ ...prev, states: [] }));
       setAllLocations({ districts: [], cities: [] });
       return;
@@ -85,7 +94,7 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
       }
     };
     fetchLocations();
-  }, [filters.country]);
+  }, [showFilters, filters.country]);
 
   // Derives the district list from the full country dataset.
   // When no state is selected: deduplicates all district names across states.
@@ -118,18 +127,24 @@ export default function FilterPanel({ onClose, onApply, currentFilters }: Filter
   // Auto-clear district when the selected district no longer exists in the computed list
   // (e.g. user picks a state that doesn't contain the previously selected district).
   useEffect(() => {
+    if (!showFilters) return;
     if (filters.district && !displayDistricts.includes(filters.district)) {
       setFilters((prev: any) => ({ ...prev, district: '' }));
     }
-  }, [displayDistricts, filters.district]);
+  }, [showFilters, displayDistricts, filters.district]);
 
   // Auto-clear city when the selected city no longer exists in the computed list
   // (e.g. user changes state or district making the current city invalid).
   useEffect(() => {
+    if (!showFilters) return;
     if (filters.city && !displayCities.includes(filters.city)) {
       setFilters((prev: any) => ({ ...prev, city: '' }));
     }
-  }, [displayCities, filters.city]);
+  }, [showFilters, displayCities, filters.city]);
+
+  if (!showFilters) {
+    return null;
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;

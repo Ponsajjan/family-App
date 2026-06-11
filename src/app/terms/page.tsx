@@ -2,7 +2,6 @@
 
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
-import Loading from '@/components/Loading'
 import Link from 'next/link';
 
 export default function Terms() {

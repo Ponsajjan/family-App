@@ -3,7 +3,6 @@
 import { CloseIcon, SearchIcon, Filter } from "@/utils/Icons";
 import { Call, Female, Male } from '@/utils/Icons';
 import { useRef, useState, useMemo, useEffect } from 'react'
-import ReactDom from 'react-dom';
 import useSWRInfinite from 'swr/infinite';
 import Details from './Details';
 import FilterPanel from './FilterPanel';
@@ -22,13 +21,6 @@ export default function Relatives() {
   const [showSidePanel, setShowSidePanel] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-
-  useEffect(() => {
-    if (!showSidePanel) {
-      setShowDetails(false);
-      setShowFilters(false);
-    }
-  }, [showSidePanel]);
   const [showMember, setShowMember] = useState<number | null>(null);
   const [phonePopup, setPhonePopup] = useState<string[] | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -359,14 +351,13 @@ export default function Relatives() {
 
         {/* Side Panel for Details and Filters */}
         <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-          {showDetails && <Details showMember={showMember} openDetails={handleSetDetails} />}
-          {showFilters && (
-            <FilterPanel
-              onClose={() => handleSetFilter(false)}
-              onApply={handleApplyFilters}
-              currentFilters={filters}
-            />
-          )}
+          <Details showDetails={showDetails} showMember={showMember} openDetails={setShowSidePanel} />
+          <FilterPanel
+            showFilters={showFilters}
+            onClose={() => setShowSidePanel(false)}
+            onApply={handleApplyFilters}
+            currentFilters={filters}
+          />
         </SlidePanel>
       </div>
 

@@ -10,7 +10,7 @@ import { setAccounts, setCurrentAuthId, setMainMemberName, AccountDetail, setIsM
 import { appFetch } from "@/utils/appFetch";
 import { CloseIcon } from '@/utils/Icons';
 
-function SwitchLoginList({ handleSidePanelToggle }: { handleSidePanelToggle: (value: 'switchLogin' | 'switchLogout') => void }) {
+function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: boolean, handleSidePanelToggle: (value: boolean) => void }) {
     const dispatch = useDispatch<AppDispatch>();
     const { accounts, currentAuthId } = useSelector((state: RootState) => state.terms);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
@@ -210,11 +210,13 @@ function SwitchLoginList({ handleSidePanelToggle }: { handleSidePanelToggle: (va
         }
     };
 
+    if (!showLogin) return null;
+
     return (
         <>
             <div className='sticky top-0 z-20 bg-main_background px-4 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-between'>
-                <div className='z-10'>{switchingAccount ? "Adding..." : "Multi-login"}</div>
-                <div onClick={() => handleSidePanelToggle('switchLogin')} className='border border-border_color rounded-md cursor-pointer'>
+                <div>{switchingAccount ? "Adding..." : "Multi-login"}</div>
+                <div onClick={() => handleSidePanelToggle(false)} className='border border-border_color rounded-md cursor-pointer'>
                     <CloseIcon />
                 </div>
             </div>

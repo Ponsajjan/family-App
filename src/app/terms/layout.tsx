@@ -20,14 +20,6 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
     // Use the PWA hook
     // const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
 
-
-    useEffect(() => {
-        if (!showSidePanel) {
-            setShowLogin(false);
-            setShowLogout(false);
-        }
-    }, [showSidePanel]);
-
     const handleSidePanelToggle = (value: 'switchLogin' | 'switchLogout') => {
         if (loading) {
             return;
@@ -129,8 +121,8 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
                     </div>
                 </Container>
                 <SlidePanel setShowDetails={setShowSidePanel} showDetails={showSidePanel} >
-                    {showLogin && <SwitchLoginList handleSidePanelToggle={handleSidePanelToggle} />}
-                    {showLogout && <LogoutList handleSidePanelToggle={handleSidePanelToggle} />}
+                    <SwitchLoginList showLogin={showLogin} handleSidePanelToggle={setShowSidePanel} />
+                    <LogoutList showLogout={showLogout} handleSidePanelToggle={setShowSidePanel} />
                 </SlidePanel>
             </div>
         </div>
