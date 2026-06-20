@@ -142,7 +142,7 @@ export default function FamilyTreePage() {
 
           {/* Details Panel */}
           <SlidePanel setShowDetails={setShowDetails} showDetails={showDetails} >
-            <Details showMember={showMember} openDetails={setShowDetails} />
+            <Details showDetails={true} showMember={showMember} openDetails={setShowDetails} />
           </SlidePanel>
         </div>
       )}
