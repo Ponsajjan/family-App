@@ -15,6 +15,7 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
     const { accounts, currentAuthId } = useSelector((state: RootState) => state.terms);
     const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
     const [isToggling, setIsToggling] = useState<boolean>(false);
+    const [togglingAuthId, setTogglingAuthId] = useState<string | null>(null);
     const [form, setForm] = useState({ password: "" });
     const [error, setError] = useState("");
     const [errorTrigger, setErrorTrigger] = useState(0);
@@ -43,6 +44,7 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
     const handleToggleChange = async (account: AccountDetail) => {
         if (isToggling) return;
         setIsToggling(true);
+        setTogglingAuthId(String(account.authId));
         // console.log(account.authId, currentAuthId);
         try {
             let nextAuthId: string | null = null;
@@ -128,18 +130,12 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
             await new Promise(resolve => setTimeout(resolve, 300));
         } finally {
             setIsToggling(false);
+            setTogglingAuthId(null);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Check max accounts limit
-        if (accounts.length >= 10) {
-            setError("You have reached the maximum number of accounts (10).");
-            setErrorTrigger(prev => prev + 1);
-            return;
-        }
 
         if (error) {
             setErrorTrigger(prev => prev + 1);
@@ -215,7 +211,7 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
     return (
         <>
             <div className='sticky top-0 z-20 bg-main_background px-4 h-12 font-semibold border-b border-border_color text-text_color flex items-center justify-between'>
-                <div>{switchingAccount ? "Adding..." : "Multi-login"}</div>
+                <div>{switchingAccount ? "Adding..." : isToggling ? "Switching..." : "Multi-login"}</div>
                 <div onClick={() => handleSidePanelToggle(false)} className='border border-border_color rounded-md cursor-pointer'>
                     <CloseIcon />
                 </div>
@@ -233,7 +229,7 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
                             >
                                 <div className="font-medium px-3 pointer-events-none">{account.mainMemberRef}</div>
                                 <ToggleSwitch
-                                    isActive={isCurrentAccount}
+                                    isActive={togglingAuthId === String(account.authId) ? account.current : isCurrentAccount}
                                     className='pointer-events-none'
                                 />
                             </div>
@@ -262,7 +258,7 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
                                 placeholder="Add login"
                                 value={form.password}
                                 className={`px-1 outline-none text-text_color focus:border-border_active text-sm w-full bg-transparent disabled:cursor-not-allowed placeholder:text-text_color/0 placeholder-shown:mt-0 mt-4`}
-                                disabled={switchingAccount || isToggling || accounts.length >= 10}
+                                disabled={switchingAccount || isToggling}
                             />
                         </label>
                         <button
@@ -279,11 +275,6 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
                         </button>
                     </div>
                     {error && <p className='text-text_color text-sm pl-1 pt-1'>{error}</p>}
-                    {accounts.length >= 10 && (
-                        <p className='text-text_color text-sm pl-1 pt-1'>
-                            You have reached the maximum number of accounts (10).
-                        </p>
-                    )}
                 </form>
             </div>
         </>

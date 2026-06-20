@@ -94,12 +94,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // Limit accounts array to prevent cookie overflow
-    const MAX_ACCOUNTS = 10;
-    if (accounts.length > MAX_ACCOUNTS) {
-      accounts = accounts.slice(-MAX_ACCOUNTS);
-    };
-
     // Update the cookie using setCookie
     setCookie('authId', JSON.stringify(accounts), { maxAge, path: '/' });
     setCookie('selectedAuthId', JSON.stringify(selectedAuthId), { maxAge, path: '/' });
