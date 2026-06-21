@@ -173,22 +173,20 @@ function LogoutList({ showLogout, handleSidePanelToggle }: { showLogout: boolean
 
             {/* Other Accounts Section */}
             <div className='px-4 pt-2 pb-4'>
-                {accounts.map((account) => {
-                    return (
-                        <div key={account.authId} className='py-0.5 md:py-1 w-full'>
-                            <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[2.5rem] bg-field_color text-text_color border border-l-4 border-border_color rounded-md`}>
-                                <div>{account.mainMemberRef}</div>
-                                {accounts.length > 1 && <span
-                                    onClick={() => handleRemoveAccount(account.authId)}
-                                    className="hover:text-accent_color border-l border-border_color pl-3 cursor-pointer"
-                                    title="Remove from list"
-                                >
-                                    <CloseIcon />
-                                </span>}
-                            </div>
+                {accounts.map((account) => (
+                    <div key={account.authId} className='py-0.5 md:py-1 w-full'>
+                        <div className={`flex items-center justify-between transform transition-all duration-200 px-3 min-h-[2.5rem] bg-field_color text-text_color border border-l-4 border-border_color rounded-md`}>
+                            <div>{account.mainMemberRef}</div>
+                            {accounts.length > 1 && <span
+                                onClick={() => handleRemoveAccount(account.authId)}
+                                className="hover:text-accent_color border-l border-border_color pl-3 cursor-pointer"
+                                title="Remove from list"
+                            >
+                                <CloseIcon />
+                            </span>}
                         </div>
-                    );
-                })}
+                    </div>
+                ))}
             </div>
         </>
     );

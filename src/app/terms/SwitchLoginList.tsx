@@ -218,25 +218,21 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
             </div>
 
             <div className='px-4 pt-4 pb-2'>
-                {accounts.map((account) => {
-                    const isCurrentAccount = account.current;
-                    return (
-                        <div key={account.authId} className='py-0.5 md:py-1 w-full'>
-                            <div
-                                onClick={() => handleToggleChange(account)}
-                                className={`flex items-center justify-between transform transition-all duration-200 min-h-[2.5rem] bg-field_color border-border_color text-text_color border border-l-4 ${!isCurrentAccount && 'opacity-60'
-                                    } ${isToggling ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:bg-field_color/80'} rounded-md`}
-                            >
-                                <div className="font-medium px-3 pointer-events-none">{account.mainMemberRef}</div>
-                                <ToggleSwitch
-                                    isActive={togglingAuthId === String(account.authId) ? account.current : isCurrentAccount}
-                                    className='pointer-events-none'
-                                />
-                            </div>
+                {accounts.map((account) => (
+                    <div key={account.authId} className='py-0.5 md:py-1 w-full'>
+                        <div
+                            onClick={() => handleToggleChange(account)}
+                            className={`flex items-center justify-between transform transition-all duration-200 min-h-[2.5rem] bg-field_color border-border_color text-text_color border border-l-4 ${!account.current && 'opacity-60'
+                                } ${isToggling ? 'opacity-50 cursor-wait' : 'cursor-pointer hover:bg-field_color/80'} rounded-md`}
+                        >
+                            <div className="font-medium px-3 pointer-events-none">{account.mainMemberRef}</div>
+                            <ToggleSwitch
+                                isActive={togglingAuthId === String(account.authId) ? account.current : account.current}
+                                className='pointer-events-none'
+                            />
                         </div>
-                    );
-                })
-                }
+                    </div>
+                ))}
             </div>
 
             <div className='px-4 pb-4 border-t border-dashed pt-3'>
