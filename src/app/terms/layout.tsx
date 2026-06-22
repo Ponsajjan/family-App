@@ -106,7 +106,7 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
                             </div>
                         </div> */}
                         <div className="ml-auto mr-0 w-fit block">
-                            <button onClick={() => handleSidePanelToggle('switchLogout')} className="px-2 flex items-center gap-2"><Logout />Logout</button>
+                            <button onClick={() => handleSidePanelToggle('switchLogout')} className={`px-2 flex items-center gap-2 ${loading ? 'opacity-55 cursor-wait' : 'cursor-pointer'}`}><Logout />Logout</button>
                         </div>
 
                         {/* Fixed PWA Install Button - Show when NOT in PWA and when install is available */}
