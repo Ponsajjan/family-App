@@ -294,7 +294,7 @@ export default function MemberList({
               className="pl-9"
               value={searchInput}
               onChange={(e) => handleMemberSearch(e.target.value)}
-              type="search"
+              type="text"
             />
             <span className="absolute left-2 top-1/2 transform -translate-y-1/2" aria-hidden="true">
               <SearchIcon />

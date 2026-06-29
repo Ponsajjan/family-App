@@ -233,7 +233,7 @@ export default function Relatives() {
               id="relatives-search"
               value={searchInput}
               onChange={(e) => handleMemberSearch(e.target.value)}
-              type="search"
+              type="text"
               placeholder="Search by name"
               aria-label="Search members by name"
               className="ml-auto peer mr-0 input-not-placeholder cursor-pointer block p-1 pl-4 focus:pr-8 border border-border_color focus:placeholder:text-text_color/55 placeholder:text-text_color/0 focus:outline-none w-9 ease-in-out duration-700 font-normal rounded-md bg-main_background"
