@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { CloseIcon, ResetData, Info } from '@/utils/Icons';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { CloseIcon, ResetData, Info, WarningCircle, RefreshIcon } from '@/utils/Icons';
 import { appFetch } from '@/utils/appFetch';
+import { useDebounce } from '@/utils/debounce';
 import { ButtonSolid } from '@/components/Button';
 import MultiSelectPopup from '@/components/MultiSelectPopup';
 import SingleSelectPopup from '@/components/SingleSelectPopup';
@@ -12,6 +13,25 @@ interface FilterPanelProps {
   onApply: (filters: any) => void;
   currentFilters: any;
 }
+
+type PaginatedFieldKey = 'occupation' | 'education' | 'birthPlace' | 'country';
+
+const FIELD_TO_OPTIONS_KEY: Record<PaginatedFieldKey, 'occupations' | 'educations' | 'birthPlaces' | 'countries'> = {
+  occupation: 'occupations',
+  education: 'educations',
+  birthPlace: 'birthPlaces',
+  country: 'countries',
+};
+
+interface FieldMetaEntry {
+  hasMore: boolean;
+  loadingMore: boolean;
+  search: string;
+  error: boolean;
+  lastAttempt: { skip: number; search: string; append: boolean } | null;
+}
+
+const EMPTY_FIELD_META: FieldMetaEntry = { hasMore: false, loadingMore: false, search: '', error: false, lastAttempt: null };
 
 export default function FilterPanel({ showFilters, onClose, onApply, currentFilters }: FilterPanelProps) {
   const [filters, setFilters] = useState(currentFilters);
@@ -46,6 +66,19 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
     states: false,
   });
 
+  const [errors, setErrors] = useState<{ initial: boolean; locations: boolean }>({
+    initial: false,
+    locations: false,
+  });
+
+  // Per-field pagination/search state for the Occupation, Education, Birth Place and Country popups.
+  const [fieldMeta, setFieldMeta] = useState<Record<PaginatedFieldKey, FieldMetaEntry>>({
+    occupation: EMPTY_FIELD_META,
+    education: EMPTY_FIELD_META,
+    birthPlace: EMPTY_FIELD_META,
+    country: EMPTY_FIELD_META,
+  });
+
   // Sync filters with currentFilters when the panel becomes visible
   useEffect(() => {
     if (showFilters) {
@@ -53,48 +86,107 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
     }
   }, [showFilters, currentFilters]);
 
+  const fetchInitialOptions = useCallback(async () => {
+    try {
+      setLoadingFields(prev => ({ ...prev, initial: true }));
+      setErrors(prev => ({ ...prev, initial: false }));
+      const res = await appFetch('/api/relatives/filterOptions?excludeLocations=true');
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+      const data = await res.json();
+      setOptions(prev => ({ ...prev, ...data }));
+      setFieldMeta({
+        occupation: { ...EMPTY_FIELD_META, hasMore: !!data.occupationsHasMore },
+        education: { ...EMPTY_FIELD_META, hasMore: !!data.educationsHasMore },
+        birthPlace: { ...EMPTY_FIELD_META, hasMore: !!data.birthPlacesHasMore },
+        country: { ...EMPTY_FIELD_META, hasMore: !!data.countriesHasMore },
+      });
+    } catch (err) {
+      console.error("Failed to fetch filter options", err);
+      setErrors(prev => ({ ...prev, initial: true }));
+    } finally {
+      setLoadingFields(prev => ({ ...prev, initial: false }));
+    }
+  }, []);
+
   useEffect(() => {
     if (!showFilters) return;
-    const fetchInitialOptions = async () => {
-      try {
-        setLoadingFields(prev => ({ ...prev, initial: true }));
-        const res = await appFetch('/api/relatives/filterOptions?excludeLocations=true');
-        if (res.ok) {
-          const data = await res.json();
-          setOptions(prev => ({ ...prev, ...data }));
-        }
-      } catch (err) {
-        console.error("Failed to fetch filter options", err);
-      } finally {
-        setLoadingFields(prev => ({ ...prev, initial: false }));
-      }
-    };
     fetchInitialOptions();
-  }, [showFilters]);
+  }, [showFilters, fetchInitialOptions]);
+
+  // Fetches a page of options for a single paginated field (initial search, or "load more").
+  const fetchFieldOptions = async (
+    field: PaginatedFieldKey,
+    opts: { skip: number; search: string; append: boolean }
+  ) => {
+    setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], loadingMore: true, error: false, lastAttempt: opts } }));
+    try {
+      const params = new URLSearchParams({ type: 'fieldOptions', field, skip: String(opts.skip), take: '25' });
+      if (opts.search) params.set('search', opts.search);
+      const res = await appFetch(`/api/relatives/filterOptions?${params.toString()}`);
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+      const { data, hasMore } = await res.json();
+      const optionsKey = FIELD_TO_OPTIONS_KEY[field];
+      setOptions(prev => ({
+        ...prev,
+        [optionsKey]: opts.append ? [...prev[optionsKey], ...data] : data,
+      }));
+      setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], hasMore, loadingMore: false, error: false } }));
+    } catch (err) {
+      console.error(`Failed to fetch ${field} options`, err);
+      setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], loadingMore: false, error: true } }));
+    }
+  };
+
+  const handleLoadMore = (field: PaginatedFieldKey) => {
+    const meta = fieldMeta[field];
+    if (meta.loadingMore) return;
+    if (meta.error && meta.lastAttempt) {
+      fetchFieldOptions(field, meta.lastAttempt);
+      return;
+    }
+    if (!meta.hasMore) return;
+    fetchFieldOptions(field, { skip: options[FIELD_TO_OPTIONS_KEY[field]].length, search: meta.search, append: true });
+  };
+
+  const debouncedOccupationSearch = useDebounce((value: string) => fetchFieldOptions('occupation', { skip: 0, search: value, append: false }), 400);
+  const debouncedEducationSearch = useDebounce((value: string) => fetchFieldOptions('education', { skip: 0, search: value, append: false }), 400);
+  const debouncedBirthPlaceSearch = useDebounce((value: string) => fetchFieldOptions('birthPlace', { skip: 0, search: value, append: false }), 400);
+  const debouncedCountrySearch = useDebounce((value: string) => fetchFieldOptions('country', { skip: 0, search: value, append: false }), 400);
+
+  const handleFieldSearchChange = (field: PaginatedFieldKey, value: string) => {
+    setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], search: value } }));
+    if (field === 'occupation') debouncedOccupationSearch(value);
+    else if (field === 'education') debouncedEducationSearch(value);
+    else if (field === 'birthPlace') debouncedBirthPlaceSearch(value);
+    else debouncedCountrySearch(value);
+  };
+
+  const fetchLocations = useCallback(async (country: string) => {
+    try {
+      setLoadingFields(prev => ({ ...prev, states: true }));
+      setErrors(prev => ({ ...prev, locations: false }));
+      const res = await appFetch(`/api/relatives/filterOptions?type=locations&country=${encodeURIComponent(country)}`);
+      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+      const { states, districts, cities } = await res.json();
+      setOptions(prev => ({ ...prev, states }));
+      setAllLocations({ districts, cities });
+    } catch (err) {
+      console.error("Failed to fetch location options", err);
+      setErrors(prev => ({ ...prev, locations: true }));
+    } finally {
+      setLoadingFields(prev => ({ ...prev, states: false }));
+    }
+  }, []);
 
   useEffect(() => {
     if (!showFilters || !filters.country) {
       setOptions(prev => ({ ...prev, states: [] }));
       setAllLocations({ districts: [], cities: [] });
+      setErrors(prev => ({ ...prev, locations: false }));
       return;
     }
-    const fetchLocations = async () => {
-      try {
-        setLoadingFields(prev => ({ ...prev, states: true }));
-        const res = await appFetch(`/api/relatives/filterOptions?type=locations&country=${encodeURIComponent(filters.country)}`);
-        if (res.ok) {
-          const { states, districts, cities } = await res.json();
-          setOptions(prev => ({ ...prev, states }));
-          setAllLocations({ districts, cities });
-        }
-      } catch (err) {
-        console.error("Failed to fetch location options", err);
-      } finally {
-        setLoadingFields(prev => ({ ...prev, states: false }));
-      }
-    };
-    fetchLocations();
-  }, [showFilters, filters.country]);
+    fetchLocations(filters.country);
+  }, [showFilters, filters.country, fetchLocations]);
 
   // Derives the district list from the full country dataset.
   // When no state is selected: deduplicates all district names across states.
@@ -199,6 +291,20 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
         </button>
       </div>
       <div className='px-4 pb-6 pt-2'>
+        {errors.initial && (
+          <div role="alert" className="mb-4 flex items-center gap-2 p-2.5 rounded-md bg-red-500/5 border border-red-500/30 text-sm">
+            <span className="mt-0.5 text-red-500 shrink-0" aria-hidden="true"><WarningCircle /></span>
+            <p className="text-red-500 flex-1">Failed to load filter options.</p>
+            <button
+              type="button"
+              onClick={fetchInitialOptions}
+              className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
+            >
+              <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
+              Retry
+            </button>
+          </div>
+        )}
         <MultiSelectPopup
           className="mb-4"
           label="Occupation"
@@ -206,6 +312,11 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
           options={options.occupations}
           onChange={(values) => setFilters((prev: any) => ({ ...prev, occupation: values }))}
           loading={loadingFields.initial}
+          hasMore={fieldMeta.occupation.hasMore}
+          loadingMore={fieldMeta.occupation.loadingMore}
+          loadMoreError={fieldMeta.occupation.error}
+          onLoadMore={() => handleLoadMore('occupation')}
+          onSearchChange={(value) => handleFieldSearchChange('occupation', value)}
         />
         <MultiSelectPopup
           className="mb-4"
@@ -214,6 +325,11 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
           options={options.educations}
           onChange={(values) => setFilters((prev: any) => ({ ...prev, education: values }))}
           loading={loadingFields.initial}
+          hasMore={fieldMeta.education.hasMore}
+          loadingMore={fieldMeta.education.loadingMore}
+          loadMoreError={fieldMeta.education.error}
+          onLoadMore={() => handleLoadMore('education')}
+          onSearchChange={(value) => handleFieldSearchChange('education', value)}
         />
         <MultiSelectPopup
           className="mb-6"
@@ -222,6 +338,11 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
           options={options.birthPlaces}
           onChange={(values) => setFilters((prev: any) => ({ ...prev, birthPlace: values }))}
           loading={loadingFields.initial}
+          hasMore={fieldMeta.birthPlace.hasMore}
+          loadingMore={fieldMeta.birthPlace.loadingMore}
+          loadMoreError={fieldMeta.birthPlace.error}
+          onLoadMore={() => handleLoadMore('birthPlace')}
+          onSearchChange={(value) => handleFieldSearchChange('birthPlace', value)}
         />
         <hr className="border-t border-border_color block mb-4" />
         <SingleSelectPopup
@@ -231,6 +352,11 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
           options={options.countries}
           onChange={(val) => handleChange({ target: { name: 'country', value: val } } as any)}
           loading={loadingFields.initial}
+          hasMore={fieldMeta.country.hasMore}
+          loadingMore={fieldMeta.country.loadingMore}
+          loadMoreError={fieldMeta.country.error}
+          onLoadMore={() => handleLoadMore('country')}
+          onSearchChange={(value) => handleFieldSearchChange('country', value)}
         />
         <SingleSelectPopup
           className="mb-4"
@@ -262,6 +388,20 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
           disabled={!filters.country}
           loading={loadingFields.states}
         />
+        {errors.locations && (
+          <div role="alert" className="mb-4 flex items-center gap-2 p-2.5 rounded-md bg-red-500/5 border border-red-500/30 text-sm">
+            <span className="mt-0.5 text-red-500 shrink-0" aria-hidden="true"><WarningCircle /></span>
+            <p className="text-red-500 flex-1">Failed to load states, districts and cities.</p>
+            <button
+              type="button"
+              onClick={() => fetchLocations(filters.country)}
+              className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
+            >
+              <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
+              Retry
+            </button>
+          </div>
+        )}
         <hr className="border-t border-border_color block mb-4" />
         <div className="mb-6">
           <p id="born-between-label" className="text-sm font-medium mb-2 block">Born Between</p>

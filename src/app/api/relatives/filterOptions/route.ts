@@ -4,6 +4,10 @@ import prisma from "@/db/db";
 import { verifyToken } from "@/utils/auth";
 import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 
+const OPTIONS_PAGE_SIZE = 25;
+const PAGINATED_FIELDS = ["occupation", "education", "birthPlace", "country"] as const;
+type PaginatedField = typeof PAGINATED_FIELDS[number];
+
 function sanitizeOptions(arr: (string | null | undefined)[]) {
   const map = new Map<string, string>();
   arr.forEach(s => {
@@ -79,6 +83,37 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ states, districts, cities });
     }
 
+    if (type === "fieldOptions") {
+      const field = searchParams.get("field") as PaginatedField | null;
+      if (!field || !PAGINATED_FIELDS.includes(field)) {
+        return NextResponse.json({ error: "Invalid field" }, { status: 400 });
+      }
+      const search = (searchParams.get("search") || "").trim();
+      const skip = Math.max(0, parseInt(searchParams.get("skip") || "0", 10) || 0);
+      const take = Math.min(100, Math.max(1, parseInt(searchParams.get("take") || String(OPTIONS_PAGE_SIZE), 10) || OPTIONS_PAGE_SIZE));
+
+      const rows = await prisma.member.findMany({
+        where: {
+          authId: { in: allAuthIds },
+          AND: [
+            { [field]: { not: null } },
+            { [field]: { not: "" } },
+            ...(search ? [{ [field]: { contains: search, mode: "insensitive" as const } }] : []),
+          ],
+        },
+        select: { [field]: true },
+        distinct: [field],
+        orderBy: { [field]: "asc" },
+        skip,
+        take: take + 1,
+      });
+
+      const values = rows.map((r) => (r as any)[field] as string);
+      const hasMore = values.length > take;
+      const data = values.slice(0, take);
+      return NextResponse.json({ data, hasMore });
+    }
+
     if (type === "states") {
       const country = searchParams.get("country");
       if (!country) return NextResponse.json({ data: [] });
@@ -143,11 +178,20 @@ export async function GET(request: NextRequest) {
         }),
       ]);
 
+      const occupationOptions = sanitizeOptions(occupations.map((o) => o.occupation));
+      const educationOptions = sanitizeOptions(educations.map((e) => e.education));
+      const birthPlaceOptions = sanitizeOptions(birthPlaces.map((b) => b.birthPlace));
+      const countryOptions = sanitizeOptions(countries.map((c) => c.country));
+
       return NextResponse.json({
-        occupations: sanitizeOptions(occupations.map((o) => o.occupation)),
-        educations: sanitizeOptions(educations.map((e) => e.education)),
-        birthPlaces: sanitizeOptions(birthPlaces.map((b) => b.birthPlace)),
-        countries: sanitizeOptions(countries.map((c) => c.country)),
+        occupations: occupationOptions.slice(0, OPTIONS_PAGE_SIZE),
+        occupationsHasMore: occupationOptions.length > OPTIONS_PAGE_SIZE,
+        educations: educationOptions.slice(0, OPTIONS_PAGE_SIZE),
+        educationsHasMore: educationOptions.length > OPTIONS_PAGE_SIZE,
+        birthPlaces: birthPlaceOptions.slice(0, OPTIONS_PAGE_SIZE),
+        birthPlacesHasMore: birthPlaceOptions.length > OPTIONS_PAGE_SIZE,
+        countries: countryOptions.slice(0, OPTIONS_PAGE_SIZE),
+        countriesHasMore: countryOptions.length > OPTIONS_PAGE_SIZE,
         states: [],
         districts: [],
         cities: [],

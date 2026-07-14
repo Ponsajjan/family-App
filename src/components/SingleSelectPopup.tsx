@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useId } from 'react';
+import React, { useState, useEffect, useId, useRef } from 'react';
 import ReactDom from 'react-dom';
 import { SearchIcon, CloseIcon } from '@/utils/Icons';
 import Radio from '@/components/RadioButton';
+import { useInfiniteScroll } from '@/utils/useInfiniteScroll';
 
 interface SingleSelectPopupProps {
     label: string;
@@ -12,20 +13,34 @@ interface SingleSelectPopupProps {
     className?: string;
     disabled?: boolean;
     loading?: boolean;
+    hasMore?: boolean;
+    loadingMore?: boolean;
+    loadMoreError?: boolean;
+    onLoadMore?: () => void;
+    onSearchChange?: (search: string) => void;
 }
 
-export default function SingleSelectPopup({ label, placeholder, options, value, onChange, className = '', disabled = false, loading = false }: SingleSelectPopupProps) {
+export default function SingleSelectPopup({ label, placeholder, options, value, onChange, className = '', disabled = false, loading = false, hasMore = false, loadingMore = false, loadMoreError = false, onLoadMore, onSearchChange }: SingleSelectPopupProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
     const titleId = useId();
     const searchId = useId();
+    const listRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         setPortalNode(document.getElementById('portal') as HTMLElement);
     }, []);
 
-    const filteredOptions = options.filter(opt => opt.toLowerCase().includes(search.toLowerCase()));
+    // When onSearchChange is provided, the parent already filters options server-side.
+    const filteredOptions = onSearchChange ? options : options.filter(opt => opt.toLowerCase().includes(search.toLowerCase()));
+
+    const handleSearchChange = (val: string) => {
+        setSearch(val);
+        onSearchChange?.(val);
+    };
+
+    useInfiniteScroll(listRef, loading || loadingMore, hasMore && !loadMoreError, () => onLoadMore?.(), 100);
 
     const handleSelectOption = (opt: string) => {
         onChange(opt);
@@ -115,7 +130,7 @@ export default function SingleSelectPopup({ label, placeholder, options, value, 
                                             type="text"
                                             placeholder="Search..."
                                             value={search}
-                                            onChange={(e) => setSearch(e.target.value)}
+                                            onChange={(e) => handleSearchChange(e.target.value)}
                                             className="w-full p-2 pl-8 text-sm border border-border_color rounded-md bg-field_color outline-none focus:border-border_active"
                                             aria-label={`Search ${label} options`}
                                         />
@@ -125,35 +140,48 @@ export default function SingleSelectPopup({ label, placeholder, options, value, 
                                     </div>
 
                                     <div
+                                        ref={listRef}
                                         role="listbox"
                                         aria-label={`${label} options`}
                                         className="space-y-1 overflow-y-auto flex-1 min-h-0 pr-1 pb-4"
                                     >
                                         {loading ? (
                                             <div role="status" aria-live="polite" className="text-center py-4 opacity-70">Loading...</div>
-                                        ) : filteredOptions.length > 0 ? (
-                                            filteredOptions.map(opt => (
-                                                <div
-                                                    key={opt}
-                                                    role="option"
-                                                    aria-selected={value === opt}
-                                                    tabIndex={0}
-                                                    className={`flex items-center p-2 md:p-2.5 rounded-md transition-all duration-200 cursor-pointer hover:bg-field_hover ${value === opt && 'bg-field_hover'}`}
-                                                    onClick={() => handleSelectOption(opt)}
-                                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectOption(opt); } }}
-                                                >
-                                                    <div className="pointer-events-none w-full">
-                                                        <Radio
-                                                            checked={value === opt}
-                                                            readOnly={true}
-                                                            label={opt}
-                                                            className="w-full !justify-start"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ))
                                         ) : (
-                                            <div className="text-center py-4 opacity-70">No options found.</div>
+                                            <>
+                                                {filteredOptions.map(opt => (
+                                                    <div
+                                                        key={opt}
+                                                        role="option"
+                                                        aria-selected={value === opt}
+                                                        tabIndex={0}
+                                                        className={`flex items-center p-2 md:p-2.5 rounded-md transition-all duration-200 cursor-pointer hover:bg-field_hover ${value === opt && 'bg-field_hover'}`}
+                                                        onClick={() => handleSelectOption(opt)}
+                                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectOption(opt); } }}
+                                                    >
+                                                        <div className="pointer-events-none w-full">
+                                                            <Radio
+                                                                checked={value === opt}
+                                                                readOnly={true}
+                                                                label={opt}
+                                                                className="w-full !justify-start"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {filteredOptions.length === 0 && !loadingMore && !loadMoreError && (
+                                                    <div className="text-center py-4 opacity-70">No options found.</div>
+                                                )}
+                                                {loadingMore && (
+                                                    <div role="status" aria-live="polite" className="text-center py-3 opacity-70 text-xs">Loading...</div>
+                                                )}
+                                                {loadMoreError && (
+                                                    <div className="flex items-center justify-between gap-2 px-2 py-2 text-xs text-red-500">
+                                                        <span>Failed to load {filteredOptions.length === 0 ? '' : 'more '}options.</span>
+                                                        <button type="button" onClick={() => onLoadMore?.()} className="underline shrink-0">Retry</button>
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
                                     </div>
 
