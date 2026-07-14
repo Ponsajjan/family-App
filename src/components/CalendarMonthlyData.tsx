@@ -108,7 +108,7 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year, setS
   };
 
   return (
-    <Container className='scroll-stable xl:px-2'>
+    <Container className='scroll-stable xl:px-2 pb-5'>
       <div className="hidden md:block pt-3 sticky top-0 bg-main_background z-10" aria-hidden="true"></div>
       {renderEventList(todayEvents, "Today")}
       {renderEventList(tomorrowEvents, "Tomorrow")}

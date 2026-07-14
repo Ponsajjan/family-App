@@ -262,7 +262,6 @@ export default function Calendar() {
                   <p className="font-medium text-base">
                     {moment(calendarDate).tz("Asia/Kolkata").format("YYYY")}
                   </p>
-                  <span className="text-[0.6rem] text-text_color/60 ml-1.5">IST</span>
                 </div>
 
                 <button
