@@ -6,7 +6,8 @@ import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 
 const OPTIONS_PAGE_SIZE = 25;
 const PAGINATED_FIELDS = ["occupation", "education", "birthPlace", "country"] as const;
-type PaginatedField = typeof PAGINATED_FIELDS[number];
+const LOCATION_FIELDS = ["state", "district", "city"] as const;
+type PaginatedField = typeof PAGINATED_FIELDS[number] | typeof LOCATION_FIELDS[number];
 
 function sanitizeOptions(arr: (string | null | undefined)[]) {
   const map = new Map<string, string>();
@@ -44,57 +45,38 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
 
-    if (type === "locations") {
-      const country = searchParams.get("country");
-      if (!country) return NextResponse.json({ states: [], districts: [], cities: [] });
-      const [rawStates, rawDistricts, rawCities] = await Promise.all([
-        prisma.member.findMany({
-          where: { authId: { in: allAuthIds }, country: { equals: country, mode: "insensitive" } },
-          select: { state: true },
-        }),
-        prisma.member.findMany({
-          where: { authId: { in: allAuthIds }, country: { equals: country, mode: "insensitive" } },
-          select: { state: true, district: true },
-        }),
-        prisma.member.findMany({
-          where: { authId: { in: allAuthIds }, country: { equals: country, mode: "insensitive" } },
-          select: { state: true, district: true, city: true },
-        }),
-      ]);
-
-      const states = sanitizeOptions(rawStates.map((s) => s.state));
-
-      const districtMap = new Map<string, { name: string; state: string }>();
-      rawDistricts.forEach(({ district, state }) => {
-        if (!district?.trim() || !state?.trim()) return;
-        const key = `${district.trim().toLowerCase()}|${state.trim().toLowerCase()}`;
-        if (!districtMap.has(key)) districtMap.set(key, { name: district.trim(), state: state.trim() });
-      });
-      const districts = Array.from(districtMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-
-      const cityMap = new Map<string, { name: string; state: string; district: string }>();
-      rawCities.forEach(({ city, state, district }) => {
-        if (!city?.trim() || !state?.trim()) return;
-        const key = `${city.trim().toLowerCase()}|${state.trim().toLowerCase()}|${(district ?? '').trim().toLowerCase()}`;
-        if (!cityMap.has(key)) cityMap.set(key, { name: city.trim(), state: state.trim(), district: (district ?? '').trim() });
-      });
-      const cities = Array.from(cityMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-
-      return NextResponse.json({ states, districts, cities });
-    }
-
     if (type === "fieldOptions") {
       const field = searchParams.get("field") as PaginatedField | null;
-      if (!field || !PAGINATED_FIELDS.includes(field)) {
+      const isLocationField = !!field && (LOCATION_FIELDS as readonly string[]).includes(field);
+      if (!field || (!(PAGINATED_FIELDS as readonly string[]).includes(field) && !isLocationField)) {
         return NextResponse.json({ error: "Invalid field" }, { status: 400 });
       }
       const search = (searchParams.get("search") || "").trim();
       const skip = Math.max(0, parseInt(searchParams.get("skip") || "0", 10) || 0);
       const take = Math.min(100, Math.max(1, parseInt(searchParams.get("take") || String(OPTIONS_PAGE_SIZE), 10) || OPTIONS_PAGE_SIZE));
 
+      const country = searchParams.get("country");
+      if (isLocationField && !country) {
+        return NextResponse.json({ data: [], hasMore: false });
+      }
+
+      const locationFilters: Record<string, any> = {};
+      if (isLocationField) {
+        locationFilters.country = { equals: country as string, mode: "insensitive" };
+        if (field === "district" || field === "city") {
+          const state = searchParams.get("state");
+          if (state) locationFilters.state = { equals: state, mode: "insensitive" };
+        }
+        if (field === "city") {
+          const district = searchParams.get("district");
+          if (district) locationFilters.district = { equals: district, mode: "insensitive" };
+        }
+      }
+
       const rows = await prisma.member.findMany({
         where: {
           authId: { in: allAuthIds },
+          ...locationFilters,
           AND: [
             { [field]: { not: null } },
             { [field]: { not: "" } },
@@ -112,48 +94,6 @@ export async function GET(request: NextRequest) {
       const hasMore = values.length > take;
       const data = values.slice(0, take);
       return NextResponse.json({ data, hasMore });
-    }
-
-    if (type === "states") {
-      const country = searchParams.get("country");
-      if (!country) return NextResponse.json({ data: [] });
-      const states = await prisma.member.findMany({
-        where: { authId: { in: allAuthIds }, country: { equals: country, mode: "insensitive" } },
-        select: { state: true },
-      });
-      return NextResponse.json({ data: sanitizeOptions(states.map((s) => s.state)) });
-    }
-
-    if (type === "districts") {
-      const country = searchParams.get("country");
-      const state = searchParams.get("state");
-      if (!country) return NextResponse.json({ data: [] });
-      const districts = await prisma.member.findMany({
-        where: {
-          authId: { in: allAuthIds },
-          country: { equals: country, mode: "insensitive" },
-          ...(state ? { state: { equals: state, mode: "insensitive" } } : {}),
-        },
-        select: { district: true },
-      });
-      return NextResponse.json({ data: sanitizeOptions(districts.map((d) => d.district)) });
-    }
-
-    if (type === "cities") {
-      const country = searchParams.get("country");
-      const state = searchParams.get("state");
-      const district = searchParams.get("district");
-      if (!country) return NextResponse.json({ data: [] });
-      const cities = await prisma.member.findMany({
-        where: {
-          authId: { in: allAuthIds },
-          country: { equals: country, mode: "insensitive" },
-          ...(state ? { state: { equals: state, mode: "insensitive" } } : {}),
-          ...(district ? { district: { equals: district, mode: "insensitive" } } : {}),
-        },
-        select: { city: true },
-      });
-      return NextResponse.json({ data: sanitizeOptions(cities.map((c) => c.city)) });
     }
 
     const excludeLocations = searchParams.get("excludeLocations") === "true";

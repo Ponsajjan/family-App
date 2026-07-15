@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CloseIcon, ResetData, Info, WarningCircle, RefreshIcon } from '@/utils/Icons';
 import { appFetch } from '@/utils/appFetch';
 import { useDebounce } from '@/utils/debounce';
@@ -14,24 +14,31 @@ interface FilterPanelProps {
   currentFilters: any;
 }
 
-type PaginatedFieldKey = 'occupation' | 'education' | 'birthPlace' | 'country';
+type PaginatedFieldKey = 'occupation' | 'education' | 'birthPlace' | 'country' | 'state' | 'district' | 'city';
+type LocationFieldKey = 'state' | 'district' | 'city';
 
-const FIELD_TO_OPTIONS_KEY: Record<PaginatedFieldKey, 'occupations' | 'educations' | 'birthPlaces' | 'countries'> = {
+const LOCATION_FIELD_KEYS: LocationFieldKey[] = ['state', 'district', 'city'];
+
+const FIELD_TO_OPTIONS_KEY: Record<PaginatedFieldKey, 'occupations' | 'educations' | 'birthPlaces' | 'countries' | 'states' | 'districts' | 'cities'> = {
   occupation: 'occupations',
   education: 'educations',
   birthPlace: 'birthPlaces',
   country: 'countries',
+  state: 'states',
+  district: 'districts',
+  city: 'cities',
 };
 
 interface FieldMetaEntry {
   hasMore: boolean;
+  loading: boolean;
   loadingMore: boolean;
   search: string;
   error: boolean;
   lastAttempt: { skip: number; search: string; append: boolean } | null;
 }
 
-const EMPTY_FIELD_META: FieldMetaEntry = { hasMore: false, loadingMore: false, search: '', error: false, lastAttempt: null };
+const EMPTY_FIELD_META: FieldMetaEntry = { hasMore: false, loading: false, loadingMore: false, search: '', error: false, lastAttempt: null };
 
 export default function FilterPanel({ showFilters, onClose, onApply, currentFilters }: FilterPanelProps) {
   const [filters, setFilters] = useState(currentFilters);
@@ -53,31 +60,27 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
     cities: []
   });
 
-  const [allLocations, setAllLocations] = useState<{
-    districts: { name: string; state: string }[];
-    cities: { name: string; state: string; district: string }[];
-  }>({ districts: [], cities: [] });
-
-  const [loadingFields, setLoadingFields] = useState<{
-    initial: boolean;
-    states: boolean;
-  }>({
+  const [loadingFields, setLoadingFields] = useState<{ initial: boolean }>({
     initial: true,
-    states: false,
   });
 
-  const [errors, setErrors] = useState<{ initial: boolean; locations: boolean }>({
+  const [errors, setErrors] = useState<{ initial: boolean }>({
     initial: false,
-    locations: false,
   });
 
-  // Per-field pagination/search state for the Occupation, Education, Birth Place and Country popups.
+  // Per-field pagination/search state for the Occupation, Education, Birth Place, Country,
+  // State, District and City popups.
   const [fieldMeta, setFieldMeta] = useState<Record<PaginatedFieldKey, FieldMetaEntry>>({
     occupation: EMPTY_FIELD_META,
     education: EMPTY_FIELD_META,
     birthPlace: EMPTY_FIELD_META,
     country: EMPTY_FIELD_META,
+    state: EMPTY_FIELD_META,
+    district: EMPTY_FIELD_META,
+    city: EMPTY_FIELD_META,
   });
+
+  const locationsError = fieldMeta.state.error || fieldMeta.district.error || fieldMeta.city.error;
 
   // Sync filters with currentFilters when the panel becomes visible
   useEffect(() => {
@@ -94,12 +97,13 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
       if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
       const data = await res.json();
       setOptions(prev => ({ ...prev, ...data }));
-      setFieldMeta({
+      setFieldMeta(prev => ({
+        ...prev,
         occupation: { ...EMPTY_FIELD_META, hasMore: !!data.occupationsHasMore },
         education: { ...EMPTY_FIELD_META, hasMore: !!data.educationsHasMore },
         birthPlace: { ...EMPTY_FIELD_META, hasMore: !!data.birthPlacesHasMore },
         country: { ...EMPTY_FIELD_META, hasMore: !!data.countriesHasMore },
-      });
+      }));
     } catch (err) {
       console.error("Failed to fetch filter options", err);
       setErrors(prev => ({ ...prev, initial: true }));
@@ -114,14 +118,24 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
   }, [showFilters, fetchInitialOptions]);
 
   // Fetches a page of options for a single paginated field (initial search, or "load more").
+  // For state/district/city, results are cascaded by the currently selected country/state/district.
   const fetchFieldOptions = async (
     field: PaginatedFieldKey,
     opts: { skip: number; search: string; append: boolean }
   ) => {
-    setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], loadingMore: true, error: false, lastAttempt: opts } }));
+    const isInitialFetch = opts.skip === 0 && !opts.append;
+    setFieldMeta(prev => ({
+      ...prev,
+      [field]: { ...prev[field], loading: isInitialFetch, loadingMore: !isInitialFetch, error: false, lastAttempt: opts },
+    }));
     try {
       const params = new URLSearchParams({ type: 'fieldOptions', field, skip: String(opts.skip), take: '25' });
       if (opts.search) params.set('search', opts.search);
+      if (LOCATION_FIELD_KEYS.includes(field as LocationFieldKey)) {
+        params.set('country', filters.country || '');
+        if ((field === 'district' || field === 'city') && filters.state) params.set('state', filters.state);
+        if (field === 'city' && filters.district) params.set('district', filters.district);
+      }
       const res = await appFetch(`/api/relatives/filterOptions?${params.toString()}`);
       if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
       const { data, hasMore } = await res.json();
@@ -130,10 +144,10 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
         ...prev,
         [optionsKey]: opts.append ? [...prev[optionsKey], ...data] : data,
       }));
-      setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], hasMore, loadingMore: false, error: false } }));
+      setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], hasMore, loading: false, loadingMore: false, error: false } }));
     } catch (err) {
       console.error(`Failed to fetch ${field} options`, err);
-      setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], loadingMore: false, error: true } }));
+      setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], loading: false, loadingMore: false, error: true } }));
     }
   };
 
@@ -152,87 +166,50 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
   const debouncedEducationSearch = useDebounce((value: string) => fetchFieldOptions('education', { skip: 0, search: value, append: false }), 400);
   const debouncedBirthPlaceSearch = useDebounce((value: string) => fetchFieldOptions('birthPlace', { skip: 0, search: value, append: false }), 400);
   const debouncedCountrySearch = useDebounce((value: string) => fetchFieldOptions('country', { skip: 0, search: value, append: false }), 400);
+  const debouncedStateSearch = useDebounce((value: string) => fetchFieldOptions('state', { skip: 0, search: value, append: false }), 400);
+  const debouncedDistrictSearch = useDebounce((value: string) => fetchFieldOptions('district', { skip: 0, search: value, append: false }), 400);
+  const debouncedCitySearch = useDebounce((value: string) => fetchFieldOptions('city', { skip: 0, search: value, append: false }), 400);
 
   const handleFieldSearchChange = (field: PaginatedFieldKey, value: string) => {
     setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], search: value } }));
     if (field === 'occupation') debouncedOccupationSearch(value);
     else if (field === 'education') debouncedEducationSearch(value);
     else if (field === 'birthPlace') debouncedBirthPlaceSearch(value);
-    else debouncedCountrySearch(value);
+    else if (field === 'country') debouncedCountrySearch(value);
+    else if (field === 'state') debouncedStateSearch(value);
+    else if (field === 'district') debouncedDistrictSearch(value);
+    else debouncedCitySearch(value);
   };
 
-  const fetchLocations = useCallback(async (country: string) => {
-    try {
-      setLoadingFields(prev => ({ ...prev, states: true }));
-      setErrors(prev => ({ ...prev, locations: false }));
-      const res = await appFetch(`/api/relatives/filterOptions?type=locations&country=${encodeURIComponent(country)}`);
-      if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
-      const { states, districts, cities } = await res.json();
-      setOptions(prev => ({ ...prev, states }));
-      setAllLocations({ districts, cities });
-    } catch (err) {
-      console.error("Failed to fetch location options", err);
-      setErrors(prev => ({ ...prev, locations: true }));
-    } finally {
-      setLoadingFields(prev => ({ ...prev, states: false }));
-    }
-  }, []);
-
+  // State options are re-fetched (page 0) whenever the selected country changes.
   useEffect(() => {
     if (!showFilters || !filters.country) {
       setOptions(prev => ({ ...prev, states: [] }));
-      setAllLocations({ districts: [], cities: [] });
-      setErrors(prev => ({ ...prev, locations: false }));
+      setFieldMeta(prev => ({ ...prev, state: EMPTY_FIELD_META }));
       return;
     }
-    fetchLocations(filters.country);
-  }, [showFilters, filters.country, fetchLocations]);
+    fetchFieldOptions('state', { skip: 0, search: '', append: false });
+  }, [showFilters, filters.country]);
 
-  // Derives the district list from the full country dataset.
-  // When no state is selected: deduplicates all district names across states.
-  // When a state is selected: narrows to districts belonging to that state only.
-  const displayDistricts = useMemo(() => {
-    if (!filters.state)
-      return [...new Set(allLocations.districts.map(d => d.name))].sort((a, b) => a.localeCompare(b));
-    return [...new Set(
-      allLocations.districts
-        .filter(d => d.state.toLowerCase() === filters.state.toLowerCase())
-        .map(d => d.name)
-    )].sort((a, b) => a.localeCompare(b));
-  }, [allLocations.districts, filters.state]);
-
-  // Derives the city list from the full country dataset.
-  // Narrows by state if selected, then further narrows by district if selected.
-  // Uses Set to deduplicate city names that may appear across multiple state/district combos.
-  const displayCities = useMemo(() => {
-    return [...new Set(
-      allLocations.cities
-        .filter(c => {
-          if (filters.state && c.state.toLowerCase() !== filters.state.toLowerCase()) return false;
-          if (filters.district && c.district.toLowerCase() !== filters.district.toLowerCase()) return false;
-          return true;
-        })
-        .map(c => c.name)
-    )].sort((a, b) => a.localeCompare(b));
-  }, [allLocations.cities, filters.state, filters.district]);
-
-  // Auto-clear district when the selected district no longer exists in the computed list
-  // (e.g. user picks a state that doesn't contain the previously selected district).
+  // District options are re-fetched (page 0) whenever the selected country or state changes.
   useEffect(() => {
-    if (!showFilters) return;
-    if (filters.district && !displayDistricts.includes(filters.district)) {
-      setFilters((prev: any) => ({ ...prev, district: '' }));
+    if (!showFilters || !filters.country) {
+      setOptions(prev => ({ ...prev, districts: [] }));
+      setFieldMeta(prev => ({ ...prev, district: EMPTY_FIELD_META }));
+      return;
     }
-  }, [showFilters, displayDistricts, filters.district]);
+    fetchFieldOptions('district', { skip: 0, search: '', append: false });
+  }, [showFilters, filters.country, filters.state]);
 
-  // Auto-clear city when the selected city no longer exists in the computed list
-  // (e.g. user changes state or district making the current city invalid).
+  // City options are re-fetched (page 0) whenever the selected country, state or district changes.
   useEffect(() => {
-    if (!showFilters) return;
-    if (filters.city && !displayCities.includes(filters.city)) {
-      setFilters((prev: any) => ({ ...prev, city: '' }));
+    if (!showFilters || !filters.country) {
+      setOptions(prev => ({ ...prev, cities: [] }));
+      setFieldMeta(prev => ({ ...prev, city: EMPTY_FIELD_META }));
+      return;
     }
-  }, [showFilters, displayCities, filters.city]);
+    fetchFieldOptions('city', { skip: 0, search: '', append: false });
+  }, [showFilters, filters.country, filters.state, filters.district]);
 
   if (!showFilters) {
     return null;
@@ -249,6 +226,10 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
         newFilters.city = '';
       }
       if (name === 'state') {
+        newFilters.district = '';
+        newFilters.city = '';
+      }
+      if (name === 'district') {
         newFilters.city = '';
       }
       return newFilters;
@@ -366,35 +347,54 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
           options={options.states}
           onChange={(val) => handleChange({ target: { name: 'state', value: val } } as any)}
           disabled={!filters.country}
-          loading={loadingFields.states}
+          loading={fieldMeta.state.loading}
+          hasMore={fieldMeta.state.hasMore}
+          loadingMore={fieldMeta.state.loadingMore}
+          loadMoreError={fieldMeta.state.error}
+          onLoadMore={() => handleLoadMore('state')}
+          onSearchChange={(value) => handleFieldSearchChange('state', value)}
         />
         <SingleSelectPopup
           className="mb-4"
           label="District"
           placeholder="All Districts"
           value={filters.district}
-          options={displayDistricts}
+          options={options.districts}
           onChange={(val) => handleChange({ target: { name: 'district', value: val } } as any)}
           disabled={!filters.country}
-          loading={loadingFields.states}
+          loading={fieldMeta.district.loading}
+          hasMore={fieldMeta.district.hasMore}
+          loadingMore={fieldMeta.district.loadingMore}
+          loadMoreError={fieldMeta.district.error}
+          onLoadMore={() => handleLoadMore('district')}
+          onSearchChange={(value) => handleFieldSearchChange('district', value)}
         />
         <SingleSelectPopup
           className="mb-6"
           label="City/Locality"
           placeholder="All Cities/Localities"
           value={filters.city}
-          options={displayCities}
+          options={options.cities}
           onChange={(val) => handleChange({ target: { name: 'city', value: val } } as any)}
           disabled={!filters.country}
-          loading={loadingFields.states}
+          loading={fieldMeta.city.loading}
+          hasMore={fieldMeta.city.hasMore}
+          loadingMore={fieldMeta.city.loadingMore}
+          loadMoreError={fieldMeta.city.error}
+          onLoadMore={() => handleLoadMore('city')}
+          onSearchChange={(value) => handleFieldSearchChange('city', value)}
         />
-        {errors.locations && (
+        {locationsError && (
           <div role="alert" className="mb-4 flex items-center gap-2 p-2.5 rounded-md bg-red-500/5 border border-red-500/30 text-sm">
             <span className="mt-0.5 text-red-500 shrink-0" aria-hidden="true"><WarningCircle /></span>
             <p className="text-red-500 flex-1">Failed to load states, districts and cities.</p>
             <button
               type="button"
-              onClick={() => fetchLocations(filters.country)}
+              onClick={() => {
+                if (fieldMeta.state.error) handleLoadMore('state');
+                if (fieldMeta.district.error) handleLoadMore('district');
+                if (fieldMeta.city.error) handleLoadMore('city');
+              }}
               className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
             >
               <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
