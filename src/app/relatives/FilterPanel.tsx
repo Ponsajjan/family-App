@@ -263,9 +263,11 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
       <div className="p-4 z-20 sticky top-0 flex justify-between items-center bg-main_background border-b border-border_color">
         <div className="flex gap-2 items-center">
           <h2 id="filter-panel-title" className="text-xl font-semibold underline decoration-border_active underline-offset-4">Add Search Filters</h2>
-          <button onClick={handleReset} title="Reset Filters" aria-label="Reset all filters" className="p-1 hover:bg-field_color rounded-md">
-            <ResetData aria-hidden="true" />
-          </button>
+          {Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') && (
+            <button onClick={handleReset} title="Reset Filters" aria-label="Reset all filters" className="p-1 hover:bg-field_color rounded-md">
+              <ResetData aria-hidden="true" />
+            </button>
+          )}
         </div>
         <button onClick={onClose} aria-label="Close filter panel" className="absolute top-4 right-3 hover:bg-field_color border border-border_color rounded-md cursor-pointer z-20">
           <CloseIcon aria-hidden="true" />
