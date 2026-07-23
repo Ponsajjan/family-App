@@ -6,7 +6,6 @@ import { ButtonSolid } from '@/components/Button';
 import MultiSelectPopup from '@/components/MultiSelectPopup';
 import SingleSelectPopup from '@/components/SingleSelectPopup';
 import Input from '@/components/Input';
-import Container from '@/components/Container';
 
 interface FilterPanelProps {
   showFilters: boolean;
@@ -275,172 +274,172 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
         </button>
       </div>
       <div className='px-4 pb-4 pt-2'>
-          {errors.initial && (
-            <div role="alert" className="mb-4 flex items-center gap-2 p-2.5 rounded-md bg-red-500/5 border border-red-500/30 text-sm">
-              <span className="mt-0.5 text-red-500 shrink-0" aria-hidden="true"><WarningCircle /></span>
-              <p className="text-red-500 flex-1">Failed to load filter options.</p>
-              <button
-                type="button"
-                onClick={fetchInitialOptions}
-                className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
-              >
-                <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
-                Retry
-              </button>
-            </div>
-          )}
-          <MultiSelectPopup
-            className="mb-4"
-            label="Occupation"
-            values={filters.occupation || []}
-            options={options.occupations}
-            onChange={(values) => setFilters((prev: any) => ({ ...prev, occupation: values }))}
-            loading={loadingFields.initial}
-            hasMore={fieldMeta.occupation.hasMore}
-            loadingMore={fieldMeta.occupation.loadingMore}
-            loadMoreError={fieldMeta.occupation.error}
-            onLoadMore={() => handleLoadMore('occupation')}
-            onSearchChange={(value) => handleFieldSearchChange('occupation', value)}
-          />
-          <MultiSelectPopup
-            className="mb-4"
-            label="Education"
-            values={filters.education || []}
-            options={options.educations}
-            onChange={(values) => setFilters((prev: any) => ({ ...prev, education: values }))}
-            loading={loadingFields.initial}
-            hasMore={fieldMeta.education.hasMore}
-            loadingMore={fieldMeta.education.loadingMore}
-            loadMoreError={fieldMeta.education.error}
-            onLoadMore={() => handleLoadMore('education')}
-            onSearchChange={(value) => handleFieldSearchChange('education', value)}
-          />
-          <MultiSelectPopup
-            className="mb-6"
-            label="Birth Place"
-            values={filters.birthPlace || []}
-            options={options.birthPlaces}
-            onChange={(values) => setFilters((prev: any) => ({ ...prev, birthPlace: values }))}
-            loading={loadingFields.initial}
-            hasMore={fieldMeta.birthPlace.hasMore}
-            loadingMore={fieldMeta.birthPlace.loadingMore}
-            loadMoreError={fieldMeta.birthPlace.error}
-            onLoadMore={() => handleLoadMore('birthPlace')}
-            onSearchChange={(value) => handleFieldSearchChange('birthPlace', value)}
-          />
-          <hr className="border-t border-border_color block mb-4" />
-          <SingleSelectPopup
-            className="mb-4"
-            label="Country"
-            value={filters.country}
-            options={options.countries}
-            onChange={(val) => handleChange({ target: { name: 'country', value: val } } as any)}
-            loading={loadingFields.initial}
-            hasMore={fieldMeta.country.hasMore}
-            loadingMore={fieldMeta.country.loadingMore}
-            loadMoreError={fieldMeta.country.error}
-            onLoadMore={() => handleLoadMore('country')}
-            onSearchChange={(value) => handleFieldSearchChange('country', value)}
-          />
-          <SingleSelectPopup
-            className="mb-4"
-            label="State/Region"
-            placeholder="All States/Regions"
-            value={filters.state}
-            options={options.states}
-            onChange={(val) => handleChange({ target: { name: 'state', value: val } } as any)}
-            disabled={!filters.country}
-            loading={fieldMeta.state.loading}
-            hasMore={fieldMeta.state.hasMore}
-            loadingMore={fieldMeta.state.loadingMore}
-            loadMoreError={fieldMeta.state.error}
-            onLoadMore={() => handleLoadMore('state')}
-            onSearchChange={(value) => handleFieldSearchChange('state', value)}
-          />
-          <SingleSelectPopup
-            className="mb-4"
-            label="District"
-            placeholder="All Districts"
-            value={filters.district}
-            options={options.districts}
-            onChange={(val) => handleChange({ target: { name: 'district', value: val } } as any)}
-            disabled={!filters.country}
-            loading={fieldMeta.district.loading}
-            hasMore={fieldMeta.district.hasMore}
-            loadingMore={fieldMeta.district.loadingMore}
-            loadMoreError={fieldMeta.district.error}
-            onLoadMore={() => handleLoadMore('district')}
-            onSearchChange={(value) => handleFieldSearchChange('district', value)}
-          />
-          <SingleSelectPopup
-            className="mb-6"
-            label="City/Locality"
-            placeholder="All Cities/Localities"
-            value={filters.city}
-            options={options.cities}
-            onChange={(val) => handleChange({ target: { name: 'city', value: val } } as any)}
-            disabled={!filters.country}
-            loading={fieldMeta.city.loading}
-            hasMore={fieldMeta.city.hasMore}
-            loadingMore={fieldMeta.city.loadingMore}
-            loadMoreError={fieldMeta.city.error}
-            onLoadMore={() => handleLoadMore('city')}
-            onSearchChange={(value) => handleFieldSearchChange('city', value)}
-          />
-          {locationsError && (
-            <div role="alert" className="mb-4 flex items-center gap-2 p-2.5 rounded-md bg-red-500/5 border border-red-500/30 text-sm">
-              <span className="mt-0.5 text-red-500 shrink-0" aria-hidden="true"><WarningCircle /></span>
-              <p className="text-red-500 flex-1">Failed to load states, districts and cities.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  if (fieldMeta.state.error) handleLoadMore('state');
-                  if (fieldMeta.district.error) handleLoadMore('district');
-                  if (fieldMeta.city.error) handleLoadMore('city');
-                }}
-                className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
-              >
-                <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
-                Retry
-              </button>
-            </div>
-          )}
-          <hr className="border-t border-border_color block mb-4" />
-          <div className="mb-4">
-            <p id="born-between-label" className="text-sm font-medium mb-2 block">Born Between</p>
-            <div role="group" aria-labelledby="born-between-label" className="flex gap-2 items-center w-full">
-              <Input
-                type="number"
-                placeholder="YYYY"
-                name="birthYearStart"
-                aria-label="Birth year start"
-                value={filters.birthYearStart || ''}
-                onChange={handleChange}
-                min="1600"
-                max={new Date().getFullYear()}
-                maxLength={4}
-                label=""
-              />
-              <span className="opacity-50" aria-hidden="true">-</span>
-              <Input
-                type="number"
-                placeholder="YYYY"
-                name="birthYearEnd"
-                aria-label="Birth year end"
-                value={filters.birthYearEnd || ''}
-                onChange={handleChange}
-                min="1600"
-                max={new Date().getFullYear()}
-                maxLength={4}
-                label=""
-              />
-            </div>
-            <div className="text-xs text-text_color/60 mt-4 flex items-center gap-1 p-2 bg-field_color rounded-md" role="note">
-              <span className="mt-0.5" aria-hidden="true"><Info /></span>
-              <span>Members missing any of the selected filter fields are excluded.</span>
-            </div>
+        {errors.initial && (
+          <div role="alert" className="mb-4 flex items-center gap-2 p-2.5 rounded-md bg-red-500/5 border border-red-500/30 text-sm">
+            <span className="mt-0.5 text-red-500 shrink-0" aria-hidden="true"><WarningCircle /></span>
+            <p className="text-red-500 flex-1">Failed to load filter options.</p>
+            <button
+              type="button"
+              onClick={fetchInitialOptions}
+              className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
+            >
+              <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
+              Retry
+            </button>
+          </div>
+        )}
+        <MultiSelectPopup
+          className="mb-4"
+          label="Occupation"
+          values={filters.occupation || []}
+          options={options.occupations}
+          onChange={(values) => setFilters((prev: any) => ({ ...prev, occupation: values }))}
+          loading={loadingFields.initial}
+          hasMore={fieldMeta.occupation.hasMore}
+          loadingMore={fieldMeta.occupation.loadingMore}
+          loadMoreError={fieldMeta.occupation.error}
+          onLoadMore={() => handleLoadMore('occupation')}
+          onSearchChange={(value) => handleFieldSearchChange('occupation', value)}
+        />
+        <MultiSelectPopup
+          className="mb-4"
+          label="Education"
+          values={filters.education || []}
+          options={options.educations}
+          onChange={(values) => setFilters((prev: any) => ({ ...prev, education: values }))}
+          loading={loadingFields.initial}
+          hasMore={fieldMeta.education.hasMore}
+          loadingMore={fieldMeta.education.loadingMore}
+          loadMoreError={fieldMeta.education.error}
+          onLoadMore={() => handleLoadMore('education')}
+          onSearchChange={(value) => handleFieldSearchChange('education', value)}
+        />
+        <MultiSelectPopup
+          className="mb-6"
+          label="Birth Place"
+          values={filters.birthPlace || []}
+          options={options.birthPlaces}
+          onChange={(values) => setFilters((prev: any) => ({ ...prev, birthPlace: values }))}
+          loading={loadingFields.initial}
+          hasMore={fieldMeta.birthPlace.hasMore}
+          loadingMore={fieldMeta.birthPlace.loadingMore}
+          loadMoreError={fieldMeta.birthPlace.error}
+          onLoadMore={() => handleLoadMore('birthPlace')}
+          onSearchChange={(value) => handleFieldSearchChange('birthPlace', value)}
+        />
+        <hr className="border-t border-border_color block mb-4" />
+        <SingleSelectPopup
+          className="mb-4"
+          label="Country"
+          value={filters.country}
+          options={options.countries}
+          onChange={(val) => handleChange({ target: { name: 'country', value: val } } as any)}
+          loading={loadingFields.initial}
+          hasMore={fieldMeta.country.hasMore}
+          loadingMore={fieldMeta.country.loadingMore}
+          loadMoreError={fieldMeta.country.error}
+          onLoadMore={() => handleLoadMore('country')}
+          onSearchChange={(value) => handleFieldSearchChange('country', value)}
+        />
+        <SingleSelectPopup
+          className="mb-4"
+          label="State/Region"
+          placeholder="All States/Regions"
+          value={filters.state}
+          options={options.states}
+          onChange={(val) => handleChange({ target: { name: 'state', value: val } } as any)}
+          disabled={!filters.country}
+          loading={fieldMeta.state.loading}
+          hasMore={fieldMeta.state.hasMore}
+          loadingMore={fieldMeta.state.loadingMore}
+          loadMoreError={fieldMeta.state.error}
+          onLoadMore={() => handleLoadMore('state')}
+          onSearchChange={(value) => handleFieldSearchChange('state', value)}
+        />
+        <SingleSelectPopup
+          className="mb-4"
+          label="District"
+          placeholder="All Districts"
+          value={filters.district}
+          options={options.districts}
+          onChange={(val) => handleChange({ target: { name: 'district', value: val } } as any)}
+          disabled={!filters.country}
+          loading={fieldMeta.district.loading}
+          hasMore={fieldMeta.district.hasMore}
+          loadingMore={fieldMeta.district.loadingMore}
+          loadMoreError={fieldMeta.district.error}
+          onLoadMore={() => handleLoadMore('district')}
+          onSearchChange={(value) => handleFieldSearchChange('district', value)}
+        />
+        <SingleSelectPopup
+          className="mb-6"
+          label="City/Locality"
+          placeholder="All Cities/Localities"
+          value={filters.city}
+          options={options.cities}
+          onChange={(val) => handleChange({ target: { name: 'city', value: val } } as any)}
+          disabled={!filters.country}
+          loading={fieldMeta.city.loading}
+          hasMore={fieldMeta.city.hasMore}
+          loadingMore={fieldMeta.city.loadingMore}
+          loadMoreError={fieldMeta.city.error}
+          onLoadMore={() => handleLoadMore('city')}
+          onSearchChange={(value) => handleFieldSearchChange('city', value)}
+        />
+        {locationsError && (
+          <div role="alert" className="mb-4 flex items-center gap-2 p-2.5 rounded-md bg-red-500/5 border border-red-500/30 text-sm">
+            <span className="mt-0.5 text-red-500 shrink-0" aria-hidden="true"><WarningCircle /></span>
+            <p className="text-red-500 flex-1">Failed to load states, districts and cities.</p>
+            <button
+              type="button"
+              onClick={() => {
+                if (fieldMeta.state.error) handleLoadMore('state');
+                if (fieldMeta.district.error) handleLoadMore('district');
+                if (fieldMeta.city.error) handleLoadMore('city');
+              }}
+              className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
+            >
+              <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
+              Retry
+            </button>
+          </div>
+        )}
+        <hr className="border-t border-border_color block mb-4" />
+        <div className="mb-4">
+          <p id="born-between-label" className="text-sm font-medium mb-2 block">Born Between</p>
+          <div role="group" aria-labelledby="born-between-label" className="flex gap-2 items-center w-full">
+            <Input
+              type="number"
+              placeholder="YYYY"
+              name="birthYearStart"
+              aria-label="Birth year start"
+              value={filters.birthYearStart || ''}
+              onChange={handleChange}
+              min="1600"
+              max={new Date().getFullYear()}
+              maxLength={4}
+              label=""
+            />
+            <span className="opacity-50" aria-hidden="true">-</span>
+            <Input
+              type="number"
+              placeholder="YYYY"
+              name="birthYearEnd"
+              aria-label="Birth year end"
+              value={filters.birthYearEnd || ''}
+              onChange={handleChange}
+              min="1600"
+              max={new Date().getFullYear()}
+              maxLength={4}
+              label=""
+            />
+          </div>
+          <div className="text-xs text-text_color/60 mt-4 flex items-center gap-1 p-2 bg-field_color rounded-md" role="note">
+            <span className="mt-0.5" aria-hidden="true"><Info /></span>
+            <span>Members missing any of the selected filter fields are excluded.</span>
           </div>
         </div>
+      </div>
       <div className="p-4 sticky bottom-0 z-20 bg-main_background border-t border-border_color">
         <ButtonSolid
           onClick={Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') || Object.values(currentFilters).some(v => Array.isArray(v) ? (v as string[]).length > 0 : v !== '') ? handleApply : onClose}
