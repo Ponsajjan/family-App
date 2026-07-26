@@ -171,6 +171,18 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    // Deduplicate by familyId: a family can have separate memberAuthId/moderatorAuthId
+    // entries pointing at the same auth record, keeping the current one if there is one
+    const dedupedAuthDetails = Array.from(
+      authDetails.reduce((map, detail) => {
+        const existing = map.get(detail.familyId);
+        if (!existing || (detail.current && !existing.current)) {
+          map.set(detail.familyId, detail);
+        }
+        return map;
+      }, new Map<number | undefined, typeof authDetails[number]>()).values()
+    );
+
     // Map only selected authIds to their update timestamps
     const updatedAt: Record<string, number> = {};
     authRecords.forEach(rec => {
@@ -204,7 +216,7 @@ export async function GET(request: NextRequest) {
       // password: authRecord.password,
       currentAuthId: currentAuthId,
       userType: userType,
-      allAuthDetails: authDetails, // Array of objects with authId, mainMemberRef, and current flag
+      allAuthDetails: dedupedAuthDetails, // Array of objects with authId, mainMemberRef, and current flag, deduplicated by familyId
       _version: updatedAt,
     });
 

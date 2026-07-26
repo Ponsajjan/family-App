@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
   const city = filters.city?.trim() || "";
   const birthYearStart = filters.birthYearStart ? parseInt(filters.birthYearStart, 10) : null;
   const birthYearEnd = filters.birthYearEnd ? parseInt(filters.birthYearEnd, 10) : null;
+  const family = Array.isArray(filters.family) ? filters.family.map((id: any) => Number(id)).filter((id: number) => !isNaN(id)) : [];
 
   // Authentication
   const token = request.cookies.get("token")?.value;
@@ -50,7 +51,10 @@ export async function POST(request: NextRequest) {
     const selectedAuthId = request.cookies.get("selectedAuthId")?.value || "";
     const { allAuthIds, updatedAt } = await getAllAuthIds(authId, userType, selectedAuthId);
 
-    const { data, totalCount } = await fetchRelativesData(allAuthIds, page, limit, searchQuery, {
+    // A non-empty `family` filter narrows the aggregated set down to the chosen families.
+    const scopedAuthIds = family.length > 0 ? allAuthIds.filter(id => family.includes(id)) : allAuthIds;
+
+    const { data, totalCount } = await fetchRelativesData(scopedAuthIds, page, limit, searchQuery, {
       occupation,
       education,
       birthPlace,

@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import { CloseIcon, ResetData, Info, WarningCircle, RefreshIcon } from '@/utils/Icons';
 import { appFetch } from '@/utils/appFetch';
 import { useDebounce } from '@/utils/debounce';
@@ -6,6 +8,7 @@ import { ButtonSolid } from '@/components/Button';
 import MultiSelectPopup from '@/components/MultiSelectPopup';
 import SingleSelectPopup from '@/components/SingleSelectPopup';
 import Input from '@/components/Input';
+import Checkbox from '@/components/CheckBox';
 
 interface FilterPanelProps {
   showFilters: boolean;
@@ -42,6 +45,16 @@ const EMPTY_FIELD_META: FieldMetaEntry = { hasMore: false, loading: false, loadi
 
 export default function FilterPanel({ showFilters, onClose, onApply, currentFilters }: FilterPanelProps) {
   const [filters, setFilters] = useState(currentFilters);
+
+  // Families currently aggregated for this session (multi login). Accounts are
+  // already deduplicated by familyId at the API layer. Only surfaced as a
+  // filter when more than one family is active.
+  const { accounts } = useSelector((state: RootState) => state.terms);
+  const families = useMemo(
+    () => accounts.filter(acc => acc.current).map(acc => ({ id: acc.familyId, name: acc.mainMemberRef || 'Family' })),
+    [accounts]
+  );
+  const showFamilyFilter = families.length > 1;
   const [options, setOptions] = useState<{
     occupations: string[],
     educations: string[],
@@ -251,11 +264,25 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
       district: '',
       city: '',
       birthYearStart: '',
-      birthYearEnd: ''
+      birthYearEnd: '',
+      family: []
     };
     setFilters(reset);
     onApply(reset);
     onClose();
+  };
+
+  // An empty `family` list means "all families included" (the default). Toggling
+  // a family off for the first time seeds the list with every other family id.
+  const toggleFamily = (familyId: number) => {
+    setFilters((prev: any) => {
+      const selected: number[] = prev.family && prev.family.length > 0 ? prev.family : families.map(f => f.id);
+      const isSelected = selected.includes(familyId);
+      let next = isSelected ? selected.filter(id => id !== familyId) : [...selected, familyId];
+      if (next.length === 0) return prev; // keep at least one family selected
+      if (next.length === families.length) next = [];
+      return { ...prev, family: next };
+    });
   };
 
   return (
@@ -264,7 +291,7 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
         <div className="flex gap-2 items-center">
           <h2 id="filter-panel-title" className="text-xl font-semibold underline decoration-border_active underline-offset-4">Add Search Filters</h2>
           {Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') && (
-            <button onClick={handleReset} title="Reset Filters" aria-label="Reset all filters" className="p-1 hover:bg-field_color rounded-md">
+            <button onClick={handleReset} title="Reset Filters" aria-label="Reset all filters" className="hover:bg-field_color rounded-md">
               <ResetData aria-hidden="true" />
             </button>
           )}
@@ -434,6 +461,31 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
               label=""
             />
           </div>
+          {showFamilyFilter && (
+            <>
+              <hr className="border-t border-border_color block mt-6 mb-4" />
+              <div className="mb-6">
+                <p id="family-filter-label" className="text-sm font-medium mb-2 block">Families</p>
+                <div role="group" aria-labelledby="family-filter-label" className="flex flex-col gap-2">
+                  {(() => {
+                    const selected: number[] = filters.family && filters.family.length > 0 ? filters.family : families.map(f => f.id);
+                    return families.map(family => {
+                      const checked = selected.includes(family.id);
+                      return (
+                        <Checkbox
+                          key={family.id}
+                          label={family.name}
+                          checked={checked}
+                          onChange={() => toggleFamily(family.id)}
+                        />
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
+              <hr className="border-t border-border_color block" />
+            </>
+          )}
           <div className="text-xs text-text_color/60 mt-4 flex items-center gap-1 p-2 bg-field_color rounded-md" role="note">
             <span className="mt-0.5" aria-hidden="true"><Info /></span>
             <span>Members missing any of the selected filter fields are excluded.</span>

@@ -251,7 +251,7 @@ export default function Calendar() {
             <div className="bg-field_color border border-border_color rounded-t-md text-text_color">
               <div className="flex items-center justify-between">
                 <button
-                  className="font-light py-2 px-3 cursor-pointer hover:bg-field_hover rounded-tl-md"
+                  className="font-light py-2 px-3 cursor-pointer rounded-tl-md"
                   onClick={getPreviousMonth}
                   aria-label="Go to previous month"
                 >{"<"}</button>
@@ -265,7 +265,7 @@ export default function Calendar() {
                 </div>
 
                 <button
-                  className="font-light py-2 px-3 cursor-pointer hover:bg-field_hover rounded-tr-md"
+                  className="font-light py-2 px-3 cursor-pointer rounded-tr-md"
                   onClick={getNextMonth}
                   aria-label="Go to next month"
                 >{">"}</button>

@@ -40,6 +40,7 @@ export default function Relatives() {
     city: string;
     birthYearStart: string;
     birthYearEnd: string;
+    family: number[];
   }>({
     occupation: [],
     education: [],
@@ -49,7 +50,8 @@ export default function Relatives() {
     district: '',
     city: '',
     birthYearStart: '',
-    birthYearEnd: ''
+    birthYearEnd: '',
+    family: []
   });
 
   const activeFilterCount = useMemo(() => {
@@ -62,6 +64,7 @@ export default function Relatives() {
     if (filters.district) count++;
     if (filters.city) count++;
     if (filters.birthYearStart || filters.birthYearEnd) count++;
+    if (filters.family && filters.family.length > 0) count++;
     return count;
   }, [filters]);
 
