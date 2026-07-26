@@ -432,7 +432,7 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
           </div>
         )}
         <hr className="border-t border-border_color block mb-4" />
-        <div className="mb-4">
+        <div className="mb-2">
           <p id="born-between-label" className="text-sm font-medium mb-2 block">Born Between</p>
           <div role="group" aria-labelledby="born-between-label" className="flex gap-2 items-center w-full">
             <Input
@@ -486,8 +486,8 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
               <hr className="border-t border-border_color block" />
             </>
           )}
-          <div className="text-xs text-text_color/60 mt-4 flex items-center gap-1 p-2 bg-field_color rounded-md" role="note">
-            <span className="mt-0.5" aria-hidden="true"><Info /></span>
+          <div className="text-xs text-text_color/60 mt-6 flex items-center gap-1" role="note">
+            <span aria-hidden="true"><Info /></span>
             <span>Members missing any of the selected filter fields are excluded.</span>
           </div>
         </div>
