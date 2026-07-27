@@ -96,13 +96,7 @@ export default function Relatives() {
   };
 
   const fetcher = async ([url, search, page, limit, filtersData]: any) => {
-    const res = await appFetch(`${url}?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ filters: filtersData }),
-    });
+    const res = await appFetch(`${url}?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}&filters=${encodeURIComponent(JSON.stringify(filtersData))}`);
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.error || 'Failed to fetch relatives');

@@ -4,7 +4,7 @@ import { verifyToken } from "@/utils/auth";
 import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 import { fetchRelativesData } from "@/utils/relativesUtils";
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   // Extract and validate parameters
   const { searchParams } = new URL(request.url);
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
@@ -13,12 +13,12 @@ export async function POST(request: NextRequest) {
 
   let filters: any = {};
   try {
-    const body = await request.json();
-    if (body.filters) {
-      filters = body.filters;
+    const rawFilters = searchParams.get("filters");
+    if (rawFilters) {
+      filters = JSON.parse(rawFilters);
     }
   } catch (e) {
-    // Ignore invalid JSON body
+    // Ignore invalid JSON in filters param
   }
 
   const occupation = Array.isArray(filters.occupation) ? filters.occupation : filters.occupation?.trim() || "";
