@@ -2,10 +2,18 @@ export const OFFLINE_MESSAGE = "No internet connection. Retry when you are back 
 
 export const globalFetcher = async (url: string) => {
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      throw new Error(OFFLINE_MESSAGE);
+    }
+    throw err;
+  }
 
   if (res.status === 401) {
     throw new Error("Unauthorized");
@@ -15,14 +23,11 @@ export const globalFetcher = async (url: string) => {
     const errorData = await res.json().catch(() => ({}));
     const contentType = res.headers.get('content-type');
 
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    // Offline, or the Service Worker intercepted and returned the offline HTML page
+    if ((typeof navigator !== 'undefined' && !navigator.onLine) || (contentType && contentType.includes('text/html'))) {
       throw new Error(OFFLINE_MESSAGE);
-    } else if (contentType && contentType.includes('text/html')) {
-      // Check that the Service Worker didn't intercept and return the offline HTML page
-      throw new Error(OFFLINE_MESSAGE);
-    } else {
-      throw new Error(errorData.error || "Failed to fetch data");
     }
+    throw new Error(errorData.error || "Failed to fetch data");
   }
 
   const json = await res.json();
