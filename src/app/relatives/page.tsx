@@ -171,7 +171,7 @@ export default function Relatives() {
     return members.length < totalCount;
   }, [swrData, members]);
 
-  const loadingList = isLoading || (size > 0 && swrData && typeof swrData[size - 1] === "undefined");
+  const loadingList = isLoading || (size > 0 && !error && swrData && typeof swrData[size - 1] === "undefined");
   const isFetching = isValidating;
 
   const loadMore = () => {
@@ -347,6 +347,7 @@ export default function Relatives() {
                       params.search ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for "{params.search}".</p> :
                         activeFilterCount > 0 ? <p className="p-4 text-text_color w-full">No member found for the current filters.</p> : ''
                 )}
+                {!loadingList && error && members.length > 0 && <p className="p-4 text-text_color w-full">{error.message}</p>}
                 {!hasMore && !error && members.length > 0 && <p className="text-text_color">, , ,</p>}
               </div>
             </div>
