@@ -1,4 +1,4 @@
-import { OFFLINE_MESSAGE } from "./appFetch";
+export const OFFLINE_MESSAGE = "No internet connection. Retry when you are back online";
 
 export const globalFetcher = async (url: string) => {
 
@@ -12,8 +12,9 @@ export const globalFetcher = async (url: string) => {
   }
 
   if (!res.ok) {
-    const contentType = res.headers.get('content-type');
     const errorData = await res.json().catch(() => ({}));
+    const contentType = res.headers.get('content-type');
+
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       throw new Error(OFFLINE_MESSAGE);
     } else if (contentType && contentType.includes('text/html')) {

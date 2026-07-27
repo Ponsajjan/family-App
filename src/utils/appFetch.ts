@@ -1,4 +1,4 @@
-export const OFFLINE_MESSAGE = "No internet connection. Retry when you are back online";
+import { OFFLINE_MESSAGE } from "./globalFetcher";
 
 export const appFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   if (typeof navigator !== 'undefined' && !navigator.onLine && process.env.NODE_ENV !== 'development') {
