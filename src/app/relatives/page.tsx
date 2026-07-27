@@ -341,10 +341,11 @@ export default function Relatives() {
               <div className="min-h-10 px-4 py-2">
                 {loadingList && <p className="px-4 text-text_color">Loading...</p>}
                 {(!loadingList && members.length === 0) && (
-                  error ? 'Failed to load relatives.' :
-                    (params.search && activeFilterCount > 0) ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for the current search and filters.</p> :
+                  error ?
+                    <p className="p-4 text-text_color w-full">{error.message}</p> :
+                    (params.search && activeFilterCount > 0) ? <p className="p-4 text-text_color w-full">No member found for the current search and filters.</p> :
                       params.search ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for "{params.search}".</p> :
-                        activeFilterCount > 0 ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for the current filters.</p> : ''
+                        activeFilterCount > 0 ? <p className="p-4 text-text_color w-full">No member found for the current filters.</p> : ''
                 )}
                 {!hasMore && !error && members.length > 0 && <p className="text-text_color">, , ,</p>}
               </div>
