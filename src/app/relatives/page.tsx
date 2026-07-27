@@ -92,16 +92,7 @@ export default function Relatives() {
 
   const getKey = (pageIndex: number, previousPageData: any) => {
     if (previousPageData && !previousPageData.data.length) return null;
-    return ['/api/relatives', params.search, pageIndex + 1, params.limit, filters];
-  };
-
-  const fetcher = async ([url, search, page, limit, filtersData]: any) => {
-    const res = await appFetch(`${url}?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}&filters=${encodeURIComponent(JSON.stringify(filtersData))}`);
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || 'Failed to fetch relatives');
-    }
-    return res.json();
+    return `/api/relatives?search=${encodeURIComponent(params.search)}&page=${pageIndex + 1}&limit=${params.limit}&filters=${encodeURIComponent(JSON.stringify(filters))}`;
   };
 
   const {
@@ -112,7 +103,7 @@ export default function Relatives() {
     isValidating,
     error,
     mutate
-  } = useSWRInfinite(getKey, fetcher);
+  } = useSWRInfinite(getKey);
 
   useEffect(() => {
     // Only check version if data is present at the moment params change (from SWR cache)
