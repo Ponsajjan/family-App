@@ -2,7 +2,7 @@ import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
   dest: "public",
-  cacheOnFrontendNav: true,
+  cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   cacheStartUrl: true,
   dynamicStartUrl: true,
@@ -15,12 +15,20 @@ const withPWA = withPWAInit({
       {
         urlPattern: ({ url }) => url.pathname.startsWith("/api/"),
         handler: "NetworkFirst",
+        options: {
+          cacheName: "apis",
+          networkTimeoutSeconds: 3,
+          expiration: {
+            maxEntries: 50,
+          },
+        },
       },
       {
         urlPattern: ({ request }) => request.mode === "navigate",
         handler: "NetworkFirst",
         options: {
           cacheName: "pages",
+          networkTimeoutSeconds: 3,
           expiration: {
             maxEntries: 50,
           },
