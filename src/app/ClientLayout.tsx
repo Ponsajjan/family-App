@@ -2,6 +2,7 @@
 
 import Sidenav from "@/components/Sidenav";
 import ToastProvider from "@/components/Toast";
+import NetworkStatusToast from "@/components/NetworkStatusToast";
 import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ReduxProvider } from "@/store/ReduxProvider";
@@ -64,6 +65,7 @@ export default function ClientLayout({
                 <main id="MainDiv">
                   <noscript>Amor fati!..</noscript>
                   <ToastProvider>
+                    <NetworkStatusToast />
                     {children}
                     <div id='portal'></div>
                   </ToastProvider>
