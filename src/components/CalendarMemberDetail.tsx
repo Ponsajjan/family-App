@@ -47,7 +47,7 @@ export default function CalendarMemberDetail({ memberId }: any) {
   return (
     <div className='text-text_color bg-main_background scroll-stable'>
       {error ? (
-        <div className='p-6'>Error: {error.message || 'Error fetching data'}</div>
+        <div className='p-6 pr-8'>Error: {error.message || 'Error fetching data'}</div>
       ) : !data && !loadingDetails ? (
         <div className='p-6 loading-text'>No data found</div>
       ) : loadingDetails ? (
