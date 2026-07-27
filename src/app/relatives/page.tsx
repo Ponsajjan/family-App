@@ -103,7 +103,7 @@ export default function Relatives() {
     isValidating,
     error,
     mutate
-  } = useSWRInfinite(getKey);
+  } = useSWRInfinite(getKey, { shouldRetryOnError: false });
 
   useEffect(() => {
     // Only check version if data is present at the moment params change (from SWR cache)
@@ -332,7 +332,7 @@ export default function Relatives() {
                       params.search ? <p className="p-4 text-text_color w-full overflow-hidden text-ellipsis">No member found for "{params.search}".</p> :
                         activeFilterCount > 0 ? <p className="p-4 text-text_color w-full">No member found for the current filters.</p> : ''
                 )}
-                {!loadingList && error && members.length > 0 && <p className="p-4 text-text_color w-full">{error.message}</p>}
+                {!loadingList && error && members.length > 0 && <p className="px-4 text-text_color w-full">{error.message}</p>}
                 {!hasMore && !error && members.length > 0 && <p className="text-text_color">, , ,</p>}
               </div>
             </div>
