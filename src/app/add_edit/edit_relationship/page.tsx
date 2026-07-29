@@ -93,7 +93,6 @@ export default function EditRelationshipDetails() {
           setSubmitError("");
         } catch (error: any) {
           toast?.show(error.message || "Error fetching member details", "error", 5000);
-          router.push('/add_edit');
         } finally {
           setLoading(false);
         }
@@ -101,7 +100,7 @@ export default function EditRelationshipDetails() {
 
       fetchMembers();
     }
-  }, [formData.id, toast, router, logout]);
+  }, [formData.id, toast, logout]);
 
   const handleRemoveChildrenValue = (id: number) => {
     setNoChanges(false);

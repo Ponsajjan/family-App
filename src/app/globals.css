@@ -41,6 +41,7 @@
 
 ::-webkit-scrollbar-track {
   background: rgba(var(--accent_contrast));
+  cursor: pointer;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -149,6 +150,7 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 input[type="checkbox"] {
@@ -359,9 +361,11 @@ td {
   0% {
     box-shadow: 0 0 0 0 rgba(var(--border_color), 0.4);
   }
+
   70% {
     box-shadow: 0 0 0 10px rgba(var(--border_color), 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(var(--border_color), 0);
   }
@@ -384,9 +388,11 @@ td {
   0% {
     opacity: 0.2;
   }
+
   20% {
     opacity: 1;
   }
+
   100% {
     opacity: 0.2;
   }
