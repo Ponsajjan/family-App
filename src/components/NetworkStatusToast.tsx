@@ -20,7 +20,7 @@ export default function NetworkStatusToast() {
     const notifyOffline = () => {
       if (hasWarnedRef.current) return;
       hasWarnedRef.current = true;
-      toast?.show("You're offline. Showing saved data until your connection is back.", "warning", 8000);
+      toast?.show("You're currently offline", "warning", 8000);
     };
     const notifyOnline = () => {
       hasWarnedRef.current = false;
