@@ -176,16 +176,21 @@ function SwitchLoginList({ showLogin, handleSidePanelToggle }: { showLogin: bool
                 };
 
                 const updatedAccounts = [
-                    ...accounts.map(acc => ({ ...acc, current: false })), // Set all existing accounts to non-current
+                    ...accounts,
                     newAccount // Add new account as current
                 ];
 
                 storeLoginValues(data.token, data.userType, data.authId);
                 const maxAge = 180 * 24 * 60 * 60; // 180 days
                 setCookie('authId', JSON.stringify(updatedAccounts.map(a => a.authId)), { maxAge, path: '/' });
-                setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge, path: '/' });
+                const selectedAuthIds = updatedAccounts.filter(acc => acc.current).map(acc => acc.authId);
+                setCookie('selectedAuthId', JSON.stringify(selectedAuthIds), { maxAge, path: '/' });
                 // Mirror exactly what went into the cookie
-                dispatch(setChoosePopupAccounts([{ authId: data.authId, name: data.mainMemberName || 'New Account' }]));
+                dispatch(setChoosePopupAccounts(
+                    updatedAccounts
+                        .filter(acc => acc.current)
+                        .map(acc => ({ authId: acc.authId, name: acc.mainMemberRef }))
+                ));
                 setForm({ password: "" });
                 dispatch(setAccounts(updatedAccounts));
                 dispatch(setCurrentAuthId(data.authId));

@@ -58,13 +58,20 @@ export async function updateToken(token: string) {
       // Token is about to expire, renew it
       const { iat, exp, ...safePayload } = decoded;
       const newToken = await generateToken(safePayload);
+      const maxAge = 180 * 24 * 60 * 60;
 
       cookieStore.set("token", newToken, {
-        httpOnly: true,
-        secure: true,
         path: "/",
-        maxAge: 180 * 24 * 60 * 60,
+        maxAge,
       });
+
+      const access = cookieStore.get("access")?.value;
+      if (access) {
+        cookieStore.set("access", access, {
+          path: "/",
+          maxAge,
+        });
+      }
     }
 
   } catch (error) {
