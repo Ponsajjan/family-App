@@ -239,7 +239,7 @@ export default function Relatives() {
           </div>
           <button
             onClick={() => handleSetFilter(true)}
-            className={`p-1 border border-border_color rounded-md bg-main_background hover:bg-field_color relative ${activeFilterCount > 0 ? 'border-border_active shadow-sm' : ''}`}
+            className={`p-1 border border-border_color rounded-md bg-main_background md:hover:bg-field_color relative ${activeFilterCount > 0 ? 'border-border_active shadow-sm' : ''}`}
             aria-label="Toggle filters"
           >
             <Filter />

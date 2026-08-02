@@ -39,10 +39,10 @@ export default function MultiSelectDropdown({ label, options, values, onChange, 
         onChange([]);
     };
 
-    const displayValue = values.length === 0 
-        ? `All ${label}s` 
-        : values.length === 1 
-            ? values[0] 
+    const displayValue = values.length === 0
+        ? `All ${label}s`
+        : values.length === 1
+            ? values[0]
             : `${values.length} Selected`;
 
     return (
@@ -66,7 +66,7 @@ export default function MultiSelectDropdown({ label, options, values, onChange, 
                         <button
                             type="button"
                             onClick={handleClear}
-                            className="p-1 hover:bg-black/5 rounded-full transition-colors flex items-center justify-center text-text_color/50 hover:text-text_color"
+                            className="p-1 hover:field_hover rounded-full transition-colors flex items-center justify-center text-text_color/50 hover:text-text_color"
                             aria-label={`Clear ${label}`}
                         >
                             <div className="scale-75 origin-center">
@@ -114,7 +114,7 @@ export default function MultiSelectDropdown({ label, options, values, onChange, 
                                         key={opt}
                                         role="option"
                                         aria-selected={values.includes(opt)}
-                                        className="flex items-center p-2 hover:bg-field_color rounded-md cursor-pointer transition-colors"
+                                        className="flex items-center p-2 md:hover:bg-field_color rounded-md cursor-pointer transition-colors"
                                     >
                                         <input
                                             type="checkbox"

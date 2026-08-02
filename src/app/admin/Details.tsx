@@ -311,7 +311,7 @@ function Details({ selectedCredential, onDelete, openDetails }: { selectedCreden
                         <div className="ml-2">{selectedCredential.memberPassword}</div>
                         <div
                             onClick={() => copyToClipboard(selectedCredential.memberPassword, "Member password")}
-                            className="p-1 hover:bg-field_color rounded-md transition-colors"
+                            className="p-1 md:hover:bg-field_color rounded-md transition-colors"
                             title="Copy member password"
                         >
                             <Copy />
@@ -324,7 +324,7 @@ function Details({ selectedCredential, onDelete, openDetails }: { selectedCreden
                         <div className="ml-2">{selectedCredential.moderatorPassword}</div>
                         <div
                             onClick={() => copyToClipboard(selectedCredential.moderatorPassword, "Moderator password")}
-                            className="p-1 hover:bg-field_color rounded-md transition-colors"
+                            className="p-1 md:hover:bg-field_color rounded-md transition-colors"
                             title="Copy moderator password"
                         >
                             <Copy />
@@ -443,7 +443,7 @@ function Details({ selectedCredential, onDelete, openDetails }: { selectedCreden
                         <button
                             onClick={() => setAddingModerator(true)}
                             disabled={loading || deleting || editingModerator.id !== null}
-                            className="w-full py-2 border border-border_color rounded-md text-center hover:bg-gray-100 disabled:opacity-50"
+                            className="w-full py-2 border border-border_color rounded-md text-center md:hover:bg-gray-100 disabled:opacity-50"
                         >
                             Add Moderator +
                         </button>
@@ -457,11 +457,11 @@ function Details({ selectedCredential, onDelete, openDetails }: { selectedCreden
                     <button
                         onClick={handleDownloadBackup}
                         disabled={loading || deleting}
-                        className="flex-1 py-2 bg-field_color border border-border_color rounded-md hover:bg-field_hover transition-colors font-medium text-sm"
+                        className="flex-1 py-2 bg-field_color border border-border_color rounded-md md:hover:bg-field_hover transition-colors font-medium text-sm"
                     >
                         Download Backup
                     </button>
-                    <label className={`flex-1 py-2 bg-field_color border border-border_color rounded-md hover:bg-field_hover transition-colors font-medium text-sm text-center cursor-pointer ${loading || deleting ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <label className={`flex-1 py-2 bg-field_color border border-border_color rounded-md md:hover:bg-field_hover transition-colors font-medium text-sm text-center cursor-pointer ${loading || deleting ? 'opacity-50 cursor-not-allowed' : ''}`}>
                         Restore Backup
                         <input
                             type="file"

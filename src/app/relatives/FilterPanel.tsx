@@ -291,7 +291,7 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
         <div className="flex gap-2 items-center">
           <h2 id="filter-panel-title" className="text-xl font-semibold underline decoration-border_active underline-offset-4">Add Search Filters</h2>
           {Object.values(filters).some(v => Array.isArray(v) ? v.length > 0 : v !== '') && (
-            <button onClick={handleReset} title="Reset Filters" aria-label="Reset all filters" className="hover:bg-field_color rounded-md">
+            <button onClick={handleReset} title="Reset Filters" aria-label="Reset all filters" className="md:hover:bg-field_color rounded-md">
               <ResetData aria-hidden="true" />
             </button>
           )}
@@ -308,7 +308,7 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
             <button
               type="button"
               onClick={fetchInitialOptions}
-              className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
+              className="flex items-center gap-1 text-red-500 md:hover:underline shrink-0"
             >
               <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
               Retry
@@ -424,7 +424,7 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
                 if (fieldMeta.district.error) handleLoadMore('district');
                 if (fieldMeta.city.error) handleLoadMore('city');
               }}
-              className="flex items-center gap-1 text-red-500 hover:underline shrink-0"
+              className="flex items-center gap-1 text-red-500 md:hover:underline shrink-0"
             >
               <span className="scale-75" aria-hidden="true"><RefreshIcon /></span>
               Retry

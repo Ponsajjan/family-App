@@ -72,7 +72,7 @@ export default function AddEditPage() {
                                 type="button"
                                 onClick={() => setShowChoosePopup(true)}
                                 aria-label="Switch family account"
-                                className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
+                                className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
                             >
                                 <SwitchIcon aria-hidden="true" />
                             </button>

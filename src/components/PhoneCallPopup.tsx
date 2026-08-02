@@ -15,7 +15,7 @@ export default function PhoneCallPopup({ numbers, onClose }: PhoneCallPopupProps
             key={idx}
             href={`tel:${num}`}
             onClick={onClose}
-            className="flex items-center gap-3 p-3 rounded-md border border-border_color bg-field_color hover:bg-field_hover cursor-pointer transition-all duration-200"
+            className="flex items-center gap-3 p-3 rounded-md border border-border_color bg-field_color md:hover:bg-field_hover cursor-pointer transition-all duration-200"
           >
             <div className="text-primary scale-110">
               <CallSelect />

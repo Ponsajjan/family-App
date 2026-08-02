@@ -117,7 +117,7 @@ export default function SingleSelectPopup({ label, placeholder, options, value, 
                                         <button
                                             onClick={() => setIsOpen(false)}
                                             aria-label={`Close ${label} selection`}
-                                            className='border border-border_color hover:bg-field_color rounded-md m-2 cursor-pointer'
+                                            className='border border-border_color rounded-md m-2 cursor-pointer'
                                         >
                                             <CloseIcon aria-hidden="true" />
                                         </button>

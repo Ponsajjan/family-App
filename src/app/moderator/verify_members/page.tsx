@@ -185,19 +185,19 @@ export default function VerifyMember() {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-32 bg-field_color border border-border_color shadow-md rounded-md overflow-hidden z-30">
               <div
-                className="p-2 hover:bg-field_hover cursor-pointer"
+                className="p-2 md:hover:bg-field_hover cursor-pointer"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { handleFilterChange("All") }}>
                 All
               </div>
               <div
-                className="p-2 hover:bg-field_hover cursor-pointer"
+                className="p-2 md:hover:bg-field_hover cursor-pointer"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { handleFilterChange("Verified") }}>
                 Verified
               </div>
               <div
-                className="p-2 hover:bg-field_hover cursor-pointer"
+                className="p-2 md:hover:bg-field_hover cursor-pointer"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => { handleFilterChange("Unverified") }}>
                 Unverified

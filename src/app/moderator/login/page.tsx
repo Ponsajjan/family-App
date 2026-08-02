@@ -94,7 +94,7 @@ export default function Page() {
                                     <button
                                         type="button"
                                         onClick={() => setShowChoosePopup(true)}
-                                        className="border  border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
+                                        className="border  border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
                                     >
                                         <SwitchIcon />
                                     </button>

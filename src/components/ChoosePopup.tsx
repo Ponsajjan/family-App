@@ -99,7 +99,7 @@ export const ChoosePopup = ({
                             key={account.authId}
                             className={`flex items-center p-3 rounded-md border transition-all duration-200 relative ${account.authId === selectedId
                                 ? 'bg-field_color border-border_active'
-                                : 'border-border_color hover:bg-field_hover cursor-pointer'
+                                : 'border-border_color md:hover:bg-field_hover cursor-pointer'
                                 }`}
                             onClick={() => handleSwitchAccount(account)}
                         >

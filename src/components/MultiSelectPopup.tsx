@@ -87,7 +87,7 @@ export default function MultiSelectPopup({ label, options, values, onChange, cla
                                     tabIndex={0}
                                     onClick={(e) => handleRemoveOption(e, opt)}
                                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleRemoveOption(e as any, opt); } }}
-                                    className="hover:bg-black/10 rounded-full p-0.5 opacity-60 hover:opacity-100 transition-all cursor-pointer"
+                                    className="md:hover:field_hover rounded-full p-0.5 opacity-60 transition-all cursor-pointer"
                                     aria-label={`Remove ${opt}`}
                                 >
                                     <svg width="10" height="10" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -138,7 +138,7 @@ export default function MultiSelectPopup({ label, options, values, onChange, cla
                                         <button
                                             onClick={() => setIsOpen(false)}
                                             aria-label={`Close ${label} selection`}
-                                            className='border border-border_color hover:bg-field_color rounded-md m-2 cursor-pointer'
+                                            className='border border-border_color rounded-md m-2 cursor-pointer'
                                         >
                                             <CloseIcon aria-hidden="true" />
                                         </button>
@@ -176,7 +176,7 @@ export default function MultiSelectPopup({ label, options, values, onChange, cla
                                                         key={opt}
                                                         role="option"
                                                         aria-selected={values.includes(opt)}
-                                                        className={`flex items-center p-2 md:p-2.5 rounded-md transition-all duration-200 cursor-pointer ${values.includes(opt) ? 'bg-field_hover' : 'hover:bg-field_hover'
+                                                        className={`flex items-center p-2 md:p-2.5 rounded-md transition-all duration-200 cursor-pointer ${values.includes(opt) ? 'bg-field_hover' : 'md:hover:bg-field_hover'
                                                             }`}
                                                         onClick={() => toggleOption(opt)}
                                                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleOption(opt); } }}

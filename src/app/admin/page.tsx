@@ -169,7 +169,7 @@ export default function Relatives() {
                   <div className="py-0.5">
                     <div
                       onClick={() => handleShowDetails(row)}
-                      className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color hover:bg-field_color/80 transition-colors"
+                      className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color md:hover:bg-field_color/80 transition-colors"
                     >
                       <div className="w-full">
                         <div
