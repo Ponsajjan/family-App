@@ -2,7 +2,7 @@
 
 import Topnav from "@/components/Topnav";
 import { Announcement, CloseIcon, SkipBack, SkipForward } from "@/utils/Icons";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import useSWR from 'swr';
 import moment from "moment-timezone";
 import CalendarMonthlyData from "../components/CalendarMonthlyData";
@@ -12,6 +12,7 @@ import OnDate from "../components/OnDate";
 import { format } from 'date-fns';
 import { appFetch } from "@/utils/appFetch";
 import CalendarMemberDetail from "../components/CalendarMemberDetail";
+import { useToast } from "@/components/Toast";
 // import { useDailyNotifications } from "@/utils/notificationUtils";
 
 // Helper function to get current date in IST
@@ -39,6 +40,7 @@ interface CalendarMonthlyEvent {
 }
 
 export default function Calendar() {
+  const toast = useToast();
   const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const currentIndiaDate = getCurrentIndiaDate();
   const [calendarDate, setCalendarDate] = useState(currentIndiaDate);
@@ -156,32 +158,50 @@ export default function Calendar() {
   const url = `/api/calendar/${month + 1}/${year}`;
   const { data: calendarData, error, isLoading, mutate } = useSWR(url);
 
+  // Silently fetches fresh data in the background and swaps it in without
+  // disturbing the cached data already on screen (no loading state).
+  // `notify` is only set for the reconnect-triggered check, so routine
+  // checks from month/year navigation stay silent.
+  const checkCalendarVersion = useCallback(async (notify: boolean = false) => {
+    if (!calendarData?._version) return;
+    const currentVersion = JSON.stringify(calendarData._version);
+
+    if (notify) {
+      toast?.show("Syncing…", "info", 4000);
+    }
+
+    try {
+      const res = await appFetch(`/api/auth/versionCheck/calendar?month=${month + 1}&year=${year}&version=${encodeURIComponent(currentVersion)}`);
+      if (res.ok) {
+        const result = await res.json();
+        if (result.mismatch) {
+          console.log(`[VersionCheck] Stale data detected for calendar. Updating...`);
+          const { clearPWACaches } = await import("@/utils/pwaCache");
+          await clearPWACaches();
+          await mutate(result.data, false);
+        }
+      }
+    } catch (err) {
+      console.error("[Calendar] Version check failed:", err);
+      if (notify) {
+        toast?.show("Sync failed", "error", 2000);
+      }
+    }
+  }, [calendarData, month, year, mutate, toast]);
+
   useEffect(() => {
     // Only check version if data is present at the moment month/year changes
     // Since PWA is NetworkFirst, freshly fetched data is already the latest.
-    if (calendarData?._version) {
-      const checkCalendarVersion = async () => {
-        const currentVersion = JSON.stringify(calendarData._version);
-        try {
-          const res = await appFetch(`/api/auth/versionCheck/calendar?month=${month + 1}&year=${year}&version=${encodeURIComponent(currentVersion)}`);
-          if (res.ok) {
-            const result = await res.json();
-            if (result.mismatch) {
-              console.log(`[VersionCheck] Stale data detected for calendar. Updating...`);
-              const { clearPWACaches } = await import("@/utils/pwaCache");
-              await clearPWACaches();
-              await mutate(result.data, false);
-            }
-          }
-        } catch (err) {
-          console.error("[Calendar] Version check failed:", err);
-        }
-      };
-      checkCalendarVersion();
-    }
-  }, [month, year, mutate]);
+    checkCalendarVersion();
+  }, [month, year, checkCalendarVersion]);
 
-
+  // When the browser regains connectivity, revalidate in the background
+  // while the cached month grid already on screen keeps rendering as-is.
+  useEffect(() => {
+    const handleOnline = () => checkCalendarVersion(true);
+    window.addEventListener("online", handleOnline);
+    return () => window.removeEventListener("online", handleOnline);
+  }, [checkCalendarVersion]);
 
 
   const eventDatesValue = useMemo(() => calendarData?.eventDates || {}, [calendarData]);
