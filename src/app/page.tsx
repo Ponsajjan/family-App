@@ -166,16 +166,11 @@ export default function Calendar() {
     if (!calendarData?._version) return;
     const currentVersion = JSON.stringify(calendarData._version);
 
-    if (notify) {
-      toast?.show("Syncing…", "info", 4000);
-    }
-
     try {
       const res = await appFetch(`/api/auth/versionCheck/calendar?month=${month + 1}&year=${year}&version=${encodeURIComponent(currentVersion)}`);
       if (res.ok) {
         const result = await res.json();
         if (result.mismatch) {
-          console.log(`[VersionCheck] Stale data detected for calendar. Updating...`);
           const { clearPWACaches } = await import("@/utils/pwaCache");
           await clearPWACaches();
           await mutate(result.data, false);
