@@ -32,11 +32,12 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Month and year are required" }, { status: 400 });
         }
 
-        const { eventDates, datesList } = await fetchCalendarData(month, year, allAuthIds);
+        const { eventDates, datesList, todayISODate } = await fetchCalendarData(month, year, allAuthIds);
 
         return NextResponse.json({
             eventDates,
             datesList,
+            todayISODate,
             _version: updatedAt
         });
 

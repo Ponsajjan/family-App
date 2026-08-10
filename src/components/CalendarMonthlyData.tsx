@@ -23,10 +23,12 @@ interface CalendarMonthlyDataProps {
   }
   month: number;
   year: number;
+  todayISODate?: string;
+  currentISODate?: string;
   setSelectedMemberId: (event: "member" | "date", id: string | number) => void;
 }
 
-export default function CalendarMonthlyData({ eventDatesValue, month, year, setSelectedMemberId }: CalendarMonthlyDataProps) {
+export default function CalendarMonthlyData({ eventDatesValue, month, year, todayISODate, currentISODate, setSelectedMemberId }: CalendarMonthlyDataProps) {
   const {
     pastEvents = [],
     todayEvents = [],
@@ -35,6 +37,14 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year, setS
     upcomingEvents = [],
     selectedMonthEvents = [],
   } = eventDatesValue;
+
+  // stale cached response
+  const isStale = Boolean(todayISODate) && todayISODate !== currentISODate;
+
+  const allMonthEvents = isStale
+    ? [...pastEvents, ...todayEvents, ...tomorrowEvents, ...thisWeekEvents, ...upcomingEvents, ...selectedMonthEvents]
+      .sort((a, b) => new Date(a.date).getDate() - new Date(b.date).getDate())
+    : selectedMonthEvents;
 
   const renderEventList = (events: CalendarMonthlyEvent[], title: string) => {
     if (!events?.length) return null;
@@ -110,12 +120,18 @@ export default function CalendarMonthlyData({ eventDatesValue, month, year, setS
   return (
     <Container className='scroll-stable xl:px-2 pb-5'>
       <div className="hidden md:block pt-3 sticky top-0 bg-main_background z-10" aria-hidden="true"></div>
-      {renderEventList(todayEvents, "Today")}
-      {renderEventList(tomorrowEvents, "Tomorrow")}
-      {renderEventList(thisWeekEvents, "Later This Week")}
-      {renderEventList(upcomingEvents, "Later This Month")}
-      {renderEventList(pastEvents, "Earlier This Month")}
-      {renderEventList(selectedMonthEvents, `${format(new Date(year, month), 'MMMM yyyy')}`)}
+      {isStale ? (
+        renderEventList(allMonthEvents, `${format(new Date(year, month), 'MMMM yyyy')}`)
+      ) : (
+        <>
+          {renderEventList(todayEvents, "Today")}
+          {renderEventList(tomorrowEvents, "Tomorrow")}
+          {renderEventList(thisWeekEvents, "Later This Week")}
+          {renderEventList(upcomingEvents, "Later This Month")}
+          {renderEventList(pastEvents, "Earlier This Month")}
+          {renderEventList(selectedMonthEvents, `${format(new Date(year, month), 'MMMM yyyy')}`)}
+        </>
+      )}
     </Container>
   );
 }

@@ -201,12 +201,14 @@ export default function Calendar() {
 
   const eventDatesValue = useMemo(() => calendarData?.eventDates || {}, [calendarData]);
   const datesList = useMemo(() => calendarData?.datesList || [], [calendarData]);
+  const currentISODate = format(currentIndiaDate, 'yyyy-MM-dd');
 
   useEffect(() => {
     if (calendarData && loadingInitialToday) {
       const todayEvents = calendarData.eventDates?.todayEvents || [];
-      // Only show popup for today's events if we are looking at the current month/year
-      if (todayEvents.length > 0 && month === currentMonth && year === currentYear) {
+      // Only show popup for today's events if we are looking at the current month/year,
+      // and the data was actually generated for today (not a stale cached response).
+      if (todayEvents.length > 0 && month === currentMonth && year === currentYear && calendarData.todayISODate === currentISODate) {
         const todayDateObj = getCurrentIndiaDate();
         setSelectedDate(todayDateObj.toISOString());
         setEventForDate(todayEvents);
@@ -390,7 +392,7 @@ export default function Calendar() {
         <div className="w-full lg:max-w-[36.25rem] mx-auto">
           {isLoading ? <Loading /> :
             datesList?.length > 0
-              ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} setSelectedMemberId={HandlePopupData} />
+              ? <CalendarMonthlyData eventDatesValue={eventDatesValue} month={month} year={year} todayISODate={calendarData?.todayISODate} currentISODate={currentISODate} setSelectedMemberId={HandlePopupData} />
               : <p className="text-center pt-4 text-text_color">{error?.message ? error?.message : 'No events in this month...'}</p>}
         </div>
       </div>

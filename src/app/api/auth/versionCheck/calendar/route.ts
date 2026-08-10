@@ -31,13 +31,14 @@ export async function GET(request: NextRequest) {
         }
 
         // Mismatch found, fetch full data
-        const { eventDates, datesList } = await fetchCalendarData(month, year, allAuthIds);
+        const { eventDates, datesList, todayISODate } = await fetchCalendarData(month, year, allAuthIds);
 
         return NextResponse.json({
             mismatch: true,
             data: {
                 eventDates,
                 datesList,
+                todayISODate,
                 _version: updatedAt
             }
         });

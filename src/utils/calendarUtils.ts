@@ -119,9 +119,15 @@ export async function fetchCalendarData(month: number, year: number, allAuthIds:
     categorise.upcomingEvents.sort(sortAsc);
     categorise.selectedMonthEvents.sort(sortAsc);
 
+    // IST calendar date this response's "today" bucketing was computed for —
+    // lets clients detect a stale (e.g. previous-day) cached response, since
+    // the URL alone (month/year) doesn't change across days within a month.
+    const todayISODate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(todayDate).padStart(2, '0')}`;
+
     return {
         eventDates: { ...categorise },
         datesList: Array.from(categorise.datesList),
+        todayISODate,
     };
 }
 
