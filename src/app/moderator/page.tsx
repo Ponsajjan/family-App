@@ -56,12 +56,14 @@ export default function ModeratorDashboard() {
     // Effect for Toasts based on chartStatus and sync notification status with Redux
     useEffect(() => {
         if (data) {
-            if (data.chartStatus === 'building') {
-                toast?.show('Chart build is currently in progress...', 'info', 5000);
-            } else if (data.chartStatus === 'failed') {
-                toast?.show('Previous chart build failed. You can retry.', 'warning', 5000);
-            } else if (data.chartStatus === 'timeout') {
-                toast?.show('Previous build timed out. You can retry.', 'warning', 5000);
+            if (isModerator) {
+                if (data.chartStatus === 'building') {
+                    toast?.show('Chart build is currently in progress...', 'info', 5000);
+                } else if (data.chartStatus === 'failed') {
+                    toast?.show('Previous chart build failed. You can retry.', 'warning', 5000);
+                } else if (data.chartStatus === 'timeout') {
+                    toast?.show('Previous build timed out. You can retry.', 'warning', 5000);
+                }
             }
 
             const hasChanges = (data.unverifiedMembers + data.pendingRequests) > 0;
@@ -70,9 +72,16 @@ export default function ModeratorDashboard() {
                 anyOtherAccountHasIssues: data.anyOtherAccountHasIssues
             }));
         }
-    }, [data, toast, dispatch]);
+    }, [data, toast, dispatch, isModerator]);
 
     const handleUpdateRelationsChart = async () => {
+        if (!isModerator) {
+            setDisabledButtons(true);
+            router.push('/moderator/login');
+            toast?.show("Unauthorized access. Please login.", "error", 5000);
+            return;
+        }
+        setUpdatingChart(true)
         try {
             const res = await appFetch('/api/moderator/update_chart', {
                 method: 'POST',
@@ -89,7 +98,6 @@ export default function ModeratorDashboard() {
                 toast?.show("Unauthorized access. Please login.", "error", 5000);
                 return;
             }
-            setUpdatingChart(true)
             const data = await res.json()
 
             if (res.ok) {

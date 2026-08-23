@@ -133,10 +133,13 @@ export default function FamilyTreePage() {
         <div className="w-full md:flex">
           <DragScroll>
             {/* <div ref={treeRef}> */}
-            <FetchFamilyTree data={data} onMemberClick={(id) => {
-              setShowMember(id);
-              setShowDetails(true);
-            }} />
+            <FetchFamilyTree
+              data={data}
+              onMemberClick={(id) => {
+                setShowMember(id);
+                setShowDetails(true);
+              }}
+            />
             {/* </div> */}
           </DragScroll>
 

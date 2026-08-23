@@ -1,9 +1,26 @@
 'use client'
 
+import { useState } from "react";
 import { Female, Male } from "@/utils/Icons";
 
+// Toggle icon for expanding/collapsing a root family
+const ToggleIcon = ({ collapsed }: { collapsed: boolean }) => (
+  <svg viewBox="0 0 24 24" width="0.875rem" height="0.875rem" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" />
+    {collapsed && <line x1="12" y1="5" x2="12" y2="19" />}
+  </svg>
+);
+
 // TreeNode Component
-const TreeNode = ({ node, onMemberClick }: { node: any, onMemberClick: (id: number) => void }) => {
+const TreeNode = ({
+  node,
+  onMemberClick,
+}: {
+  node: any;
+  onMemberClick: (id: number) => void;
+}) => {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <div className="bg-main_background pt-4 md:pt-[1.625rem] last:-ml-[0.1875rem] last:pl-[0.1875rem]">
       <div className="flex">
@@ -32,8 +49,21 @@ const TreeNode = ({ node, onMemberClick }: { node: any, onMemberClick: (id: numb
             </div>
           </div>
         ))}
+        {node.next_gen && node.next_gen.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setCollapsed((c) => !c)}
+            aria-label={collapsed ? "Expand family" : "Collapse family"}
+            title={collapsed ? "Expand family" : "Collapse family"}
+            className={`ml-2 self-center flex items-center justify-center w-6 h-6 md:w-7 md:h-7 shrink-0 rounded-full border-2 cursor-pointer z-10 ${collapsed ? "bg-black border-black text-white" : "bg-field_color border-text_color text-text_color"}`}
+          >
+            <ToggleIcon collapsed={collapsed} />
+          </button>
+        )}
       </div>
-      {node.next_gen && <TreeView data={node.next_gen} onMemberClick={onMemberClick} />}
+      {node.next_gen && node.next_gen.length > 0 && !collapsed && (
+        <TreeView data={node.next_gen} onMemberClick={onMemberClick} />
+      )}
     </div>
   );
 };
