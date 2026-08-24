@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Female, Male } from "@/utils/Icons";
 
 // Toggle icon for expanding/collapsing a root family
@@ -11,15 +11,39 @@ const ToggleIcon = ({ collapsed }: { collapsed: boolean }) => (
   </svg>
 );
 
+// Finds the deepest chain of next_gen nesting in the tree data
+const getMaxDepth = (nodes: any[] | null | undefined): number => {
+  if (!nodes || nodes.length === 0) return 0;
+  let max = 1;
+  for (const node of nodes) {
+    if (node.next_gen && node.next_gen.length > 0) {
+      max = Math.max(max, 1 + getMaxDepth(node.next_gen));
+    }
+  }
+  return max;
+};
+
 // TreeNode Component
 const TreeNode = ({
   node,
   onMemberClick,
+  depth,
+  maxVisibleDepth,
 }: {
   node: any;
   onMemberClick: (id: number) => void;
+  depth: number;
+  maxVisibleDepth: number;
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const hasNextGen = node.next_gen && node.next_gen.length > 0;
+  const withinVisibleDepth = depth < maxVisibleDepth;
+
+  // The generation toggle defines which nodes should be visible; a stale
+  // manual collapse from a previous toggle position must not override it.
+  useEffect(() => {
+    setCollapsed(false);
+  }, [maxVisibleDepth]);
 
   return (
     <div className="bg-main_background pt-4 md:pt-[1.625rem] last:-ml-[0.1875rem] last:pl-[0.1875rem]">
@@ -49,7 +73,7 @@ const TreeNode = ({
             </div>
           </div>
         ))}
-        {node.next_gen && node.next_gen.length > 0 && (
+        {hasNextGen && withinVisibleDepth && (
           <button
             type="button"
             onClick={() => setCollapsed((c) => !c)}
@@ -61,20 +85,30 @@ const TreeNode = ({
           </button>
         )}
       </div>
-      {node.next_gen && node.next_gen.length > 0 && !collapsed && (
-        <TreeView data={node.next_gen} onMemberClick={onMemberClick} />
+      {hasNextGen && withinVisibleDepth && !collapsed && (
+        <TreeView data={node.next_gen} onMemberClick={onMemberClick} depth={depth + 1} maxVisibleDepth={maxVisibleDepth} />
       )}
     </div>
   );
 };
 
 // TreeView Component
-const TreeView = ({ data, onMemberClick }: { data: any[], onMemberClick: (id: number) => void }) => {
+const TreeView = ({
+  data,
+  onMemberClick,
+  depth,
+  maxVisibleDepth,
+}: {
+  data: any[];
+  onMemberClick: (id: number) => void;
+  depth: number;
+  maxVisibleDepth: number;
+}) => {
   return (
     <div className="ml-10 md:ml-20 first:ml-0">
       <div className="border-l-2 border-text_color">
         {data.map((node: any, index: number) => (
-          <TreeNode key={index} node={node} onMemberClick={onMemberClick} />
+          <TreeNode key={index} node={node} onMemberClick={onMemberClick} depth={depth} maxVisibleDepth={maxVisibleDepth} />
         ))}
       </div>
     </div>
@@ -87,6 +121,13 @@ interface FetchFamilyTreeProps {
 }
 
 export default function FetchFamilyTree({ data, onMemberClick }: FetchFamilyTreeProps) {
+  const maxDepth = getMaxDepth(data);
+  const [visibleGenerations, setVisibleGenerations] = useState(maxDepth || 1);
+
+  useEffect(() => {
+    setVisibleGenerations(getMaxDepth(data) || 1);
+  }, [data]);
+
   if (!data || data.length === 0) {
     return <div className="text-center text-text_color p-10">No data available.</div>;
   }
@@ -94,10 +135,31 @@ export default function FetchFamilyTree({ data, onMemberClick }: FetchFamilyTree
   return (
     <>
       <div className="flex">
-        <TreeView data={data} onMemberClick={onMemberClick} />
+        <TreeView data={data} onMemberClick={onMemberClick} depth={1} maxVisibleDepth={visibleGenerations} />
         <div className="pr-6"></div>
       </div>
-      <div className="pb-6"></div>
+      <div className="pb-24 md:pb-6"></div>
+      <div className="fixed inset-x-0 bottom-0 md:inset-x-auto md:right-4 md:bottom-4 z-20 flex items-center justify-between md:justify-center gap-3 w-full md:w-auto px-4 py-3 md:px-3 md:py-1.5 border-t-2 md:border-2 border-text_color bg-field_color md:rounded-lg md:shadow-lg">
+        <button
+          type="button"
+          onClick={() => setVisibleGenerations((g) => Math.max(1, g - 1))}
+          disabled={visibleGenerations <= 1}
+          className="flex-none px-3 py-1.5 text-sm font-medium rounded-lg border-2 border-text_color text-text_color bg-main_background disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        >
+          ‹<span className="hidden sm:inline"> Prev</span>
+        </button>
+        <span className="text-sm font-medium text-text_color whitespace-nowrap">
+          Generation {visibleGenerations} of {maxDepth}
+        </span>
+        <button
+          type="button"
+          onClick={() => setVisibleGenerations((g) => Math.min(maxDepth, g + 1))}
+          disabled={visibleGenerations >= maxDepth}
+          className="flex-none px-3 py-1.5 text-sm font-medium rounded-lg border-2 border-text_color text-text_color bg-main_background disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        >
+          <span className="hidden sm:inline">Next </span>›
+        </button>
+      </div>
     </>
   );
 }
