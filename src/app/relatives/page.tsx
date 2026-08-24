@@ -153,7 +153,8 @@ export default function Relatives() {
     if (!swrData) return true;
     const lastPage = swrData[swrData.length - 1];
     const totalCount = lastPage.totalCount || 0;
-    return members.length < totalCount;
+    const realMembersCount = members.filter((member) => member.gender !== "Letter").length;
+    return realMembersCount < totalCount;
   }, [swrData, members]);
 
   const loadingList = isLoading || (size > 0 && !error && swrData && typeof swrData[size - 1] === "undefined");

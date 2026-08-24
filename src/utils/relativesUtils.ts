@@ -124,6 +124,6 @@ export async function fetchRelativesData(
 
     return {
         data: groupedData,
-        totalCount: totalCount + 1,
+        totalCount,
     };
 }

@@ -55,12 +55,16 @@ export default function NewMembers() {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        const { data, totalCount } = await response.json();
+        const { data, pagination } = await response.json();
+        const totalCount = pagination?.totalCount ?? 0;
 
         if (params.page === 1) {
           setChangeList(data);
         } else {
-          setChangeList((prev) => [...new Set([...prev, ...data])]);
+          setChangeList((prev) => {
+            const seen = new Set(prev.map((c: any) => c.id));
+            return [...prev, ...data.filter((c: any) => !seen.has(c.id))];
+          });
         }
 
         const totalPages = Math.ceil(totalCount / params.limit);

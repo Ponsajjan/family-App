@@ -93,7 +93,10 @@ export default function VerifyMember() {
         if (params.page === 1) {
           setMembers(data);
         } else {
-          setMembers((prev) => [...new Set([...prev, ...data])]);
+          setMembers((prev) => {
+            const seen = new Set(prev.map((m: any) => m.id));
+            return [...prev, ...data.filter((m: any) => !seen.has(m.id))];
+          });
         }
 
         const totalPages = Math.ceil(totalCount / params.limit);
