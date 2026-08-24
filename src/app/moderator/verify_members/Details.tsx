@@ -199,6 +199,7 @@ export default function NewMemberDetails({
 
     if (error) return <div className='p-4'>Error: {error}</div>;
     if (!data && !loadingDetails) return <div className='p-4 loading-text'>No data found</div>;
+    if (!showDetailsFor.id) return null;
 
     return (
         <Container className='text-text_color relative bg-main_background'>

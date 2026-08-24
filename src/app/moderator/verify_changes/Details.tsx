@@ -208,7 +208,7 @@ const ChangeRequestView = ({
 
   if (!showDetailsFor || showDetailsFor.length === 0) return <div className='p-4'>No pending requests</div>;
   if (!data && !loading) return <div className='p-4 loading-text'>No data found</div>;
-
+  if (!currentRequestId) return null;
   return (
     <Container className='text-text_color relative bg-main_background'>
       <div className='p-4 sticky top-0 z-10 bg-main_background border-b border-border_color'>
