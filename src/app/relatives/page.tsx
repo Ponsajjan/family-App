@@ -153,9 +153,9 @@ export default function Relatives() {
     if (!swrData) return true;
     const lastPage = swrData[swrData.length - 1];
     const totalCount = lastPage.totalCount || 0;
-    const realMembersCount = members.filter((member) => member.gender !== "Letter").length;
-    return realMembersCount < totalCount;
-  }, [swrData, members]);
+    const totalPages = Math.ceil(totalCount / params.limit);
+    return size < totalPages;
+  }, [swrData, size, params.limit]);
 
   const loadingList = isLoading || (size > 0 && !error && swrData && typeof swrData[size - 1] === "undefined");
   const isFetching = isValidating;
