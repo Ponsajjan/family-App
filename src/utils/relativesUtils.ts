@@ -42,17 +42,17 @@ export async function fetchRelativesData(
     
     if (occupation) {
         if (Array.isArray(occupation) && occupation.length > 0) {
-            andConditions.push({ OR: occupation.map(o => ({ occupation: { contains: o, mode: "insensitive" } })) });
+            andConditions.push({ OR: occupation.map(o => ({ occupation: { equals: o, mode: "insensitive" } })) });
         } else if (typeof occupation === 'string') {
-            andConditions.push({ occupation: { contains: occupation, mode: "insensitive" } });
+            andConditions.push({ occupation: { equals: occupation, mode: "insensitive" } });
         }
     }
 
     if (education) {
         if (Array.isArray(education) && education.length > 0) {
-            andConditions.push({ OR: education.map(e => ({ education: { contains: e, mode: "insensitive" } })) });
+            andConditions.push({ OR: education.map(e => ({ education: { equals: e, mode: "insensitive" } })) });
         } else if (typeof education === 'string') {
-            andConditions.push({ education: { contains: education, mode: "insensitive" } });
+            andConditions.push({ education: { equals: education, mode: "insensitive" } });
         }
     }
 
