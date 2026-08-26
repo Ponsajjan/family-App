@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { CloseIcon, ResetData, Info, WarningCircle, RefreshIcon } from '@/utils/Icons';
@@ -42,6 +42,16 @@ interface FieldMetaEntry {
 }
 
 const EMPTY_FIELD_META: FieldMetaEntry = { hasMore: false, loading: false, loadingMore: false, search: '', error: false, lastAttempt: null };
+
+const INITIAL_FIELD_REQUEST_IDS: Record<PaginatedFieldKey, number> = {
+  occupation: 0,
+  education: 0,
+  birthPlace: 0,
+  country: 0,
+  state: 0,
+  district: 0,
+  city: 0,
+};
 
 export default function FilterPanel({ showFilters, onClose, onApply, currentFilters }: FilterPanelProps) {
   const [filters, setFilters] = useState(currentFilters);
@@ -95,6 +105,11 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
 
   const locationsError = fieldMeta.state.error || fieldMeta.district.error || fieldMeta.city.error;
 
+  // Guards against an older, slower request for a field overwriting results from a
+  // newer request (e.g. a stale search or "load more" call resolving out of order).
+  const fieldRequestIdRef = useRef<Record<PaginatedFieldKey, number>>({ ...INITIAL_FIELD_REQUEST_IDS });
+  const initialRequestIdRef = useRef(0);
+
   // Sync filters with currentFilters when the panel becomes visible
   useEffect(() => {
     if (showFilters) {
@@ -103,12 +118,14 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
   }, [showFilters, currentFilters]);
 
   const fetchInitialOptions = useCallback(async () => {
+    const requestId = ++initialRequestIdRef.current;
     try {
       setLoadingFields(prev => ({ ...prev, initial: true }));
       setErrors(prev => ({ ...prev, initial: false }));
       const res = await appFetch('/api/relatives/filterOptions?excludeLocations=true');
       if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
       const data = await res.json();
+      if (requestId !== initialRequestIdRef.current) return; // a newer request has since superseded this one
       setOptions(prev => ({ ...prev, ...data }));
       setFieldMeta(prev => ({
         ...prev,
@@ -118,10 +135,13 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
         country: { ...EMPTY_FIELD_META, hasMore: !!data.countriesHasMore },
       }));
     } catch (err) {
+      if (requestId !== initialRequestIdRef.current) return; // a newer request has since superseded this one
       console.error("Failed to fetch filter options", err);
       setErrors(prev => ({ ...prev, initial: true }));
     } finally {
-      setLoadingFields(prev => ({ ...prev, initial: false }));
+      if (requestId === initialRequestIdRef.current) {
+        setLoadingFields(prev => ({ ...prev, initial: false }));
+      }
     }
   }, []);
 
@@ -136,6 +156,7 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
     field: PaginatedFieldKey,
     opts: { skip: number; search: string; append: boolean }
   ) => {
+    const requestId = ++fieldRequestIdRef.current[field];
     const isInitialFetch = opts.skip === 0 && !opts.append;
     setFieldMeta(prev => ({
       ...prev,
@@ -152,6 +173,7 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
       const res = await appFetch(`/api/relatives/filterOptions?${params.toString()}`);
       if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
       const { data, hasMore } = await res.json();
+      if (requestId !== fieldRequestIdRef.current[field]) return; // a newer request has since superseded this one
       const optionsKey = FIELD_TO_OPTIONS_KEY[field];
       setOptions(prev => ({
         ...prev,
@@ -159,6 +181,7 @@ export default function FilterPanel({ showFilters, onClose, onApply, currentFilt
       }));
       setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], hasMore, loading: false, loadingMore: false, error: false } }));
     } catch (err) {
+      if (requestId !== fieldRequestIdRef.current[field]) return; // a newer request has since superseded this one
       console.error(`Failed to fetch ${field} options`, err);
       setFieldMeta(prev => ({ ...prev, [field]: { ...prev[field], loading: false, loadingMore: false, error: true } }));
     }

@@ -1,7 +1,7 @@
 import React, { InputHTMLAttributes, useId } from 'react';
 
 interface RadioProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
+  label?: React.ReactNode;
   disabled?: boolean;
   className?: string;
 }

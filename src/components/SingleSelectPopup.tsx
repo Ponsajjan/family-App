@@ -4,6 +4,14 @@ import { SearchIcon, CloseIcon } from '@/utils/Icons';
 import Radio from '@/components/RadioButton';
 import { useInfiniteScroll } from '@/utils/useInfiniteScroll';
 
+function highlightText(text: string, searchText: string): string {
+    if (!searchText) return text;
+    // Escape special regex characters like dots to treat them as literals
+    const escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedSearchText})`, 'gi');
+    return text.replace(regex, '<span class="bg-accent_color text-accent_contrast">$1</span>');
+}
+
 interface SingleSelectPopupProps {
     label: string;
     placeholder?: string;
@@ -163,7 +171,7 @@ export default function SingleSelectPopup({ label, placeholder, options, value, 
                                                             <Radio
                                                                 checked={value === opt}
                                                                 readOnly={true}
-                                                                label={opt}
+                                                                label={<span dangerouslySetInnerHTML={{ __html: highlightText(opt, search) }} />}
                                                                 className="w-full !justify-start"
                                                             />
                                                         </div>
