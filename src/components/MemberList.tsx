@@ -83,6 +83,8 @@ export default function MemberList({
   const listContainerRef = useRef<HTMLDivElement | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [mainMemberID, setMainMemberID] = useState(-1);
+  const requestIdRef = useRef(0);
+  const versionRef = useRef<number | null>(null);
   const { logout } = useAuth();
   const [params, setParams] = useState({
     page: 1,
@@ -167,6 +169,10 @@ export default function MemberList({
     async function fetchMembers() {
       if (isFetching || hasMore === false) return;
 
+      // Guards against an older, slower response overwriting a newer search's
+      // results when two fetches end up in flight at the same time.
+      const requestId = ++requestIdRef.current;
+
       try {
         setLoadingList(true);
         isFetching = true;
@@ -194,8 +200,11 @@ export default function MemberList({
           throw new Error('Network response was not ok');
         }
 
-        const { data, totalCount, mainMemberId } = await response.json();
+        const { data, totalCount, mainMemberId, _version } = await response.json();
 
+        if (requestId !== requestIdRef.current) return; // a newer request has since superseded this one
+
+        versionRef.current = _version;
         setMainMemberID(mainMemberId);
         if (params.page === 1) {
           setMembers(data);
@@ -205,10 +214,14 @@ export default function MemberList({
         const totalPages = Math.ceil(totalCount / params.limit);
         setHasMore(params.page < totalPages);
       } catch (error: any) {
-        setError(error.message || 'Failed to fetch members. Please try again later.');
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+        if (requestId === requestIdRef.current) {
+          setError(error.message || 'Failed to fetch members. Please try again later.');
+          toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+        }
       } finally {
-        setLoadingList(false);
+        if (requestId === requestIdRef.current) {
+          setLoadingList(false);
+        }
         isFetching = false;
       }
     }
@@ -238,6 +251,40 @@ export default function MemberList({
     };
   }, [params, hasMore, toast, descendant, excludeId, gender, forType, logout]);
   // Do not add letterId in dependency for list to work properly
+
+  useEffect(() => {
+    // Only check version if data is present (from a prior fetch), so a stale
+    // service-worker cache doesn't hide newly added/edited members.
+    if (members.length === 0 || versionRef.current === null) return;
+
+    const checkMemberListVersion = async () => {
+      const currentVersion = String(versionRef.current);
+
+      try {
+        const excludeIdSet = [...new Set(params.excludeId || [])];
+        const res = await appFetch(
+          `/api/auth/versionCheck/memberList?search=${encodeURIComponent(params.search)}&limit=${params.limit}&for=${params.type}&gender=${params.gender}&excludeId=${excludeIdSet}&descendant=${params.descendant}&showCousin=${params.showCousin}&version=${encodeURIComponent(currentVersion)}`
+        );
+        if (res.ok) {
+          const result = await res.json();
+          if (result.mismatch) {
+            console.log('[VersionCheck] Stale data detected for member list. Updating...');
+            const { clearPWACaches } = await import('@/utils/pwaCache');
+            await clearPWACaches();
+
+            // Force a fresh refetch from page 1
+            setMembers([]);
+            setHasMore(true);
+            setParams((prev) => ({ ...prev, page: 1 }));
+          }
+        }
+      } catch (err) {
+        console.error('[MemberList] Version check failed:', err);
+      }
+    };
+
+    checkMemberListVersion();
+  }, [params.search, params.type, params.gender, params.descendant, params.showCousin, JSON.stringify(params.excludeId)]);
 
   const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
     setSelectedValue(item, id, select, verified);

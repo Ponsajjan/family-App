@@ -24,6 +24,7 @@ export default function Relatives() {
   const [showMember, setShowMember] = useState<number | null>(null);
   const [phonePopup, setPhonePopup] = useState<string[] | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const versionCheckIdRef = useRef(0);
   const [params, setParams] = useState({
     page: 1,
     limit: 40,
@@ -108,6 +109,10 @@ export default function Relatives() {
   useEffect(() => {
     // Only check version if data is present at the moment params change (from SWR cache)
     if (swrData?.[0]?._version) {
+      // Guards against an older, slower check overwriting page 1 with results
+      // for a search term that's no longer the active one.
+      const checkId = ++versionCheckIdRef.current;
+
       const checkRelativesVersion = async () => {
         const currentVersion = JSON.stringify(swrData[0]._version);
 
@@ -115,6 +120,8 @@ export default function Relatives() {
           const res = await appFetch(`/api/auth/versionCheck/relatives?page=1&limit=${params.limit}&search=${encodeURIComponent(params.search)}&version=${encodeURIComponent(currentVersion)}`);
           if (res.ok) {
             const result = await res.json();
+            if (checkId !== versionCheckIdRef.current) return; // a newer check has since superseded this one
+
             if (result.mismatch) {
               console.log(`[VersionCheck] Stale data detected for relatives. Updating...`);
               const { clearPWACaches } = await import("@/utils/pwaCache");

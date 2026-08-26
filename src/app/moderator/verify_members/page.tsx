@@ -23,6 +23,7 @@ export default function VerifyMember() {
   const [loadingList, setLoadingList] = useState(true);
   const [preparingList, setPreparingList] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const requestIdRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('Unverified');
@@ -64,7 +65,11 @@ export default function VerifyMember() {
 
   useEffect(() => {
     const fetchMembers = async () => {
-      if (isFetching || !hasMore) return;
+      if (!hasMore) return;
+
+      // Guards against an older, slower response overwriting a newer search/page's
+      // results when two fetches end up in flight at the same time.
+      const requestId = ++requestIdRef.current;
 
       try {
         setIsFetching(true);
@@ -90,6 +95,8 @@ export default function VerifyMember() {
         }
         const { data, totalCount } = await response.json();
 
+        if (requestId !== requestIdRef.current) return; // a newer request has since superseded this one
+
         if (params.page === 1) {
           setMembers(data);
         } else {
@@ -102,9 +109,13 @@ export default function VerifyMember() {
         const totalPages = Math.ceil(totalCount / params.limit);
         setHasMore(params.page < totalPages);
       } catch (error: any) {
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+        if (requestId === requestIdRef.current) {
+          toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+        }
       } finally {
-        setLoadingList(false);
+        if (requestId === requestIdRef.current) {
+          setLoadingList(false);
+        }
         setIsFetching(false);
       }
     };

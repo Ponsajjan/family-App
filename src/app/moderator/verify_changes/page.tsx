@@ -19,6 +19,7 @@ export default function NewMembers() {
   const [loadingList, setLoadingList] = useState(true);
   const [disableButton, setDisableButton] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const requestIdRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
   const [showDetailsFor, setShowDetailsFor] = useState([]);
   const [currentDetailIndex, setCurrentDetailIndex] = useState<number>(0);
@@ -32,7 +33,11 @@ export default function NewMembers() {
 
   useEffect(() => {
     const fetchChangeList = async () => {
-      if (isFetching || !hasMore) return;
+      if (!hasMore) return;
+
+      // Guards against an older, slower response overwriting a newer page's
+      // results when two fetches end up in flight at the same time.
+      const requestId = ++requestIdRef.current;
 
       try {
         setIsFetching(true);
@@ -58,6 +63,8 @@ export default function NewMembers() {
         const { data, pagination } = await response.json();
         const totalCount = pagination?.totalCount ?? 0;
 
+        if (requestId !== requestIdRef.current) return; // a newer request has since superseded this one
+
         if (params.page === 1) {
           setChangeList(data);
         } else {
@@ -70,9 +77,13 @@ export default function NewMembers() {
         const totalPages = Math.ceil(totalCount / params.limit);
         setHasMore(params.page < totalPages);
       } catch (error: any) {
-        toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+        if (requestId === requestIdRef.current) {
+          toast?.show(error.message || 'Failed to fetch members', 'error', 5000);
+        }
       } finally {
-        setLoadingList(false);
+        if (requestId === requestIdRef.current) {
+          setLoadingList(false);
+        }
         setIsFetching(false);
       }
     };
