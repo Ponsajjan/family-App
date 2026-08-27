@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
           verified: true,
           father: { select: { name: true } },
           mother: { select: { name: true } },
-          // partner: { select: { name: true } },
+          partner: { select: { name: true } },
           pendingVerification: {
             select: {
               id: true,
