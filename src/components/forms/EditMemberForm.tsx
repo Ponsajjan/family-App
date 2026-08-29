@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
-import { ChangeMember, Error, Info } from '@/utils/Icons'
+import { ChangeMember, Error, Info, Warning } from '@/utils/Icons'
 import Input from '@/components/Input'
 import TextArea from '@/components/TextArea'
 import { ButtonSolid } from '@/components/Button'
@@ -97,6 +97,8 @@ function EditMemberForm({
                     </button>
                 </div>
                 {errors.name && <p role="alert" className="text-red-500 text-sm mt-2">{errors.name}</p>}
+
+                {formData.name && /^[a-z]/.test(formData.name.trimStart()) && <p className='mt-2'><span className='inline-block align-bottom pr-1'><Warning /></span>Name is starting without a capital letter.</p>}
 
                 {formData.verified && <p className='mt-2'><span className='inline-block align-bottom pr-1'><Info /></span>This member is already verified. so updated will require <b>moderator approval</b> before they take effect.</p>}
             </div>
