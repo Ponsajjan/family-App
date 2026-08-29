@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
 import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 import { fetchRelativesData } from "@/utils/relativesUtils";
+import prisma from "@/db/db";
 
 export async function GET(request: NextRequest) {
   // Extract and validate parameters
@@ -66,9 +67,18 @@ export async function GET(request: NextRequest) {
       birthYearEnd,
     });
 
+    const mainMemberAuths = await prisma.auth.findMany({
+      where: { id: { in: scopedAuthIds } },
+      select: { mainMemberId: true },
+    });
+    const mainMemberIds = mainMemberAuths
+      .map(a => a.mainMemberId)
+      .filter((id): id is number => id !== null);
+
     return NextResponse.json({
       data,
       totalCount,
+      mainMemberIds,
       _version: updatedAt,
     });
   } catch (error) {

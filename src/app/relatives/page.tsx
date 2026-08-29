@@ -156,6 +156,11 @@ export default function Relatives() {
     });
   }, [swrData]);
 
+  const mainMemberIds = useMemo(() => {
+    if (!swrData) return new Set<number>();
+    return new Set<number>(swrData.flatMap((page) => page.mainMemberIds || []));
+  }, [swrData]);
+
   const hasMore = useMemo(() => {
     if (!swrData) return true;
     const lastPage = swrData[swrData.length - 1];
@@ -293,7 +298,9 @@ export default function Relatives() {
                             />
                           </div>
                           <div className="flex text-xs md:text-sm opacity-65 flex-wrap">
-                            {(member.father || member.mother) ? (
+                            {mainMemberIds.has(member.id) ? (
+                              <span className='font-medium'>Main Member</span>
+                            ) : (member.father || member.mother) ? (
                               <>
                                 <span className="pr-0.5 font-medium">Parents:</span>
                                 {member.father && <span className='pr-1'>{member.father.name}, </span>}

@@ -18,6 +18,7 @@ export default function VerifyMember() {
   const toast = useToast();
   const [searchInput, setSearchInput] = useState("");
   const [members, setMembers] = useState<any[] | never[]>([]);
+  const [mainMemberId, setMainMemberId] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsFor, setShowDetailsFor] = useState('');
   const [loadingList, setLoadingList] = useState(true);
@@ -93,9 +94,11 @@ export default function VerifyMember() {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        const { data, totalCount } = await response.json();
+        const { data, totalCount, mainMemberId: fetchedMainMemberId } = await response.json();
 
         if (requestId !== requestIdRef.current) return; // a newer request has since superseded this one
+
+        setMainMemberId(fetchedMainMemberId ?? null);
 
         if (params.page === 1) {
           setMembers(data);
@@ -257,7 +260,9 @@ export default function VerifyMember() {
                             />
                           </div>
                           <div className="flex text-xs md:text-sm opacity-65 flex-wrap">
-                            {(member.father || member.mother) ? (
+                            {member.id === mainMemberId ? (
+                              <span className='font-medium'>Main Member</span>
+                            ) : (member.father || member.mother) ? (
                               <>
                                 <span className="pr-1 font-medium">Parents:</span>
                                 {member.father && <span className='pr-1'>{member.father.name}, </span>}

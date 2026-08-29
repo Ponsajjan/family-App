@@ -72,10 +72,16 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    const auth = await prisma.auth.findUnique({
+      where: { id: authId },
+      select: { mainMemberId: true },
+    });
+
     // Return paginated data with headers
     return NextResponse.json({
       data: memberList,
       totalCount,
+      mainMemberId: auth?.mainMemberId ?? null,
     });
   } catch (error) {
     console.error("Error fetching members:", error);

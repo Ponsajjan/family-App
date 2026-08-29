@@ -67,8 +67,14 @@ export async function GET(request: NextRequest) {
       })
     ]);
 
+    const auth = await prisma.auth.findUnique({
+      where: { id: authId },
+      select: { mainMemberId: true },
+    });
+
     return NextResponse.json({
       data: members,
+      mainMemberId: auth?.mainMemberId ?? null,
       pagination: {
         page,
         limit,

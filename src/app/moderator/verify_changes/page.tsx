@@ -15,6 +15,7 @@ import { appFetch } from "@/utils/appFetch";
 export default function NewMembers() {
   const toast = useToast();
   const [changeList, setChangeList] = useState<any[] | never[]>([]);
+  const [mainMemberId, setMainMemberId] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [loadingList, setLoadingList] = useState(true);
   const [disableButton, setDisableButton] = useState(false);
@@ -60,10 +61,12 @@ export default function NewMembers() {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        const { data, pagination } = await response.json();
+        const { data, pagination, mainMemberId: fetchedMainMemberId } = await response.json();
         const totalCount = pagination?.totalCount ?? 0;
 
         if (requestId !== requestIdRef.current) return; // a newer request has since superseded this one
+
+        setMainMemberId(fetchedMainMemberId ?? null);
 
         if (params.page === 1) {
           setChangeList(data);
@@ -148,7 +151,9 @@ export default function NewMembers() {
                             <div className='font-medium'>{member.name}</div>
                           </div>
                           <div className="flex text-xs md:text-sm opacity-65 flex-wrap">
-                            {(member.father || member.mother) ? (
+                            {member.id === mainMemberId ? (
+                              <span className='font-medium'>Main Member</span>
+                            ) : (member.father || member.mother) ? (
                               <>
                                 <span className="pr-1 font-medium">Parents:</span>
                                 {member.father && <span className='pr-1'>{member.father.name}, </span>}

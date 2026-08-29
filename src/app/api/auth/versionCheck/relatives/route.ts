@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/utils/auth";
 import { getAllAuthIds } from "@/utils/switchAccountHelpers";
 import { fetchRelativesData } from "@/utils/relativesUtils";
+import prisma from "@/db/db";
 
 export async function GET(request: NextRequest) {
     const token = request.cookies.get("token")?.value;
@@ -28,11 +29,20 @@ export async function GET(request: NextRequest) {
 
         const { data, totalCount } = await fetchRelativesData(allAuthIds, page, limit, searchQuery);
 
+        const mainMemberAuths = await prisma.auth.findMany({
+            where: { id: { in: allAuthIds } },
+            select: { mainMemberId: true },
+        });
+        const mainMemberIds = mainMemberAuths
+            .map(a => a.mainMemberId)
+            .filter((id): id is number => id !== null);
+
         return NextResponse.json({
             mismatch: true,
             data: {
                 data,
                 totalCount,
+                mainMemberIds,
                 _version: updatedAt,
             }
         });

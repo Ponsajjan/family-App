@@ -44,7 +44,11 @@ function MemberDetails({ data }: { data: any }) {
                         )}
                     </div>
                 </div>
-                {data.mainMemberName && <div className='mr-0 ml-auto text-xs text-text_color/60 w-fit'>--- {data.mainMemberName} Family</div>}
+                {data.mainMemberName && (
+                    <div className='mr-0 ml-auto text-xs text-text_color/60 w-fit'>
+                        {data.isMainMember ? '---  Main Member' : `--- ${data.mainMemberName} Family`}
+                    </div>
+                )}
             </div>
 
             <div className="px-4 pb-6">

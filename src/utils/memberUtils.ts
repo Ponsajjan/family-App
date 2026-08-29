@@ -42,6 +42,7 @@ export interface MemberResponse {
   }
   descendant?: boolean;
   mainMemberName?: string | null;
+  isMainMember?: boolean;
 }
 
 export async function fetchMemberData(id: number, loginAuthIdsCount: number) {
@@ -121,7 +122,7 @@ export async function fetchMemberData(id: number, loginAuthIdsCount: number) {
     personalInformation: buildPersonalInfo(member),
     additionalInformation: buildAdditionalInfo(member),
     ...(member.descendant !== undefined && { descendant: member.descendant }),
-    ...(mainMemberName && loginAuthIdsCount > 1 && { mainMemberName })
+    ...(mainMemberName && loginAuthIdsCount > 1 && { mainMemberName, isMainMember: mainMemberId === member.id })
   };
 
   return responseData;
