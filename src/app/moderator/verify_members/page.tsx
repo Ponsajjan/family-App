@@ -21,7 +21,7 @@ export default function VerifyMember() {
   const [searchInput, setSearchInput] = useState("");
   const [members, setMembers] = useState<any[] | never[]>([]);
   const [mainMemberId, setMainMemberId] = useState<number | null>(null);
-  const mainMemberName = useSelector((state: RootState) => state.terms.mainMemberName);
+  const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
   const [showDetails, setShowDetails] = useState(false);
   const [showDetailsFor, setShowDetailsFor] = useState('');
   const [loadingList, setLoadingList] = useState(true);
@@ -241,7 +241,7 @@ export default function VerifyMember() {
                     </Link>
                     <div className="border-l border-border_color px-2 my-1 flex flex-wrap gap-x-1">
                       <span>{selectedFilter}</span>
-                      {mainMemberName && <span>{`${mainMemberName}'s Family`}</span>}
+                      {choosePopupAccounts.length > 1 && mainMemberName && <span className='hidden sm:block'>{`${mainMemberName}'s Family`}</span>}
                       <span>Members</span>
                       {params.search && <span>(Search)</span>}
                     </div>

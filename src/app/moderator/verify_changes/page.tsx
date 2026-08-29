@@ -18,7 +18,7 @@ export default function NewMembers() {
   const toast = useToast();
   const [changeList, setChangeList] = useState<any[] | never[]>([]);
   const [mainMemberId, setMainMemberId] = useState<number | null>(null);
-  const mainMemberName = useSelector((state: RootState) => state.terms.mainMemberName);
+  const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
   const [showDetails, setShowDetails] = useState(false);
   const [loadingList, setLoadingList] = useState(true);
   const [disableButton, setDisableButton] = useState(false);
@@ -137,7 +137,7 @@ export default function NewMembers() {
                     </Link>
                     <div className="border-l border-border_color px-2 my-1 flex flex-wrap gap-x-1">
                       <span>Verify Changes</span>
-                      {mainMemberName && <span>{`${mainMemberName}'s Family`}</span>}
+                      {choosePopupAccounts.length > 1 && mainMemberName && <span className='hidden sm:block'>{`${mainMemberName}'s Family`}</span>}
                     </div>
                   </div>
                 </div>
