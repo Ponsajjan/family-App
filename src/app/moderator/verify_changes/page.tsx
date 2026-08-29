@@ -2,6 +2,8 @@
 
 import { Female, Male } from '@/utils/Icons';
 import { useEffect, useRef, useState } from 'react'
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import { useToast } from '@/components/Toast';
 import Topnav from "@/components/Topnav";
 import Details from './Details';
@@ -16,6 +18,7 @@ export default function NewMembers() {
   const toast = useToast();
   const [changeList, setChangeList] = useState<any[] | never[]>([]);
   const [mainMemberId, setMainMemberId] = useState<number | null>(null);
+  const mainMemberName = useSelector((state: RootState) => state.terms.mainMemberName);
   const [showDetails, setShowDetails] = useState(false);
   const [loadingList, setLoadingList] = useState(true);
   const [disableButton, setDisableButton] = useState(false);
@@ -123,23 +126,26 @@ export default function NewMembers() {
         <Container className='scroll-stable' ref={containerRef}>
           <div className='max-w-3xl'>
             <div className='max-w-xl mx-auto'>
-              <div className="bg-main_background w-full sticky pt-4 top-12 md:top-0 z-20 flex">
-                <div className="border border-border_color -mb-3 rounded-md flex justify-center items-center shadow-sm ml-2 text-text_color bg-field_color whitespace-nowrap">
-                  <Link href="/moderator" className="px-1 border-r border-border_color">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="1.25rem" height="1.25rem" viewBox="-8.5 0 32 32" version="1.1">
-                      <path d="M15.281 7.188v17.594l-15.281-8.781z" />
-                    </svg>
-                  </Link>
-                  <div className="px-2 py-0.5">
-                    Verify Changes
+              <div className="bg-main_background sticky top-12 md:top-0 pt-4 px-2">
+                <div className="relative flex">
+                  <span className="absolute top-1/2 -translate-y-1/2 border-b border-border_color block w-full"></span>
+                  <div className="border border-border_color rounded-md flex justify-start items-center shadow-sm text-text_color bg-field_color z-10">
+                    <Link href="/moderator" className="px-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="1.25rem" height="1.25rem" viewBox="-8.5 0 32 32" version="1.1">
+                        <path d="M15.281 7.188v17.594l-15.281-8.781z" />
+                      </svg>
+                    </Link>
+                    <div className="border-l border-border_color px-2 my-1 flex flex-wrap gap-x-1">
+                      <span>Verify Changes</span>
+                      {mainMemberName && <span>{`${mainMemberName}'s Family`}</span>}
+                    </div>
                   </div>
                 </div>
-                <span className="border-b border-border_color block w-full mr-3"></span>
               </div>
-              <div className='pt-4'>
+              <div className='border-l border-border_color ml-4 mt-[0.3125rem]'>
                 {changeList?.map((member: any) => (
                   <div key={member.id} className="pl-4">
-                    <div className="border-l border-border_color md:pt-2 pl-4 pr-3 py-1">
+                    <div className="md:pt-2 pr-3 py-1">
                       <div
                         onClick={() => handleShowDetails(member.pendingVerification, member.id)}
                         className="cursor-pointer px-3 py-2 flex justify-between items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
