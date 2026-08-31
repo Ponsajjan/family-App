@@ -138,7 +138,7 @@ export default function FetchFamilyTree({ data, onMemberClick }: FetchFamilyTree
         <TreeView data={data} onMemberClick={onMemberClick} depth={1} maxVisibleDepth={visibleGenerations} />
         <div className="pr-6"></div>
       </div>
-      <div className="pb-24 md:pb-6"></div>
+      <div className="pb-24 md:pb-18"></div>
       <div className="fixed inset-x-0 bottom-0 md:inset-x-auto md:right-4 md:bottom-4 z-20 flex items-center justify-between md:justify-center gap-3 w-full md:w-auto px-4 py-3 md:p-1.5 border-t-2 md:border-2 border-text_color bg-field_color md:rounded-lg md:shadow-lg cursor-default">
         <button
           type="button"
