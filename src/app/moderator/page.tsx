@@ -7,7 +7,7 @@ import { ButtonOutline, LinkButtonOutline } from "../../components/Button"
 import { useToast } from '@/components/Toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { NextArrow, SwitchIcon } from '@/utils/Icons'
+import { NextArrow, SwitchMainAccount } from '@/utils/Icons'
 import { ChoosePopup } from '@/components/ChoosePopup'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
@@ -23,7 +23,7 @@ export default function ModeratorDashboard() {
     const { logout, storeLoginValues } = useAuth();
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
-    const { mainMemberName, choosePopupAccounts, isModerator, accounts, anyOtherAccountHasIssues, currentAuthId } = useSelector((state: RootState) => state.terms);
+    const { mainMemberName, chooseAccountPopup, isModerator, accounts, anyOtherAccountHasIssues, currentAuthId } = useSelector((state: RootState) => state.terms);
 
     const url = '/api/moderator';
     const { data, isLoading, mutate } = useSWR(url);
@@ -203,7 +203,7 @@ export default function ModeratorDashboard() {
             </Topnav>
             <div className="w-full flex flex-col px-4 py-10 max-w-3xl mx-auto">
                 <div className="relative flex items-center gap-2 h-10 mb-2">
-                    {choosePopupAccounts.length > 1 &&
+                    {chooseAccountPopup.length > 1 &&
                         <>
                             <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1.5 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
                             <div className="ml-auto mr-0 z-10 bg-main_background px-1.5">
@@ -213,7 +213,7 @@ export default function ModeratorDashboard() {
                                     aria-label="Switch family account"
                                     className='border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors relative bg-transparent text-inherit focus:outline-none'
                                 >
-                                    <SwitchIcon aria-hidden="true" />
+                                    <SwitchMainAccount aria-hidden="true" />
                                     {anyOtherAccountHasIssues && (
                                         <span className="absolute -bottom-0.5 right-0 flex h-2.5 w-2.5" aria-label="Other accounts have pending items">
                                             <span className="inline-flex h-full w-full rounded-full bg-black" aria-hidden="true"></span>

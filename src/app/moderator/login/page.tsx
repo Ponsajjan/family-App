@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
-import { PrevArrow, SwitchIcon } from "@/utils/Icons";
+import { PrevArrow, SwitchMainAccount } from "@/utils/Icons";
 import { useAuth } from "@/contexts/AuthContext";
 import Container from "@/components/Container";
 import { setIsModerator, setAccounts, setCurrentAuthId } from "@/store/slices/termsSlice";
@@ -22,7 +22,7 @@ export default function Page() {
     const [submitting, setSubmitting] = useState(false);
     const { storeLoginValues } = useAuth();
     const dispatch = useDispatch<AppDispatch>();
-    const { accounts, mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+    const { accounts, mainMemberName, chooseAccountPopup } = useSelector((state: RootState) => state.terms);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,7 +87,7 @@ export default function Page() {
             <Container>
                 <form className="max-w-lg px-4 pt-10 mx-auto">
                     <div className="relative flex items-center gap-2 h-10 mb-2">
-                        {choosePopupAccounts.length > 1 &&
+                        {chooseAccountPopup.length > 1 &&
                             <>
                                 <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1.5 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
                                 <div className="ml-auto mr-0 z-10 bg-main_background px-1.5">
@@ -96,7 +96,7 @@ export default function Page() {
                                         onClick={() => setShowChoosePopup(true)}
                                         className="border  border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
                                     >
-                                        <SwitchIcon />
+                                        <SwitchMainAccount />
                                     </button>
                                 </div>
                                 <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />

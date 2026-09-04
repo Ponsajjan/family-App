@@ -4,7 +4,7 @@ import Topnav from "@/components/Topnav";
 import FetchFamilyTree from "./FetchFamilyTree";
 import DragScroll from "@/components/DragScroll";
 import { getCookie } from 'cookies-next';
-import { SwitchIcon } from "@/utils/Icons";
+import { SwitchMainAccount } from "@/utils/Icons";
 import { useState, useEffect, useRef } from "react";
 import { ChoosePopup } from "@/components/ChoosePopup";
 import useSWR from 'swr';
@@ -22,7 +22,7 @@ export default function FamilyTreePage() {
   // const [exporting, setExporting] = useState(false);
   // const [showExportMenu, setShowExportMenu] = useState(false);
   // const treeRef = useRef<HTMLDivElement>(null);
-  const { choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+  const { chooseAccountPopup } = useSelector((state: RootState) => state.terms);
   const token = getCookie('token');
   const url = '/api/tree';
   const { data: swrResult, error, isLoading, mutate } = useSWR(token ? url : null);
@@ -115,12 +115,12 @@ export default function FamilyTreePage() {
               )}
             </div>
           )} */}
-          {choosePopupAccounts.length > 1 && <button
+          {chooseAccountPopup.length > 1 && <button
             type="button"
             onClick={() => setShowChoosePopup(true)}
             className="border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer bg-transparent text-inherit focus:outline-none"
           >
-            <SwitchIcon />
+            <SwitchMainAccount />
           </button>}
         </div>
       </Topnav>

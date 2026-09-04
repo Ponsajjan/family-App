@@ -47,7 +47,7 @@ export interface TermsState {
   moderatorGroups: ModeratorGroup[];
   mainMemberName: string;
   accounts: AccountDetail[];
-  choosePopupAccounts: ChoosePopupAccount[];  // current:true accounts in ChoosePopup format
+  chooseAccountPopup: ChoosePopupAccount[];  // current:true accounts in ChoosePopup format
   currentAuthId: string;
   isModerator: boolean;
   anyOtherAccountHasIssues: boolean;
@@ -93,7 +93,7 @@ const initialState: TermsState = {
   moderatorGroups: [],
   mainMemberName: '',
   accounts: [],
-  choosePopupAccounts: [],
+  chooseAccountPopup: [],
   currentAuthId: '',
   isModerator: false,
   anyOtherAccountHasIssues: false,
@@ -116,7 +116,7 @@ const termsSlice = createSlice({
     },
     setAccounts(state, action: PayloadAction<AccountDetail[]>) {
       state.accounts = action.payload;
-      state.choosePopupAccounts = toChoosePopup(action.payload);
+      state.chooseAccountPopup = toChoosePopup(action.payload);
       state.anyOtherAccountHasIssues = action.payload.some(acc => acc.current && String(acc.authId) !== String(state.currentAuthId) && acc.hasChanges);
       state.anyAccountHasIssues = action.payload.some(acc => acc.current && acc.hasChanges);
     },
@@ -130,7 +130,7 @@ const termsSlice = createSlice({
       return { ...state, ...action.payload };
     },
     setChoosePopupAccounts(state, action: PayloadAction<ChoosePopupAccount[]>) {
-      state.choosePopupAccounts = action.payload;
+      state.chooseAccountPopup = action.payload;
     },
     updateAccountIssues(state, action: PayloadAction<{ hasChanges: boolean, anyOtherAccountHasIssues: boolean }>) {
       const { hasChanges, anyOtherAccountHasIssues } = action.payload;
@@ -141,7 +141,7 @@ const termsSlice = createSlice({
       state.anyOtherAccountHasIssues = anyOtherAccountHasIssues;
       state.anyAccountHasIssues = hasChanges || anyOtherAccountHasIssues;
       // Refresh the derived list for the popup
-      state.choosePopupAccounts = toChoosePopup(state.accounts);
+      state.chooseAccountPopup = toChoosePopup(state.accounts);
     },
   },
   extraReducers: (builder) => {
@@ -156,7 +156,7 @@ const termsSlice = createSlice({
         state.moderatorGroups = action.payload.moderatorGroups;
         state.currentAuthId = action.payload.currentAuthId;
         state.accounts = action.payload.accounts;
-        state.choosePopupAccounts = toChoosePopup(action.payload.accounts);
+        state.chooseAccountPopup = toChoosePopup(action.payload.accounts);
         state.isModerator = action.payload.isModerator;
         state.anyOtherAccountHasIssues = action.payload.accounts.some(acc => acc.current && String(acc.authId) !== String(action.payload.currentAuthId) && acc.hasChanges);
         state.anyAccountHasIssues = action.payload.accounts.some(acc => acc.current && acc.hasChanges);
@@ -185,5 +185,5 @@ export default termsSlice.reducer;
 
 /** Simple state accessor — ChoosePopup reads this instead of the data prop */
 export const selectChoosePopupAccounts = (state: { terms: TermsState }): ChoosePopupAccount[] =>
-  state.terms.choosePopupAccounts;
+  state.terms.chooseAccountPopup;
 

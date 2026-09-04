@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { LinkButtonOutline } from "../../components/Button"
-import { SwitchIcon } from "@/utils/Icons"
+import { SwitchMainAccount } from "@/utils/Icons"
 import { useEffect, useState } from "react"
 import { ChoosePopup } from "@/components/ChoosePopup"
 import { useSelector } from "react-redux"
@@ -13,14 +13,14 @@ export default function AddEditPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const { mainMemberName, choosePopupAccounts } = useSelector((state: RootState) => state.terms);
+    const { mainMemberName, chooseAccountPopup } = useSelector((state: RootState) => state.terms);
     const mode = searchParams.get('mode');
 
     useEffect(() => {
-        if (choosePopupAccounts.length > 1 && !mode) {
+        if (chooseAccountPopup.length > 1 && !mode) {
             setShowChoosePopup(true);
         }
-    }, [choosePopupAccounts.length, mode, setShowChoosePopup]);
+    }, [chooseAccountPopup.length, mode, setShowChoosePopup]);
 
     // Get the 'mode' parameter from URL, default to 'add'
     const currentMode = mode || 'add'
@@ -64,7 +64,7 @@ export default function AddEditPage() {
             </div>
 
             <div className="relative flex items-center gap-2 h-10">
-                {choosePopupAccounts.length > 1 &&
+                {chooseAccountPopup.length > 1 &&
                     <>
                         <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1.5 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
                         <div className="ml-auto mr-0 z-10 bg-main_background px-1.5">
@@ -74,7 +74,7 @@ export default function AddEditPage() {
                                 aria-label="Switch family account"
                                 className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
                             >
-                                <SwitchIcon aria-hidden="true" />
+                                <SwitchMainAccount aria-hidden="true" />
                             </button>
                         </div>
                         <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />

@@ -1176,7 +1176,7 @@ export const SkipForward = () => {
     );
 };
 
-export const SwitchIcon = () => {
+export const SwitchMainAccount = () => {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1.5rem" height="1.5rem" viewBox="0 0 32 32">
             <circle cx="10" cy="9" r="3" />
@@ -1218,6 +1218,27 @@ export const DatabaseBackup = () => {
             <path d="M4 6V12C4 12 4 15 11 15C18 15 18 12 18 12V6" fill="none" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M11 3C18 3 18 6 18 6C18 6 18 9 11 9C4 9 4 6 4 6C4 6 4 3 11 3Z" fill="none" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M11 21C4 21 4 18 4 18V12" fill="none" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    )
+}
+
+export const RelationshipFinderIcon = () => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none">
+            <circle cx="7" cy="7" r="3" fill="none" stroke="rgba(var(--text_color))" strokeWidth="1.5" />
+            <circle cx="17" cy="17" r="3" fill="none" stroke="rgba(var(--text_color))" strokeWidth="1.5" />
+            <path d="M9.5 9.5L14.5 14.5" stroke="rgba(var(--text_color))" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="1.5 2" />
+        </svg>
+    )
+}
+
+export const SwitchIcon = () => {
+    return (
+        <svg width="1.5rem" height="1.5rem" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 9L9 9" stroke="#323232" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M15 15L3 15" stroke="#323232" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M18 12L20.913 9.08704V9.08704C20.961 9.03897 20.961 8.96103 20.913 8.91296V8.91296L18 6" stroke="#323232" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M6 18L3.08704 15.087V15.087C3.03897 15.039 3.03897 14.961 3.08704 14.913V14.913L6 12" stroke="#323232" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     )
 }
