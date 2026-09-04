@@ -76,38 +76,23 @@ function ageOrder(a: RelationshipGraphMember, b: RelationshipGraphMember): 'aEld
     return 'unknown';
 }
 
+// Tamil convention addresses a collateral relative by the same title as whichever direct
+// ancestor/descendant sits at the same generational distance — a grandfather's brother, his
+// brother's son, and his brother's grandson are all "தாத்தா" (2 generations up from ego),
+// exactly like an actual grandfather. `offset` is that generational distance: positive means
+// `to` sits that many generations above `from`, negative means that many below, 0 is a peer.
 function genericFallback(up: number, down: number, toGender: string): RelationshipResult {
-    if (down === 0) {
-        return { label: `${up}-ஆம் தலைமுறை மூதாதையர்`, description: 'Direct ancestor line' };
-    }
-    if (up === 0) {
-        return { label: `${down}-ஆம் தலைமுறை வழித்தோன்றல்`, description: 'Direct descendant line' };
-    }
-    const cousinTerm = toGender === 'Male' ? 'சகோதரன்' : toGender === 'Female' ? 'சகோதரி' : 'உறவினர்';
-    // Sibling of an ancestor (grand-uncle/grand-aunt and further up) — not a cousin relation.
-    if (down === 1 && up > 1) {
-        return {
-            label: `${up - 1}-ஆம் தலைமுறை மூதாதையரின் ${cousinTerm}`,
-            description: 'Grand-uncle/aunt line',
-        };
-    }
-    // Descendant of a sibling (grand-nephew/grand-niece and further down) — not a cousin relation.
-    if (up === 1 && down > 1) {
-        return {
-            label: `${down - 1}-ஆம் தலைமுறை உடன்பிறப்பின் வழித்தோன்றல்`,
-            description: 'Grand-nephew/niece line',
-        };
-    }
-    if (up === down) {
-        const degree = up - 1;
-        return { label: `${degree}-ஆம் தலைமுறை ஒன்றுவிட்ட ${cousinTerm}` };
-    }
-    const degree = Math.min(up, down) - 1;
-    const removal = Math.abs(up - down);
-    return {
-        label: `${degree}-ஆம் தலைமுறை ஒன்றுவிட்ட ${cousinTerm}`,
-        description: `(${removal} generation gap)`,
-    };
+    const offset = up - down;
+
+    if (offset >= 4) return { label: 'மூதாதையர்' };
+    if (offset === 3) return { label: toGender === 'Male' ? 'கொள்ளுத்தாத்தா' : toGender === 'Female' ? 'கொள்ளுப்பாட்டி' : 'கொள்ளுத்தாத்தா/பாட்டி' };
+    if (offset === 2) return { label: toGender === 'Male' ? 'தாத்தா' : toGender === 'Female' ? 'பாட்டி' : 'பாட்டன்/பாட்டி' };
+    if (offset === 1) return { label: toGender === 'Male' ? 'பெரியப்பா/சித்தப்பா' : toGender === 'Female' ? 'பெரியம்மா/சித்தி' : 'உறவினர்' };
+    if (offset === 0) return { label: toGender === 'Male' ? 'சகோதரன்' : toGender === 'Female' ? 'சகோதரி' : 'உறவினர்' };
+    if (offset === -1) return { label: toGender === 'Male' ? 'மருமகன்' : toGender === 'Female' ? 'மருமகள்' : 'உறவினர்' };
+    if (offset === -2) return { label: toGender === 'Male' ? 'பேரன்' : toGender === 'Female' ? 'பேத்தி' : 'பேரக்குழந்தை' };
+    if (offset === -3) return { label: toGender === 'Male' ? 'கொள்ளுப்பேரன்' : toGender === 'Female' ? 'கொள்ளுப்பேத்தி' : 'கொள்ளுப்பேரக்குழந்தை' };
+    return { label: 'வழித்தோன்றல்' };
 }
 
 /**
@@ -224,7 +209,7 @@ function consanguineRelation(
 
     // First cousins
     if (up === 2 && down === 2) {
-        return { label: to.gender === 'Male' ? 'ஒன்றுவிட்ட சகோதரன்' : to.gender === 'Female' ? 'ஒன்றுவிட்ட சகோதரி' : 'ஒன்றுவிட்ட உறவினர்', distance };
+        return { label: to.gender === 'Male' ? 'சகோதரன்' : to.gender === 'Female' ? 'சகோதரி' : 'உறவினர்', distance };
     }
 
     return { ...genericFallback(up, down, to.gender), distance };
