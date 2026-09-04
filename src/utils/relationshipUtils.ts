@@ -184,8 +184,12 @@ function consanguineRelation(
         };
     }
 
-    // Uncle / Aunt (from's parent's sibling)
-    if (up === 2 && down === 1) {
+    // Uncle / Aunt (from's parent's sibling — and, by the same classificatory rule,
+    // any more distant collateral one generation "removed" upward, e.g. a first
+    // cousin's child looking at `to`. `from`'s immediate parent on the side that
+    // leads to the common ancestor is the sibling-equivalent pivot in both cases,
+    // so the father-side/mother-side split still determines மாமா vs பெரியப்பா/சித்தப்பா.)
+    if (up - down === 1 && down >= 1) {
         const intermediateId = sideFrom === 'father' ? from.fatherId : sideFrom === 'mother' ? from.motherId : null;
         const intermediate = intermediateId ? membersById.get(intermediateId) : undefined;
         const order = intermediate ? ageOrder(to, intermediate) : 'unknown';

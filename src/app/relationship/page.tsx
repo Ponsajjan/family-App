@@ -77,7 +77,7 @@ export default function RelationshipPage() {
   const [showListFor, setShowListFor] = useState<'A' | 'B'>('A');
   const [showChoosePopup, setShowChoosePopup] = useState(false);
 
-  const { chooseAccountPopup } = useSelector((state: RootState) => state.terms);
+  const { chooseAccountPopup, currentAuthId } = useSelector((state: RootState) => state.terms);
 
   const url = selectedA && selectedB
     ? `/api/relationship?personAId=${selectedA.id}&personBId=${selectedB.id}`
@@ -186,6 +186,7 @@ export default function RelationshipPage() {
         </Container>
         <SlidePanel setShowDetails={setShowList} showDetails={showList}>
           <MemberList
+            key={currentAuthId}
             forType="selectMember"
             gender={null}
             excludeId={null}
