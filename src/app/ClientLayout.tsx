@@ -19,6 +19,7 @@ export default function ClientLayout({
   const IncludeSideNavLayoutPaths = [
     '/',
     '/relatives',
+    '/relationship',
     '/terms',
     '/tree',
     // '/announcements',

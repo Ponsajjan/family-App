@@ -57,7 +57,7 @@ interface MemberListProps {
   forType: 'selectMember' | 'selectChildren' | 'selectPartner' | 'editRelationship' | 'editMember';
   gender?: 'Male' | 'Female' | null;
   excludeId?: number[] | null;
-  setSelectedValue: (item: string, id: number, select: string, verified: boolean) => void;
+  setSelectedValue: (item: string, id: number, select: string, verified: boolean, gender?: 'Male' | 'Female') => void;
   openList: any;
   getSelectedValues: any;
   multiselect: boolean;
@@ -249,7 +249,7 @@ export default function MemberList({
     return () => {
       container?.removeEventListener('scroll', handleScroll);
     };
-  }, [params, hasMore, toast, descendant, excludeId, gender, forType, logout]);
+  }, [params, hasMore, toast, descendant, JSON.stringify(excludeId), gender, forType, logout]);
   // Do not add letterId in dependency for list to work properly
 
   useEffect(() => {
@@ -286,8 +286,8 @@ export default function MemberList({
     checkMemberListVersion();
   }, [params.search, params.type, params.gender, params.descendant, params.showCousin, JSON.stringify(params.excludeId)]);
 
-  const handleSelectedValue = (item: string, id: number, select: string, verified: boolean) => {
-    setSelectedValue(item, id, select, verified);
+  const handleSelectedValue = (item: string, id: number, select: string, verified: boolean, gender?: 'Male' | 'Female') => {
+    setSelectedValue(item, id, select, verified, gender);
   };
 
   const highlightSearchText = (text: string, searchText: string): string => {
@@ -405,8 +405,8 @@ export default function MemberList({
                     <div
                       role="button"
                       tabIndex={0}
-                      onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified)}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectedValue(member.name, member.id, forType, member.verified); } }}
+                      onClick={() => handleSelectedValue(member.name, member.id, forType, member.verified, member.gender as 'Male' | 'Female')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectedValue(member.name, member.id, forType, member.verified, member.gender as 'Male' | 'Female'); } }}
                       aria-label={`Select ${member.name}`}
                       className="cursor-pointer px-3 py-2 flex items-center border border-l-4 border-border_color bg-field_color rounded text-text_color"
                     >
