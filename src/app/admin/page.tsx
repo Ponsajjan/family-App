@@ -150,13 +150,19 @@ export default function Relatives() {
           <span className="absolute right-[0.3125rem] top-1/2 transform -translate-y-1/2 bg-main_background pointer-events-none hidden peer-placeholder-shown:block">
             <SearchIcon />
           </span>
-          <button
-            onClick={resetSearch}
-            className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
-            aria-label="Clear search"
-          >
-            <CloseIcon />
-          </button>
+          {(loading || isFetching) && params.page === 1 ? (
+            <span className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background block peer-placeholder-shown:hidden" role="status" aria-label="Searching">
+              <span className="block w-4 h-4 border-2 border-accent_color border-t-transparent rounded-full animate-spin" />
+            </span>
+          ) : (
+            <button
+              onClick={resetSearch}
+              className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background cursor-pointer block peer-placeholder-shown:hidden rounded-md"
+              aria-label="Clear search"
+            >
+              <CloseIcon />
+            </button>
+          )}
         </div>
       </Topnav>
 

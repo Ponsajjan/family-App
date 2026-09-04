@@ -139,12 +139,17 @@ export default function SingleSelectPopup({ label, placeholder, options, value, 
                                             placeholder="Search..."
                                             value={search}
                                             onChange={(e) => handleSearchChange(e.target.value)}
-                                            className="w-full p-2 pl-8 text-sm border border-border_color rounded-md bg-field_color outline-none focus:border-border_active"
+                                            className="w-full p-2 pl-8 pr-8 text-sm border border-border_color rounded-md bg-field_color outline-none focus:border-border_active"
                                             aria-label={`Search ${label} options`}
                                         />
                                         <div className="absolute left-2.5 top-1/2 -translate-y-1/2 opacity-50 scale-75" aria-hidden="true">
                                             <SearchIcon />
                                         </div>
+                                        {loading && (
+                                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2" role="status" aria-label="Searching">
+                                                <span className="block w-4 h-4 border-2 border-accent_color border-t-transparent rounded-full animate-spin" />
+                                            </span>
+                                        )}
                                     </div>
 
                                     <div

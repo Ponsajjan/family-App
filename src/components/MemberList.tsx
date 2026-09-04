@@ -346,6 +346,11 @@ export default function MemberList({
             <span className="absolute left-2 top-1/2 transform -translate-y-1/2" aria-hidden="true">
               <SearchIcon />
             </span>
+            {loadingList && params.page === 1 && (
+              <span className="absolute right-2 top-1/2 transform -translate-y-1/2" role="status" aria-label="Searching">
+                <span className="block w-4 h-4 border-2 border-accent_color border-t-transparent rounded-full animate-spin" />
+              </span>
+            )}
           </div>
         </div>
         <ul className="py-2 px-3 flex gap-2 flex-nowrap overflow-x-auto scroll-stable">
