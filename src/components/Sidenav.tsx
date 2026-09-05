@@ -45,7 +45,7 @@ export default function Sidenav() {
                         <NavLink linkName="Relatives" link="relatives" onClick={closeNav} />
                         {/* <NavLink linkName="Board" link="announcements" onClick={closeNav} /> */}
                         <NavLink linkName="Relations" link="tree" onClick={closeNav} />
-                        <NavLink linkName="Relationship" link="relationship" onClick={closeNav} />
+                        {/* <NavLink linkName="Relationship" link="relationship" onClick={closeNav} /> */}
                         <NavLink linkName="Add/Edit" link="add_edit" onClick={closeNav} />
                         <NavLink linkName="Moderator" link="moderator" onClick={closeNav} showDot={anyAccountHasIssues} />
                         <span className="border-t border-border_color pt-2 mt-6 block mx-4" aria-hidden="true"></span>
