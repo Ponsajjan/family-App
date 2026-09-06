@@ -76,11 +76,9 @@ function ageOrder(a: RelationshipGraphMember, b: RelationshipGraphMember): 'aEld
     return 'unknown';
 }
 
-// Tamil convention addresses a collateral relative by the same title as whichever direct
-// ancestor/descendant sits at the same generational distance — a grandfather's brother, his
-// brother's son, and his brother's grandson are all "தாத்தா" (2 generations up from ego),
-// exactly like an actual grandfather. `offset` is that generational distance: positive means
-// `to` sits that many generations above `from`, negative means that many below, 0 is a peer.
+// Distant relatives use the same title as a direct ancestor/descendant at the same
+// generation gap (e.g. a grandfather's brother is also "தாத்தா"). `offset` is that gap:
+// positive is generations above `from`; negative is below; 0 is the same generation.
 function genericFallback(up: number, down: number, toGender: string): RelationshipResult {
     const offset = up - down;
 
@@ -96,8 +94,8 @@ function genericFallback(up: number, down: number, toGender: string): Relationsh
 }
 
 /**
- * Pure blood (consanguine) relationship of `toId` relative to `fromId` — no spouse/in-law
- * links are followed here. Returns null when the two share no common ancestor.
+ * Blood relationship of `toId` relative to `fromId`. No marriage links.
+ * Returns null if they share no common ancestor.
  */
 function consanguineRelation(
     fromId: number,
@@ -175,7 +173,7 @@ function consanguineRelation(
         return { label: 'உடன்பிறப்பு', distance };
     }
 
-    // Nephew / Niece (from's sibling's child)
+    // Nephew / Niece — from's sibling's child
     if (up === 1 && down === 2) {
         return {
             label: to.gender === 'Male' ? 'மருமகன்' : to.gender === 'Female' ? 'மருமகள்' : 'உடன்பிறப்பின் குழந்தை',
@@ -184,11 +182,8 @@ function consanguineRelation(
         };
     }
 
-    // Uncle / Aunt (from's parent's sibling — and, by the same classificatory rule,
-    // any more distant collateral one generation "removed" upward, e.g. a first
-    // cousin's child looking at `to`. `from`'s immediate parent on the side that
-    // leads to the common ancestor is the sibling-equivalent pivot in both cases,
-    // so the father-side/mother-side split still determines மாமா vs பெரியப்பா/சித்தப்பா.)
+    // Uncle / Aunt — from's parent's sibling (or an equivalent relative one
+    // generation up). Father's side vs. mother's side decides மாமா vs பெரியப்பா/சித்தப்பா.
     if (up - down === 1 && down >= 1) {
         const intermediateId = sideFrom === 'father' ? from.fatherId : sideFrom === 'mother' ? from.motherId : null;
         const intermediate = intermediateId ? membersById.get(intermediateId) : undefined;
@@ -219,7 +214,7 @@ function consanguineRelation(
     return { ...genericFallback(up, down, to.gender), distance };
 }
 
-// Given the blood-relation label of X (relative to `from`), what `from` calls X's spouse.
+// What `from` calls the spouse of a blood relative X, given X's label.
 const SPOUSE_OF_LABEL: Record<string, string> = {
     'மகன்': 'மருமகள்', // son's wife
     'மகள்': 'மருமகன்', // daughter's husband
@@ -238,16 +233,36 @@ const SPOUSE_OF_LABEL: Record<string, string> = {
 };
 
 // Given the blood-relation label of `to` relative to `from`'s partner, what `from` calls `to`.
-const MY_SPOUSE_RELATIVE_LABEL: Record<string, string> = {
+// Sibling-in-law terms differ depending on `from`'s own gender — a husband's terms for his
+// wife's siblings (மச்சான்/மைத்துனி) are not the same words a wife uses for her husband's
+// siblings (கொழுந்தன்/கொழுந்தியாள்) — so these are split into two tables below. The
+// non-sibling entries (spouse's parents/children) are gender-symmetric and shared by both.
+const MY_SPOUSE_RELATIVE_LABEL_SHARED: Record<string, string> = {
     'தந்தை': 'மாமனார்', // spouse's father
     'தாய்': 'மாமியார்', // spouse's mother
     'மகன்': 'சவதி மகன்', // spouse's son (step-son)
     'மகள்': 'சவதி மகள்', // spouse's daughter (step-daughter)
-    'அண்ணன்': 'மைத்துனன்', // spouse's brother
-    'தம்பி': 'மைத்துனன்',
+};
+
+// `from` is the husband — `to` is his wife's sibling.
+const MY_SPOUSE_RELATIVE_LABEL_MALE: Record<string, string> = {
+    ...MY_SPOUSE_RELATIVE_LABEL_SHARED,
+    'அண்ணன்': 'மைத்துனர்/மச்சான்', // wife's elder brother
+    'தம்பி': 'கொழுந்தன்/மச்சான்', // wife's younger brother
     'சகோதரன்': 'மைத்துனன்',
-    'அக்கா': 'நாத்தனார்', // spouse's sister
-    'தங்கை': 'நாத்தனார்',
+    'அக்கா': 'கொழுந்தியாள்/பெரிய அக்கா', // wife's elder sister
+    'தங்கை': 'கொழுந்தியாள்', // wife's younger sister
+    'சகோதரி': 'கொழுந்தியாள்',
+};
+
+// `from` is the wife — `to` is her husband's sibling.
+const MY_SPOUSE_RELATIVE_LABEL_FEMALE: Record<string, string> = {
+    ...MY_SPOUSE_RELATIVE_LABEL_SHARED,
+    'அண்ணன்': 'மைத்துனர்', // husband's elder brother
+    'தம்பி': 'கொழுந்தன்', // husband's younger brother
+    'சகோதரன்': 'மைத்துனர்',
+    'அக்கா': 'நாத்தனார்', // husband's elder sister
+    'தங்கை': 'கொழுந்தியாள்', // husband's younger sister
     'சகோதரி': 'நாத்தனார்',
 };
 
@@ -255,13 +270,26 @@ const MY_SPOUSE_RELATIVE_LABEL: Record<string, string> = {
 // `from`'s partner calls `to`'s partner as a sibling), what `from` calls `to` — the
 // co-sister/co-brother-in-law terms used between people married into the same
 // sibling group, which are distinct from both SPOUSE_OF_LABEL (my own sibling's
-// spouse) and MY_SPOUSE_RELATIVE_LABEL (my spouse's sibling, unmarried).
-const SPOUSE_SIBLING_SPOUSE_LABEL: Record<string, string> = {
-    'அண்ணன்': 'அத்திகை', // spouse's elder brother's wife
-    'தம்பி': 'கொழுந்தியாள்', // spouse's younger brother's wife
-    'சகோதரன்': 'சகோதரனின் மனைவி',
-    'அக்கா': 'அக்காவின் கணவர்', // spouse's elder sister's husband
-    'தங்கை': 'மைத்துனர்', // spouse's younger sister's husband
+// spouse) and MY_SPOUSE_RELATIVE_LABEL_MALE/FEMALE (my spouse's sibling, unmarried).
+// Like those, these terms depend on `from`'s own gender, so they're split in two.
+
+// `from` is the husband — `to` is his wife's sibling's spouse.
+const SPOUSE_SIBLING_SPOUSE_LABEL_MALE: Record<string, string> = {
+    'அண்ணன்': 'அண்ணி', // wife's elder brother's wife
+    'தம்பி': 'தங்கை', // wife's younger brother's wife
+    'சகோதரன்': 'அண்ணி', // wife's brother's wife (age unknown)
+    'அக்கா': 'ஒத்தியார்', // wife's elder sister's husband
+    'தங்கை': 'ஒத்தியார்', // wife's younger sister's husband
+    'சகோதரி': 'ஒத்தியார்',
+};
+
+// `from` is the wife — `to` is her husband's sibling's spouse.
+const SPOUSE_SIBLING_SPOUSE_LABEL_FEMALE: Record<string, string> = {
+    'அண்ணன்': 'அத்திகை', // husband's elder brother's wife
+    'தம்பி': 'கொழுந்தியாள்', // husband's younger brother's wife
+    'சகோதரன்': 'ஓரகத்தி', // husband's brother's wife (age unknown)
+    'அக்கா': 'அத்தான்', // husband's elder sister's husband
+    'தங்கை': 'மைத்துனர்', // husband's younger sister's husband
     'சகோதரி': 'மைத்துனர்',
 };
 
@@ -323,7 +351,8 @@ export function computeRelationship(
         if (fromPartner) {
             const r = consanguineRelation(fromPartner.id, toId, membersById);
             if (r) {
-                const mapped = MY_SPOUSE_RELATIVE_LABEL[r.label];
+                const spouseRelativeLabels = from.gender === 'Male' ? MY_SPOUSE_RELATIVE_LABEL_MALE : MY_SPOUSE_RELATIVE_LABEL_FEMALE;
+                const mapped = spouseRelativeLabels[r.label];
                 candidates.push({
                     result: mapped
                         ? { label: mapped }
@@ -344,7 +373,8 @@ export function computeRelationship(
         if (fromPartner && toPartner) {
             const r = consanguineRelation(fromPartner.id, toPartner.id, membersById);
             if (r) {
-                const mapped = SPOUSE_SIBLING_SPOUSE_LABEL[r.label];
+                const spouseSiblingSpouseLabels = from.gender === 'Male' ? SPOUSE_SIBLING_SPOUSE_LABEL_MALE : SPOUSE_SIBLING_SPOUSE_LABEL_FEMALE;
+                const mapped = spouseSiblingSpouseLabels[r.label];
                 candidates.push({
                     result: mapped
                         ? { label: mapped }
