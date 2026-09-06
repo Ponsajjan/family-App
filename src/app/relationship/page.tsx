@@ -55,7 +55,7 @@ function PersonPickerCard({
       className={`w-full text-left outline rounded-md px-4 py-3 flex items-center gap-3 hover:outline-2 hover:outline-accent_color cursor-pointer ${active ? 'outline-2 outline-accent_color' : 'outline-1 outline-border_color'}`}
     >
       <div className="flex-1">
-        <p className="text-xs opacity-65 mb-1">{label}</p>
+        <p className="text-xs mb-1">{label}</p>
         {person ? (
           <div className="flex items-center gap-2 font-medium">
             <GenderIcon gender={person.gender} />
@@ -79,7 +79,7 @@ export default function RelationshipPage() {
   const [showListFor, setShowListFor] = useState<'A' | 'B'>('A');
   const [showChoosePopup, setShowChoosePopup] = useState(false);
 
-  const { chooseAccountPopup, currentAuthId } = useSelector((state: RootState) => state.terms);
+  const { chooseAccountPopup, currentAuthId, mainMemberName } = useSelector((state: RootState) => state.terms);
 
   const url = selectedA && selectedB
     ? `/api/relationship?personAId=${selectedA.id}&personBId=${selectedB.id}`
@@ -129,24 +129,28 @@ export default function RelationshipPage() {
 
   return (
     <div className="w-full">
-      <Topnav>
-        {chooseAccountPopup.length > 1 && (
-          <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowChoosePopup(true)}
-              aria-label="Switch family account"
-              className="border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer bg-transparent text-inherit focus:outline-none"
-            >
-              <SwitchMainAccount />
-            </button>
-          </div>
-        )}
-      </Topnav>
+      <Topnav />
       <div className="w-full md:flex">
         <Container>
           <div className="w-full md:max-w-3xl px-4 py-10 mx-auto">
-            <div className="flex flex-col sm:flex-row items-center sm:gap-2">
+            <div className="relative flex items-center gap-2 h-10 mb-2">
+              {chooseAccountPopup.length > 1 &&
+                <>
+                  <div className="text-text_color/60 z-10 bg-main_background md:text-sm text-xs whitespace-nowrap px-1.5 mx-4 max-w-80 text-ellipsis overflow-clip">{mainMemberName} Family</div>
+                  <div className="ml-auto mr-0 z-10 bg-main_background px-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setShowChoosePopup(true)}
+                      aria-label="Switch family account"
+                      className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
+                    >
+                      <SwitchMainAccount aria-hidden="true" />
+                    </button>
+                  </div>
+                  <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />
+                </>}
+            </div>
+            <div className="flex flex-col md:flex-row items-center md:gap-2">
               <div className="w-full flex-1">
                 <PersonPickerCard label="Person 1" person={selectedA} active={showList && showListFor === 'A'} onClick={() => openList('A')} />
               </div>
@@ -155,7 +159,7 @@ export default function RelationshipPage() {
                 onClick={handleSwap}
                 disabled={!selectedA && !selectedB}
                 aria-label="Swap selected people"
-                className="relative z-10 -my-4 sm:my-0 p-2 border border-border_color rounded-full bg-field_color disabled:opacity-40 cursor-pointer rotate-90 sm:rotate-0"
+                className="relative z-10 -my-4 md:my-0 p-2 border border-border_color rounded-full bg-field_color disabled:opacity-40 cursor-pointer rotate-90 md:rotate-0 md:hover:border-text_color transition-colors"
               >
                 <SwitchIcon />
               </button>
