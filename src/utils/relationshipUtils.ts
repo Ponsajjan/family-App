@@ -219,8 +219,8 @@ const SPOUSE_OF_LABEL: Record<string, string> = {
     'மகன்': 'மருமகள்', // son's wife
     'மகள்': 'மருமகன்', // daughter's husband
     'அண்ணன்': 'அண்ணி', // elder brother's wife
-    'தம்பி': 'தம்பியின் மனைவி', // younger brother's wife
-    'அக்கா': 'அக்காவின் கணவர்', // elder sister's husband
+    'தம்பி': 'கொழுந்தியாள்', // younger brother's wife
+    'அக்கா': 'அத்தான்', // elder sister's husband
     'தங்கை': 'மைத்துனர்', // younger sister's husband
     'சகோதரன்': 'சகோதரனின் மனைவி',
     'சகோதரி': 'மைத்துனர்',
@@ -228,6 +228,8 @@ const SPOUSE_OF_LABEL: Record<string, string> = {
     'அத்தை': 'மாமா', // father's sister's husband
     'பெரியப்பா': 'பெரியம்மா',
     'சித்தப்பா': 'சித்தி',
+    'பெரியம்மா': 'பெரியப்பா', // mother's elder sister's husband
+    'சித்தி': 'சித்தப்பா', // mother's younger sister's husband
     'தந்தை': 'சவதி தாய்', // father's other wife (step-mother)
     'தாய்': 'சவதி தந்தை', // mother's other husband (step-father)
 };
@@ -250,7 +252,7 @@ const MY_SPOUSE_RELATIVE_LABEL_MALE: Record<string, string> = {
     'அண்ணன்': 'மைத்துனர்/மச்சான்', // wife's elder brother
     'தம்பி': 'கொழுந்தன்/மச்சான்', // wife's younger brother
     'சகோதரன்': 'மைத்துனன்',
-    'அக்கா': 'கொழுந்தியாள்/பெரிய அக்கா', // wife's elder sister
+    'அக்கா': 'மைனி', // wife's elder sister
     'தங்கை': 'கொழுந்தியாள்', // wife's younger sister
     'சகோதரி': 'கொழுந்தியாள்',
 };
