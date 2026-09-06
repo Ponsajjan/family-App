@@ -11,6 +11,14 @@ export default function DragScroll({ children }: { children: React.ReactNode }) 
   let scrollTop: number;
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      const clickedScrollbar =
+        e.clientX > rect.left + container.clientWidth ||
+        e.clientY > rect.top + container.clientHeight;
+      if (clickedScrollbar) return;
+    }
     isDragging = true;
     startX = e.pageX - (scrollContainerRef.current?.offsetLeft || 0);
     startY = e.pageY - (scrollContainerRef.current?.offsetTop || 0);

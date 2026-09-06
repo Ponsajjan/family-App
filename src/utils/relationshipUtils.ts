@@ -229,7 +229,7 @@ const SPOUSE_OF_LABEL: Record<string, string> = {
     'தங்கை': 'மைத்துனர்', // younger sister's husband
     'சகோதரன்': 'சகோதரனின் மனைவி',
     'சகோதரி': 'மைத்துனர்',
-    'மாமா': 'அத்தை', // mother's brother's wife
+    'மாமா': 'மாமி', // mother's brother's wife
     'அத்தை': 'மாமா', // father's sister's husband
     'பெரியப்பா': 'பெரியம்மா',
     'சித்தப்பா': 'சித்தி',
@@ -249,6 +249,20 @@ const MY_SPOUSE_RELATIVE_LABEL: Record<string, string> = {
     'அக்கா': 'நாத்தனார்', // spouse's sister
     'தங்கை': 'நாத்தனார்',
     'சகோதரி': 'நாத்தனார்',
+};
+
+// Given the blood-relation label of `toPartner` relative to `fromPartner` (i.e. what
+// `from`'s partner calls `to`'s partner as a sibling), what `from` calls `to` — the
+// co-sister/co-brother-in-law terms used between people married into the same
+// sibling group, which are distinct from both SPOUSE_OF_LABEL (my own sibling's
+// spouse) and MY_SPOUSE_RELATIVE_LABEL (my spouse's sibling, unmarried).
+const SPOUSE_SIBLING_SPOUSE_LABEL: Record<string, string> = {
+    'அண்ணன்': 'அத்திகை', // spouse's elder brother's wife
+    'தம்பி': 'கொழுந்தியாள்', // spouse's younger brother's wife
+    'சகோதரன்': 'சகோதரனின் மனைவி',
+    'அக்கா': 'அக்காவின் கணவர்', // spouse's elder sister's husband
+    'தங்கை': 'மைத்துனர்', // spouse's younger sister's husband
+    'சகோதரி': 'மைத்துனர்',
 };
 
 interface Candidate {
@@ -321,15 +335,20 @@ export function computeRelationship(
     }
 
     // Both have partners and those two partners are blood related to each other
-    // (e.g. two men who each married one of two sisters)
+    // (e.g. `to` is from's partner's sibling's spouse — mom's husband's brother's
+    // wife — or two men who each married one of two sisters). `r.label` is what
+    // `fromPartner` calls `toPartner` as a blood relative.
     if (from.partnerId && to.partnerId && from.partnerId !== to.partnerId) {
         const fromPartner = membersById.get(from.partnerId);
         const toPartner = membersById.get(to.partnerId);
         if (fromPartner && toPartner) {
             const r = consanguineRelation(fromPartner.id, toPartner.id, membersById);
             if (r) {
+                const mapped = SPOUSE_SIBLING_SPOUSE_LABEL[r.label];
                 candidates.push({
-                    result: { label: `${r.label} (இரு துணைவர்கள் வழி உறவு)` },
+                    result: mapped
+                        ? { label: mapped }
+                        : { label: `${r.label} (இரு துணைவர்கள் வழி உறவு)` },
                     distance: r.distance + 2,
                 });
             }

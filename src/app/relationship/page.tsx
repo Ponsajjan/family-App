@@ -11,7 +11,7 @@ import MemberList from "@/components/MemberList";
 import SlidePanel from "@/components/SlidePanel";
 import { ChoosePopup } from "@/components/ChoosePopup";
 import { useToast } from "@/components/Toast";
-import { Male, Female, RelationshipFinderIcon, SwitchIcon, SwitchMainAccount } from "@/utils/Icons";
+import { Male, Female, SwitchIcon, SwitchMainAccount } from "@/utils/Icons";
 
 interface SelectedPerson {
   id: number;
@@ -40,17 +40,19 @@ function GenderIcon({ gender }: { gender: string }) {
 function PersonPickerCard({
   label,
   person,
+  active,
   onClick,
 }: {
   label: string;
   person: SelectedPerson | null;
+  active?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full text-left border border-border_color bg-field_color rounded-md px-4 py-3 flex items-center gap-3 hover:border-2 hover:border-accent_color hover:px-[15px] hover:py-[11px] cursor-pointer"
+      className={`w-full text-left outline rounded-md px-4 py-3 flex items-center gap-3 hover:outline-2 hover:outline-accent_color cursor-pointer ${active ? 'outline-2 outline-accent_color' : 'outline-1 outline-border_color'}`}
     >
       <div className="flex-1">
         <p className="text-xs opacity-65 mb-1">{label}</p>
@@ -146,7 +148,7 @@ export default function RelationshipPage() {
           <div className="w-full md:max-w-3xl px-4 py-10 mx-auto">
             <div className="flex flex-col sm:flex-row items-center sm:gap-2">
               <div className="w-full flex-1">
-                <PersonPickerCard label="Person 1" person={selectedA} onClick={() => openList('A')} />
+                <PersonPickerCard label="Person 1" person={selectedA} active={showList && showListFor === 'A'} onClick={() => openList('A')} />
               </div>
               <button
                 type="button"
@@ -158,7 +160,7 @@ export default function RelationshipPage() {
                 <SwitchIcon />
               </button>
               <div className="w-full flex-1">
-                <PersonPickerCard label="Person 2" person={selectedB} onClick={() => openList('B')} />
+                <PersonPickerCard label="Person 2" person={selectedB} active={showList && showListFor === 'B'} onClick={() => openList('B')} />
               </div>
             </div>
 

@@ -103,13 +103,17 @@ export async function fetchRelativesData(
 
     members.forEach((member, index) => {
         const firstLetter = member.name.charAt(0).toUpperCase();
-        
+
         // Add letter header if:
         // - It's the first item on the first page, or
         // - The letter changed from the previous member
+        // Search results are reordered into "starts with" vs. "contains" priority groups (see
+        // prioritizeSearchResults), so the same letter can recur non-contiguously — the header
+        // id is scoped to the member that follows it so repeated letters still get distinct
+        // React keys on the client.
         if ((page === 1 && index === 0) || (firstLetter !== previousFirstLetter)) {
             groupedData.push({
-                id: firstLetter,
+                id: `${firstLetter}-${member.id}`,
                 name: firstLetter,
                 gender: "Letter",
                 phoneNumber: null,
