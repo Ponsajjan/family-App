@@ -291,6 +291,10 @@ const SPOUSE_OF_LABEL: Record<string, string> = {
     'சித்தி': 'சித்தப்பா', // mother's younger sister's husband
     'தந்தை': 'மாற்றாந்தாய்', // father's other wife (step-mother)
     'தாய்': 'மாற்றாந்தந்தை', // mother's other husband (step-father)
+    'தாத்தா': 'பாட்டி', // grandfather's wife
+    'பாட்டி': 'தாத்தா', // grandmother's husband
+    'கொள்ளுத்தாத்தா': 'கொள்ளுப்பாட்டி', // great-grandfather's wife
+    'கொள்ளுப்பாட்டி': 'கொள்ளுத்தாத்தா', // great-grandmother's husband
 };
 
 // Given the blood-relation label of `to` relative to `from`'s partner, what `from` calls `to`.
@@ -396,10 +400,11 @@ export function computeRelationship(
             const r = consanguineRelation(fromId, toPartner.id, membersById);
             if (r) {
                 const mapped = SPOUSE_OF_LABEL[r.label];
+                const spouseWord = to.gender === 'Male' ? 'கணவர்' : to.gender === 'Female' ? 'மனைவி' : 'துணைவர்';
                 candidates.push({
                     result: mapped
                         ? { label: mapped }
-                        : { label: `${r.label}-இன் துணைவர்`, description: "(relative's spouse)" },
+                        : { label: `${r.label} ${spouseWord}`, description: "(relative's spouse)" },
                     distance: r.distance,
                 });
             }

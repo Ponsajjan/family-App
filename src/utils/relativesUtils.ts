@@ -1,5 +1,5 @@
 import prisma from "@/db/db";
-import { prioritizeSearchResults } from "./searchUtils";
+import { fetchPrioritizedMembers } from "./searchUtils";
 
 export async function fetchRelativesData(
     allAuthIds: number[],
@@ -23,9 +23,10 @@ export async function fetchRelativesData(
     const skip = page === 1 ? baseSkip : baseSkip - 1;
     const take = page === 1 ? limit : limit + 1;
 
+    // `name` is left out here — the prioritized fetch below applies the search
+    // filter itself so it can paginate across the "starts with" / "contains" groups.
     const where: any = {
         authId: { in: allAuthIds },
-        ...(searchQuery && { name: { contains: searchQuery, mode: "insensitive" } }),
         ...(country && { country: { equals: country, mode: "insensitive" } }),
         ...(state && { state: { equals: state, mode: "insensitive" } }),
         ...(district && { district: { equals: district, mode: "insensitive" } }),
@@ -68,27 +69,30 @@ export async function fetchRelativesData(
         where.AND = andConditions;
     }
 
-    const [members, totalCount] = await Promise.all([
-        prisma.member.findMany({
-            where,
-            select: {
-                id: true,
-                name: true,
-                gender: true,
-                phoneNumber: true,
-                father: { select: { name: true } },
-                mother: { select: { name: true } },
-                partner: { select: { name: true } },
-            },
-            orderBy: { name: "asc" },
-            skip,
-            take,
-        }),
-        prisma.member.count({ where })
-    ]);
-    
-    // Prioritize results starting with the search query
-    prioritizeSearchResults(members, searchQuery, (m) => m.name);
+    const select = {
+        id: true,
+        name: true,
+        gender: true,
+        phoneNumber: true,
+        father: { select: { name: true } },
+        mother: { select: { name: true } },
+        partner: { select: { name: true } },
+    };
+
+    // Total count uses the same filters plus the search term
+    const countWhere: any = {
+        ...where,
+        ...(searchQuery && { name: { contains: searchQuery, mode: "insensitive" } }),
+    };
+    const totalCountPromise = prisma.member.count({ where: countWhere });
+
+    // Prioritize names that start with `searchQuery` ahead of names that merely
+    // contain it, paginating at the DB level across that boundary — otherwise a
+    // page fetched purely alphabetically over all "contains" matches can come
+    // back with none of the "starts with" matches at all, burying/dropping them.
+    const members = await fetchPrioritizedMembers(where, select, { name: "asc" }, searchQuery, skip, take);
+
+    const totalCount = await totalCountPromise;
 
     const groupedData: any[] = [];
     let previousFirstLetter = '';
@@ -107,10 +111,9 @@ export async function fetchRelativesData(
         // Add letter header if:
         // - It's the first item on the first page, or
         // - The letter changed from the previous member
-        // Search results are reordered into "starts with" vs. "contains" priority groups (see
-        // prioritizeSearchResults), so the same letter can recur non-contiguously — the header
-        // id is scoped to the member that follows it so repeated letters still get distinct
-        // React keys on the client.
+        // Search results are ordered into "starts with" vs. "contains" priority groups, so
+        // the same letter can recur non-contiguously — the header id is scoped to the member
+        // that follows it so repeated letters still get distinct React keys on the client.
         if ((page === 1 && index === 0) || (firstLetter !== previousFirstLetter)) {
             groupedData.push({
                 id: `${firstLetter}-${member.id}`,

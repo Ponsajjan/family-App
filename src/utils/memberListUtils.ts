@@ -1,5 +1,5 @@
 import prisma from "@/db/db";
-import { prioritizeSearchResults } from "./searchUtils";
+import { fetchPrioritizedMembers } from "./searchUtils";
 
 interface Member {
     id: number;
@@ -56,23 +56,21 @@ export async function fetchMemberListData(
     let memberList: Member[] = [];
     const groupedData: Array<Member | LetterHeader> = [];
 
+    // `name` is intentionally left out of `baseWhere` — fetchPrioritizedMembers
+    // applies the search filter itself so it can paginate across the priority groups.
     const baseWhere: any = {
-        ...(searchQuery && {
-            name: {
-                contains: searchQuery,
-                mode: "insensitive",
-            },
-        }),
         authId: authId,
     };
 
+    const orderBy = { name: "asc" };
+
     switch (forType) {
         case "selectMember":
-            memberList = await prisma.member.findMany({
-                where: {
+            memberList = await fetchPrioritizedMembers<Member>(
+                {
                     ...baseWhere,
                 },
-                select: {
+                {
                     id: true,
                     name: true,
                     gender: true,
@@ -80,22 +78,23 @@ export async function fetchMemberListData(
                     mother: { select: { name: true } },
                     partner: { select: { name: true } },
                 },
-                orderBy: { name: "asc" },
+                orderBy,
+                searchQuery,
                 skip,
                 take,
-            });
+            );
             break;
 
         case "selectPartner":
-            memberList = await prisma.member.findMany({
-                where: {
+            memberList = await fetchPrioritizedMembers<Member>(
+                {
                     ...baseWhere,
                     gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
                     partnerId: null,
                     id: { notIn: excludeId },
                     descendant: descendant === 'true' ? showCousin : true,
                 },
-                select: {
+                {
                     id: true,
                     name: true,
                     gender: true,
@@ -103,22 +102,23 @@ export async function fetchMemberListData(
                     father: { select: { name: true } },
                     mother: { select: { name: true } },
                 },
-                orderBy: { name: "asc" },
+                orderBy,
+                searchQuery,
                 skip,
                 take,
-            });
+            );
             break;
 
         case "selectChildren":
-            memberList = await prisma.member.findMany({
-                where: {
+            memberList = await fetchPrioritizedMembers<Member>(
+                {
                     ...baseWhere,
                     id: { notIn: [...excludeId, mainMemberId] },
                     fatherId: null,
                     motherId: null,
                     descendant: true,
                 },
-                select: {
+                {
                     id: true,
                     name: true,
                     gender: true,
@@ -126,15 +126,16 @@ export async function fetchMemberListData(
                     birthYear: true,
                     partner: { select: { name: true } },
                 },
-                orderBy: { name: "asc" },
+                orderBy,
+                searchQuery,
                 skip,
                 take,
-            });
+            );
             break;
 
         case "editRelationship":
-            memberList = await prisma.member.findMany({
-                where: {
+            memberList = await fetchPrioritizedMembers<Member>(
+                {
                     ...baseWhere,
                     OR: [
                         { fatherOf: { some: {} } },
@@ -142,7 +143,7 @@ export async function fetchMemberListData(
                         { partnerId: { not: null } },
                     ],
                 },
-                select: {
+                {
                     id: true,
                     name: true,
                     gender: true,
@@ -151,18 +152,19 @@ export async function fetchMemberListData(
                     mother: { select: { name: true } },
                     partner: { select: { name: true } },
                 },
-                orderBy: { name: "asc" },
+                orderBy,
+                searchQuery,
                 skip,
                 take,
-            });
+            );
             break;
 
         case "editMember":
-            memberList = await prisma.member.findMany({
-                where: {
+            memberList = await fetchPrioritizedMembers<Member>(
+                {
                     ...baseWhere,
                 },
-                select: {
+                {
                     id: true,
                     name: true,
                     gender: true,
@@ -170,16 +172,23 @@ export async function fetchMemberListData(
                     mother: { select: { name: true } },
                     partner: { select: { name: true } },
                 },
-                orderBy: { name: "asc" },
+                orderBy,
+                searchQuery,
                 skip,
                 take,
-            });
+            );
             break;
     }
 
     // Total count with the same filters
     const countWhere: any = {
         ...baseWhere,
+        ...(searchQuery && {
+            name: {
+                contains: searchQuery,
+                mode: "insensitive",
+            },
+        }),
         ...(forType === "selectPartner" && {
             gender: gender === "Male" ? "Female" : gender === "Female" ? "Male" : undefined,
             partnerId: null,
@@ -203,9 +212,6 @@ export async function fetchMemberListData(
 
     const totalCount = await prisma.member.count({ where: countWhere });
 
-    // Prioritize results starting with the search query
-    prioritizeSearchResults(memberList, searchQuery, (m) => m.name);
-
     // Process the data to add letter headers
     let previousFirstLetter = lastLetterId;
 
@@ -218,10 +224,10 @@ export async function fetchMemberListData(
     memberList.forEach((member) => {
         const firstLetter = member.name.charAt(0).toUpperCase();
 
-        // Add letter header if the letter changed. Search results are reordered into
-        // "starts with" vs. "contains" priority groups (see prioritizeSearchResults), so the
-        // same letter can recur non-contiguously — the header id is scoped to the member that
-        // follows it so repeated letters still get distinct React keys on the client.
+        // Add letter header if the letter changed. Search results are ordered into
+        // "starts with" vs. "contains" priority groups, so the same letter can recur
+        // non-contiguously — the header id is scoped to the member that follows it so
+        // repeated letters still get distinct React keys on the client.
         if (firstLetter !== previousFirstLetter) {
             groupedData.push({
                 id: `${firstLetter}-${member.id}`,

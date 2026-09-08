@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/db/db";
 import { NextRequest } from "next/server";
 import { verifyToken } from "@/utils/auth";
-import { prioritizeSearchResults } from "@/utils/searchUtils";
+import { fetchPrioritizedMembers } from "@/utils/searchUtils";
 
 export async function GET(request: NextRequest) {
   // Extract search parameters
@@ -31,46 +31,41 @@ export async function GET(request: NextRequest) {
     // Define the filter condition
     const filterCondition = filterQuery === 'Verified' ? true : filterQuery === 'Unverified' ? false : undefined;
 
-    // Fetch paginated data from Prisma
-    const memberList = await prisma.member.findMany({
-      where: {
-        authId: authId,
-        ...(filterCondition !== undefined && { verified: filterCondition }),
-        name: {
-          contains: searchQuery,
-          mode: "insensitive", // PostgreSQL-specific support in Prisma
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        gender: true,
-        verified: true,
-        father: { select: { name: true } },
-        mother: { select: { name: true } },
-        partner: { select: { name: true } },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      skip,
-      take: limit,
-    });
-    
-    // Prioritize results starting with the search query
-    prioritizeSearchResults(memberList, searchQuery, (m) => m.name);
+    // `name` is left out here — the prioritized fetch below applies the search
+    // filter itself so it can paginate across the "starts with" / "contains" groups.
+    const where = {
+      authId: authId,
+      ...(filterCondition !== undefined && { verified: filterCondition }),
+    };
 
-    // Total count for pagination
-    const totalCount = await prisma.member.count({
+    const select = {
+      id: true,
+      name: true,
+      gender: true,
+      verified: true,
+      father: { select: { name: true } },
+      mother: { select: { name: true } },
+      partner: { select: { name: true } },
+    };
+
+    // Total count for pagination, using the same filters plus the search term
+    const totalCountPromise = prisma.member.count({
       where: {
-        authId: authId,
-        ...(filterCondition !== undefined && { verified: filterCondition }),
+        ...where,
         name: {
           contains: searchQuery,
           mode: "insensitive",
         },
       },
     });
+
+    // Prioritize names that start with `searchQuery` ahead of names that merely
+    // contain it, paginating at the DB level across that boundary — otherwise a
+    // page fetched purely by `createdAt` over all "contains" matches can come
+    // back with none of the "starts with" matches at all, burying/dropping them.
+    const memberList = await fetchPrioritizedMembers(where, select, { createdAt: 'desc' }, searchQuery, skip, limit);
+
+    const totalCount = await totalCountPromise;
 
     const auth = await prisma.auth.findUnique({
       where: { id: authId },
