@@ -62,6 +62,11 @@ interface MemberListProps {
   getSelectedValues: any;
   multiselect: boolean;
   descendant: boolean | null;
+  // Change this value to put the cursor back in the search box and select whatever is
+  // already typed there. Lets a parent that keeps the list mounted across openings
+  // (e.g. the relationship page switching between Person 1 and Person 2) make the next
+  // keystroke replace the previous query instead of appending to it.
+  focusSearchKey?: string | number;
 }
 
 export default function MemberList({
@@ -73,6 +78,7 @@ export default function MemberList({
   openList,
   getSelectedValues,
   multiselect,
+  focusSearchKey,
 }: MemberListProps) {
   const toast = useToast();
   const [members, setMembers] = useState<Member[]>([]);
@@ -81,6 +87,8 @@ export default function MemberList({
   const [searchInput, setSearchInput] = useState('');
   const [loadingList, setLoadingList] = useState(false);
   const listContainerRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const prevFocusSearchKeyRef = useRef(focusSearchKey);
   const [hasMore, setHasMore] = useState(true);
   const [mainMemberID, setMainMemberID] = useState(-1);
   const requestIdRef = useRef(0);
@@ -120,6 +128,20 @@ export default function MemberList({
     setSearchInput(input);
     handleSetSearchFilter(input);
   };
+
+  useEffect(() => {
+    if (focusSearchKey === undefined || prevFocusSearchKeyRef.current === focusSearchKey) return;
+    prevFocusSearchKeyRef.current = focusSearchKey;
+    // Nothing to replace — leave focus alone rather than popping up a keyboard.
+    if (!searchInput) return;
+    // The slide panel keeps the list mounted but `visibility: hidden` while it animates
+    // in, and a hidden input cannot take focus, so wait the transition out first.
+    const timer = setTimeout(() => {
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [focusSearchKey]);
 
   // const keyMap: { [key in ForType]: string } = {
   //   [ForType.SelectMember]: 'name',
@@ -342,6 +364,7 @@ export default function MemberList({
               value={searchInput}
               onChange={(e) => handleMemberSearch(e.target.value)}
               type="text"
+              ref={searchInputRef}
             />
             <span className="absolute left-2 top-1/2 transform -translate-y-1/2" aria-hidden="true">
               <SearchIcon />
@@ -439,8 +462,8 @@ export default function MemberList({
                             : (member.father || member.mother ? (
                               <>
                                 <span className="pr-1 font-medium">Parents: </span>
-                                {member.father && <span>{member.father.name}</span>}
-                                {member.mother && <span>, {member.mother.name}</span>}
+                                {member.father && <span className="pr-1">{member.father.name}{member.mother ? ',' : ''}</span>}
+                                {member.mother && <span>{member.mother.name}</span>}
                               </>
                             ) : (member.partner) ? (
                               <div>

@@ -9,6 +9,8 @@ export interface RelationshipGraphMember {
     partnerId: number | null;
     order: number;
     birthYear: number | null;
+    birthMonth: number | null;
+    birthDate: number | null;
 }
 
 export interface RelationshipResult {
@@ -32,6 +34,8 @@ export async function fetchRelationshipGraph(authId: number): Promise<Relationsh
             partnerId: true,
             order: true,
             birthYear: true,
+            birthMonth: true,
+            birthDate: true,
         },
     });
 }
@@ -67,13 +71,54 @@ function buildAncestorMap(id: number, membersById: Map<number, RelationshipGraph
 }
 
 function ageOrder(a: RelationshipGraphMember, b: RelationshipGraphMember): 'aElder' | 'bElder' | 'unknown' {
-    if (a.birthYear != null && b.birthYear != null && a.birthYear !== b.birthYear) {
-        return a.birthYear < b.birthYear ? 'aElder' : 'bElder';
+    // Compare the birth date coarsest component first; a component that is missing on
+    // either side, or equal on both, falls through to the next one. The day is only
+    // meaningful once the month matches, so it is nested inside that check.
+    if (a.birthYear != null && b.birthYear != null) {
+        if (a.birthYear !== b.birthYear) return a.birthYear < b.birthYear ? 'aElder' : 'bElder';
+        if (a.birthMonth != null && b.birthMonth != null) {
+            if (a.birthMonth !== b.birthMonth) return a.birthMonth < b.birthMonth ? 'aElder' : 'bElder';
+            if (a.birthDate != null && b.birthDate != null && a.birthDate !== b.birthDate) {
+                return a.birthDate < b.birthDate ? 'aElder' : 'bElder';
+            }
+        }
     }
-    if (a.order != null && b.order != null && a.order !== b.order) {
+    // `order` is a birth-order position within one set of parents, so it only ranks
+    // full siblings. Across half-siblings or any other pair it means nothing.
+    const fullSiblings =
+        a.fatherId != null && a.motherId != null &&
+        a.fatherId === b.fatherId && a.motherId === b.motherId;
+    if (fullSiblings && a.order != null && b.order != null && a.order !== b.order) {
         return a.order < b.order ? 'aElder' : 'bElder';
     }
     return 'unknown';
+}
+
+// Which of `member`'s two parents descends from the shared ancestor `commonId` — i.e.
+// the parent through whom `member` is connected to the other side of the relationship.
+function linkingParent(
+    member: RelationshipGraphMember,
+    commonId: number,
+    membersById: Map<number, RelationshipGraphMember>
+): RelationshipGraphMember | undefined {
+    for (const parentId of [member.fatherId, member.motherId]) {
+        const parent = parentId ? membersById.get(parentId) : undefined;
+        if (parent && (parent.fatherId === commonId || parent.motherId === commonId)) return parent;
+    }
+    return undefined;
+}
+
+// Sibling terms for `to` as seen by `from`, ranked by age where it is known. Also used
+// for parallel cousins, who are addressed as siblings.
+function siblingLabel(to: RelationshipGraphMember, from: RelationshipGraphMember): string {
+    const order = ageOrder(to, from);
+    if (order === 'unknown') {
+        return to.gender === 'Male' ? 'சகோதரன்' : to.gender === 'Female' ? 'சகோதரி' : 'உடன்பிறப்பு';
+    }
+    const toIsElder = order === 'aElder';
+    if (to.gender === 'Male') return toIsElder ? 'அண்ணன்' : 'தம்பி';
+    if (to.gender === 'Female') return toIsElder ? 'அக்கா' : 'தங்கை';
+    return 'உடன்பிறப்பு';
 }
 
 // Distant relatives use the same title as a direct ancestor/descendant at the same
@@ -163,21 +208,18 @@ function consanguineRelation(
 
     // Siblings
     if (up === 1 && down === 1) {
-        const order = ageOrder(to, from);
-        if (order === 'unknown') {
-            return { label: to.gender === 'Male' ? 'சகோதரன்' : to.gender === 'Female' ? 'சகோதரி' : 'உடன்பிறப்பு', distance };
-        }
-        const toIsElder = order === 'aElder';
-        if (to.gender === 'Male') return { label: toIsElder ? 'அண்ணன்' : 'தம்பி', distance };
-        if (to.gender === 'Female') return { label: toIsElder ? 'அக்கா' : 'தங்கை', distance };
-        return { label: 'உடன்பிறப்பு', distance };
+        return { label: siblingLabel(to, from), distance };
     }
 
-    // Nephew / Niece — from's sibling's child
+    // Nephew / Niece — from's sibling's child. 'மருமகன்/மருமகள்' also mean
+    // son-/daughter-in-law, so spell out which sibling the child belongs to.
     if (up === 1 && down === 2) {
+        const sibling = linkingParent(to, bestCommonId, membersById);
+        const siblingTerm = sibling?.gender === 'Male' ? 'சகோதரரின்' : sibling?.gender === 'Female' ? 'சகோதரியின்' : 'உடன்பிறப்பின்';
+        const childTerm = to.gender === 'Male' ? 'மகன்' : to.gender === 'Female' ? 'மகள்' : 'குழந்தை';
         return {
             label: to.gender === 'Male' ? 'மருமகன்' : to.gender === 'Female' ? 'மருமகள்' : 'உடன்பிறப்பின் குழந்தை',
-            description: "(sibling's son/daughter)",
+            description: `${siblingTerm} ${childTerm}`,
             distance,
         };
     }
@@ -206,9 +248,26 @@ function consanguineRelation(
         return { label: to.gender === 'Male' ? 'சித்தப்பா/மாமா' : 'அத்தை/சித்தி', distance };
     }
 
-    // First cousins
+    // First cousins. Dravidian kinship splits them by the sexes of the two siblings
+    // that link the cousins: same sex (father's brother's or mother's sister's child)
+    // makes them parallel cousins, addressed exactly as siblings; opposite sex
+    // (father's sister's or mother's brother's child) makes them cross cousins, who are
+    // marriageable and take the மச்சான்/மைத்துனி terms instead.
     if (up === 2 && down === 2) {
-        return { label: to.gender === 'Male' ? 'சகோதரன்' : to.gender === 'Female' ? 'சகோதரி' : 'உறவினர்', distance };
+        const fromSide = linkingParent(from, bestCommonId, membersById)?.gender;
+        const toSide = linkingParent(to, bestCommonId, membersById)?.gender;
+        const sexesKnown =
+            (fromSide === 'Male' || fromSide === 'Female') && (toSide === 'Male' || toSide === 'Female');
+
+        if (sexesKnown && fromSide !== toSide) {
+            return {
+                label: to.gender === 'Male' ? 'மச்சான்' : to.gender === 'Female' ? 'மைத்துனி' : 'முறை உறவினர்',
+                description: fromSide === 'Male' ? 'தந்தையின் சகோதரி வழி' : 'தாயின் சகோதரர் வழி',
+                distance,
+            };
+        }
+        // Parallel cousins, and any pair whose linking siblings' sexes are unknown.
+        return { label: siblingLabel(to, from), distance };
     }
 
     return { ...genericFallback(up, down, to.gender), distance };
@@ -221,22 +280,22 @@ const SPOUSE_OF_LABEL: Record<string, string> = {
     'அண்ணன்': 'அண்ணி', // elder brother's wife
     'தம்பி': 'கொழுந்தியாள்', // younger brother's wife
     'அக்கா': 'அத்தான்', // elder sister's husband
-    'தங்கை': 'மைத்துனர்', // younger sister's husband
+    'தங்கை': 'மச்சான்', // younger sister's husband
     'சகோதரன்': 'சகோதரனின் மனைவி',
-    'சகோதரி': 'மைத்துனர்',
+    'சகோதரி': 'அத்தான்/மச்சான்', // sister's husband (age unknown)
     'மாமா': 'மாமி', // mother's brother's wife
     'அத்தை': 'மாமா', // father's sister's husband
     'பெரியப்பா': 'பெரியம்மா',
     'சித்தப்பா': 'சித்தி',
     'பெரியம்மா': 'பெரியப்பா', // mother's elder sister's husband
     'சித்தி': 'சித்தப்பா', // mother's younger sister's husband
-    'தந்தை': 'சவதி தாய்', // father's other wife (step-mother)
-    'தாய்': 'சவதி தந்தை', // mother's other husband (step-father)
+    'தந்தை': 'மாற்றாந்தாய்', // father's other wife (step-mother)
+    'தாய்': 'மாற்றாந்தந்தை', // mother's other husband (step-father)
 };
 
 // Given the blood-relation label of `to` relative to `from`'s partner, what `from` calls `to`.
 // Sibling-in-law terms differ depending on `from`'s own gender — a husband's terms for his
-// wife's siblings (மச்சான்/மைத்துனி) are not the same words a wife uses for her husband's
+// wife's siblings (மைத்துனர்/கொழுந்தியாள்) are not the same words a wife uses for her husband's
 // siblings (கொழுந்தன்/கொழுந்தியாள்) — so these are split into two tables below. The
 // non-sibling entries (spouse's parents/children) are gender-symmetric and shared by both.
 const MY_SPOUSE_RELATIVE_LABEL_SHARED: Record<string, string> = {
@@ -280,14 +339,14 @@ const SPOUSE_SIBLING_SPOUSE_LABEL_MALE: Record<string, string> = {
     'அண்ணன்': 'அண்ணி', // wife's elder brother's wife
     'தம்பி': 'தங்கை', // wife's younger brother's wife
     'சகோதரன்': 'அண்ணி', // wife's brother's wife (age unknown)
-    'அக்கா': 'ஒத்தியார்', // wife's elder sister's husband
-    'தங்கை': 'ஒத்தியார்', // wife's younger sister's husband
-    'சகோதரி': 'ஒத்தியார்',
+    'அக்கா': 'சகலை', // wife's elder sister's husband
+    'தங்கை': 'சகலை', // wife's younger sister's husband
+    'சகோதரி': 'சகலை', // wife's sister's husband (age unknown)
 };
 
 // `from` is the wife — `to` is her husband's sibling's spouse.
 const SPOUSE_SIBLING_SPOUSE_LABEL_FEMALE: Record<string, string> = {
-    'அண்ணன்': 'அத்திகை', // husband's elder brother's wife
+    'அண்ணன்': 'ஓரகத்தி', // husband's elder brother's wife
     'தம்பி': 'கொழுந்தியாள்', // husband's younger brother's wife
     'சகோதரன்': 'ஓரகத்தி', // husband's brother's wife (age unknown)
     'அக்கா': 'அத்தான்', // husband's elder sister's husband

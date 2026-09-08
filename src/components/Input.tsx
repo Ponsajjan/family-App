@@ -4,6 +4,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     showOptional?: boolean;
     label?: string;
     error?: string;
+    ref?: React.Ref<HTMLInputElement>;
 }
 
 const Input: React.FC<InputProps> = ({

@@ -39,14 +39,14 @@ export default function Sidenav() {
                 className={`${showNav ? 'opacity-100 delay-500 pointer-events-auto' : 'opacity-0 xl:opacity-100 pointer-events-none xl:pointer-events-auto'} transition-all duration-300 ease-in-out xl:block fixed top-14 lg:sticky md:top-0 z-[130] h-[70vh] lg:h-full`}
             >
                 <div className="h-12 border-b border-border_color w-full bg-field_color"></div>
-                <div className={`flex-col justify-between ${showNav ? 'flex' : 'hidden xl:flex'} absolute xl:static top-0 md:pt-8 xl:pt-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-fit md:w-40 min-h-[calc(100vh-10rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden`}>
+                <div className={`flex-col justify-between ${showNav ? 'flex' : 'hidden xl:flex'} absolute xl:static top-0 md:pt-8 xl:pt-0 left-2 md:left-0 bg-field_color md:bg-main_background border border-border_color md:border-y-0 md:border-l-0 w-fit md:w-44 min-h-[calc(100vh-10rem)] md:min-h-screen xl:min-h-[calc(100vh-3rem)] rounded-xl md:rounded-none overflow-hidden`}>
                     <div>
                         <NavLink linkName="Calendar" link="" onClick={closeNav} />
                         <NavLink linkName="Relatives" link="relatives" onClick={closeNav} />
                         {/* <NavLink linkName="Board" link="announcements" onClick={closeNav} /> */}
                         <NavLink linkName="Relations" link="tree" onClick={closeNav} />
-                        {/* <NavLink linkName="Relationship" link="relationship" onClick={closeNav} /> */}
-                        <NavLink linkName="Add/Edit" link="add_edit" onClick={closeNav} />
+                        <NavLink linkName="Relationship" link="relationship" onClick={closeNav} />
+                        <NavLink linkName="Add / Edit" link="add_edit" onClick={closeNav} />
                         <NavLink linkName="Moderator" link="moderator" onClick={closeNav} showDot={anyAccountHasIssues} />
                         <span className="border-t border-border_color pt-2 mt-6 block mx-4" aria-hidden="true"></span>
                         <NavLink linkName="Terms" link="terms" onClick={closeNav} />
@@ -75,7 +75,7 @@ export function NavLink({ link, linkName, onClick, showDot }: { link: string, li
                 {linkName === 'Relatives' && <RelativesIcon />}
                 {linkName === 'Relations' && <TreeIcon />}
                 {linkName === 'Relationship' && <RelationshipFinderIcon />}
-                {linkName === 'Add/Edit' && <FamilyProfessionals />}
+                {linkName === 'Add / Edit' && <FamilyProfessionals />}
                 {/* {linkName === 'Board' && <BoardIcon />} */}
                 {linkName === 'Moderator' && <Moderator />}
                 {linkName === 'Terms' && <Terms />}

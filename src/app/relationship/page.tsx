@@ -77,6 +77,7 @@ export default function RelationshipPage() {
   const [selectedB, setSelectedB] = useState<SelectedPerson | null>(null);
   const [showList, setShowList] = useState(false);
   const [showListFor, setShowListFor] = useState<'A' | 'B'>('A');
+  const [listOpenCount, setListOpenCount] = useState(0);
   const [showChoosePopup, setShowChoosePopup] = useState(false);
 
   const { chooseAccountPopup, currentAuthId, mainMemberName } = useSelector((state: RootState) => state.terms);
@@ -89,6 +90,7 @@ export default function RelationshipPage() {
   const openList = (which: 'A' | 'B') => {
     setShowListFor(which);
     setShowList(true);
+    setListOpenCount((count) => count + 1);
   };
 
   const handleSelectedValue = (name: string, id: number, _select: string, _verified: boolean, gender?: 'Male' | 'Female') => {
@@ -201,6 +203,7 @@ export default function RelationshipPage() {
             openList={setShowList}
             multiselect={false}
             descendant={null}
+            focusSearchKey={listOpenCount}
           />
         </SlidePanel>
       </div>
