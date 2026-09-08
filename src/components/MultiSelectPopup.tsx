@@ -167,7 +167,7 @@ export default function MultiSelectPopup({ label, options, values, onChange, cla
                                             <SearchIcon />
                                         </div>
                                         {loading && (
-                                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2" role="status" aria-label="Searching">
+                                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center justify-center" role="status" aria-label="Searching">
                                                 <span className="block w-4 h-4 border-2 border-accent_color border-t-transparent rounded-full animate-spin" />
                                             </span>
                                         )}

@@ -151,7 +151,7 @@ export default function Relatives() {
             <SearchIcon />
           </span>
           {(loading || isFetching) && params.page === 1 ? (
-            <span className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background block peer-placeholder-shown:hidden" role="status" aria-label="Searching">
+            <span className="absolute right-[0.5625rem] top-1/2 transform -translate-y-1/2 bg-main_background flex items-center justify-center peer-placeholder-shown:hidden" role="status" aria-label="Searching">
               <span className="block w-4 h-4 border-2 border-accent_color border-t-transparent rounded-full animate-spin" />
             </span>
           ) : (

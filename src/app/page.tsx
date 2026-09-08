@@ -334,8 +334,8 @@ export default function Calendar() {
             </div>
 
             <div onClick={() => { setShowPopup(false); setCanGoBackToDate(false); }} className={`fixed md:hidden ${showPopup ? 'top-0 bg-gray-500/60' : 'bottom-full delay-[600ms] bg-gray-300/5'} inset-0 z-[100] transition-all duration-500 ease-in-out`} aria-hidden="true" />
-            <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color overflow-y-auto -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible overflow-hidden md:h-0'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto overflow-y-auto`}>
-              <div className="relative">
+            <div className={`md:static z-[101] fixed left-0 right-0 top-full bg-main_background overflow-hidden md:mt-8 ${showPopup ? 'z-[100] max-h-[80vh] md:max-h-none rounded-t-lg md:border border-border_color -translate-y-full md:translate-y-0' : 'md:w-0 translate-y-0 invisible md:h-0'} transition-all duration-500 ease-in-out md:transition-none md:duration-0 w-full mx-auto`}>
+              <div className={`relative overflow-x-hidden max-h-[80vh] overflow-y-auto md:max-h-none ${showPopup ? 'visible transition-all ease-in-out' : 'invisible'}`}>
                 {/* Sticky Close Button Container */}
                 <div className="sticky top-0 z-30 h-0 w-full pointer-events-none">
                   <div className="relative w-full h-0">
@@ -354,7 +354,7 @@ export default function Calendar() {
                   const selectedIsToday = isToday(selected);
 
                   return (
-                    <div className={`border-b sticky top-0 z-20 ${showPopup ? 'visible delay-500 md:delay-0 transition-all md:transition-none' : 'invisible'} bg-main_background flex justify-between items-center border-border_color px-4 min-h-[3.2rem] py-1.5`}>
+                    <div className="border-b sticky top-0 z-20 bg-main_background flex justify-between items-center border-border_color px-4 min-h-[3.2rem] py-1.5">
                       <p className="flex flex-wrap items-end min-h-[1.875rem] pr-10">
                         {selectedIsToday &&
                           <>
@@ -381,7 +381,7 @@ export default function Calendar() {
                     </button>
                   </div>
                 )}
-                <div className={`${showPopup ? 'visible delay-500 md:delay-0 transition-all' : 'invisible opacity-0'} ${canGoBackToDate ? '[&_.sticky]:!top-[3.2rem]' : ''}`}>
+                <div className={`${canGoBackToDate ? '[&_.sticky]:!top-[3.2rem]' : ''}`}>
                   {showPopupFor === 'date' && <OnDate events={eventForDate} onMemberClick={(id) => HandlePopupData('member', id, true)} />}
                   {showPopupFor === 'member' && <CalendarMemberDetail memberId={selectedMemberId} />}
                 </div>
