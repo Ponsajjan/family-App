@@ -224,11 +224,12 @@ function consanguineRelation(
         };
     }
 
-    // Uncle / Aunt — strictly from's parent's sibling. Father's side vs. mother's
-    // side decides மாமா vs பெரியப்பா/சித்தப்பா. Only up===2/down===1 qualifies — a
-    // generation gap of 1 further out (e.g. up=3/down=2, from's parent's cousin) is
-    // not a true parent's sibling and is handled below as a distant relative instead.
-    if (up === 2 && down === 1) {
+    // Uncle / Aunt, and any relative one generation further out at the same gap
+    // (e.g. up=3/down=2, from's parent's first cousin — a "once removed" cousin).
+    // `to` sits at exactly the same generational depth as from's own parent
+    // whenever up-down===1, however far down that parent's line runs, so the same
+    // elder/younger comparison against from's father/mother applies uniformly.
+    if (up - down === 1 && down >= 1) {
         const intermediateId = sideFrom === 'father' ? from.fatherId : sideFrom === 'mother' ? from.motherId : null;
         const intermediate = intermediateId ? membersById.get(intermediateId) : undefined;
         const order = intermediate ? ageOrder(to, intermediate) : 'unknown';
@@ -248,15 +249,6 @@ function consanguineRelation(
             }
         }
         return { label: to.gender === 'Male' ? 'சித்தப்பா/மாமா' : 'அத்தை/சித்தி', distance };
-    }
-
-    // Same generation gap as an uncle/aunt (offset 1) but further out — e.g. from's
-    // parent's cousin, or from's grandparent's cousin's child. Not a true parent's
-    // sibling, so use a neutral relative term with a description of the actual side,
-    // rather than overclaiming பெரியப்பா/சித்தப்பா/மாமா/அத்தை.
-    if (up - down === 1 && down >= 1) {
-        const sideNote = sideFrom === 'father' ? 'தந்தை வழி தொலைதூர உறவினர்' : sideFrom === 'mother' ? 'தாய் வழி தொலைதூர உறவினர்' : 'தொலைதூர உறவினர்';
-        return { label: 'உறவினர்', description: sideNote, distance };
     }
 
     // First cousins. Dravidian kinship splits them by the sexes of the two siblings
