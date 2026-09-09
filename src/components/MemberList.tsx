@@ -369,7 +369,7 @@ export default function MemberList({
             <span className="absolute left-2 top-1/2 transform -translate-y-1/2" aria-hidden="true">
               <SearchIcon />
             </span>
-            {loadingList && params.page === 1 && (
+            {loadingList && params.page === 1 && members.length > 0 && (
               <span className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center justify-center" role="status" aria-label="Searching">
                 <span className="block w-4 h-4 border-2 border-accent_color border-t-transparent rounded-full animate-spin" />
               </span>
