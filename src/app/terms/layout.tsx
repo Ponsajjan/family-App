@@ -80,12 +80,12 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
                                     <span className="inline-block">Guidelines:</span>
                                 </h2>
                                 <ul className="list-disc list-inside space-y-2 pl-4">
-                                    <li className='list-outside'>Ensure family descendants are accurately recorded</li>
-                                    <li className='list-outside'>Add family relationships <span className='whitespace-nowrap'>( Partner | Children )</span> if applicable</li>
-                                    <li className='list-outside'>New members remain hidden in Calendar and Relations chart until they are verified</li>
+                                    <li className='list-outside'>Ensure family member details are accurately recorded</li>
+                                    <li className='list-outside'>Add family relationships <span className='whitespace-nowrap'>(Partner | Children)</span> if applicable</li>
+                                    <li className='list-outside'>New members stay hidden from the Calendar and Relations chart until verified</li>
                                 </ul>
                                 <p className="mt-4 italic opacity-65">
-                                    Note: Verified member information is locked to preserve data integrity. Any updates to verified members require moderator approval
+                                    Note: Verified member information is locked to preserve data integrity. Updates to a verified member require moderator approval.
                                 </p>
                             </div>
                         </div>
