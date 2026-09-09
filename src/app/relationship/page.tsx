@@ -33,7 +33,7 @@ function RelationshipLimitationsNotice() {
         onClick={() => setShowPopup(true)}
         aria-label="Known limitations in finding relationships"
         title="Known limitations in finding relationships"
-        className="fixed bottom-4 right-4 z-30 flex items-center justify-center p-2.5 rounded-lg border border-border_color bg-field_color text-yellow-600 shadow-lg cursor-pointer hover:bg-field_hover transition-colors"
+        className="fixed md:absolute bottom-4 right-4 z-30 flex items-center justify-center p-2.5 rounded-lg border border-border_color bg-field_color text-yellow-600 shadow-lg cursor-pointer hover:bg-field_hover transition-colors"
       >
         <Warning />
       </button>
@@ -175,7 +175,7 @@ export default function RelationshipPage() {
     <div className="w-full">
       <Topnav />
       <div className="w-full md:flex">
-        <Container>
+        <Container className='relative'>
           <div className="w-full md:max-w-3xl px-4 py-10 mx-auto">
             <div className="relative flex items-center gap-2 h-10 mb-2">
               {chooseAccountPopup.length > 1 &&
@@ -233,6 +233,7 @@ export default function RelationshipPage() {
               ) : null}
             </div>
           </div>
+          <RelationshipLimitationsNotice />
         </Container>
         <SlidePanel setShowDetails={setShowList} showDetails={showList}>
           <MemberList
@@ -255,7 +256,6 @@ export default function RelationshipPage() {
           onSwitchSuccess={handleSwitchSuccess}
         />
       )}
-      <RelationshipLimitationsNotice />
     </div>
   );
 }

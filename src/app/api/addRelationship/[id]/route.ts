@@ -412,50 +412,56 @@ export async function PUT(request: NextRequest) {
 
     // Use provided partnerId or fall back to existing partner
 
-
-    await prisma.member.update({
-      where: { id: memberId },
-      data: sanitizedUpdateData,
-    });
-
-    // Batch update children orders
-    const childrenUpdates: Promise<any>[] = [];
-
-    if (updatedData.fatherOf) {
-      childrenUpdates.push(...updatedData.fatherOf.map(child =>
-        prisma.member.update({
-          where: { id: child.id },
-          data: { order: child.order }
-        })
-      ));
-    }
-
-    if (updatedData.motherOf) {
-      childrenUpdates.push(...updatedData.motherOf.map(child =>
-        prisma.member.update({
-          where: { id: child.id },
-          data: { order: child.order }
-        })
-      ));
-    }
-
-    if (childrenUpdates.length > 0) {
-      await Promise.all(childrenUpdates);
-    }
-
-    // Update partner relationships (with effective partner)
-    if (effectivePartnerId) {
-      await prisma.member.update({
-        where: { id: effectivePartnerId },
-        data: {
-          partnerId: memberId,
-          ...(currentMember.gender === 'Male'
-            ? { motherOf: { connect: [...(updatedData.fatherOf?.map(({ id }) => ({ id })) || []), ...(currentMember.fatherOf.map(({ id }) => ({ id })))] } }
-            : { fatherOf: { connect: [...(updatedData.motherOf?.map(({ id }) => ({ id })) || []), ...(currentMember.motherOf.map(({ id }) => ({ id })))] } }
-          )
-        }
+    // Run the member connect, children order updates, and partner reciprocal
+    // update atomically so a failure partway through can't leave a child or
+    // partner relationship half-applied.
+    await prisma.$transaction(async (tx) => {
+      await tx.member.update({
+        where: { id: memberId },
+        data: sanitizedUpdateData,
       });
-    }
+
+      // Batch update children orders
+      const childrenUpdates: Promise<any>[] = [];
+
+      if (updatedData.fatherOf) {
+        childrenUpdates.push(...updatedData.fatherOf.map(child =>
+          tx.member.update({
+            where: { id: child.id },
+            data: { order: child.order }
+          })
+        ));
+      }
+
+      if (updatedData.motherOf) {
+        childrenUpdates.push(...updatedData.motherOf.map(child =>
+          tx.member.update({
+            where: { id: child.id },
+            data: { order: child.order }
+          })
+        ));
+      }
+
+      if (childrenUpdates.length > 0) {
+        await Promise.all(childrenUpdates);
+      }
+
+      // Update partner relationships (with effective partner)
+      if (effectivePartnerId) {
+        await tx.member.update({
+          where: { id: effectivePartnerId },
+          data: {
+            partnerId: memberId,
+            ...(currentMember.gender === 'Male'
+              ? { motherOf: { connect: [...(updatedData.fatherOf?.map(({ id }) => ({ id })) || []), ...(currentMember.fatherOf.map(({ id }) => ({ id })))] } }
+              : { fatherOf: { connect: [...(updatedData.motherOf?.map(({ id }) => ({ id })) || []), ...(currentMember.motherOf.map(({ id }) => ({ id })))] } }
+            )
+          }
+        });
+      }
+    }, {
+      timeout: 20000, // 20 seconds timeout to handle database load
+    });
 
     await bumpFamilyUpdateVersion(authId);
 

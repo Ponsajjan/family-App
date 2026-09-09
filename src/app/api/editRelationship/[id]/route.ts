@@ -216,92 +216,98 @@ export async function PUT(request: NextRequest) {
 
     // If no verified members are involved, proceed with the update logic
 
-    // Start processing updates
-    const updatePromises: Promise<any>[] = [];
+    // Run all relationship mutations atomically so a failure partway through
+    // (e.g. a stale child id in childrenOrder) can't leave children disconnected
+    // without the rest of the change also applying.
+    await prisma.$transaction(async (tx) => {
+      const updatePromises: Promise<any>[] = [];
 
-    // Handle partner removal (divorce)
-    if (deleteData.partnerId) {
-      // Remove partner from member
-      updatePromises.push(
-        prisma.member.update({
-          where: { id: deleteData.partnerId },
-          data: { partnerId: null },
-        }),
-      );
-      // Remove member from partner
-      updatePromises.push(
-        prisma.member.update({
-          where: { id: memberId },
-          data: { partnerId: null },
-        }),
-      );
-
-      // Standardised logic: If children are selected for removal.
-      if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
-        const memberRemovedChildren: number[] = Array.from(new Set(deleteData.childrenId)); // Children removed from member
-
-        // Remove specified children from MEMBER (member loses custody)
-        if (memberRemovedChildren.length > 0) {
-          updatePromises.push(
-            prisma.member.update({
-              where: { id: memberId },
-              data: {
-                fatherOf: {
-                  disconnect: memberRemovedChildren.map((childId) => ({ id: childId })),
-                },
-                motherOf: {
-                  disconnect: memberRemovedChildren.map((childId) => ({ id: childId })),
-                },
-              },
-            })
-          );
-        }
-      }
-    } else {
-      // Handle children relations removal (NOT during divorce)
-      if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
-        const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
-
-        // Update the member's fatherOf and motherOf relationships (remove child from member)
+      // Handle partner removal (divorce)
+      if (deleteData.partnerId) {
+        // Remove partner from member
         updatePromises.push(
-          prisma.member.update({
+          tx.member.update({
+            where: { id: deleteData.partnerId },
+            data: { partnerId: null },
+          }),
+        );
+        // Remove member from partner
+        updatePromises.push(
+          tx.member.update({
             where: { id: memberId },
-            data: {
-              fatherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })), },
-              motherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })), },
-            },
-          })
+            data: { partnerId: null },
+          }),
         );
 
-        // Update the partner's fatherOf and motherOf relationships (remove child from partner)
-        if (hasPartner) {
+        // Standardised logic: If children are selected for removal.
+        if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
+          const memberRemovedChildren: number[] = Array.from(new Set(deleteData.childrenId)); // Children removed from member
+
+          // Remove specified children from MEMBER (member loses custody)
+          if (memberRemovedChildren.length > 0) {
+            updatePromises.push(
+              tx.member.update({
+                where: { id: memberId },
+                data: {
+                  fatherOf: {
+                    disconnect: memberRemovedChildren.map((childId) => ({ id: childId })),
+                  },
+                  motherOf: {
+                    disconnect: memberRemovedChildren.map((childId) => ({ id: childId })),
+                  },
+                },
+              })
+            );
+          }
+        }
+      } else {
+        // Handle children relations removal (NOT during divorce)
+        if (deleteData.childrenId.length > 0 && Array.isArray(deleteData.childrenId)) {
+          const removeChildRelation: number[] = Array.from(new Set(deleteData.childrenId)); // Deduplicate
+
+          // Update the member's fatherOf and motherOf relationships (remove child from member)
           updatePromises.push(
-            prisma.member.update({
-              where: { id: hasPartner },
+            tx.member.update({
+              where: { id: memberId },
               data: {
-                fatherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })) },
-                motherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })) },
+                fatherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })), },
+                motherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })), },
               },
             })
           );
+
+          // Update the partner's fatherOf and motherOf relationships (remove child from partner)
+          if (hasPartner) {
+            updatePromises.push(
+              tx.member.update({
+                where: { id: hasPartner },
+                data: {
+                  fatherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })) },
+                  motherOf: { disconnect: removeChildRelation.map((childId) => ({ id: childId })) },
+                },
+              })
+            );
+          }
         }
       }
-    }
 
-    // Handle children order updates
-    if (childrenOrder && Array.isArray(childrenOrder)) {
-      updatePromises.push(
-        ...childrenOrder.map((child, index) =>
-          prisma.member.update({
-            where: { id: child.id },
-            data: { order: index + 1 },
-          })
-        )
-      );
-    }
+      // Handle children order updates
+      if (childrenOrder && Array.isArray(childrenOrder)) {
+        updatePromises.push(
+          ...childrenOrder.map((child, index) =>
+            tx.member.update({
+              where: { id: child.id },
+              data: { order: index + 1 },
+            })
+          )
+        );
+      }
 
-    // Wait for all updates to complete
-    await Promise.all(updatePromises);
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+    }, {
+      timeout: 20000, // 20 seconds timeout to handle database load
+    });
     await bumpFamilyUpdateVersion(authId);
 
     // revalidatePath('/api/relatives');
