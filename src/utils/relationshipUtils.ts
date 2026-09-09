@@ -363,6 +363,17 @@ const SPOUSE_SIBLING_SPOUSE_LABEL_FEMALE: Record<string, string> = {
     'சகோதரி': 'மைத்துனர்',
 };
 
+// பெரியப்பா/சித்தப்பா and பெரியம்மா/சித்தி are decided by comparing the relative's age
+// against the linking parent's — meaningful only when `from` is that parent's own
+// child. When the link instead runs through from's partner, the comparison would be
+// against the partner's parent, not from's, so collapse it to the combined generic
+// term instead of implying an elder/younger fact from's own family doesn't establish.
+function genericizeUncleAunt(label: string): string {
+    if (label === 'பெரியப்பா' || label === 'சித்தப்பா') return 'பெரியப்பா/சித்தப்பா';
+    if (label === 'பெரியம்மா' || label === 'சித்தி') return 'பெரியம்மா/சித்தி';
+    return label;
+}
+
 interface Candidate {
     result: RelationshipResult;
     distance: number;
@@ -427,15 +438,16 @@ export function computeRelationship(
         if (fromPartner) {
             const r = consanguineRelation(fromPartner.id, toId, membersById);
             if (r) {
+                const label = genericizeUncleAunt(r.label);
                 const spouseRelativeLabels = from.gender === 'Male' ? MY_SPOUSE_RELATIVE_LABEL_MALE : MY_SPOUSE_RELATIVE_LABEL_FEMALE;
-                const mapped = spouseRelativeLabels[r.label];
+                const mapped = spouseRelativeLabels[label];
                 // Beyond parent/child/sibling (which have distinct in-law terms), a spouse's
                 // uncle/aunt/grandparent/cousin is addressed with that same direct term
-                // (பெரியப்பா/சித்தப்பா/மாமா/தாத்தா/மச்சான் etc.), so reuse r.label as-is.
+                // (பெரியப்பா/சித்தப்பா/மாமா/தாத்தா/மச்சான் etc.), so reuse the label as-is.
                 candidates.push({
                     result: mapped
                         ? { label: mapped }
-                        : { label: r.label },
+                        : { label },
                     distance: r.distance,
                 });
             }
@@ -458,13 +470,14 @@ export function computeRelationship(
                 // in-law terms (checked first); beyond siblings, the spouse-of-X term is the
                 // same regardless of from's gender, so SPOUSE_OF_LABEL covers it; failing
                 // that, fall back to a to-gender-correct phrase.
+                const label = genericizeUncleAunt(r.label);
                 const spouseSiblingSpouseLabels = from.gender === 'Male' ? SPOUSE_SIBLING_SPOUSE_LABEL_MALE : SPOUSE_SIBLING_SPOUSE_LABEL_FEMALE;
-                const mapped = spouseSiblingSpouseLabels[r.label] ?? SPOUSE_OF_LABEL[r.label];
+                const mapped = spouseSiblingSpouseLabels[label] ?? SPOUSE_OF_LABEL[label];
                 const spouseWord = to.gender === 'Male' ? 'கணவர்' : to.gender === 'Female' ? 'மனைவி' : 'துணைவர்';
                 candidates.push({
                     result: mapped
                         ? { label: mapped }
-                        : { label: `${r.label} ${spouseWord}`, description: '(இரு துணைவர்கள் வழி உறவு)' },
+                        : { label: `${label} ${spouseWord}`, description: '(இரு துணைவர்கள் வழி உறவு)' },
                     distance: r.distance + 2,
                 });
             }
