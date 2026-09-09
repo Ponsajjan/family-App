@@ -236,7 +236,7 @@ function consanguineRelation(
 
         if (sideFrom === 'father') {
             if (to.gender === 'Male') {
-                if (order === 'unknown') return { label: 'தந்தையின் சகோதரர்', distance };
+                if (order === 'unknown') return { label: 'பெரியப்பா/சித்தப்பா', distance };
                 return { label: order === 'aElder' ? 'பெரியப்பா' : 'சித்தப்பா', distance };
             }
             if (to.gender === 'Female') return { label: 'அத்தை', distance };
@@ -244,7 +244,7 @@ function consanguineRelation(
         if (sideFrom === 'mother') {
             if (to.gender === 'Male') return { label: 'மாமா', distance };
             if (to.gender === 'Female') {
-                if (order === 'unknown') return { label: 'தாயின் சகோதரி', distance };
+                if (order === 'unknown') return { label: 'பெரியம்மா/சித்தி', distance };
                 return { label: order === 'aElder' ? 'பெரியம்மா' : 'சித்தி', distance };
             }
         }
@@ -298,8 +298,8 @@ const SPOUSE_OF_LABEL: Record<string, string> = {
     'பாட்டி': 'தாத்தா', // grandmother's husband
     'கொள்ளுத்தாத்தா': 'கொள்ளுப்பாட்டி', // great-grandfather's wife
     'கொள்ளுப்பாட்டி': 'கொள்ளுத்தாத்தா', // great-grandmother's husband
-    'தந்தையின் சகோதரர்': 'பெரியம்மா/சித்தி', // father's brother's wife, age unknown
-    'தாயின் சகோதரி': 'பெரியப்பா/சித்தப்பா', // mother's sister's husband, age unknown
+    'பெரியப்பா/சித்தப்பா': 'பெரியம்மா/சித்தி', // father's brother's wife, age unknown
+    'பெரியம்மா/சித்தி': 'பெரியப்பா/சித்தப்பா', // mother's sister's husband, age unknown
 };
 
 // Given the blood-relation label of `to` relative to `from`'s partner, what `from` calls `to`.
