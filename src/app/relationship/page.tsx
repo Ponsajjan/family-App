@@ -18,7 +18,7 @@ const RELATIONSHIP_LIMITATIONS: string[] = [
   "Elder/younger terms (பெரியப்பா vs சித்தப்பா, அண்ணன் vs தம்பி, etc.) need a known birth date on both people. Without one, the result falls back to a combined or gender-neutral term.",
   "First cousins are labelled as cross (மச்சான்/மைத்துனி) or parallel (sibling-style) based on the genders of the two linking parents. If either linking parent isn't recorded, it defaults to the sibling-style term.",
   "Relations more than 2-3 generations removed from a direct ancestor/descendant (e.g. a great-grand-uncle, or a cousin twice removed) are shown with a general term such as 'உறவினர்' or 'தொலைதூர உறவினர்' rather than an exact title.",
-  "In-law terms are only precise for a spouse's parent, child, sibling, uncle/aunt, or grandparent. Anything further out (e.g. a spouse's cousin) is shown as the blood relative's own term plus a husband/wife word.",
+  "In-law terms are only precise for a spouse's parent, child, sibling, or grandparent. A spouse's uncle/aunt is always shown as the combined பெரியப்பா/சித்தப்பா (or பெரியம்மா/சித்தி) term, never split by elder/younger, since that distinction is judged against the spouse's own parent, not yours. Anything further out (e.g. a spouse's cousin) is shown as the blood relative's own term plus a husband/wife word.",
   "Every result depends on father, mother, and partner links being entered correctly. A missing or incorrect link can produce a wrong relationship, or 'No direct relationship found'.",
   "When two people are related through more than one common ancestor (e.g. double cousins), only the closest single path is used to determine the relationship shown.",
 ];
