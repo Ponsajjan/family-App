@@ -10,8 +10,50 @@ import Container from "@/components/Container";
 import MemberList from "@/components/MemberList";
 import SlidePanel from "@/components/SlidePanel";
 import { ChoosePopup } from "@/components/ChoosePopup";
+import PopupModal from "@/components/PopupModal";
 import { useToast } from "@/components/Toast";
-import { Male, Female, SwitchIcon, SwitchMainAccount } from "@/utils/Icons";
+import { Male, Female, SwitchIcon, SwitchMainAccount, Warning } from "@/utils/Icons";
+
+const RELATIONSHIP_LIMITATIONS: string[] = [
+  "Elder/younger terms (பெரியப்பா vs சித்தப்பா, அண்ணன் vs தம்பி, etc.) need a known birth date on both people. Without one, the result falls back to a combined or gender-neutral term.",
+  "First cousins are labelled as cross (மச்சான்/மைத்துனி) or parallel (sibling-style) based on the genders of the two linking parents. If either linking parent isn't recorded, it defaults to the sibling-style term.",
+  "Relations more than 2-3 generations removed from a direct ancestor/descendant (e.g. a great-grand-uncle, or a cousin twice removed) are shown with a general term such as 'உறவினர்' or 'தொலைதூர உறவினர்' rather than an exact title.",
+  "In-law terms are only precise for a spouse's parent, child, sibling, uncle/aunt, or grandparent. Anything further out (e.g. a spouse's cousin) is shown as the blood relative's own term plus a husband/wife word.",
+  "Every result depends on father, mother, and partner links being entered correctly. A missing or incorrect link can produce a wrong relationship, or 'No direct relationship found'.",
+  "When two people are related through more than one common ancestor (e.g. double cousins), only the closest single path is used to determine the relationship shown.",
+];
+
+function RelationshipLimitationsNotice() {
+  const [showPopup, setShowPopup] = useState(false);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setShowPopup(true)}
+        aria-label="Known limitations in finding relationships"
+        title="Known limitations in finding relationships"
+        className="fixed bottom-4 right-4 z-30 flex items-center justify-center p-2.5 rounded-lg border border-border_color bg-field_color text-yellow-600 shadow-lg cursor-pointer hover:bg-field_hover transition-colors"
+      >
+        <Warning />
+      </button>
+      {showPopup && (
+        <PopupModal title="Known Limitations" onClose={() => setShowPopup(false)}>
+          <div className="overflow-y-auto">
+            <p className="text-sm opacity-75 mb-3">
+              Relationship terms are computed automatically from the family tree data. Some kinds of relationships can come out approximate or incorrect for the reasons below:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 text-sm">
+              {RELATIONSHIP_LIMITATIONS.map((point, index) => (
+                <li key={index}>{point}</li>
+              ))}
+            </ul>
+          </div>
+        </PopupModal>
+      )}
+    </>
+  );
+}
 
 interface SelectedPerson {
   id: number;
@@ -213,6 +255,7 @@ export default function RelationshipPage() {
           onSwitchSuccess={handleSwitchSuccess}
         />
       )}
+      <RelationshipLimitationsNotice />
     </div>
   );
 }

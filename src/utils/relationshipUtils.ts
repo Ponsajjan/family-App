@@ -132,7 +132,7 @@ function genericFallback(up: number, down: number, toGender: string): Relationsh
     if (offset === 2) return { label: toGender === 'Male' ? 'தாத்தா' : toGender === 'Female' ? 'பாட்டி' : 'பாட்டன்/பாட்டி' };
     if (offset === 1) return { label: toGender === 'Male' ? 'பெரியப்பா/சித்தப்பா' : toGender === 'Female' ? 'பெரியம்மா/சித்தி' : 'உறவினர்' };
     if (offset === 0) return { label: toGender === 'Male' ? 'சகோதரன்' : toGender === 'Female' ? 'சகோதரி' : 'உறவினர்' };
-    if (offset === -1) return { label: toGender === 'Male' ? 'மருமகன்' : toGender === 'Female' ? 'மருமகள்' : 'உறவினர்' };
+    if (offset === -1) return { label: 'தொலைதூர உறவினர்' };
     if (offset === -2) return { label: toGender === 'Male' ? 'பேரன்' : toGender === 'Female' ? 'பேத்தி' : 'பேரக்குழந்தை' };
     if (offset === -3) return { label: toGender === 'Male' ? 'கொள்ளுப்பேரன்' : toGender === 'Female' ? 'கொள்ளுப்பேத்தி' : 'கொள்ளுப்பேரக்குழந்தை' };
     return { label: 'வழித்தோன்றல்' };
@@ -224,9 +224,11 @@ function consanguineRelation(
         };
     }
 
-    // Uncle / Aunt — from's parent's sibling (or an equivalent relative one
-    // generation up). Father's side vs. mother's side decides மாமா vs பெரியப்பா/சித்தப்பா.
-    if (up - down === 1 && down >= 1) {
+    // Uncle / Aunt — strictly from's parent's sibling. Father's side vs. mother's
+    // side decides மாமா vs பெரியப்பா/சித்தப்பா. Only up===2/down===1 qualifies — a
+    // generation gap of 1 further out (e.g. up=3/down=2, from's parent's cousin) is
+    // not a true parent's sibling and is handled below as a distant relative instead.
+    if (up === 2 && down === 1) {
         const intermediateId = sideFrom === 'father' ? from.fatherId : sideFrom === 'mother' ? from.motherId : null;
         const intermediate = intermediateId ? membersById.get(intermediateId) : undefined;
         const order = intermediate ? ageOrder(to, intermediate) : 'unknown';
@@ -246,6 +248,15 @@ function consanguineRelation(
             }
         }
         return { label: to.gender === 'Male' ? 'சித்தப்பா/மாமா' : 'அத்தை/சித்தி', distance };
+    }
+
+    // Same generation gap as an uncle/aunt (offset 1) but further out — e.g. from's
+    // parent's cousin, or from's grandparent's cousin's child. Not a true parent's
+    // sibling, so use a neutral relative term with a description of the actual side,
+    // rather than overclaiming பெரியப்பா/சித்தப்பா/மாமா/அத்தை.
+    if (up - down === 1 && down >= 1) {
+        const sideNote = sideFrom === 'father' ? 'தந்தை வழி தொலைதூர உறவினர்' : sideFrom === 'mother' ? 'தாய் வழி தொலைதூர உறவினர்' : 'தொலைதூர உறவினர்';
+        return { label: 'உறவினர்', description: sideNote, distance };
     }
 
     // First cousins. Dravidian kinship splits them by the sexes of the two siblings
@@ -295,6 +306,8 @@ const SPOUSE_OF_LABEL: Record<string, string> = {
     'பாட்டி': 'தாத்தா', // grandmother's husband
     'கொள்ளுத்தாத்தா': 'கொள்ளுப்பாட்டி', // great-grandfather's wife
     'கொள்ளுப்பாட்டி': 'கொள்ளுத்தாத்தா', // great-grandmother's husband
+    'தந்தையின் சகோதரர்': 'பெரியம்மா/சித்தி', // father's brother's wife, age unknown
+    'தாயின் சகோதரி': 'பெரியப்பா/சித்தப்பா', // mother's sister's husband, age unknown
 };
 
 // Given the blood-relation label of `to` relative to `from`'s partner, what `from` calls `to`.
@@ -315,7 +328,7 @@ const MY_SPOUSE_RELATIVE_LABEL_MALE: Record<string, string> = {
     'அண்ணன்': 'மைத்துனர்/மச்சான்', // wife's elder brother
     'தம்பி': 'கொழுந்தன்/மச்சான்', // wife's younger brother
     'சகோதரன்': 'மைத்துனன்',
-    'அக்கா': 'மைனி', // wife's elder sister
+    'அக்கா': 'மைத்துனி', // wife's elder sister
     'தங்கை': 'கொழுந்தியாள்', // wife's younger sister
     'சகோதரி': 'கொழுந்தியாள்',
 };
@@ -399,6 +412,11 @@ export function computeRelationship(
         if (toPartner) {
             const r = consanguineRelation(fromId, toPartner.id, membersById);
             if (r) {
+                // r.label describes toPartner (e.g. "பெரியப்பா"), not `to` — `to` is that
+                // person's spouse, so it must never be shown as-is: reusing it verbatim
+                // would display toPartner's gendered term for `to` (e.g. a male-only label
+                // for a female `to`). SPOUSE_OF_LABEL translates it into `to`'s own term;
+                // when even that has no entry, fall back to a to-gender-correct phrase.
                 const mapped = SPOUSE_OF_LABEL[r.label];
                 const spouseWord = to.gender === 'Male' ? 'கணவர்' : to.gender === 'Female' ? 'மனைவி' : 'துணைவர்';
                 candidates.push({
@@ -419,10 +437,13 @@ export function computeRelationship(
             if (r) {
                 const spouseRelativeLabels = from.gender === 'Male' ? MY_SPOUSE_RELATIVE_LABEL_MALE : MY_SPOUSE_RELATIVE_LABEL_FEMALE;
                 const mapped = spouseRelativeLabels[r.label];
+                // Beyond parent/child/sibling (which have distinct in-law terms), a spouse's
+                // uncle/aunt/grandparent/cousin is addressed with that same direct term
+                // (பெரியப்பா/சித்தப்பா/மாமா/தாத்தா/மச்சான் etc.), so reuse r.label as-is.
                 candidates.push({
                     result: mapped
                         ? { label: mapped }
-                        : { label: `${r.label} (துணைவர் வழி)`, description: "(spouse's relative)" },
+                        : { label: r.label },
                     distance: r.distance,
                 });
             }
@@ -439,12 +460,19 @@ export function computeRelationship(
         if (fromPartner && toPartner) {
             const r = consanguineRelation(fromPartner.id, toPartner.id, membersById);
             if (r) {
+                // r.label describes toPartner relative to fromPartner (e.g. toPartner is
+                // fromPartner's "பெரியப்பா") — `to` is toPartner's spouse, so r.label itself
+                // must never be shown as `to`'s term. Sibling links have from-gender-specific
+                // in-law terms (checked first); beyond siblings, the spouse-of-X term is the
+                // same regardless of from's gender, so SPOUSE_OF_LABEL covers it; failing
+                // that, fall back to a to-gender-correct phrase.
                 const spouseSiblingSpouseLabels = from.gender === 'Male' ? SPOUSE_SIBLING_SPOUSE_LABEL_MALE : SPOUSE_SIBLING_SPOUSE_LABEL_FEMALE;
-                const mapped = spouseSiblingSpouseLabels[r.label];
+                const mapped = spouseSiblingSpouseLabels[r.label] ?? SPOUSE_OF_LABEL[r.label];
+                const spouseWord = to.gender === 'Male' ? 'கணவர்' : to.gender === 'Female' ? 'மனைவி' : 'துணைவர்';
                 candidates.push({
                     result: mapped
                         ? { label: mapped }
-                        : { label: `${r.label} (இரு துணைவர்கள் வழி உறவு)` },
+                        : { label: `${r.label} ${spouseWord}`, description: '(இரு துணைவர்கள் வழி உறவு)' },
                     distance: r.distance + 2,
                 });
             }
