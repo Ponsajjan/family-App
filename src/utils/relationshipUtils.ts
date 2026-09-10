@@ -108,6 +108,23 @@ function linkingParent(
     return undefined;
 }
 
+// `member`'s immediate parent that sits on the path toward `commonId`, using `ancestors`
+// (member's own precomputed ancestor map) to tell which of the two parents' branches
+// actually leads there — works at any depth, unlike linkingParent above which only
+// recognizes a parent exactly one step from commonId. `side` on the ancestor map entry
+// already records, for every ancestor, whether it descends from member's father or
+// mother, so the parent on that branch is just member.fatherId/motherId picked by it.
+function linkingAncestorParent(
+    member: RelationshipGraphMember,
+    commonId: number,
+    ancestors: Map<number, AncestorInfo>,
+    membersById: Map<number, RelationshipGraphMember>
+): RelationshipGraphMember | undefined {
+    const side = ancestors.get(commonId)?.side;
+    const parentId = side === 'father' ? member.fatherId : side === 'mother' ? member.motherId : undefined;
+    return parentId ? membersById.get(parentId) : undefined;
+}
+
 // Sibling terms for `to` as seen by `from`, ranked by age where it is known. Also used
 // for parallel cousins, who are addressed as siblings.
 function siblingLabel(to: RelationshipGraphMember, from: RelationshipGraphMember): string {
@@ -211,10 +228,14 @@ function consanguineRelation(
         return { label: siblingLabel(to, from), distance };
     }
 
-    // Nephew / Niece — from's sibling's child. 'மருமகன்/மருமகள்' also mean
-    // son-/daughter-in-law, so spell out which sibling the child belongs to.
-    if (up === 1 && down === 2) {
-        const sibling = linkingParent(to, bestCommonId, membersById);
+    // Nephew / Niece — from's sibling's child, generalized to any distance one generation
+    // further out (down = up + 1): mother's-sibling's-grandchild, father's-cousin's-child,
+    // etc. are all the same generation gap as a direct nephew/niece, just via a more
+    // distant collateral relative, so they take the same term — mirroring how the
+    // uncle/aunt branch below collapses every "up - down === 1" distance to one term.
+    // 'மருமகன்/மருமகள்' also mean son-/daughter-in-law, so spell out whose child it is.
+    if (down - up === 1 && up >= 1) {
+        const sibling = linkingAncestorParent(to, bestCommonId, ancestorsTo, membersById);
         const siblingTerm = sibling?.gender === 'Male' ? 'சகோதரரின்' : sibling?.gender === 'Female' ? 'சகோதரியின்' : 'உடன்பிறப்பின்';
         const childTerm = to.gender === 'Male' ? 'மகன்' : to.gender === 'Female' ? 'மகள்' : 'குழந்தை';
         return {
