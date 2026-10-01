@@ -1,9 +1,11 @@
 import Container from "@/components/Container";
+import Topnav from "@/components/Topnav";
 import { Offline } from "@/utils/Icons";
 
 export default function Index() {
   return (
     <main className="h-screen">
+      <Topnav className='hidden xl:block' />
       <Container className="flex flex-col justify-center items-center h-full">
         <div className="max-w-4xl mx-auto" aria-hidden="true">
           <div className="z z-1 text-text_color text-4xl">Z</div>
