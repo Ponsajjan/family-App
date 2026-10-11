@@ -3,7 +3,7 @@
 import Container from '@/components/Container'
 import Topnav from '@/components/Topnav'
 import { Community, Logout, SwitchLogin } from '@/utils/Icons'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import SlidePanel from '@/components/SlidePanel'
 import SwitchLoginList from './SwitchLoginList'
 import LogoutList from './LogoutList'
@@ -16,7 +16,6 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
     const [showLogin, setShowLogin] = useState(false);
     const [showLogout, setShowLogout] = useState(false);
     const [showSidePanel, setShowSidePanel] = useState(false);
-
     // Use the PWA hook
     // const { isPWA, triggerPWAInstall, showInstallButton } = usePWAInstall();
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getCookie } from "cookies-next";
 import useSWR from "swr";
 import { useSelector } from "react-redux";
@@ -123,6 +123,12 @@ export default function RelationshipPage() {
   const [showChoosePopup, setShowChoosePopup] = useState(false);
 
   const { chooseAccountPopup, currentAuthId, mainMemberName } = useSelector((state: RootState) => state.terms);
+
+  useEffect(() => {
+    if (chooseAccountPopup.length > 1) {
+      setShowChoosePopup(true);
+    }
+  }, [chooseAccountPopup.length]);
 
   const url = selectedA && selectedB
     ? `/api/relationship?personAId=${selectedA.id}&personBId=${selectedB.id}`

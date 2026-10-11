@@ -52,6 +52,7 @@ export interface TermsState {
   isModerator: boolean;
   anyOtherAccountHasIssues: boolean;
   anyAccountHasIssues: boolean;
+  latestRequestId: string | null;
 }
 
 // ─── Thunk ───────────────────────────────────────────────────────────────────
@@ -98,6 +99,7 @@ const initialState: TermsState = {
   isModerator: false,
   anyOtherAccountHasIssues: false,
   anyAccountHasIssues: false,
+  latestRequestId: null,
 };
 
 const termsSlice = createSlice({
@@ -122,6 +124,8 @@ const termsSlice = createSlice({
     },
     setCurrentAuthId(state, action: PayloadAction<string>) {
       state.currentAuthId = action.payload;
+      state.latestRequestId = null;
+      state.loading = false;
     },
     setIsModerator(state, action: PayloadAction<boolean>) {
       state.isModerator = action.payload;
@@ -146,10 +150,15 @@ const termsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTermsData.pending, (state) => {
+      .addCase(fetchTermsData.pending, (state, action) => {
         state.loading = true;
+        // Track the most recently dispatched request so an older, slower
+        // call can't win a race and clobber a newer one's result (or a
+        // local optimistic update made while it was still in flight).
+        state.latestRequestId = action.meta.requestId;
       })
       .addCase(fetchTermsData.fulfilled, (state, action) => {
+        if (action.meta.requestId !== state.latestRequestId) return;
 
         state.loading = false;
         state.mainMemberName = action.payload.mainMemberName;
@@ -161,7 +170,8 @@ const termsSlice = createSlice({
         state.anyOtherAccountHasIssues = action.payload.accounts.some(acc => acc.current && String(acc.authId) !== String(action.payload.currentAuthId) && acc.hasChanges);
         state.anyAccountHasIssues = action.payload.accounts.some(acc => acc.current && acc.hasChanges);
       })
-      .addCase(fetchTermsData.rejected, (state) => {
+      .addCase(fetchTermsData.rejected, (state, action) => {
+        if (action.meta.requestId !== state.latestRequestId) return;
         state.loading = false;
       });
   },

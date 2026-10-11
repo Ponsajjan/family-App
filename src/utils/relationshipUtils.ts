@@ -275,8 +275,10 @@ function consanguineRelation(
     // First cousins. Dravidian kinship splits them by the sexes of the two siblings
     // that link the cousins: same sex (father's brother's or mother's sister's child)
     // makes them parallel cousins, addressed exactly as siblings; opposite sex
-    // (father's sister's or mother's brother's child) makes them cross cousins, who are
-    // marriageable and take the மச்சான்/மைத்துனி terms instead.
+    // (father's sister's or mother's brother's child) makes them cross cousins —
+    // traditionally marriageable, but this app uses மச்சான் only for cross-cousin
+    // sons, மாமன் மகள் for mama's daughter specifically, and the generic
+    // ஒன்றுவிட்ட சகோதரி for athai's daughter.
     if (up === 2 && down === 2) {
         const fromSide = linkingParent(from, bestCommonId, membersById)?.gender;
         const toSide = linkingParent(to, bestCommonId, membersById)?.gender;
@@ -284,9 +286,17 @@ function consanguineRelation(
             (fromSide === 'Male' || fromSide === 'Female') && (toSide === 'Male' || toSide === 'Female');
 
         if (sexesKnown && fromSide !== toSide) {
+            // fromSide 'Female' means `from` links through their mother, so
+            // `to` (opposite side) links through mama — mama's daughter.
+            // fromSide 'Male' means `from` links through their father, so
+            // `to` links through athai — athai's daughter.
+            const description = fromSide === 'Male' ? 'தந்தையின் சகோதரி வழி' : 'தாயின் சகோதரர் வழி';
+            if (to.gender === 'Female') {
+                return { label: fromSide === 'Female' ? 'மாமன் மகள்' : 'ஒன்றுவிட்ட சகோதரி', description, distance };
+            }
             return {
-                label: to.gender === 'Male' ? 'மச்சான்' : to.gender === 'Female' ? 'மைத்துனி' : 'முறை உறவினர்',
-                description: fromSide === 'Male' ? 'தந்தையின் சகோதரி வழி' : 'தாயின் சகோதரர் வழி',
+                label: to.gender === 'Male' ? 'மச்சான்' : 'முறை உறவினர்',
+                description,
                 distance,
             };
         }
