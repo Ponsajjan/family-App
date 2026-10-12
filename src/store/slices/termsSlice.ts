@@ -53,6 +53,12 @@ export interface TermsState {
   anyOtherAccountHasIssues: boolean;
   anyAccountHasIssues: boolean;
   latestRequestId: string | null;
+  // True for the full duration of an account switch, including the
+  // background fetchTermsData() refresh that follows it — not just the
+  // initial switchLogin round trip. Lives in Redux (not component state)
+  // so it still blocks a second switch even if ChoosePopup is closed and
+  // reopened (a fresh mount) while the first switch's refresh is pending.
+  switchingAccount: boolean;
 }
 
 // ─── Thunk ───────────────────────────────────────────────────────────────────
@@ -100,6 +106,7 @@ const initialState: TermsState = {
   anyOtherAccountHasIssues: false,
   anyAccountHasIssues: false,
   latestRequestId: null,
+  switchingAccount: false,
 };
 
 const termsSlice = createSlice({
@@ -129,6 +136,9 @@ const termsSlice = createSlice({
     },
     setIsModerator(state, action: PayloadAction<boolean>) {
       state.isModerator = action.payload;
+    },
+    setSwitchingAccount(state, action: PayloadAction<boolean>) {
+      state.switchingAccount = action.payload;
     },
     setTermsData(state, action: PayloadAction<Partial<TermsState>>) {
       return { ...state, ...action.payload };
@@ -184,6 +194,7 @@ export const {
   setAccounts,
   setCurrentAuthId,
   setIsModerator,
+  setSwitchingAccount,
   setTermsData,
   setChoosePopupAccounts,
   updateAccountIssues,

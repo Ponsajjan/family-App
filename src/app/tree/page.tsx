@@ -4,7 +4,7 @@ import Topnav from "@/components/Topnav";
 import FetchFamilyTree from "./FetchFamilyTree";
 import DragScroll from "@/components/DragScroll";
 import { getCookie } from 'cookies-next';
-import { SwitchMainAccount } from "@/utils/Icons";
+import { SwitchMainAccount, Spinner } from "@/utils/Icons";
 import { useState, useEffect, useRef } from "react";
 import { ChoosePopup } from "@/components/ChoosePopup";
 import useSWR from 'swr';
@@ -22,7 +22,7 @@ export default function FamilyTreePage() {
   // const [exporting, setExporting] = useState(false);
   // const [showExportMenu, setShowExportMenu] = useState(false);
   // const treeRef = useRef<HTMLDivElement>(null);
-  const { chooseAccountPopup } = useSelector((state: RootState) => state.terms);
+  const { chooseAccountPopup, switchingAccount } = useSelector((state: RootState) => state.terms);
   const token = getCookie('token');
   const url = '/api/tree';
   const { data: swrResult, error, isLoading, mutate } = useSWR(token ? url : null);
@@ -118,9 +118,10 @@ export default function FamilyTreePage() {
           {chooseAccountPopup.length > 1 && <button
             type="button"
             onClick={() => setShowChoosePopup(true)}
+            aria-label={switchingAccount ? "Switching account" : "Switch family account"}
             className="border border-border_color flex items-center justify-between rounded-md px-1 py-1 cursor-pointer bg-transparent text-inherit focus:outline-none"
           >
-            <SwitchMainAccount />
+            {switchingAccount ? <Spinner className="w-6 h-6" /> : <SwitchMainAccount />}
           </button>}
         </div>
       </Topnav>

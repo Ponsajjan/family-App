@@ -7,7 +7,7 @@ import { ButtonOutline, LinkButtonOutline } from "../../components/Button"
 import { useToast } from '@/components/Toast'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { NextArrow, SwitchMainAccount } from '@/utils/Icons'
+import { NextArrow, SwitchMainAccount, Spinner } from '@/utils/Icons'
 import { ChoosePopup } from '@/components/ChoosePopup'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store'
@@ -23,7 +23,7 @@ export default function ModeratorDashboard() {
     const { logout, storeLoginValues } = useAuth();
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
-    const { mainMemberName, chooseAccountPopup, isModerator, accounts, anyOtherAccountHasIssues, currentAuthId } = useSelector((state: RootState) => state.terms);
+    const { mainMemberName, chooseAccountPopup, isModerator, accounts, anyOtherAccountHasIssues, currentAuthId, switchingAccount } = useSelector((state: RootState) => state.terms);
 
     const url = '/api/moderator';
     const { data, isLoading, mutate } = useSWR(url);
@@ -185,14 +185,19 @@ export default function ModeratorDashboard() {
             <Topnav>
                 <div className="ml-auto mr-0 w-fit block">
                     {isModerator ? (
-                        <button onClick={handleModeratorLogout} className={`${isLoading ? 'opacity-55 cursor-wait' : 'cursor-pointer'} group flex items-center text-sm text-text_color`}>
+                        <button onClick={handleModeratorLogout} disabled={switchingAccount} className={`${isLoading ? 'opacity-60 cursor-wait' : 'cursor-pointer'} disabled:opacity-60 disabled:cursor-not-allowed group flex items-center text-sm text-text_color`}>
                             Logout as Moderator
                             <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
                                 <NextArrow />
                             </span>
                         </button>
                     ) : (
-                        <Link href="/moderator/login" className='group flex items-center text-sm text-text_color'>
+                        <Link
+                            href="/moderator/login"
+                            aria-disabled={switchingAccount}
+                            onClick={(e) => { if (switchingAccount) e.preventDefault(); }}
+                            className={`group flex items-center text-sm text-text_color ${switchingAccount ? 'opacity-60 pointer-events-none cursor-not-allowed' : ''}`}
+                        >
                             Switch to Moderator
                             <span className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1 group-active:translate-x-1.5">
                                 <NextArrow />
@@ -210,10 +215,11 @@ export default function ModeratorDashboard() {
                                 <button
                                     type="button"
                                     onClick={() => setShowChoosePopup(true)}
-                                    aria-label="Switch family account"
-                                    className='border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors relative bg-transparent text-inherit focus:outline-none'
+                                    aria-label={switchingAccount ? "Switching account" : "Switch family account"}
+                                    disabled={switchingAccount}
+                                    className='border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors relative bg-transparent text-inherit focus:outline-none disabled:cursor-not-allowed'
                                 >
-                                    <SwitchMainAccount aria-hidden="true" />
+                                    {switchingAccount ? <Spinner className="w-6 h-6" /> : <SwitchMainAccount aria-hidden="true" />}
                                     {anyOtherAccountHasIssues && (
                                         <span className="absolute -bottom-0.5 right-0 flex h-2.5 w-2.5" aria-label="Other accounts have pending items">
                                             <span className="inline-flex h-full w-full rounded-full bg-black" aria-hidden="true"></span>
@@ -228,13 +234,13 @@ export default function ModeratorDashboard() {
                     linkto={`moderator/verify_members`}
                     className="w-full mb-4"
                     buttonText={`Verify Members (${isLoading ? '..' : data?.unverifiedMembers ?? '..'})`}
-                    disabled={disabledButtons}
+                    disabled={disabledButtons || switchingAccount}
                 />
                 <LinkButtonOutline
                     linkto={`moderator/verify_changes`}
                     className="w-full mb-4"
                     buttonText={`Verify Changes (${isLoading ? '..' : data?.pendingRequests ?? '..'})`}
-                    disabled={disabledButtons}
+                    disabled={disabledButtons || switchingAccount}
                 />
                 <ButtonOutline
                     className="w-full mb-4"
@@ -246,7 +252,7 @@ export default function ModeratorDashboard() {
                                 : "Update Relations Chart"
                     }
                     onClick={handleUpdateRelationsChart}
-                    disabled={updatingChart || data?.chartStatus === 'building' || disabledButtons}
+                    disabled={updatingChart || data?.chartStatus === 'building' || disabledButtons || switchingAccount}
                 />
             </div>
 

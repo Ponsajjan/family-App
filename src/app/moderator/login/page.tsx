@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Topnav from "@/components/Topnav";
-import { PrevArrow, SwitchMainAccount } from "@/utils/Icons";
+import { PrevArrow, SwitchMainAccount, Spinner } from "@/utils/Icons";
 import { useAuth } from "@/contexts/AuthContext";
 import Container from "@/components/Container";
 import { setIsModerator, setAccounts, setCurrentAuthId } from "@/store/slices/termsSlice";
@@ -22,7 +22,7 @@ export default function Page() {
     const [submitting, setSubmitting] = useState(false);
     const { storeLoginValues } = useAuth();
     const dispatch = useDispatch<AppDispatch>();
-    const { accounts, mainMemberName, chooseAccountPopup } = useSelector((state: RootState) => state.terms);
+    const { accounts, mainMemberName, chooseAccountPopup, switchingAccount } = useSelector((state: RootState) => state.terms);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -76,7 +76,12 @@ export default function Page() {
         <div className="w-full">
             <Topnav>
                 <div className="ml-auto mr-0 w-fit block pr-2">
-                    <Link href="/moderator" className='group flex items-center text-sm text-text_color'>
+                    <Link
+                        href="/moderator"
+                        aria-disabled={switchingAccount}
+                        onClick={(e) => { if (switchingAccount) e.preventDefault(); }}
+                        className={`group flex items-center text-sm text-text_color ${switchingAccount ? 'opacity-60 pointer-events-none cursor-not-allowed' : ''}`}
+                    >
                         <span className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-1 group-active:-translate-x-1.5">
                             <PrevArrow />
                         </span>
@@ -94,9 +99,11 @@ export default function Page() {
                                     <button
                                         type="button"
                                         onClick={() => setShowChoosePopup(true)}
-                                        className="border  border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
+                                        aria-label={switchingAccount ? "Switching account" : "Switch family account"}
+                                        disabled={switchingAccount}
+                                        className="border  border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none disabled:cursor-not-allowed"
                                     >
-                                        <SwitchMainAccount />
+                                        {switchingAccount ? <Spinner className="w-6 h-6" /> : <SwitchMainAccount />}
                                     </button>
                                 </div>
                                 <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />
@@ -116,15 +123,16 @@ export default function Page() {
                                 onChange={(e) => { setForm({ ...form, password: e.target.value }); setError("") }}
                                 required
                                 autoFocus
+                                disabled={switchingAccount}
                                 placeholder="Login as moderator"
                                 value={form.password || ''}
                                 className={`px-1 outline-none text-text_color focus:border-border_active text-sm w-full bg-transparent disabled:cursor-not-allowed placeholder:text-text_color/0 placeholder-shown:mt-0 mt-4`}
                             />
                         </label>
                         <button onClick={handleSubmit}
-                            disabled={submitting || !form.password.trim()}
-                            className={`py-1 transition-opacity duration-200 ${submitting || !form.password.trim()
-                                ? 'cursor-not-allowed opacity-60'
+                            disabled={submitting || !form.password.trim() || switchingAccount}
+                            className={`py-1 transition-opacity duration-200 ${submitting || !form.password.trim() || switchingAccount
+                                ? 'cursor-not-allowed opacity-65'
                                 : 'hover:opacity-80'
                                 }`}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="2rem" height="2rem" viewBox="0 0 32 32" version="1.1">

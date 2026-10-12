@@ -12,7 +12,7 @@ import SlidePanel from "@/components/SlidePanel";
 import { ChoosePopup } from "@/components/ChoosePopup";
 import PopupModal from "@/components/PopupModal";
 import { useToast } from "@/components/Toast";
-import { Male, Female, SwitchIcon, SwitchMainAccount, Warning } from "@/utils/Icons";
+import { Male, Female, SwitchIcon, SwitchMainAccount, Warning, Spinner } from "@/utils/Icons";
 
 const RELATIONSHIP_LIMITATIONS: string[] = [
   "Elder/younger terms (பெரியப்பா vs சித்தப்பா, அண்ணன் vs தம்பி, etc.) need a known birth date on both people. Without one, the result falls back to a combined or gender-neutral term.",
@@ -83,18 +83,21 @@ function PersonPickerCard({
   label,
   person,
   active,
+  disabled,
   onClick,
 }: {
   label: string;
   person: SelectedPerson | null;
   active?: boolean;
+  disabled?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`w-full text-left outline rounded-md px-4 py-3 flex items-center gap-3 hover:outline-2 hover:outline-accent_color cursor-pointer ${active ? 'outline-2 outline-accent_color' : 'outline-1 outline-border_color'}`}
+      disabled={disabled}
+      className={`w-full text-left outline rounded-md px-4 py-3 flex items-center gap-3 hover:outline-2 hover:outline-accent_color cursor-pointer disabled:cursor-not-allowed disabled:opacity-65 ${active ? 'outline-2 outline-accent_color' : 'outline-1 outline-border_color'}`}
     >
       <div className="flex-1">
         <p className="text-xs mb-1">{label}</p>
@@ -122,7 +125,7 @@ export default function RelationshipPage() {
   const [listOpenCount, setListOpenCount] = useState(0);
   const [showChoosePopup, setShowChoosePopup] = useState(false);
 
-  const { chooseAccountPopup, currentAuthId, mainMemberName } = useSelector((state: RootState) => state.terms);
+  const { chooseAccountPopup, currentAuthId, mainMemberName, switchingAccount } = useSelector((state: RootState) => state.terms);
 
   useEffect(() => {
     if (chooseAccountPopup.length > 1) {
@@ -191,10 +194,11 @@ export default function RelationshipPage() {
                     <button
                       type="button"
                       onClick={() => setShowChoosePopup(true)}
-                      aria-label="Switch family account"
-                      className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
+                      aria-label={switchingAccount ? "Switching account" : "Switch family account"}
+                      disabled={switchingAccount}
+                      className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none disabled:cursor-not-allowed"
                     >
-                      <SwitchMainAccount aria-hidden="true" />
+                      {switchingAccount ? <Spinner className="w-6 h-6" /> : <SwitchMainAccount aria-hidden="true" />}
                     </button>
                   </div>
                   <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />
@@ -202,19 +206,19 @@ export default function RelationshipPage() {
             </div>
             <div className="flex flex-col md:flex-row items-center md:gap-2">
               <div className="w-full flex-1">
-                <PersonPickerCard label="Person 1" person={selectedA} active={showList && showListFor === 'A'} onClick={() => openList('A')} />
+                <PersonPickerCard label="Person 1" person={selectedA} active={showList && showListFor === 'A'} disabled={switchingAccount} onClick={() => openList('A')} />
               </div>
               <button
                 type="button"
                 onClick={handleSwap}
-                disabled={!selectedA && !selectedB}
+                disabled={(!selectedA && !selectedB) || switchingAccount}
                 aria-label="Swap selected people"
-                className="relative z-10 -my-4 md:my-0 p-2 border border-border_color rounded-full bg-field_color disabled:opacity-40 cursor-pointer rotate-90 md:rotate-0 md:hover:border-text_color transition-colors"
+                className="relative z-10 -my-4 md:my-0 p-2 border border-border_color rounded-full bg-field_color disabled:opacity-45 cursor-pointer disabled:cursor-not-allowed rotate-90 md:rotate-0 md:hover:border-text_color transition-colors"
               >
                 <SwitchIcon />
               </button>
               <div className="w-full flex-1">
-                <PersonPickerCard label="Person 2" person={selectedB} active={showList && showListFor === 'B'} onClick={() => openList('B')} />
+                <PersonPickerCard label="Person 2" person={selectedB} active={showList && showListFor === 'B'} disabled={switchingAccount} onClick={() => openList('B')} />
               </div>
             </div>
 

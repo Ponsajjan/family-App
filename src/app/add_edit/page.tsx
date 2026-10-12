@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { LinkButtonOutline } from "../../components/Button"
-import { SwitchMainAccount } from "@/utils/Icons"
+import { SwitchMainAccount, Spinner } from "@/utils/Icons"
 import { useEffect, useState } from "react"
 import { ChoosePopup } from "@/components/ChoosePopup"
 import { useSelector } from "react-redux"
@@ -13,7 +13,7 @@ export default function AddEditPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const { mainMemberName, chooseAccountPopup } = useSelector((state: RootState) => state.terms);
+    const { mainMemberName, chooseAccountPopup, switchingAccount } = useSelector((state: RootState) => state.terms);
     const mode = searchParams.get('mode');
 
     useEffect(() => {
@@ -71,10 +71,11 @@ export default function AddEditPage() {
                             <button
                                 type="button"
                                 onClick={() => setShowChoosePopup(true)}
-                                aria-label="Switch family account"
-                                className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none"
+                                aria-label={switchingAccount ? "Switching account" : "Switch family account"}
+                                disabled={switchingAccount}
+                                className="border border-border_color flex items-center justify-between rounded-full p-1 cursor-pointer md:hover:bg-field_hover transition-colors bg-transparent text-inherit focus:outline-none disabled:cursor-not-allowed"
                             >
-                                <SwitchMainAccount aria-hidden="true" />
+                                {switchingAccount ? <Spinner className="w-6 h-6" /> : <SwitchMainAccount aria-hidden="true" />}
                             </button>
                         </div>
                         <span className="absolute text-text_color/60 w-full border-b border-border_color border-dashed" />
@@ -85,12 +86,14 @@ export default function AddEditPage() {
                     linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_member`}
                     className="w-full mb-4"
                     buttonText={`${isAddMode ? 'Add' : 'Edit'} Member`}
+                    disabled={switchingAccount}
                 />
 
                 <LinkButtonOutline
                     linkto={`add_edit/${isAddMode ? 'add' : 'edit'}_relationship`}
                     className="w-full"
                     buttonText={`${isAddMode ? 'Add' : 'Edit'} Relationship`}
+                    disabled={switchingAccount}
                 />
             </div>
         </div>
