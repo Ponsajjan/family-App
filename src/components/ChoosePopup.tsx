@@ -29,7 +29,7 @@ export const ChoosePopup = ({
     // here would reset the moment the popup closes and reopens, even while
     // the previous switch's background fetchTermsData() is still pending.
     const switchingAccount = useSelector((state: RootState) => state.terms.switchingAccount);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(currentAuthId || null);
     const { storeLoginValues } = useAuth();
     const toast = useToast();
     const { cache, mutate: globalMutate } = useSWRConfig();
