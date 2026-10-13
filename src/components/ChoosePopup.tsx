@@ -80,23 +80,8 @@ export const ChoosePopup = ({
                 storeLoginValues(data.newtoken, data.userType, data.authId);
                 dispatch(setCurrentAuthId(data.authId));
                 dispatch(setMainMemberName(data.mainMemberName || 'Account'));
-                // Refresh all moderator groups for selected accounts. Not
-                // awaited, so the popup can still close immediately below —
-                // but switchingAccount stays true until this actually
-                // finishes, so a second switch can't start and race it even
-                // if the popup is closed and reopened in the meantime.
-                dispatch(fetchTermsData())
-                    .then((result) => {
-                        // The switch itself already succeeded (new token,
-                        // correct mainMemberName) — this only means the
-                        // account list / moderator groups / issue flags are
-                        // stale, so warn rather than treat it as a hard error.
-                        if (fetchTermsData.rejected.match(result)) {
-                            toast?.show("Switched account, but some data couldn't be refreshed. Please reload the page.", "warning", 6000);
-                        }
-                    })
-                    .finally(() => dispatch(setSwitchingAccount(false)));
-                dispatch(setIsModerator(data.userType === 'Moderator'))
+                dispatch(setIsModerator(data.userType === 'Moderator'));
+                dispatch(setSwitchingAccount(false));
                 clearFamilyCache();
                 onSwitchSuccess?.();
                 setShowPopup(false);
@@ -115,7 +100,7 @@ export const ChoosePopup = ({
     return (
         <PopupModal title={switchingAccount ? "Switching..." : "Select Account"} onClose={() => setShowPopup(false)}>
             <div className="space-y-3">
-                {accounts.length > 0 ? (
+                {accounts.length > 1 ? (
                     accounts.map((account) => (
                         <div
                             key={account.authId}
