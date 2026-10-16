@@ -15,12 +15,26 @@ model Auth {
   password          String          @unique
   members           Member[]        @relation("AuthToMember")
   announcements     Announcement[]
+  pushSubscriptions PushSubscription[]
 
   memberAuthId    String? @unique
   moderatorAuthId String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PushSubscription {
+  id       Int    @id @default(autoincrement())
+  authId   Int
+  auth     Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
+  endpoint String @unique
+  p256dh   String
+  authKey  String
+
+  createdAt DateTime @default(now())
+
+  @@index([authId])
 }
 
 model Member {

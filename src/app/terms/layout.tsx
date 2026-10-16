@@ -76,7 +76,7 @@ export default function TermsLayout({ children }: Readonly<{ children: React.Rea
                             <div className='p-4'>
                                 <h2 className="text-xl flex items-center font-medium md:font-semibold mb-4">
                                     <span className="inline-block mr-2"><Community /></span>
-                                    <span className="inline-block">Guidelines:</span>
+                                    <span className="inline-block">Guidelines</span>
                                 </h2>
                                 <ul className="list-disc list-inside space-y-2 pl-4">
                                     <li className='list-outside'>Ensure family member details are accurately recorded</li>

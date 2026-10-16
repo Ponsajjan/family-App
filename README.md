@@ -78,6 +78,10 @@ A full-stack web application for building and managing family trees, built with 
 | `DATABASE_URL_CLIENT` | PostgreSQL connection string | `postgresql://user:pass@localhost:5432/familytree` |
 | `DATABASE_PROVIDER` | Database provider | `postgresql` |
 | `NODE_ENV` | Environment | `development` |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Web Push VAPID public key | `npx web-push generate-vapid-keys` |
+| `VAPID_PRIVATE_KEY` | Web Push VAPID private key | `npx web-push generate-vapid-keys` |
+| `VAPID_SUBJECT` | Contact URI sent with push requests | `mailto:you@example.com` |
+| `CRON_SECRET` | Shared secret to trigger the daily notification job externally | long random string |
 
 Copy `.env.example` to `.env.local` and set each value.
 
@@ -105,6 +109,18 @@ node scripts/backup.js --env dev --action backup
 node scripts/backup.js --env dev --action restore --file backups/dev_backup_YYYY-MM-DD.sql
 node scripts/backup.js --env dev --action list
 ```
+
+## Push Notifications
+
+When a family member's birthday or deathday falls on the current day, every device that has subscribed receives a Web Push notification — even if the app isn't open. How it works:
+
+- The app registers a push subscription per device (`src/utils/notificationUtils.ts`) and stores it against the logged-in family (`PushSubscription` model).
+- A custom service worker (`worker/index.js`, merged into the generated PWA service worker) shows the notification and handles taps.
+- The server checks for today's events and sends notifications via `src/utils/pushNotify.ts`. This runs two ways:
+  - **Automatically**, once a day (default 8:00 AM IST, configurable via `NOTIFICATION_HOUR` / `NOTIFICATION_MINUTE`), via an in-process scheduler started in `src/instrumentation.ts` — no extra setup needed for a single-instance self-hosted deployment.
+  - **On demand / externally**, via `GET /api/cron/notifications?secret=<CRON_SECRET>`, for deployments that prefer an external scheduler (e.g. multiple instances, serverless).
+
+Requires `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` to be set (see Environment Variables above).
 
 ## Contributing
 
