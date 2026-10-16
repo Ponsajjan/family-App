@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
 import { useSWRConfig } from "swr";
-import { setCookie } from "cookies-next";
-import { setAccounts, setCurrentAuthId, setMainMemberName, fetchTermsData } from "@/store/slices/termsSlice";
+import { setCurrentAuthId, setMainMemberName, fetchTermsData } from "@/store/slices/termsSlice";
 import { login } from "./actions";
 export default function LoginForm() {
     const [form, setForm] = useState({ password: "" });
@@ -17,7 +16,6 @@ export default function LoginForm() {
     const { storeLoginValues } = useAuth();
     const { cache, mutate } = useSWRConfig();
     const dispatch = useDispatch<AppDispatch>();
-    const accounts = useSelector((state: RootState) => state.terms.accounts);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -62,32 +60,19 @@ export default function LoginForm() {
                     }
                 });
 
-                // Store login values and refresh terms data in Redux
+                // storeLoginValues merges this login into the existing
+                // authId/selectedAuthId cookies (creating them if this is the
+                // first login on this device) — it must be the only thing
+                // that writes those cookies here. Rebuilding them from this
+                // component's `accounts` selector and overwriting them again
+                // used to clobber that merge whenever Redux's accounts array
+                // was stale or empty (e.g. right after a hard reload, such as
+                // the full-page redirect an admin logout does), silently
+                // dropping every other family from the account list.
                 await storeLoginValues(data.token, data.userType, data.authId as string);
 
-                // Process accounts: Set all to false, then the current login to true
-                let updatedAccounts = accounts.map(acc => ({
-                    ...acc,
-                    current: String(acc.authId) === String(data.authId)
-                }));
-
-                const accountExists = accounts.some(acc => String(acc.authId) === String(data.authId));
-                if (!accountExists) {
-                    updatedAccounts.push({
-                        authId: data.authId as string,
-                        mainMemberRef: data.mainMemberName as string,
-                        current: true,
-                        familyId: data.familyId as number
-                    });
-                }
                 dispatch(setCurrentAuthId(data.authId as string));
                 dispatch(setMainMemberName(data.mainMemberName as string));
-                dispatch(setAccounts(updatedAccounts));
-
-                const maxAge = 180 * 24 * 60 * 60; // 180 days
-                setCookie('authId', JSON.stringify(updatedAccounts.map(a => a.authId)), { maxAge, path: '/' });
-                setCookie('selectedAuthId', JSON.stringify([data.authId]), { maxAge, path: '/' });
-
                 dispatch(fetchTermsData());
             } else {
                 setMessage(data.error || "Login failed");

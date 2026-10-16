@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getCookie, deleteCookie, setCookie } from 'cookies-next';
 import { useRouter, usePathname } from 'next/navigation';
 import { updateToken } from '@/utils/auth';
+import { subscribeToPushNotifications } from '@/utils/notificationUtils';
 
 interface AuthContextType {
   storeLoginValues: (token: string, access: string, authId: string, oldAuthId?: string) => void;
@@ -35,9 +36,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCookie('token', newToken, { maxAge, path: '/' });
     setCookie('access', newAccess, { maxAge, path: '/' });
 
+    // Admin (always the super-admin env-password fallback here — see
+    // src/app/login/actions.ts) isn't a family: it has no real Auth row, no
+    // members/events, and shouldn't occupy a slot in the multi-family
+    // account-switcher list. Redirect immediately, before any of the
+    // family-login bookkeeping below.
     if (newAccess === 'Admin') {
       router.push('/admin');
       return;
+    }
+
+    // The `token` cookie above now carries this family's authId. If the
+    // device already has notification permission granted (opted in for some
+    // family previously — via the account switcher, the "add login" panel,
+    // or logging a second family in from the normal login form all land
+    // here), silently register this family's push subscription too, so a
+    // device that's used for several families keeps receiving all of them
+    // instead of only whichever one was last explicitly toggled on.
+    if (typeof window !== 'undefined' && window.Notification?.permission === 'granted') {
+      subscribeToPushNotifications().catch(() => {});
     }
 
     // Get existing logged accounts from cookies-next

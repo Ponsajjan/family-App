@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { setAccounts, setCurrentAuthId, setMainMemberName, setModeratorGroups, setChoosePopupAccounts, setIsModerator } from '@/store/slices/termsSlice';
 import { appFetch } from "@/utils/appFetch";
+import { unsubscribeFamilyFromPushNotifications } from "@/utils/notificationUtils";
 
 function LogoutList({ showLogout, handleSidePanelToggle }: { showLogout: boolean, handleSidePanelToggle: (value: boolean) => void }) {
     const dispatch = useDispatch<AppDispatch>();
@@ -35,6 +36,12 @@ function LogoutList({ showLogout, handleSidePanelToggle }: { showLogout: boolean
     };
 
     const handleRemoveAccount = async (accountToRemove: string) => {
+        // This family is leaving the account list entirely, so stop this
+        // device from receiving its push notifications too — otherwise the
+        // server-side subscription row would keep sending them indefinitely
+        // with no UI left to turn it off.
+        unsubscribeFamilyFromPushNotifications(accountToRemove).catch(() => {});
+
         // Track whether we fell back to a current: false account (needed for cookie update below)
         let fallbackAccount: typeof accounts[number] | undefined;
 

@@ -99,10 +99,43 @@ export const unsubscribeFromPushNotifications = async (): Promise<boolean> => {
     }
 };
 
+// Removes one family's server-side subscription row for this device, without
+// touching the browser's push registration — used when a family is removed
+// from the account list (which may not be the currently active session), so
+// the other families still on the list keep receiving notifications on this
+// device. `familyAuthId` is that family's public memberAuthId/moderatorAuthId
+// string, the only identifier the account-list UI has for a non-active
+// account.
+export const unsubscribeFamilyFromPushNotifications = async (familyAuthId: string): Promise<void> => {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+
+    try {
+        const registration = await getActiveRegistration();
+        if (!registration) return;
+
+        const subscription = await registration.pushManager.getSubscription();
+        if (!subscription) return;
+
+        await appFetch("/api/notifications/unsubscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ endpoint: subscription.endpoint, familyAuthId }),
+        });
+    } catch (error) {
+        console.error("[push] Failed to unsubscribe family:", error);
+    }
+};
+
 export type PushNotificationStatus = "subscribed" | "unsubscribed" | "denied" | "unsupported";
 
-// Reports whether this device is currently subscribed, without prompting for
-// permission — used to set the initial state of the settings toggle.
+// Reports whether this device is currently subscribed for the *currently
+// active* family, without prompting for permission — used to set the initial
+// state of the settings toggle. A device's browser-level push subscription is
+// shared across every family account a user can switch into, so checking
+// only `pushManager.getSubscription()` would show "subscribed" even when
+// this particular family was never registered on the server (or was
+// registered under a different family before the endpoint→authId binding
+// became per-family). The server lookup disambiguates by the active authId.
 export const getPushNotificationStatus = async (): Promise<PushNotificationStatus> => {
     if (typeof window === "undefined") return "unsupported";
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return "unsupported";
@@ -113,7 +146,17 @@ export const getPushNotificationStatus = async (): Promise<PushNotificationStatu
         if (!registration) return "unsubscribed";
 
         const subscription = await registration.pushManager.getSubscription();
-        return subscription ? "subscribed" : "unsubscribed";
+        if (!subscription) return "unsubscribed";
+
+        const res = await appFetch("/api/notifications/status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ endpoint: subscription.endpoint }),
+        });
+        if (!res.ok) return "unsubscribed";
+
+        const data = await res.json();
+        return data.subscribed ? "subscribed" : "unsubscribed";
     } catch {
         return "unsubscribed";
     }

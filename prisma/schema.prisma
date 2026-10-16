@@ -28,12 +28,16 @@ model PushSubscription {
   id       Int    @id @default(autoincrement())
   authId   Int
   auth     Auth   @relation(fields: [authId], references: [id], onDelete: Cascade)
-  endpoint String @unique
+  endpoint String
   p256dh   String
   authKey  String
 
   createdAt DateTime @default(now())
 
+  // One device (endpoint) can hold a separate subscription row per family
+  // (authId) it's subscribed to, so switching the active family on a shared
+  // device doesn't silently overwrite/drop another family's subscription.
+  @@unique([endpoint, authId])
   @@index([authId])
 }
 

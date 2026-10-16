@@ -1,12 +1,13 @@
 "use client";
 import { BurgerMenuIcon, CloseIcon, Login, LoginList, Logout, DatabaseBackup } from "@/utils/Icons";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import { appFetch } from "@/utils/appFetch";
 
 export default function AdminSidenav() {
     const [showNav, setShowNav] = useState(false);
+    const router = useRouter();
 
     const closeNav = () => {
         setShowNav(false);
@@ -17,7 +18,7 @@ export default function AdminSidenav() {
             const response = await appFetch('/api/logout', { method: 'GET' });
 
             if (response.ok) {
-                window.location.href = '/login'; // Full reload to clear all states on logout
+                router.push('/login');
             } else {
                 console.error("Logout failed");
             }
