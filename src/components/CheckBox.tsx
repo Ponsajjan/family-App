@@ -22,7 +22,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
         id={inputId}
         type="checkbox"
         name={name}
-        className={`bg-main_background border border-border_active rounded-md ${className}`}
+        className={`shrink-0 bg-main_background border border-border_active rounded-md ${className}`}
         {...restProps}
       />
       {label && <span className="text-sm font-medium">{label}</span>}
